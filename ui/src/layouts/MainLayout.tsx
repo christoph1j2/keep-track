@@ -2,7 +2,7 @@
 export function MainLayout({ children }: { children: ReactNode }) {
 
     return (
-        <div className="flex, h-screen bg-slate-50">
+        <div className="flex h-screen bg-slate-50">
             {/* side panel */}
             <aside className="w-64 bg-white border-r border-slate-200 p-4">
                 <h1 className="text-2xl font-bold text-slate-900">
@@ -14,12 +14,22 @@ export function MainLayout({ children }: { children: ReactNode }) {
                 </div>
             </aside>
 
-            {/* main content */}
-            <main className="flex-1 p-8">
+            <div>
+                {/* top bar */}
+                <div className="h-16 bg-white border-b border-slate-200 p-3 pl-6">
+                    <div>
+                        <p className="font-semibold">Ernst Christoph Leschka</p>
+                        <p className="text-sm text-slate-500">Osobní číslo: A25B0266P</p>
+                    </div>
+                </div>
+                {/* main content */}
+                <main className="flex-1 p-8">
 
-                {children}
+                    {children}
 
-            </main>
+                </main>
+            </div>
+
         </div>
     )
 }
