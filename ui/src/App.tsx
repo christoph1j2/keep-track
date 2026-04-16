@@ -1,10 +1,11 @@
+import { MainLayout } from "./layouts/MainLayout"
+
 function App() {
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-blue-600 shadow-lg p-6 bg-white rounded-2xl">
-        Ahoj, Tailwind 4 funguje! 🎉
-      </h1>
-    </div>
+      <MainLayout>
+          <h2 className="text-3xl font-bold text-slate-800">Dashboard</h2>
+          <p className="mt-4 text-slate-600">Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum recusandae aliquid consectetur sed voluptatem placeat voluptates ea, nisi corporis quod provident doloremque molestias at ad doloribus pariatur iste. Eaque, facilis.</p>
+      </MainLayout>
   )
 }
 
