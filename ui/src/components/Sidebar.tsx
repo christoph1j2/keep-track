@@ -20,7 +20,7 @@ const MENU_ITEMS: MenuItem[] = [
 
 export function Sidebar() {
     return (
-        <aside className="w-64 bg-slate-50 border-r border-slate-200 p-6 flex flex-col h-full">
+        <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200">
             {/* logo */}
             <div className='mb-10'>
                 <h1 className='text-2xl font-bold text-blue-700 flex items-center'>
