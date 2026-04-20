@@ -5,7 +5,11 @@ import { TrendingUp, TrendingDown, CalendarMonth, Euro } from "@mui/icons-materi
 
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
+
+    const income = 12345; // GET FROM API
+    const expenses = 6789; // GET FROM API
+    const balance = income - expenses; // CALCULATE BALANCE
+
     return (
         <>
         <h2 className="text-3xl font-bold text-slate-800">Dashboard</h2>
@@ -14,24 +18,24 @@ export function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-8">
             <StatCard 
                 title="Příjmy tento měsíc"
-                amount={12345}
+                amount={income}
                 icon={<TrendingUp />}
                 trend={true}
             />
             <StatCard 
                 title="Výdaje tento měsíc"
-                amount={6789}
+                amount={expenses}
                 icon={<TrendingDown />}
                 trend={false}
             />
             <StatCard
                 title="Bilance tento měsíc"
-                amount={5556}
+                amount={balance}
                 icon={<Euro />}
             />
             <StatCard 
                 title="Rozpočet tento měsíc"
-                budget_status="GOOD"
+                budget_status="OK" // GOOD, BAD, OK, //TODO based on the budgeting in the budgeting tab
                 icon={<CalendarMonth />}
             
             />
