@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { BaseModal } from "../components/BaseModal";
 import { StatCard } from "../components/StatCard";
-import { TrendingUp, TrendingDown, CalendarMonth, Euro } from "@mui/icons-material";
+import { QuickAddButton } from '../components/QuickAddButton';
+import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro } from "@mui/icons-material";
 
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,11 +12,12 @@ export function Dashboard() {
     const balance = income - expenses; // CALCULATE BALANCE
 
     return (
-        <>
-        <h2 className="text-3xl font-bold text-slate-800">Dashboard</h2>
+        <div className="p-2">
+        <h2 className="text-3xl font-bold text-slate-800 mb-4">Dashboard</h2>
 
-        {/** stat cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        {/** first row - stat cards */}
             <StatCard 
                 title="Příjmy tento měsíc"
                 amount={income}
@@ -37,23 +39,47 @@ export function Dashboard() {
                 title="Rozpočet tento měsíc"
                 budget_status="OK" // GOOD, BAD, OK, //TODO based on the budgeting in the budgeting tab
                 icon={<CalendarMonth />}
-            
             />
+
+        {/** second row, left col - quick add and graph */}
+        <div className="lg:col-span-2 md:col-span-2 space-y-6">
+            {/** quick add sekce */}
+            <section className="bg-white p-6 rounded-2xl shadow-sm">
+            <h3 className="text-xl font-bold mb-4">Quick Add</h3>
+            <div className="flex gap-4 overflow-x-auto">
+                {/** Quick add buttons will be rendered here */}
+                <QuickAddButton 
+                    title="Přidat"
+                    icon={<Add />}
+                    colorClass="bg-gray-200 text-gray-600"
+                    onClick={() => {
+                        setIsModalOpen(true);
+                    }}
+                />
+            </div>
+            </section>
+
+            {/** graph sekce */}
+            <section className="bg-white p-6 rounded-2xl shadow-sm">
+                <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
+                <div className="h-64">{/** tady bude graf */}</div>
+            </section>
         </div>
 
+        {/** second row, right col - transactions and categories */}
+        <div className="lg:col-span-2 md:col-span-2 space-y-6">
+            {/** transactions sekce */}
+            <section className="bg-white p-6 rounded-2xl shadow-sm">
+                <h3 className="text-xl font-bold mb-4">Poslední transakce</h3>
+                <div>{/** tady bude seznam posledních transakcí */}</div>
+            </section>
 
-
-
-
-
-        <button
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-            onClick={() => {
-                setIsModalOpen(true);
-            }}
-        >
-            open test window
-        </button>
+            {/** categories sekce */}
+            <section className="bg-white p-6 rounded-2xl shadow-sm">
+                <h3 className="text-xl font-bold mb-4">Nejčastější kategorie</h3>
+                <div>{/** tady bude seznam nejčastějších kategorií */}</div>
+            </section>
+        </div>
         
         <BaseModal
             title="Moje první okno!"
@@ -64,8 +90,7 @@ export function Dashboard() {
         >
             <p>obsah uvnitr modalu</p>
         </BaseModal>
-        
-        <p className="mt-4 text-slate-600">Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum recusandae aliquid consectetur sed voluptatem placeat voluptates ea, nisi corporis quod provident doloremque molestias at ad doloribus pariatur iste. Eaque, facilis.</p>
-        </>
+        </div>
+        </div>
     )
 }

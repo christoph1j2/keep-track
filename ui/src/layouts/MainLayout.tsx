@@ -8,7 +8,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
             {/* side panel */}
             <Sidebar />
 
-            <div>
+            <div className="flex-1 flex flex-col w-full overflow-y-auto">
                 {/* top bar */}
                 <Topbar />
 
