@@ -15,7 +15,7 @@ export function QuickAddButton({ title, amount, icon, colorClass, onClick }: Qui
     // zvetsi ikonu, pokud je to platny React element (napr. MUI ikona)
     const largeIcon = isValidElement(icon) 
         ? cloneElement(icon as ReactElement<{ sx?: SxProps }>, { 
-            sx: { fontSize: 36 } 
+            sx: { fontSize: 32 } 
         })
         : icon;
 
