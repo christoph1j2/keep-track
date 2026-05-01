@@ -9,10 +9,16 @@ export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { transactions, addTransaction } = useTransactions();
 
-    const income = transactions
+    const now = new Date();
+    const currentMonthTransactions = transactions.filter((t) => {
+        const d = new Date(t.date);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
+
+    const income = currentMonthTransactions
                     .filter(t => t.amount > 0)
                     .reduce((sum, currentItem) => sum + currentItem.amount, 0);
-    const expenses = Math.abs(transactions
+    const expenses = Math.abs(currentMonthTransactions
                     .filter(t => t.amount < 0)
                     .reduce((sum, currentItem) => sum + currentItem.amount, 0));
     const balance = income - expenses;
