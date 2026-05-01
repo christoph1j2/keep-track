@@ -1,15 +1,21 @@
 import { useState } from "react";
+import { useTransactions } from "../hooks/useTransactions";
 import { BaseModal } from "../components/BaseModal";
 import { StatCard } from "../components/StatCard";
 import { QuickAddButton } from '../components/QuickAddButton';
-import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro } from "@mui/icons-material";
+import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro, LocalCafe } from "@mui/icons-material";
 
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { transactions, addTransaction } = useTransactions();
 
-    const income = 12345; // GET FROM API
-    const expenses = 6789; // GET FROM API
-    const balance = income - expenses; // CALCULATE BALANCE
+    const income = transactions
+                    .filter(t => t.amount > 0)
+                    .reduce((sum, currentItem) => sum + currentItem.amount, 0);
+    const expenses = Math.abs(transactions
+                    .filter(t => t.amount < 0)
+                    .reduce((sum, currentItem) => sum + currentItem.amount, 0));
+    const balance = income - expenses;
 
     return (
         <div className="p-2">
@@ -47,13 +53,29 @@ export function Dashboard() {
             <section className="bg-white p-6 rounded-2xl shadow-sm">
             <h3 className="text-xl font-bold mb-4">Quick Add</h3>
             <div className="flex gap-4 overflow-x-auto">
-                {/** Quick add buttons will be rendered here */}
+                {/** Quick add buttons will be rendered here, */}
+                {/** for now, hardcoded example buttons */}
                 <QuickAddButton 
                     title="Přidat"
                     icon={<Add />}
                     colorClass="bg-gray-200 text-gray-600"
                     onClick={() => {
                         setIsModalOpen(true);
+                    }}
+                />
+                <QuickAddButton 
+                    title="Káva"
+                    icon={<LocalCafe />}
+                    amount={-30}
+                    colorClass="bg-orange-200 text-orange-600"
+                    onClick={() => {
+                        addTransaction({
+                            id: crypto.randomUUID(),
+                            title: "Káva",
+                            amount: -30,
+                            categoryId: "food_beverage",
+                            date: new Date().toISOString(),
+                        });
                     }}
                 />
             </div>
