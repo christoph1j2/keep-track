@@ -10,6 +10,18 @@ const DEFAULT_CATEGORIES: Category[] = [
     { id: "entertainment", label: "Zábava", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600" },
 ];
 
+function isCategory(value: unknown): value is Category {
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+    const v = value as Record<string, unknown>;
+    if (typeof v.id !== "string" || typeof v.label !== "string" || 
+        typeof v.iconName !== "string" || typeof v.colorClass !== "string") {
+        return false;
+    }
+    return v.parentId === undefined || typeof v.parentId === "string";
+}
+
 export function useCategories() {
     const [categories] = useState<Category[]>(() => {
         if (typeof window === "undefined") return DEFAULT_CATEGORIES;
@@ -17,7 +29,9 @@ export function useCategories() {
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (!savedData) return DEFAULT_CATEGORIES;
             const parsed: unknown = JSON.parse(savedData);
-            return Array.isArray(parsed) ? (parsed as Category[]) : DEFAULT_CATEGORIES;
+            return Array.isArray(parsed) && parsed.every(isCategory)
+                ? parsed
+                : DEFAULT_CATEGORIES;
         } catch (error) {
             console.error("Error parsing saved categories:", error);
             return DEFAULT_CATEGORIES;
@@ -25,7 +39,7 @@ export function useCategories() {
     });
 
     const getCategoryById = (id: string): Category | undefined => {
-        return categories.find(cat => cat.id === id) || categories[0];
+        return categories.find(cat => cat.id === id);
     };
 
     return { categories, getCategoryById };

@@ -83,7 +83,7 @@ export function Dashboard() {
                             id: crypto.randomUUID(),
                             title: "Káva",
                             amount: -30,
-                            categoryId: "food_beverage",
+                            categoryId: "food",
                             date: new Date().toISOString(),
                         });
                     }}
@@ -103,8 +103,11 @@ export function Dashboard() {
             {/** transactions sekce */}
             <section className="bg-white p-6 rounded-2xl shadow-sm">
                 <h3 className="text-xl font-bold mb-4">Poslední transakce</h3>
-                <div className="flex flex-col gap-3">{/** tady bude seznam posledních transakcí */}
-                    {transactions.slice(0,5).map((t) => {
+                <div className="flex flex-col gap-3">
+                    {[...transactions]
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // serazeni podle data, nejdriv nejnovejsi
+                    .slice(0,5)
+                    .map((t) => {
                         const category = getCategoryById(t.categoryId)
                         return (
                         <div
@@ -126,7 +129,10 @@ export function Dashboard() {
                                 {t.amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}
                             </span>
                         </div>
-                    )})}
+                        )
+                        }
+                        )
+                    }
 
                     {transactions.length === 0 && (
                         <div className="text-center text-slate-400 py-4 italic">

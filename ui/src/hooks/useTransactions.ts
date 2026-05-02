@@ -24,7 +24,11 @@ export function useTransactions() {
     const addTransaction = (newTransaction: Transaction) => {
         setTransactions((prev: Transaction[]) => {
             const updatedTransactions = [newTransaction, ...prev];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTransactions));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTransactions));
+            } catch (error) {
+                console.error("Error saving transactions:", error);
+            }
             return updatedTransactions;
         })
     };
