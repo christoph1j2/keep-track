@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useTransactions } from "../hooks/useTransactions";
-import { useCategories } from "../hooks/useCategories";
-import { BaseModal } from "../components/BaseModal";
-import { StatCard } from "../components/StatCard";
+import { BaseModal } from "../components/Base/BaseModal";
+import { StatCard } from "../components/Dashboard/StatCard";
 import { QuickAddButton } from '../components/QuickAddButton';
-import { CategoryIcon } from "../components/CategoryIcon";
 import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro, LocalCafe } from "@mui/icons-material";
+import { Graph } from "../components/Dashboard/Graph";
+import { LastTransactions } from "../components/Dashboard/LastTransactions";
 
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { transactions, addTransaction } = useTransactions();
-    const { getCategoryById } = useCategories();
 
 
     const now = new Date();
@@ -18,6 +17,13 @@ export function Dashboard() {
         const d = new Date(t.date);
         return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     });
+    const getTransactionsForMonth = (month: number) => {
+        return transactions.filter((t) => {
+            const d = new Date(t.date);
+            return d.getFullYear() === now.getFullYear() && d.getMonth() === month;
+        });
+    };
+
 
     const income = currentMonthTransactions
                     .filter(t => t.amount > 0)
@@ -64,11 +70,11 @@ export function Dashboard() {
             <h3 className="text-xl font-bold mb-4">Quick Add</h3>
             <div className="flex gap-4 overflow-x-auto">
                 {/** Quick add buttons will be rendered here, */}
-                {/** for now, hardcoded example buttons */}
+                {/** for now, hardcoded example buttons */} {/*TODO BASED ON ACTUAL QUICK ADD BUTTONS THE USER CREATED */}
                 <QuickAddButton 
                     title="Přidat"
                     icon={<Add />}
-                    colorClass="bg-gray-200 text-gray-600"
+                    colorClass="bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
                     onClick={() => {
                         setIsModalOpen(true);
                     }}
@@ -77,7 +83,7 @@ export function Dashboard() {
                     title="Káva"
                     icon={<LocalCafe />}
                     amount={-30}
-                    colorClass="bg-orange-200 text-orange-600"
+                    colorClass="bg-orange-200 text-orange-600 hover:bg-orange-300 transition-colors"
                     onClick={() => {
                         addTransaction({
                             id: crypto.randomUUID(),
@@ -88,59 +94,38 @@ export function Dashboard() {
                         });
                     }}
                 />
+                <QuickAddButton 
+                    title="Brigáda"
+                    icon={<Euro />}
+                    amount={10}
+                    colorClass="bg-green-200 text-green-600 hover:bg-green-300 transition-colors"
+                    onClick={() => {
+                        addTransaction({
+                            id: crypto.randomUUID(),
+                            title: "Brigáda",
+                            amount: 10,
+                            categoryId: "salary",
+                            date: new Date().toISOString(),
+                        });
+                    }}
+                />
             </div>
             </section>
 
             {/** graph sekce */}
-            <section className="bg-white p-6 rounded-2xl shadow-sm">
-                <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
-                <div className="h-64">{/** tady bude graf */}</div>
-            </section>
+            <Graph 
+                getTransactionsForMonth={getTransactionsForMonth}
+                income={income}
+                expenses={expenses}
+            />
         </div>
 
         {/** second row, right col - transactions and categories */}
         <div className="lg:col-span-2 md:col-span-2 space-y-6">
             {/** transactions sekce */}
-            <section className="bg-white p-6 rounded-2xl shadow-sm">
-                <h3 className="text-xl font-bold mb-4">Poslední transakce</h3>
-                <div className="flex flex-col gap-3">
-                    {[...transactions]
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // serazeni podle data, nejdriv nejnovejsi
-                    .slice(0,5)
-                    .map((t) => {
-                        const category = getCategoryById(t.categoryId)
-                        return (
-                        <div
-                            key={t.id} // klic pro prvek seznamu
-                            className="flex items-center justify-between p-3 hover:bg-slate-200 rounded-lg border border-transparent hover:border-slate-100 transition-colors"
-                        >
-                            {/** nazev, ikonka a datum */}
-                            <div className="flex flex-col items-center">
-                                <div className={`p-2 rounded-lg ${category != undefined ? category.colorClass : 'bg-gray-200 text-gray-600'}`}>
-                                    <CategoryIcon name={category != undefined ? category.iconName : ''} />
-                                </div>
-                                <span className="font-semibold text-slate-700">{t.title}</span>
-                                <span className="text-xs text-slate-400">
-                                    {new Date(t.date).toLocaleDateString('cs-CZ')}
-                                </span>
-                            </div>
-                            {/** castka */}
-                            <span className={`font-medium ${t.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {t.amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}
-                            </span>
-                        </div>
-                        )
-                        }
-                        )
-                    }
-
-                    {transactions.length === 0 && (
-                        <div className="text-center text-slate-400 py-4 italic">
-                            Zatím žádné transakce. :-)
-                        </div>
-                    )}
-                </div>
-            </section>
+            <LastTransactions
+                transactions={transactions}
+            />
 
             {/** categories sekce */}
             <section className="bg-white p-6 rounded-2xl shadow-sm">
