@@ -6,6 +6,7 @@ import { QuickAddButton } from '../components/QuickAdd/QuickAddButton';
 import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro, LocalCafe } from "@mui/icons-material";
 import { Graph } from "../components/Dashboard/Graph";
 import { LastTransactions } from "../components/Dashboard/LastTransactions";
+import { ExpensiveCategories } from '../components/Dashboard/ExpensiveCategories';
 
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,10 +18,10 @@ export function Dashboard() {
         const d = new Date(t.date);
         return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     });
-    const getTransactionsForMonth = (month: number) => {
+    const getTransactionsForMonth = (month: number, year: number) => {
         return transactions.filter((t) => {
             const d = new Date(t.date);
-            return d.getFullYear() === now.getFullYear() && d.getMonth() === month;
+            return d.getFullYear() === year && d.getMonth() === month;
         });
     };
 
@@ -82,13 +83,13 @@ export function Dashboard() {
                 <QuickAddButton 
                     title="Káva"
                     icon={<LocalCafe />}
-                    amount={-30}
+                    amount={-29.90}
                     colorClass="bg-orange-200 text-orange-600 hover:bg-orange-300 transition-colors"
                     onClick={() => {
                         addTransaction({
                             id: crypto.randomUUID(),
                             title: "Káva",
-                            amount: -30,
+                            amount: -29.90,
                             categoryId: "food",
                             date: new Date().toISOString(),
                         });
@@ -97,13 +98,13 @@ export function Dashboard() {
                 <QuickAddButton 
                     title="Brigáda"
                     icon={<Euro />}
-                    amount={10}
+                    amount={9.90}
                     colorClass="bg-green-200 text-green-600 hover:bg-green-300 transition-colors"
                     onClick={() => {
                         addTransaction({
                             id: crypto.randomUUID(),
                             title: "Brigáda",
-                            amount: 10,
+                            amount: 9.90,
                             categoryId: "salary",
                             date: new Date().toISOString(),
                         });
@@ -128,10 +129,9 @@ export function Dashboard() {
             />
 
             {/** categories sekce */}
-            <section className="bg-white p-6 rounded-2xl shadow-sm">
-                <h3 className="text-xl font-bold mb-4">Nejčastější kategorie</h3>
-                <div>{/** tady bude seznam nejčastějších kategorií */}</div>
-            </section>
+            <ExpensiveCategories
+                transactions={transactions}
+            />
         </div>
         
         <BaseModal

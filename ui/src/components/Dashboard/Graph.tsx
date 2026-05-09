@@ -4,55 +4,58 @@ import type { Transaction } from "../../types/transaction";
 
 export function Graph(
     {
-        getTransactionsForMonth, income, expenses 
+        getTransactionsForMonth, income, expenses
     }:
     {
-        getTransactionsForMonth: (month: number) => Transaction[], income: number, expenses: number 
-    }) {
+        getTransactionsForMonth: (month: number, year: number) => Transaction[],
+        income: number,
+        expenses: number
+    }
+) {
     const now = new Date();
-    // poslednich 6 mesicu pro graf od nejdrivejsiho po nejnovejsi
-    const graphMonths = [now.getMonth() - 5, now.getMonth() - 4, now.getMonth() - 3, now.getMonth() - 2, now.getMonth() - 1, now.getMonth()].map(m => (m + 12) % 12);
 
-    const monthlyIncome = graphMonths.map(
-        (m) => getTransactionsForMonth(m)
+    const graphPeriods = Array.from({ length: 6 }, (_, index) => {
+        const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
+        return {
+            month: date.getMonth(),
+            year: date.getFullYear(),
+            label: date.toLocaleString("cs-CZ", { month: "short" }),
+        };
+    });
+
+    const monthlyIncome = graphPeriods.map(({ month, year }) =>
+        getTransactionsForMonth(month, year)
             .filter(t => t.amount > 0)
-            .reduce((sum, currentItem) => sum + currentItem.amount, 0)
+            .reduce((sum, item) => sum + item.amount, 0)
     );
 
-    const monthlyExpenses = graphMonths.map(
-        (m) => Math.abs(getTransactionsForMonth(m)
-            .filter(t => t.amount < 0)
-            .reduce((sum, currentItem) => sum + currentItem.amount, 0))
+    const monthlyExpenses = graphPeriods.map(({ month, year }) =>
+        Math.abs(
+            getTransactionsForMonth(month, year)
+                .filter(t => t.amount < 0)
+                .reduce((sum, item) => sum + item.amount, 0)
+        )
     );
 
     return (
-            <section className="bg-white p-6 rounded-2xl shadow-sm">
-                <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
-                <div className="h-80">
-                    <BarChart
-                        xAxis={[
-                            { data: graphMonths.map(m => new Date(0, m).toLocaleString('cs-CZ', { month: 'short' })) }
-                        ]} // zobrazeni mesicu jako led, uno, bre ... pro 6 mesicu
-                        yAxis={[
-                            { label: 'Částka (Kč)',
-                                width: 60,
-                                min: 0,
-                                max: Math.max(...monthlyIncome, ...monthlyExpenses) * 1.1, // trochu prostoru nad nejvyssim sloupcem
-                            }
-                        ]}
-                        series={[
-                            {
-                                label: 'Příjmy',
-                                data: monthlyIncome
-                            },
-                            {
-                                label: 'Výdaje',
-                                data: monthlyExpenses
-                            }
-                        ]}
-                        height={300}
-                    />
-                </div>
-            </section>
+        <section className="bg-white p-6 rounded-2xl shadow-sm">
+            <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
+            <div className="h-103.5">
+                <BarChart
+                    xAxis={[{ data: graphPeriods.map(p => p.label) }]}
+                    yAxis={[{
+                        label: "Částka (Kč)",
+                        width: "auto",
+                        min: 0,
+                        max: Math.max(...monthlyIncome, ...monthlyExpenses) * 1.1,
+                    }]}
+                    series={[
+                        { label: "Příjmy", data: monthlyIncome },
+                        { label: "Výdaje", data: monthlyExpenses },
+                    ]}
+                    height={350}
+                />
+            </div>
+        </section>
     );
 }

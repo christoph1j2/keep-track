@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { NavLink } from 'react-router-dom';
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
@@ -8,14 +9,15 @@ import StyleIcon from '@mui/icons-material/Style';
 interface MenuItem {
     title: string,
     icon: ReactNode,
+    path: string,
     isActive?: boolean
 }
 
 const MENU_ITEMS: MenuItem[] = [
-    { title: 'Dashboard', icon: <DashboardIcon />, isActive: true },
-    { title: 'Přehled', icon: <ShowChartIcon /> },
-    { title: 'Rozpočty', icon: <AccountBalanceWalletIcon /> },
-    { title: 'Šablony', icon: <StyleIcon /> },
+    { title: 'Dashboard', icon: <DashboardIcon />, path: '/', isActive: true },
+    { title: 'Přehled', icon: <ShowChartIcon />, path: '/overview' },
+    { title: 'Rozpočty', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
+    { title: 'Šablony', icon: <StyleIcon />, path: '/quickadd' },
 ];
 
 /**
@@ -35,17 +37,18 @@ export function Sidebar() {
             {/* navigation */}
             <nav className='flex flex-col gap-2'>
                 {MENU_ITEMS.map((item) => (
-                    <button
+                    <NavLink
                         key={item.title}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors cursor-pointer ${
-                            item.isActive
+                        to={item.path} // Kam odkaz vede
+                        className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors cursor-pointer ${
+                            isActive
                                 ? 'bg-white text-slate-900 shadow-sm border border-slate-200'
                                 : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                         }`}
                     >
                         {item.icon}
                         {item.title}
-                    </button>
+                    </NavLink>
                 ))}
             </nav>
         </aside>
