@@ -18,6 +18,9 @@ const MENU_ITEMS: MenuItem[] = [
     { title: 'Šablony', icon: <StyleIcon /> },
 ];
 
+/**
+ * Static left navigation used by the app shell.
+ */
 export function Sidebar() {
     return (
         <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200">

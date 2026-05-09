@@ -10,6 +10,14 @@ interface BaseModalProps {
     children: ReactNode;
 }
 
+/**
+ * Small modal wrapper for forms and other focused content.
+ *
+ * @param props.isOpen Controls whether the dialog is visible.
+ * @param props.onClose Called when the user dismisses the modal.
+ * @param props.title Title shown in the header.
+ * @param props.children Modal body content.
+ */
 export function BaseModal({ isOpen, onClose, title, children }: BaseModalProps) {
     return (
 

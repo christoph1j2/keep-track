@@ -1,3 +1,7 @@
+/**
+ * Core category record used across the app.
+ * parentId stays optional so categories can be nested later without changing the shape.
+ */
 export interface Category {
     id: string;
     label: string;

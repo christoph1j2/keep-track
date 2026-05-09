@@ -10,6 +10,9 @@ const DEFAULT_CATEGORIES: Category[] = [
     { id: "entertainment", label: "Zábava", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600" },
 ];
 
+/**
+ * Checks whether a value looks like a saved category.
+ */
 function isCategory(value: unknown): value is Category {
     if (!value || typeof value !== "object") {
         return false;
@@ -22,6 +25,11 @@ function isCategory(value: unknown): value is Category {
     return v.parentId === undefined || typeof v.parentId === "string";
 }
 
+/**
+ * Loads categories from localStorage when available and falls back to the built-in defaults.
+ *
+ * @returns The current category list plus a small lookup helper for category ids.
+ */
 export function useCategories() {
     const [categories] = useState<Category[]>(() => {
         if (typeof window === "undefined") return DEFAULT_CATEGORIES;

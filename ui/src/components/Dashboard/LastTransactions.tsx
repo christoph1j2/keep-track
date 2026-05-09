@@ -1,7 +1,12 @@
-import { CategoryIcon } from "../CategoryIcon";
+import { CategoryIcon } from "../Base/CategoryIcon";
 import type { Transaction } from "../../types/transaction";
 import { useCategories } from "../../hooks/useCategories";
 
+/**
+ * Renders the newest transactions first and keeps the list short enough to scan quickly.
+ *
+ * @param props.transactions Transactions to display.
+ */
 export function LastTransactions(
     { transactions }:
     { transactions: Transaction[] }
@@ -13,13 +18,13 @@ export function LastTransactions(
             <h3 className="text-xl font-bold mb-4">Poslední transakce</h3>
             <div className="flex flex-col gap-1">
                 {[...transactions]
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // serazeni podle data, nejdriv nejnovejsi
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .slice(0,5)
                 .map((t) => {
                     const category = getCategoryById(t.categoryId)
                     return (
                     <div
-                        key={t.id} // klic pro prvek seznamu
+                        key={t.id}
                         className="flex items-center justify-between p-2 hover:bg-slate-200 rounded-lg border border-transparent hover:border-slate-100 transition-colors"
                     >
                         {/** nazev, ikonka a datum */}

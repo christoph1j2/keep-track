@@ -3,7 +3,9 @@ import type { Transaction } from "../types/transaction";
 
 const STORAGE_KEY = "keep-track-transactions";
 
-// lazy init
+/**
+ * Reads the saved transaction list once during startup.
+ */
 function getInitialTransactions(): Transaction[] {
     if (typeof window === "undefined") return [];
     try {
@@ -17,10 +19,14 @@ function getInitialTransactions(): Transaction[] {
     }
 }
 
+/**
+ * Keeps the transaction list in memory and syncs new entries into localStorage.
+ *
+ * @returns The current transactions and a helper for prepending a new one.
+ */
 export function useTransactions() {
     const [transactions, setTransactions] = useState<Transaction[]>(getInitialTransactions);
 
-    // pridat novou transakci
     const addTransaction = (newTransaction: Transaction) => {
         setTransactions((prev: Transaction[]) => {
             const updatedTransactions = [newTransaction, ...prev];

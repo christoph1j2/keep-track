@@ -8,6 +8,15 @@ interface StatCardProps {
     trend?: boolean;
 }
 
+/**
+ * Shows one dashboard metric with a label, optional amount, and optional budget state.
+ *
+ * @param props.title Card title.
+ * @param props.amount Optional numeric value shown as CZK.
+ * @param props.budget_status Optional status label used for budget summaries.
+ * @param props.icon Icon rendered in the badge.
+ * @param props.trend Controls the badge color when the card is tied to a trend.
+ */
 export function StatCard({ title, amount, budget_status, icon, trend }: StatCardProps) {
     const iconColorClass = trend === true
         ? 'bg-green-100 text-green-600'

@@ -52,6 +52,13 @@ const ICON_MAP: Record<string, ElementType> = {
     MoreHoriz,
 };
 
+/**
+ * Renders the icon registered under the given category name.
+ * Falls back to a question mark when the name is unknown.
+ *
+ * @param props.name Icon name stored on the category.
+ * @param props.className Optional class name for styling the icon.
+ */
 export function CategoryIcon({ name, className }: { name: string, className?: string }) {
     const IconComponent = ICON_MAP[name] || QuestionMark;
     return <IconComponent className={className} fontSize="small" />;

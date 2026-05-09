@@ -10,6 +10,16 @@ interface QuickAddButtonProps {
     onClick: () => void;
 }
 
+/**
+ * Button used for quick transaction shortcuts.
+ * It enlarges MUI icons when possible so the shortcut stays easy to scan.
+ *
+ * @param props.title Button label.
+ * @param props.amount Optional amount shown under the label.
+ * @param props.icon Icon or React node shown above the label.
+ * @param props.colorClass Background/text styling for the icon badge.
+ * @param props.onClick Called when the user taps the shortcut.
+ */
 export function QuickAddButton({ title, amount, icon, colorClass, onClick }: QuickAddButtonProps) {
 
     // zvetsi ikonu, pokud je to platny React element (napr. MUI ikona)

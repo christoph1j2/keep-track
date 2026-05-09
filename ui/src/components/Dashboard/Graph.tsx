@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BarChart } from "@mui/x-charts/BarChart";
 import type { Transaction } from "../../types/transaction";
 
@@ -11,6 +12,19 @@ export function Graph(
     const now = new Date();
     // poslednich 6 mesicu pro graf od nejdrivejsiho po nejnovejsi
     const graphMonths = [now.getMonth() - 5, now.getMonth() - 4, now.getMonth() - 3, now.getMonth() - 2, now.getMonth() - 1, now.getMonth()].map(m => (m + 12) % 12);
+
+    const monthlyIncome = graphMonths.map(
+        (m) => getTransactionsForMonth(m)
+            .filter(t => t.amount > 0)
+            .reduce((sum, currentItem) => sum + currentItem.amount, 0)
+    );
+
+    const monthlyExpenses = graphMonths.map(
+        (m) => Math.abs(getTransactionsForMonth(m)
+            .filter(t => t.amount < 0)
+            .reduce((sum, currentItem) => sum + currentItem.amount, 0))
+    );
+
     return (
             <section className="bg-white p-6 rounded-2xl shadow-sm">
                 <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
@@ -23,25 +37,17 @@ export function Graph(
                             { label: 'Částka (Kč)',
                                 width: 60,
                                 min: 0,
-                                max: Math.max(income, expenses) * 1.5, // trochu prostoru nad nejvyssim sloupcem
+                                max: Math.max(...monthlyIncome, ...monthlyExpenses) * 1.1, // trochu prostoru nad nejvyssim sloupcem
                             }
                         ]}
                         series={[
                             {
                                 label: 'Příjmy',
-                                data: graphMonths.map(
-                                m => getTransactionsForMonth(m)
-                                    .filter(t => t.amount > 0)
-                                    .reduce((sum, currentItem) => sum + currentItem.amount, 0)
-                                )
+                                data: monthlyIncome
                             },
                             {
                                 label: 'Výdaje',
-                                data: graphMonths.map(
-                                m => Math.abs(getTransactionsForMonth(m)
-                                .filter(t => t.amount < 0)
-                                .reduce((sum, currentItem) => sum + currentItem.amount, 0))
-                            )
+                                data: monthlyExpenses
                             }
                         ]}
                         height={300}

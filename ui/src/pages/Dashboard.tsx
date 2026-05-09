@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTransactions } from "../hooks/useTransactions";
 import { BaseModal } from "../components/Base/BaseModal";
 import { StatCard } from "../components/Dashboard/StatCard";
-import { QuickAddButton } from '../components/QuickAddButton';
+import { QuickAddButton } from '../components/QuickAdd/QuickAddButton';
 import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro, LocalCafe } from "@mui/icons-material";
 import { Graph } from "../components/Dashboard/Graph";
 import { LastTransactions } from "../components/Dashboard/LastTransactions";
