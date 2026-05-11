@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTransactions } from "../hooks/useTransactions";
-import { BaseModal } from "../components/Base/BaseModal";
+import { BaseModal } from "../components/Modals/BaseModal";
 import { StatCard } from "../components/Dashboard/StatCard";
 import { QuickAddButton } from '../components/QuickAdd/QuickAddButton';
 import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro, LocalCafe } from "@mui/icons-material";

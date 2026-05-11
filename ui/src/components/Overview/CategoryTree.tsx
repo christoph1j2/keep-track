@@ -5,7 +5,7 @@ import { CategoryIcon } from "../Base/CategoryIcon";
 
 interface CategoryTreeProps {
     categories: Category[],
-    onSelectCategory: (categoryId: string) => void, // callback pro výběr kategorie
+    onSelectCategory: (categoryId: string | null) => void, // callback pro výběr kategorie
 }
 
 export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) {
@@ -13,8 +13,13 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
 
     return (
         <SimpleTreeView
+            multiSelect={false}
             onSelectedItemsChange={
-                (event, itemId) => itemId !== null ? onSelectCategory(itemId) : undefined
+                (event, itemId) => {
+                    //console.log("Selected category ID:", itemId);
+                    const catId = Array.isArray(itemId) ? itemId[0] || null : itemId; // fix pro overwrite pro prvni klik
+                    onSelectCategory(catId) // zavolame callback s id kategorie, kterou uzivatel kliknul
+                }
             }
         >
             {mainCategories.map((mainCat) => {
@@ -25,7 +30,9 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                         key={mainCat.id}
                         itemId={mainCat.id}
                         label={
-                            <div className='flex items-center gap-3 py-2'>
+                            <div 
+                                className='flex items-center gap-3 py-2'
+                            >
                                 <div className={`p-1.5 rounded-lg ${mainCat.colorClass}`}>
                                     <CategoryIcon name={mainCat.iconName} />
                                 </div>
@@ -38,7 +45,9 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                                 key={subCat.id}
                                 itemId={subCat.id}
                                 label={
-                                    <div className="flex items-center gap-3 py-1.5 opacity-80 hover:opacity-100">
+                                    <div 
+                                        className="flex items-center gap-3 py-1.5 opacity-80 hover:opacity-100"
+                                    >
                                         <CategoryIcon name={subCat.iconName} className="text-slate-400" />
                                         <span className="font-medium text-slate-600">{subCat.label}</span>
                                     </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTransactions } from "../hooks/useTransactions";
 import { useCategories } from "../hooks/useCategories";
 import { CategoryTree } from "../components/Overview/CategoryTree";
+import { TransactionDataGrid } from "../components/Overview/TransactionDataGrid";
 
 export function Overview() {
     const { transactions } = useTransactions();
@@ -13,6 +14,14 @@ export function Overview() {
     // pamet co uzivatel zaklikl ve stromu
     // na zacatku (null) neni vybrano nic = ukazujeme vse
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
+    //  filtrovane transakce pro datagrid
+    const filteredTransactions = selectedCategoryId
+        ? transactions.filter((t) => {
+            //console.log("Filtering transaction", t.id, "with category", t.categoryId, "against selected category", selectedCategoryId);
+            return t.categoryId === selectedCategoryId;
+        })
+        : transactions;
 
     return (
         <div className="h-full flex flex-col">
@@ -42,6 +51,7 @@ export function Overview() {
                     <div className="flex-1 overflow-y-auto">
                         <CategoryTree
                             categories={categories}
+                            // ulozi se do state, ktery je v Overview, protoze ho potrebuje i DataGrid
                             onSelectCategory={setSelectedCategoryId}
                         />
                     </div>
@@ -49,7 +59,9 @@ export function Overview() {
 
                 {/** DATA GRID */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-0 lg:col-span-3 flex flex-col overflow-hidden">
-                    <p className="text-slate-400 italic text-sm p-6">Tady bude Data Grid...</p>
+                    <TransactionDataGrid 
+                        transactions={filteredTransactions}
+                    />
                 </div>
             </div>
         </div>
