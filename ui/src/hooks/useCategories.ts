@@ -18,7 +18,11 @@ const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 /**
- * Checks whether a value looks like a saved category.
+ * Type guard to check if a value is a valid Category object.
+ * Used during localStorage deserialization to ensure data integrity.
+ *
+ * @param value Value to validate.
+ * @returns True if value is a Category with all required fields.
  */
 function isCategory(value: unknown): value is Category {
     if (!value || typeof value !== "object") {
@@ -33,9 +37,10 @@ function isCategory(value: unknown): value is Category {
 }
 
 /**
- * Loads categories from localStorage when available and falls back to the built-in defaults.
+ * Manages category state with localStorage persistence and hierarchical support.
+ * Loads saved categories on mount or returns defaults; categories can have optional parentId for nesting.
  *
- * @returns The current category list plus a small lookup helper for category ids.
+ * @returns Object with `categories` array and `getCategoryById()` lookup helper.
  */
 export function useCategories() {
     const [categories] = useState<Category[]>(() => {
@@ -53,6 +58,12 @@ export function useCategories() {
         }
     });
 
+    /**
+     * Looks up a category by its id.
+     *
+     * @param id Category identifier.
+     * @returns Category object if found, undefined otherwise.
+     */
     const getCategoryById = (id: string): Category | undefined => {
         return categories.find(cat => cat.id === id);
     };

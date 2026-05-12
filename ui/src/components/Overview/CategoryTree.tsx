@@ -2,6 +2,7 @@ import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import type { Category } from "../../types/category";
 import { CategoryIcon } from "../Base/CategoryIcon";
+import React from 'react';
 
 interface CategoryTreeProps {
     categories: Category[],
@@ -11,12 +12,24 @@ interface CategoryTreeProps {
 export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) {
     const mainCategories = categories.filter(c => c.parentId === undefined);
 
+    const [expandedItems, setExpandedItems] = React.useState<string[]>(
+        mainCategories.map(c => c.id)
+    );
+
     return (
         <SimpleTreeView
             multiSelect={false}
+            expandedItems={expandedItems}
+            onExpandedItemsChange={
+                (event, itemIds) => {
+                    const mainCatIds = mainCategories.map(c => c.id);
+                    const expanded = itemIds || [];
+
+                    setExpandedItems([...new Set([...mainCatIds, ...expanded])]) // zajistime, ze hlavni kategorie jsou vzdy expanded, i kdyz uzivatel klikne na expand/collapse (osklivej hack, ale co uz :( )
+                }
+            }
             onSelectedItemsChange={
                 (event, itemId) => {
-                    //console.log("Selected category ID:", itemId);
                     const catId = Array.isArray(itemId) ? itemId[0] || null : itemId; // fix pro overwrite pro prvni klik
                     onSelectCategory(catId) // zavolame callback s id kategorie, kterou uzivatel kliknul
                 }
@@ -29,6 +42,7 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                     <TreeItem
                         key={mainCat.id}
                         itemId={mainCat.id}
+                        
                         label={
                             <div 
                                 className='flex items-center gap-3 py-2'

@@ -3,9 +3,10 @@ import { Sidebar } from '../components/Base/Sidebar';
 import { Topbar } from '../components/Base/Topbar';
 
 /**
- * Main app shell that keeps the sidebar, top bar, and page content aligned.
+ * Main application layout shell combining navigation sidebar, header topbar, and scrollable content area.
+ * Uses flexbox to maintain fixed sidebar/header with scrollable main content; responsive on mobile (sidebar hidden).
  *
- * @param props.children Page content rendered inside the layout.
+ * @param props.children Page content rendered in the main area.
  */
 export function MainLayout({ children }: { children: ReactNode }) {
     return (

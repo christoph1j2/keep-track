@@ -9,13 +9,14 @@ interface StatCardProps {
 }
 
 /**
- * Shows one dashboard metric with a label, optional amount, and optional budget state.
+ * Dashboard metric card showing title, optional amount (formatted as CZK), and budget status.
+ * Color-codes the icon badge based on trend: green (true), red (false), blue (default/no trend).
  *
- * @param props.title Card title.
- * @param props.amount Optional numeric value shown as CZK.
- * @param props.budget_status Optional status label used for budget summaries.
- * @param props.icon Icon rendered in the badge.
- * @param props.trend Controls the badge color when the card is tied to a trend.
+ * @param props.title Metric label (e.g., "Monthly Income").
+ * @param props.amount Optional numeric value formatted as Czech currency (CZK).
+ * @param props.budget_status Optional status badge: 'GOOD' (green), 'BAD' (red), 'OK' (yellow); typically used for budget comparisons.
+ * @param props.icon Icon or React node rendered in badge (usually MUI icon).
+ * @param props.trend Controls badge color: true=green (positive), false=red (negative), undefined=blue (neutral).
  */
 export function StatCard({ title, amount, budget_status, icon, trend }: StatCardProps) {
     const iconColorClass = trend === true

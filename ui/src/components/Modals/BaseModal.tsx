@@ -11,12 +11,13 @@ interface BaseModalProps {
 }
 
 /**
- * Small modal wrapper for forms and other focused content.
+ * Reusable modal dialog wrapper for forms and focused content.
+ * MUI Dialog with close button, rounded corners, and shadow styling.
  *
- * @param props.isOpen Controls whether the dialog is visible.
- * @param props.onClose Called when the user dismisses the modal.
- * @param props.title Title shown in the header.
- * @param props.children Modal body content.
+ * @param props.isOpen Controls dialog visibility.
+ * @param props.onClose Callback fired when user clicks close button or clicks outside.
+ * @param props.title Header text displayed in dialog title bar.
+ * @param props.children Modal body content (usually a form).
  */
 export function BaseModal({ isOpen, onClose, title, children }: BaseModalProps) {
     return (

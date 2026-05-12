@@ -4,7 +4,10 @@ import type { Transaction } from "../types/transaction";
 const STORAGE_KEY = "keep-track-transactions";
 
 /**
- * Reads the saved transaction list once during startup.
+ * Reads the saved transaction list from localStorage during component mount.
+ * Returns an empty array if localStorage is unavailable, data is missing, or JSON parsing fails.
+ *
+ * @returns Array of saved transactions or empty array as fallback.
  */
 function getInitialTransactions(): Transaction[] {
     if (typeof window === "undefined") return [];
@@ -20,13 +23,20 @@ function getInitialTransactions(): Transaction[] {
 }
 
 /**
- * Keeps the transaction list in memory and syncs new entries into localStorage.
+ * Manages transaction state with localStorage persistence.
+ * Loads saved transactions on mount, syncs updates back to storage.
  *
- * @returns The current transactions and a helper for prepending a new one.
+ * @returns Object with `transactions` array, `addTransaction()` method, and `updateTransaction()` method.
  */
 export function useTransactions() {
     const [transactions, setTransactions] = useState<Transaction[]>(getInitialTransactions);
 
+    /**
+     * Prepends a new transaction to the list and persists to localStorage.
+     * Updates React state immediately and handles localStorage errors gracefully.
+     *
+     * @param newTransaction Transaction to add (typically with new id and current date).
+     */
     const addTransaction = (newTransaction: Transaction) => {
         setTransactions((prev: Transaction[]) => {
             const updatedTransactions = [newTransaction, ...prev];
@@ -39,5 +49,21 @@ export function useTransactions() {
         })
     };
 
-    return { transactions, addTransaction };
+    /**
+     * Updates an existing transaction by id and persists changes to localStorage.
+     * Finds the transaction by id and replaces it; no-op if id not found.
+     *
+     * @param updatedTransaction Transaction with updated fields and matching id.
+     */
+    const updateTransaction = (updatedTransaction: Transaction) => {
+        setTransactions((prev: Transaction[]) => {
+            const newTransactions = prev.map(t => 
+                t.id === updatedTransaction.id ? updatedTransaction : t
+            );
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newTransactions));
+            return newTransactions;
+        })
+    }
+
+    return { transactions, addTransaction, updateTransaction };
 }

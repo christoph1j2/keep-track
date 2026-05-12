@@ -13,6 +13,10 @@ interface MenuItem {
     isActive?: boolean
 }
 
+/**
+ * Navigation menu items for the app shell.
+ * Links to main pages: Dashboard (/), Overview (/overview), Budgeting (/budgeting), Quick Add templates (/quickadd).
+ */
 const MENU_ITEMS: MenuItem[] = [
     { title: 'Dashboard', icon: <DashboardIcon />, path: '/', isActive: true },
     { title: 'Přehled', icon: <ShowChartIcon />, path: '/overview' },
@@ -21,7 +25,8 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 /**
- * Static left navigation used by the app shell.
+ * Static left navigation panel shown on desktop (md breakpoint and up).
+ * Displays logo and menu items; hidden on mobile via Tailwind's responsive utilities.
  */
 export function Sidebar() {
     return (
