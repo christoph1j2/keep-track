@@ -21,7 +21,7 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
             multiSelect={false}
             expandedItems={expandedItems}
             onExpandedItemsChange={
-                (event, itemIds) => {
+                (_event, itemIds) => {
                     const mainCatIds = mainCategories.map(c => c.id);
                     const expanded = itemIds || [];
 
@@ -29,7 +29,7 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                 }
             }
             onSelectedItemsChange={
-                (event, itemId) => {
+                (_event, itemId) => {
                     const catId = Array.isArray(itemId) ? itemId[0] || null : itemId; // fix pro overwrite pro prvni klik
                     onSelectCategory(catId) // zavolame callback s id kategorie, kterou uzivatel kliknul
                 }
