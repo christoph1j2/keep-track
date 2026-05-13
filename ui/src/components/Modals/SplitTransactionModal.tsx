@@ -1,0 +1,214 @@
+import { useState } from "react";
+import { useCategories } from "../../hooks/useCategories";
+import type { Transaction } from "../../types/transaction";
+
+interface SplitTransactionModalProps {
+    transaction: Transaction;
+    onSubmit: (titles: string[], amounts: number[], categoryIds: string[], date: string) => void;
+    onCancel: () => void;
+}
+
+type SplitRow = {
+    title: string;
+    amount: string;
+    categoryId: string;
+}
+
+/**
+ * Form used to split one transaction into several smaller ones.
+ * It keeps the current balance check inside the modal so the caller only receives a valid set of split rows.
+ *
+ * @param props.transaction Transaction being split.
+ * @param props.onSubmit Called with matching title, amount, and category arrays once the split balances.
+ * @param props.onCancel Called when the user leaves the split flow.
+ */
+export function SplitTransactionModal({ transaction, onSubmit, onCancel }: SplitTransactionModalProps) {
+    const {categories} = useCategories();
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<string[] | null>(null);
+
+    const [splits, setSplits] = useState<SplitRow[]>([
+        { title: "", amount: "", categoryId: "" },
+        { title: "", amount: "", categoryId: "" },
+    ]);
+
+    const remaining = transaction.amount - splits.reduce((sum, split) => {
+        const val = Number(split.amount);
+        return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+
+
+    /**
+     * Validates all split rows and submits them only when the total matches the original transaction.
+     */
+    const handleSubmit = (e: React.SubmitEvent) => {
+        e.preventDefault(); // zabrani refreshi po odeslani formulare
+
+        if (isSubmitting) return; // zabrani dvojitemu odeslani
+        setIsSubmitting(true);
+        setErrors(null);
+
+        // validace
+        const parsedAmounts = splits.map((split) => Number(split.amount));
+
+        if (splits.some((split) => !split.title) || splits.some((split) => split.amount === "") || splits.some((split) => !split.categoryId)) {
+            setErrors(["Vyplňte všechny pole"]);
+            setIsSubmitting(false);
+            return;
+        }
+        if (parsedAmounts.some(a => a === 0)) {
+            setErrors(["Částka nemůže být nula"]);
+            setIsSubmitting(false);
+            return;
+        }
+        if (parsedAmounts.some(a => isNaN(a))) {
+            setErrors(["Částka musí být číslo"]);
+            setIsSubmitting(false);
+            return;
+        }
+        if (remaining < 0) {
+            setErrors([`Částky nesouhlasí, překročili jste původní částku o ${(-remaining).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}`]);
+            setIsSubmitting(false);
+            return;
+        }
+        if (remaining !== 0) {
+            setErrors([`Částky nesouhlasí, zbývá ${remaining.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}`]);
+            setIsSubmitting(false);
+            return;
+        }
+
+
+        onSubmit(splits.map((split) => split.title), parsedAmounts, splits.map((split) => split.categoryId),transaction.date);
+    }
+
+
+    return (
+        <>
+        <hr />
+        {errors && (
+            <div>
+                <strong className="text-red-500">{errors.join(",\n")}</strong>
+            </div>
+        )}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+            <div>
+                <span>
+                    Rozdělení transakce <strong>"{transaction.title}"</strong>,
+                </span> <br />
+                <span>
+                    V kategorii <strong>"{categories.find(c => c.id === transaction.categoryId)?.label || 'Neznámá'}"</strong>, <br />
+                </span>
+                <span>
+                    K rozdělení zbývá <strong>{remaining.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}</strong>
+                </span>
+            </div>
+            {/* vezme vsechny split polozky a postavi je dle indexu */}
+            {splits.map((split, index) => (
+                <div 
+                    key={index}
+                    className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 p-3 sm:grid-cols-3 sm:items-end"
+                >
+                    <div className="flex flex-col gap-1">
+                        <label htmlFor={`title-${index}`}>Název</label>
+                        <input
+                            id={`title-${index}`}
+                            type="text"
+                            placeholder="Benzin ONO"
+                            value={split.title}
+                            onChange={(e) => {
+                                const newSplits = [...splits];
+                                newSplits[index].title = e.target.value;
+                                setSplits(newSplits);
+                            }}
+                            className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <label htmlFor={`amount-${index}`}>Částka</label>
+                        <input
+                            id={`amount-${index}`}
+                            type="number"
+                            placeholder="např. -10, 50, -30"
+                            step="0.01"
+                            value={split.amount}
+                            onChange={(e) => {
+                                const newSplits = [...splits];
+                                newSplits[index].amount = e.target.value;
+                                setSplits(newSplits);
+                            }}
+                            className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <label htmlFor={`category-${index}`}>Kategorie</label>
+                        <select
+                            id={`category-${index}`}
+                            value={split.categoryId}
+                            onChange={(e) => {
+                                const newSplits = [...splits];
+                                newSplits[index].categoryId = e.target.value;
+                                setSplits(newSplits);
+                            }}
+                            required
+                            className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
+                        >
+                            <option value="">Vyberte kategorii</option>
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.id}>
+                                    {category.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            ))}
+
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex gap-2">
+                    {splits.length < 4 && (
+                        <button
+                            type="button"
+                            onClick={() => setSplits([
+                                ...splits,
+                                { title: "", amount: "", categoryId: "" }
+                            ])}
+                            className="h-10 w-10 rounded-full border border-slate-400 text-2xl leading-none transition-colors hover:bg-slate-300"
+
+                        >
+                            +
+                        </button>
+                    )}
+
+                    {splits.length > 2 && (
+                        <button
+                            type="button"
+                            onClick={() => setSplits(splits.slice(0, -1))}
+                            className="h-10 w-10 rounded-full border border-slate-400 text-2xl leading-none transition-colors hover:bg-slate-300"
+                        >
+                            -
+                        </button>
+                    )}
+                </div>
+                {/* tlacitka */}
+                <div className="flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:gap-3 sm:border-t-0 sm:pt-0">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="w-full rounded-lg px-4 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 sm:w-auto"
+
+                    >
+                        Zrušit
+                    </button>
+                    <button 
+                    type="submit"
+                    className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-blue-700 sm:w-auto"
+                    >
+                        Uložit rozdělení
+                    </button>
+                </div>
+            </div>
+        </form>
+        </>
+    )
+}

@@ -1,12 +1,12 @@
 /**
- * Core category record used across the app for organizing and filtering transactions.
- * Supports optional nesting via parentId for hierarchical category trees.
+ * Category record used to group transactions and render category visuals.
+ * Optional parentId enables a two-level hierarchy in the overview tree.
  *
  * @property {string} id Unique category identifier.
- * @property {string} label Human-readable category name displayed in UI.
- * @property {string} iconName MUI icon component name (e.g., "LocalCafe", "ElectricBolt", "DirectionsTransit") mapped in CategoryIcon component.
- * @property {string} colorClass Tailwind CSS classes for styling (e.g., "bg-orange-100 text-orange-600") applied to category badges.
- * @property {string} [parentId] Optional reference to parent category id for subcategory nesting in TreeView; omitted for root categories.
+ * @property {string} label Display name shown to users.
+ * @property {string} iconName Icon key resolved by the category icon registry.
+ * @property {string} colorClass Tailwind classes used for category badge colors.
+ * @property {string} [parentId] Parent category id when this category is a subcategory.
  */
 export interface Category {
     id: string;

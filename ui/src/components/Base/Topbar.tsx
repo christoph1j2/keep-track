@@ -1,6 +1,6 @@
 /**
- * Application header bar showing the current user's name and personal identifier.
- * Displays hardcoded user info (Ernst Christoph Leschka); future versions may load from auth context.
+ * Simple application header that currently shows the signed-in user's name and personal id.
+ * The content is static for now, but the component is small on purpose so it can later pull from auth or user context.
  */
 export function Topbar() {
     return (

@@ -1,15 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BarChart } from "@mui/x-charts/BarChart";
 import type { Transaction } from "../../types/transaction";
 
+/**
+ * Compares monthly income and expenses over the last six months.
+ * The chart expects a transaction provider callback so month filtering logic can stay in the parent.
+ *
+ * @param props.getTransactionsForMonth Function that returns transactions for a given month and year.
+ */
 export function Graph(
     {
-        getTransactionsForMonth, income, expenses
+        getTransactionsForMonth
     }:
     {
-        getTransactionsForMonth: (month: number, year: number) => Transaction[],
-        income: number,
-        expenses: number
+        getTransactionsForMonth: (month: number, year: number) => Transaction[]
     }
 ) {
     const now = new Date();

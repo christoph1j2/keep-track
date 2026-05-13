@@ -7,6 +7,9 @@ import { Budgeting } from "./pages/Budgeting";
 import { QuickAdd } from "./pages/QuickAdd";
 import { NotFound } from "./pages/404";
 
+/**
+ * Root application component that wires routing into the shared layout shell.
+ */
 function App() {
     return (
         <BrowserRouter>

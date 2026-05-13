@@ -14,8 +14,8 @@ interface MenuItem {
 }
 
 /**
- * Navigation menu items for the app shell.
- * Links to main pages: Dashboard (/), Overview (/overview), Budgeting (/budgeting), Quick Add templates (/quickadd).
+ * Static navigation model for the desktop sidebar.
+ * Each entry maps a title and icon to a route.
  */
 const MENU_ITEMS: MenuItem[] = [
     { title: 'Dashboard', icon: <DashboardIcon />, path: '/', isActive: true },
@@ -25,8 +25,8 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 /**
- * Static left navigation panel shown on desktop (md breakpoint and up).
- * Displays logo and menu items; hidden on mobile via Tailwind's responsive utilities.
+ * Left-side navigation shown on medium screens and up.
+ * Hidden on mobile so the main content can use full width.
  */
 export function Sidebar() {
     return (

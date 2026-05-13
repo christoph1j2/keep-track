@@ -1,3 +1,6 @@
+/**
+ * Fallback page shown when no route matches the requested path.
+ */
 export function NotFound() {
     return (
         <div className="p-2">

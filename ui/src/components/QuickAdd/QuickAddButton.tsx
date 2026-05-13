@@ -11,14 +11,14 @@ interface QuickAddButtonProps {
 }
 
 /**
- * Shortcut button for quick transaction creation.
- * Enlarges MUI icons to improve scanning speed; displays title and optional amount below icon badge.
+ * Compact button used in the quick-add row on the dashboard.
+ * If the icon is a React element, it is cloned with a larger size for easier scanning.
  *
- * @param props.title Button label shown below icon.
- * @param props.amount Optional amount displayed below title (formatted as CZK).
- * @param props.icon Icon or React node shown above label; MUI icons are enlarged to 32px.
- * @param props.colorClass Tailwind classes for icon badge background/text (e.g., "bg-orange-100 text-orange-600").
- * @param props.onClick Callback fired when button is clicked.
+ * @param props.title Label shown under the icon.
+ * @param props.amount Optional amount shown under the title in CZK.
+ * @param props.icon Icon node rendered in the badge.
+ * @param props.colorClass Tailwind classes for icon badge styling.
+ * @param props.onClick Action executed when the user presses the button.
  */
 export function QuickAddButton({ title, amount, icon, colorClass, onClick }: QuickAddButtonProps) {
 

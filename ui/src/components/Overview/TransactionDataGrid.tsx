@@ -9,12 +9,35 @@ interface TransactionDataGridProps {
     transactions: Transaction[];
     onUpdateTransaction: (updated: Transaction) => void;
     onDeleteTransaction: (id: string) => void;
+    onSplitTransaction: (transaction: Transaction) => void;
 }
 
-export function TransactionDataGrid({ transactions, onUpdateTransaction, onDeleteTransaction }: TransactionDataGridProps) {
+/**
+ * Responsive transaction table that uses DataGrid on desktop and a mobile list on small screens.
+ * Supports inline updates, category changes, delete actions, and split action routing.
+ *
+ * @param props.transactions Rows to display.
+ * @param props.onUpdateTransaction Called after a confirmed inline update.
+ * @param props.onDeleteTransaction Called after a confirmed delete.
+ * @param props.onSplitTransaction Called when the user requests to split a transaction.
+ */
+export function TransactionDataGrid({
+        transactions,
+        onUpdateTransaction,
+        onDeleteTransaction,
+        onSplitTransaction
+    }: TransactionDataGridProps) {
     const { categories, getCategoryById } = useCategories();
     const isMobile = useIsMobile();
 
+    /**
+     * Validates and commits inline row edits.
+     * Category-only edits are saved without the general text/amount confirmation prompt.
+     *
+     * @param newRow Row candidate after user edits.
+     * @param oldRow Previous persisted row values.
+     * @returns Row to keep in the grid, either newRow or oldRow when validation/cancel occurs.
+     */
     const handleProcessRowUpdate = (newRow: Transaction, oldRow: Transaction) => {
         // pokud se nic nezměnilo, nevoláme update
         if (newRow.title === oldRow.title 
@@ -55,7 +78,7 @@ export function TransactionDataGrid({ transactions, onUpdateTransaction, onDelet
                 : `název z "${oldRow.title}" na "${newRow.title}"`;
 
             const isConfirmed = window.confirm(`Opravdu chcete změnit ${changes}?`); 
-            //! tady by bylo fajn mít custom modal, ale pro jednoduchost použijeme confirm
+            //! tady by bylo fajn mít custom modal, ale pro jednoduchost použijeme zatim confirm
 
             if (!isConfirmed) {
                 return oldRow; // user zrušil změnu, vrátíme původní hodnotu, která se neuloží
@@ -158,15 +181,35 @@ export function TransactionDataGrid({ transactions, onUpdateTransaction, onDelet
             }
         },
         {
-            field: "delete",
-            headerName: "",
-            width: 50,
+            field: "split",
+            headerName: "✂️",
+            flex: 0.08,
             resizable: false,
             sortable: false,
             renderCell: (params: GridRenderCellParams) => {
                 return (
                     <button
-                        className="w-full cursor-pointer"
+                        className="cursor-pointer"
+                        onClick={() => {
+                            // otevre modal split transaction
+                            onSplitTransaction(params.row as Transaction);
+                        }}
+                    >
+                        ✂️
+                    </button>
+                )
+            }
+        },
+        {
+            field: "delete",
+            headerName: "❌",
+            flex: 0.08,
+            resizable: false,
+            sortable: false,
+            renderCell: (params: GridRenderCellParams) => {
+                return (
+                    <button
+                        className="cursor-pointer"
                         onClick={() => {
                             const isConfirmed = window.confirm("Opravdu chcete smazat tuto transakci?");
                             if (isConfirmed) {
@@ -177,12 +220,12 @@ export function TransactionDataGrid({ transactions, onUpdateTransaction, onDelet
                         🗑️
                     </button>
                 )
-            } // TODO NA MOBIL
+            }
         }
     ];
 
     return isMobile ? (
-        <TransactionMobileList transactions={transactions} onUpdateTransaction={onUpdateTransaction} />
+        <TransactionMobileList transactions={transactions} onUpdateTransaction={onUpdateTransaction} onDeleteTransaction={onDeleteTransaction} onSplitTransaction={onSplitTransaction} />
     ) : (
         <DataGrid
             rows={transactions}
@@ -195,6 +238,11 @@ export function TransactionDataGrid({ transactions, onUpdateTransaction, onDelet
             }}
             disableRowSelectionOnClick
             autoPageSize
+            initialState={{
+                sorting: {
+                    sortModel: [{field: "date", sort: "desc"}]
+                }
+            }}
         />
     );
 }

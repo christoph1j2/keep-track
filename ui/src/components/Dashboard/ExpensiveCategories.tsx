@@ -8,7 +8,8 @@ type ExpensiveCategory = Pick<Category, "id" | "label" | "iconName" | "colorClas
 };
 
 /**
- * Renders the most expensive categories based on the provided transactions. This component will analyze the transactions to determine which categories have the highest total expenses for the last month and display them in a user-friendly format.
+ * Shows the top expense categories for the current month.
+ * Expenses are grouped by category, converted to absolute totals, then sorted descending.
  * 
  * @param props.transactions Transactions to analyze for expensive categories.
  * 

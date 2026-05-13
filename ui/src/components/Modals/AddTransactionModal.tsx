@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
 
-interface TransactionModalProps {
+interface AddTransactionModalProps {
     onSubmit: (title: string, amount: number, categoryId: string) => void;
     onCancel: () => void;
 }
 
-export function TransactionModal({ onSubmit, onCancel }: TransactionModalProps) {
+/**
+ * Form used to create a single transaction.
+ * Keeps the current validation rules local to the modal so the caller only handles successful submits and cancel.
+ *
+ * @param props.onSubmit Called with a valid title, amount, and category id.
+ * @param props.onCancel Called when the user closes the form without saving.
+ */
+export function AddTransactionModal({ onSubmit, onCancel }: AddTransactionModalProps) {
     const {categories} = useCategories();
 
     // stavy pro formular
@@ -14,27 +21,37 @@ export function TransactionModal({ onSubmit, onCancel }: TransactionModalProps) 
     const [amount, setAmount] = useState<number | "">("");
     const [categoryId, setCategoryId] = useState("");
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<string[] | null>(null);
 
+    /**
+     * Validates the form and submits a new transaction when everything is filled in correctly.
+     */
     const handleSubmit = (e: React.SubmitEvent) => {
         e.preventDefault(); // zabrani refreshi po odeslani formulare
+
+        if (isSubmitting) return; // zabrani dvojitemu odeslani
+        setIsSubmitting(true);
+        setErrors(null);
 
         // validace
         if (!title || amount === "" || !categoryId) {
             setErrors(["Vyplňte všechny pole"]);
+            setIsSubmitting(false);
             return;
         }
         if (amount === 0) {
             setErrors(["Částka nemůže být nula"]);
+            setIsSubmitting(false);
             return;
         }
         if (isNaN(amount)) {
             setErrors(["Částka musí být číslo"]);
+            setIsSubmitting(false);
             return;
         }
 
         onSubmit(title, amount, categoryId);
-        setErrors(null);
     };
 
     return (

@@ -4,10 +4,10 @@ import type { Transaction } from "../types/transaction";
 const STORAGE_KEY = "keep-track-transactions";
 
 /**
- * Reads the saved transaction list from localStorage during component mount.
- * Returns an empty array if localStorage is unavailable, data is missing, or JSON parsing fails.
+ * Loads the initial transaction list from localStorage.
+ * Falls back to an empty list when storage is unavailable, missing, or invalid.
  *
- * @returns Array of saved transactions or empty array as fallback.
+ * @returns Stored transactions, or an empty array when data cannot be recovered.
  */
 function getInitialTransactions(): Transaction[] {
     if (typeof window === "undefined") return [];
@@ -23,19 +23,19 @@ function getInitialTransactions(): Transaction[] {
 }
 
 /**
- * Manages transaction state with localStorage persistence.
- * Loads saved transactions on mount, syncs updates back to storage.
+ * Keeps transaction state in sync with localStorage.
+ * This hook is the main transaction source used by dashboard and overview screens.
  *
- * @returns Object with `transactions` array, `addTransaction()` method, and `updateTransaction()` method.
+ * @returns Current transactions and mutation helpers for add, update, and delete actions.
  */
 export function useTransactions() {
     const [transactions, setTransactions] = useState<Transaction[]>(getInitialTransactions);
 
     /**
-     * Prepends a new transaction to the list and persists to localStorage.
-     * Updates React state immediately and handles localStorage errors gracefully.
+      * Inserts a new transaction at the top of the list and persists the updated list.
+      * Newest-first ordering keeps recent entries visible across UI views.
      *
-     * @param newTransaction Transaction to add (typically with new id and current date).
+      * @param newTransaction New transaction record to store.
      */
     const addTransaction = (newTransaction: Transaction) => {
         setTransactions((prev: Transaction[]) => {
@@ -50,10 +50,10 @@ export function useTransactions() {
     };
 
     /**
-     * Updates an existing transaction by id and persists changes to localStorage.
-     * Finds the transaction by id and replaces it; no-op if id not found.
+      * Replaces a transaction with the same id and persists the result.
+      * If no matching id exists, the list is effectively unchanged.
      *
-     * @param updatedTransaction Transaction with updated fields and matching id.
+      * @param updatedTransaction Transaction payload containing the existing id and updated fields.
      */
     const updateTransaction = (updatedTransaction: Transaction) => {
         setTransactions((prev: Transaction[]) => {
@@ -65,6 +65,11 @@ export function useTransactions() {
         })
     }
 
+    /**
+     * Removes a transaction by id and persists the result.
+     *
+     * @param id Identifier of the transaction to remove.
+     */
     const deleteTransaction = (id: string) => {
         setTransactions((prev: Transaction[]) => {
             const updatedTransactions = prev.filter((transaction) => transaction.id !== id);

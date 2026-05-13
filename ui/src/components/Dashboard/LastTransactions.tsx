@@ -3,7 +3,8 @@ import type { Transaction } from "../../types/transaction";
 import { useCategories } from "../../hooks/useCategories";
 
 /**
- * Renders the newest transactions first and keeps the list short enough to scan quickly.
+ * Shows the five most recent transactions sorted by date.
+ * This widget stays intentionally compact to keep the dashboard scannable.
  *
  * @param props.transactions Transactions to display.
  */

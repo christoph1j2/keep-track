@@ -6,19 +6,23 @@ import { useCategories } from "../../hooks/useCategories";
 interface TransactionMobileListProps {
     transactions: Transaction[];
     onUpdateTransaction: (updated: Transaction) => void;
+    onDeleteTransaction: (id: string) => void;
+    onSplitTransaction: (transaction: Transaction) => void;
 }
 
 // pocet polozek na jedne strance
 const ITEMS_PER_PAGE = 5;
 
 /**
- * Mobile-friendly transaction list component with pagination and inline editing
- * @param {TransactionMobileListProps} props - Component props
- * @param {Transaction[]} props.transactions - Array of transactions to display
- * @param {Function} props.onUpdateTransaction - Callback function when a transaction is updated
- * @returns {JSX.Element} Rendered transaction list with pagination controls
+ * Mobile transaction list with pagination and inline editing.
+ * The component mirrors core desktop actions: update, split, and delete.
+ *
+ * @param props.transactions Transactions to render.
+ * @param props.onUpdateTransaction Called after a confirmed edit.
+ * @param props.onDeleteTransaction Called after delete confirmation.
+ * @param props.onSplitTransaction Called when a row is sent to split flow.
  */
-export function TransactionMobileList({ transactions, onUpdateTransaction }: TransactionMobileListProps) {
+export function TransactionMobileList({ transactions, onUpdateTransaction, onDeleteTransaction, onSplitTransaction }: TransactionMobileListProps) {
     // hook pro ziskani kategorii a jejich detailu
     const { getCategoryById, categories } = useCategories();
     
@@ -31,20 +35,25 @@ export function TransactionMobileList({ transactions, onUpdateTransaction }: Tra
     // aktualni stranka pro paginaci
     const [page, setPage] = useState(0);
 
+    const sortedTransactions = useMemo(() => {
+        return [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [transactions]);
+
+
     // vypocet transakcí pro aktualni stranku
     const paginatedTransactions = useMemo(() => {
         const start = page * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
-        return transactions.slice(start, end);
-    }, [transactions, page]);
+        return sortedTransactions.slice(start, end);
+    }, [sortedTransactions, page]);
 
     // celkovy pocet stranek
-    const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE);
 
     /**
-     * Initiates editing mode for a transaction
-     * @param {Transaction} transaction - The transaction to edit
-     * @returns {void}
+     * Opens inline edit mode for a row.
+     *
+     * @param transaction Transaction selected for editing.
      */
     const handleEdit = (transaction: Transaction) => {
         setEditingId(transaction.id);
@@ -52,9 +61,9 @@ export function TransactionMobileList({ transactions, onUpdateTransaction }: Tra
     };
 
     /**
-     * Saves the updated transaction
-     * @param {Transaction} transaction - The original transaction
-     * @returns {void}
+     * Validates and persists row edits after user confirmation.
+     *
+     * @param transaction Original row used as the base of the update.
      */
     const handleSave = (transaction: Transaction) => {
         const newRow = { ...transaction, ...editingData };
@@ -81,8 +90,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction }: Tra
     };
 
     /**
-     * Cancels the editing mode without saving changes
-     * @returns {void}
+     * Leaves edit mode and clears any draft values.
      */
     const handleCancel = () => {
         setEditingId(null);
@@ -163,6 +171,27 @@ export function TransactionMobileList({ transactions, onUpdateTransaction }: Tra
                                             className="flex-1 bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm font-semibold"
                                         >
                                             Zrušit
+                                        </button>
+                                    </div>
+                                    <div className="flex gap-2 pt-2">
+                                        <button
+                                            onClick={() => {
+                                                onSplitTransaction(transaction);
+                                            }}
+                                            className="flex-1 bg-green-500 text-white px-2 py-1 rounded text-sm font-semibold"
+                                        >
+                                            Rozdělit
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const isConfirmed = window.confirm("Opravdu chcete smazat tuto transakci?");
+                                                if (isConfirmed) {
+                                                    onDeleteTransaction(transaction.id as string);
+                                                }
+                                            }}
+                                            className="flex-1 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold"
+                                        >
+                                            Smazat
                                         </button>
                                     </div>
                                 </div>

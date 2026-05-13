@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
 /**
- * Responsive hook that tracks window width and detects mobile viewport.
- * Updates state on window resize events; unsubscribes on unmount.
+ * Tracks whether the viewport is below a chosen breakpoint.
+ * The value updates on resize and automatically cleans up listeners on unmount.
  *
- * @param breakpoint Window width threshold in pixels (default: 768 for tablet breakpoint).
- * @returns True if window width is below breakpoint, false otherwise.
+ * @param breakpoint Pixel threshold used to classify mobile layout, defaults to 768.
+ * @returns True when the viewport width is smaller than the breakpoint.
  */
 export function useIsMobile(breakpoint: number = 768): boolean {
     const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);

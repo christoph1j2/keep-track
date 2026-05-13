@@ -6,9 +6,16 @@ import React from 'react';
 
 interface CategoryTreeProps {
     categories: Category[],
-    onSelectCategory: (categoryId: string | null) => void, // callback pro výběr kategorie
+    onSelectCategory: (categoryId: string | null) => void,
 }
 
+/**
+ * Renders a two-level category tree with persistent root expansion.
+ * Root categories stay expanded so users can always access subcategories quickly.
+ *
+ * @param props.categories Category list containing roots and optional children.
+ * @param props.onSelectCategory Callback that receives the selected category id, or null.
+ */
 export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) {
     const mainCategories = categories.filter(c => c.parentId === undefined);
 

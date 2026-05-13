@@ -22,8 +22,8 @@ import {
 import type { ElementType } from "react";
 
 /**
- * Maps category icon names (MUI icon component names) to actual icon components.
- * Provides a centralized registry for category icon rendering across the app.
+ * Maps icon keys to MUI icon components.
+ * Keeping this registry in one place makes category rendering consistent across views.
  */
 const ICON_MAP: Record<string, ElementType> = {
     // Current categories
@@ -57,12 +57,11 @@ const ICON_MAP: Record<string, ElementType> = {
 };
 
 /**
- * Renders an icon from the category registry or falls back to a question mark icon.
- * Used in category badges, trees, and transaction lists throughout the app.
+ * Renders a category icon by key and falls back to a question mark icon when unknown.
  *
- * @param props.name MUI icon name (e.g., "LocalCafe", "DirectionsTransit") registered in ICON_MAP.
- * @param props.className Optional CSS class for icon styling (size, color overrides, etc.).
- * @returns Icon component or QuestionMark if name is not found in registry.
+ * @param props.name Icon key expected in the registry.
+ * @param props.className Optional class names for color and spacing customization.
+ * @returns Matching icon component, or a fallback icon when the key is missing.
  */
 export function CategoryIcon({ name, className }: { name: string, className?: string }) {
     const IconComponent = ICON_MAP[name] || QuestionMark;

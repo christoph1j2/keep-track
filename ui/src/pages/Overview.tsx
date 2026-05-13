@@ -4,16 +4,24 @@ import { useCategories } from "../hooks/useCategories";
 import { CategoryTree } from "../components/Overview/CategoryTree";
 import { TransactionDataGrid } from "../components/Overview/TransactionDataGrid";
 import { BaseModal } from "../components/Modals/BaseModal";
-import { TransactionModal } from "../components/Modals/TransactionModal";
+import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
+import { SplitTransactionModal } from "../components/Modals/SplitTransactionModal";
 
+/**
+ * Overview page for browsing, filtering, and editing transactions.
+ * This page coordinates category filtering, grid editing, and modal-driven create/split flows.
+ */
 export function Overview() {
     const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
     const { categories } = useCategories();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
+    const [isSplitTransactionModalOpen, setIsSplitTransactionModalOpen] = useState(false);
+
+    const [selectedTransaction, setSelectedTransaction] = useState<typeof transactions[0] | null>(null);
 
     // dbug
-    {console.log(transactions)}
+    //{console.log(transactions)}
 
     // pamet co uzivatel zaklikl ve stromu
     // na zacatku (null) neni vybrano nic = ukazujeme vse
@@ -39,9 +47,8 @@ export function Overview() {
         <div className="lg:h-full flex flex-col">
             <div className="mb-6 flex justify-between items-center">
                 <h2 className="text-3xl font-bold text-slate-800">Přehled transakcí</h2>
-                {/* tlačítko na import CSV nebo ruční přidání */}
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsAddTransactionModalOpen(true)}
                 >
                     + Nová transakce
                 </button>
@@ -78,16 +85,20 @@ export function Overview() {
                         transactions={filteredTransactions}
                         onUpdateTransaction={updateTransaction}
                         onDeleteTransaction={deleteTransaction}
+                        onSplitTransaction={(transaction) => {
+                            setSelectedTransaction(transaction);
+                            setIsSplitTransactionModalOpen(true);
+                        }}
                     />
                 </div>
             </div>
 
             <BaseModal
                 title="Přidat novou transakci"
-                isOpen={isModalOpen}
-                onClose={()=>setIsModalOpen(false)}
+                isOpen={isAddTransactionModalOpen}
+                onClose={()=>setIsAddTransactionModalOpen(false)}
             >
-                <TransactionModal 
+                <AddTransactionModal 
                     onSubmit={(title,amount,categoryId)=>{
                         addTransaction({
                             id: crypto.randomUUID(),
@@ -96,10 +107,37 @@ export function Overview() {
                             categoryId,
                             date: new Date().toISOString()
                          });
-                        setIsModalOpen(false) // zavreme modal po submitu
+                        setIsAddTransactionModalOpen(false)
                     }}
-                    onCancel={()=>setIsModalOpen(false)}
+                    onCancel={()=>setIsAddTransactionModalOpen(false)}
                 />
+            </BaseModal>
+
+            <BaseModal
+                title="Rozdělit transakci"
+                isOpen={isSplitTransactionModalOpen}
+                onClose={()=>setIsSplitTransactionModalOpen(false)}
+            >
+                {selectedTransaction && (
+                    <SplitTransactionModal
+                        transaction={selectedTransaction}
+                        onSubmit={(titles, amounts, categoryIds, date) => {
+                            for (let i = 0; i < titles.length; i++) {
+                                const newTransaction = {
+                                    id: crypto.randomUUID(),
+                                    title: titles[i],
+                                    amount: amounts[i],
+                                    categoryId: categoryIds[i],
+                                    date: date
+                                };
+                                addTransaction(newTransaction);
+                            }
+                            deleteTransaction(selectedTransaction.id);
+                            setIsSplitTransactionModalOpen(false);
+                        }}
+                        onCancel={() => setIsSplitTransactionModalOpen(false)}
+                    />
+                )}
             </BaseModal>
         </div>
     );

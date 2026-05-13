@@ -8,6 +8,10 @@ import { Graph } from "../components/Dashboard/Graph";
 import { LastTransactions } from "../components/Dashboard/LastTransactions";
 import { ExpensiveCategories } from '../components/Dashboard/ExpensiveCategories';
 
+/**
+ * Dashboard page that summarizes monthly performance and recent activity.
+ * It combines computed metrics, quick actions, chart trends, and compact transaction widgets.
+ */
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { transactions, addTransaction } = useTransactions();
@@ -18,6 +22,14 @@ export function Dashboard() {
         const d = new Date(t.date);
         return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     });
+
+    /**
+     * Filters all transactions for a specific month and year.
+     *
+     * @param month Zero-based month index.
+     * @param year Full year value.
+     * @returns Transactions that belong to the requested period.
+     */
     const getTransactionsForMonth = (month: number, year: number) => {
         return transactions.filter((t) => {
             const d = new Date(t.date);
@@ -116,8 +128,6 @@ export function Dashboard() {
             {/** graph sekce */}
             <Graph 
                 getTransactionsForMonth={getTransactionsForMonth}
-                income={income}
-                expenses={expenses}
             />
         </div>
 
