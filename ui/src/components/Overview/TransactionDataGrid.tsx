@@ -8,9 +8,10 @@ import { TransactionMobileList } from "./TransactionMobileList";
 interface TransactionDataGridProps {
     transactions: Transaction[];
     onUpdateTransaction: (updated: Transaction) => void;
+    onDeleteTransaction: (id: string) => void;
 }
 
-export function TransactionDataGrid({ transactions, onUpdateTransaction }: TransactionDataGridProps) {
+export function TransactionDataGrid({ transactions, onUpdateTransaction, onDeleteTransaction }: TransactionDataGridProps) {
     const { categories, getCategoryById } = useCategories();
     const isMobile = useIsMobile();
 
@@ -89,6 +90,7 @@ export function TransactionDataGrid({ transactions, onUpdateTransaction }: Trans
             headerName: "Částka",
             flex: 0.5,
             editable: true,
+            resizable: false,
             renderCell: (params: GridRenderCellParams) => {
                 const value = params.value.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' });
                 return <span className={`${params.value >= 0 ? 'text-green-600' : 'text-red-600'}`}>{value}</span>
@@ -97,9 +99,10 @@ export function TransactionDataGrid({ transactions, onUpdateTransaction }: Trans
         {
             field: "categoryId",
             headerName: "Kategorie",
-            flex: 0.66,
+            flex: 0.50,
             type: "singleSelect",
             editable: true,
+            resizable: false,
             valueOptions: categories.map(c => ({
                 value: c.id,
                 label: c.label
@@ -147,11 +150,34 @@ export function TransactionDataGrid({ transactions, onUpdateTransaction }: Trans
         {
             field: "date",
             headerName: "Datum",
-            flex: 0.33,
+            flex: 0.50,
+            resizable: false,
             renderCell: (params: GridRenderCellParams) => {
                 const date = new Date(params.value).toLocaleDateString('cs-CZ');
                 return <span>{date}</span>
             }
+        },
+        {
+            field: "delete",
+            headerName: "",
+            width: 50,
+            resizable: false,
+            sortable: false,
+            renderCell: (params: GridRenderCellParams) => {
+                return (
+                    <button
+                        className="w-full cursor-pointer"
+                        onClick={() => {
+                            const isConfirmed = window.confirm("Opravdu chcete smazat tuto transakci?");
+                            if (isConfirmed) {
+                                onDeleteTransaction(params.id as string);
+                            }
+                        }}
+                    >
+                        🗑️
+                    </button>
+                )
+            } // TODO NA MOBIL
         }
     ];
 

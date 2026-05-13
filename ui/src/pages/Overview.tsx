@@ -7,7 +7,7 @@ import { BaseModal } from "../components/Modals/BaseModal";
 import { TransactionModal } from "../components/Modals/TransactionModal";
 
 export function Overview() {
-    const { transactions, addTransaction, updateTransaction } = useTransactions();
+    const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
     const { categories } = useCategories();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,6 +77,7 @@ export function Overview() {
                     <TransactionDataGrid 
                         transactions={filteredTransactions}
                         onUpdateTransaction={updateTransaction}
+                        onDeleteTransaction={deleteTransaction}
                     />
                 </div>
             </div>

@@ -65,5 +65,17 @@ export function useTransactions() {
         })
     }
 
-    return { transactions, addTransaction, updateTransaction };
+    const deleteTransaction = (id: string) => {
+        setTransactions((prev: Transaction[]) => {
+            const updatedTransactions = prev.filter((transaction) => transaction.id !== id);
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTransactions));
+            } catch (error) {
+                console.error("Error saving transactions:", error);
+            }
+            return updatedTransactions;
+        })
+    }
+
+    return { transactions, addTransaction, updateTransaction, deleteTransaction  };
 }
