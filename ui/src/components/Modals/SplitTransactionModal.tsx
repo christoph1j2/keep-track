@@ -136,7 +136,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         <input
                             id={`amount-${index}`}
                             type="number"
-                            placeholder="např. 200, 500"
+                            placeholder="Kladnou hodnotu!"
                             step="0.01"
                             value={split.amount}
                             onChange={(e) => {
