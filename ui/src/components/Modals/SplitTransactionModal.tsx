@@ -33,14 +33,17 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
         { title: "", amount: "", categoryId: "" },
     ]);
 
-    const remaining = transaction.amount - splits.reduce((sum, split) => {
+    // Work with absolute values for cleaner calculation
+    const absoluteTransactionAmount = Math.abs(transaction.amount);
+    const remaining = absoluteTransactionAmount - splits.reduce((sum, split) => {
         const val = Number(split.amount);
-        return sum + (isNaN(val) ? 0 : val);
+        return sum + (isNaN(val) ? 0 : Math.abs(val));
     }, 0);
 
 
     /**
      * Validates all split rows and submits them only when the total matches the original transaction.
+     * Users enter positive values; we apply the original sign at submission.
      */
     const handleSubmit = (e: React.SubmitEvent) => {
         e.preventDefault(); // zabrani refreshi po odeslani formulare
@@ -67,8 +70,8 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
             setIsSubmitting(false);
             return;
         }
-        if (remaining < 0) {
-            setErrors([`Částky nesouhlasí, překročili jste původní částku o ${(-remaining).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}`]);
+        if (parsedAmounts.some(a => a < 0)) {
+            setErrors(["Zadejte prosím pouze kladné částky"]);
             setIsSubmitting(false);
             return;
         }
@@ -78,8 +81,12 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
             return;
         }
 
+        // Apply original sign to amounts
+        const signedAmounts = parsedAmounts.map(amount => 
+            transaction.amount < 0 ? -amount : amount
+        );
 
-        onSubmit(splits.map((split) => split.title), parsedAmounts, splits.map((split) => split.categoryId),transaction.date);
+        onSubmit(splits.map((split) => split.title), signedAmounts, splits.map((split) => split.categoryId),transaction.date);
     }
 
 
@@ -129,7 +136,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         <input
                             id={`amount-${index}`}
                             type="number"
-                            placeholder="např. -10, 50, -30"
+                            placeholder="např. 200, 500"
                             step="0.01"
                             value={split.amount}
                             onChange={(e) => {
