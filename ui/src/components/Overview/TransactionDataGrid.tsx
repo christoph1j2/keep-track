@@ -182,10 +182,11 @@ export function TransactionDataGrid({
         },
         {
             field: "split",
-            headerName: "✂️",
-            flex: 0.08,
+            headerName: "Rozdělit",
+            flex: 0.30,
             resizable: false,
             sortable: false,
+            align: "center",
             renderCell: (params: GridRenderCellParams) => {
                 return (
                     <button
@@ -202,10 +203,11 @@ export function TransactionDataGrid({
         },
         {
             field: "delete",
-            headerName: "❌",
-            flex: 0.08,
+            headerName: "Smazat",
+            flex: 0.30,
             resizable: false,
             sortable: false,
+            align: "center",
             renderCell: (params: GridRenderCellParams) => {
                 return (
                     <button
