@@ -33,7 +33,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
         { title: "", amount: "", categoryId: "" },
     ]);
 
-    // Work with absolute values for cleaner calculation
+    // pocita s absolutnimi hodnotami, uzivatel zadava kladne castky a my aplikujeme puvodni znamenko az pri odesilani, aby bylo jednodussi kontrolovat zbylej zustatek a validovat nezaporne zadane castky
     const absoluteTransactionAmount = Math.abs(transaction.amount);
     const remaining = absoluteTransactionAmount - splits.reduce((sum, split) => {
         const val = Number(split.amount);
@@ -81,7 +81,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
             return;
         }
 
-        // Apply original sign to amounts
+        // aplikujeme puvodni znamenko k zadanym castkam, aby se odesilaly jako korektni rozdeleni (kladne i zaporne)
         const signedAmounts = parsedAmounts.map(amount => 
             transaction.amount < 0 ? -amount : amount
         );
@@ -94,8 +94,10 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
         <>
         <hr />
         {errors && (
-            <div>
-                <strong className="text-red-500">{errors.join(",\n")}</strong>
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                {errors.map((error, idx) => (
+                    <p key={idx}>{error}</p>
+                ))}
             </div>
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
@@ -161,7 +163,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                             className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
                         >
                             <option value="">Vyberte kategorii</option>
-                            {categories.map((category) => (
+                            {[...categories].sort((a, b) => a.order - b.order).map((category) => (
                                 <option key={category.id} value={category.id}>
                                     {category.label}
                                 </option>

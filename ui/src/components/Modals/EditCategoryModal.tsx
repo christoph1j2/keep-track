@@ -1,0 +1,226 @@
+import { useState } from "react";
+import { Select, MenuItem } from "@mui/material";
+import { CategoryIcon } from "../Base/CategoryIcon";
+import type { Category } from "../../types/category";
+import { useCategories } from "../../hooks/useCategories";
+
+interface EditCategoryModalProps {
+    category: Category | null;
+    onSubmit: (newLabel: string, newColorClass: string, newIconName: string, order: number, newParentId: string | null) => void;
+    onCancel: () => void;
+}
+
+export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategoryModalProps) {
+    const {categories} = useCategories();
+    const [label, setLabel] = useState(category?.label || "");
+    const [colorClass, setColorClass] = useState(category?.colorClass || "");
+    const [iconName, setIconName] = useState(category?.iconName || "");
+    const [parentId, setParentId] = useState<string | null>(category?.parentId || null);
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<string[] | null>(null);
+
+    const handleSubmit = (e: React.SubmitEvent) => {
+        e.preventDefault(); // zabrani refreshi po odesilani formulare
+
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+        setErrors(null);
+
+        // validace
+        if (!label || !colorClass || !iconName) {
+            setErrors(["Vyplňte všechny pole"]);
+            setIsSubmitting(false);
+            return;
+        }
+        if (parentId === category?.id) {
+            setErrors(["Kategorie nemůže být sama sobě nadřazenou kategorií"]);
+            setIsSubmitting(false);
+            return;
+        }
+
+        onSubmit(label, colorClass, iconName, category?.order || 0, parentId);
+    }
+
+    const MenuProps = {
+        slotProps: {
+            paper: {
+                sx: {
+                    maxHeight: 200,
+                    overflowY: 'auto',
+                },
+            },
+        },
+    };
+
+    return (
+        <>
+            {errors && (
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                    {errors.map((error, idx) => (
+                        <p key={idx}>{error}</p>
+                    ))}
+                </div>
+            )}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+                {/* nazev */}
+                <div className="flex flex-col gap-1">
+                    <label htmlFor="label">Název:</label>
+                    <input
+                        id="label"
+                        type="text"
+                        placeholder="Např. Pohonné hmoty"
+                        defaultValue={category?.label || ""}
+                        value={label}
+                        onChange={(e) => setLabel(e.target.value)}
+                        className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
+                    />
+                </div>
+                {/* barva */}
+                <div className="flex flex-col gap-1">
+                    <label htmlFor="colorClass">Barva:</label>
+                    <Select
+                        value={colorClass}
+                        size="small"
+                        onChange={(e) => setColorClass(e.target.value)}
+                        MenuProps={MenuProps}
+                        renderValue={(selected) => {
+                            const color = colors.find(c => c.value === selected);
+                            return (
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <div 
+                                        style={{ 
+                                            width: "16px", 
+                                            height: "16px", 
+                                            borderRadius: "50%",
+                                            backgroundColor: color?.hex 
+                                        }} 
+                                    />
+                                    {color?.label}
+                                </div>
+                            );
+                        }}
+                    >
+                        {colors.map(color => (
+                            <MenuItem 
+                                key={color.value} 
+                                value={color.value}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <div 
+                                        style={{ 
+                                            width: "16px", 
+                                            height: "16px", 
+                                            borderRadius: "50%",
+                                            backgroundColor: color.hex 
+                                        }} 
+                                    />
+                                    {color.label}
+                                </div>
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </div>
+                {/* ikona */}
+                <div className="flex flex-col gap-1">
+                    <label htmlFor="iconName">Ikona:</label>
+                    <Select
+                        value={iconName}
+                        size="small"
+                        onChange={(e) => setIconName(e.target.value)}
+                        MenuProps={MenuProps}
+                    >
+                        {icons.map(icon => (
+                            <MenuItem key={icon.value} value={icon.value}>
+                                <CategoryIcon name={icon.value} className="mr-1.5"/>
+                                {icon.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </div>
+                {/* nadřazená kategorie */}
+                <div className="flex flex-col gap-1">
+                    <label htmlFor="parentId">Nadřazená kategorie:</label>
+                    <Select
+                        value={parentId || ""}
+                        size="small"
+                        onChange={(e) => setParentId(e.target.value || null)}
+                        MenuProps={MenuProps}
+                        renderValue={(selected) => {
+                            if (!selected) return "Žádná";
+                            const parent = categories.find(c => c.id === selected);
+                            return parent?.label || "Neznámá";
+                        }}
+                    >
+                        <MenuItem value="">Žádná</MenuItem>
+                        {(() => {
+                            //console.log("All categories:", categories);
+                            const rootCategories = categories.filter(c => (c.parentId === undefined || c.parentId === null) && c.id !== category?.id); // Jen kategorie bez rodiče a nesmí být sama sebe rodičem
+                            //console.log("Root categories:", rootCategories);
+                            return rootCategories.map(cat => (
+                                <MenuItem key={cat.id} value={cat.id}>
+                                    {cat.label}
+                                </MenuItem>
+                            ));
+                        })()}
+                    </Select>
+                </div>
+                {/* tlacitka */}
+                <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                    >
+                    Zrušit
+                    </button>
+                    <button 
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
+                    >
+                        Uložit transakci
+                    </button>
+                </div>
+            </form>
+        </>
+    )
+}
+
+const colors = [
+    { value: "bg-blue-100 text-blue-500", label: "Modrá", hex: "#3b82f6" },
+    { value: "bg-green-100 text-green-500", label: "Zelená", hex: "#22c55e" },
+    { value: "bg-yellow-100 text-yellow-500", label: "Žlutá", hex: "#eab308" },
+    { value: "bg-red-100 text-red-500", label: "Červená", hex: "#ef4444" },
+    { value: "bg-purple-100 text-purple-500", label: "Fialová", hex: "#a855f7" },
+    { value: "bg-pink-100 text-pink-500", label: "Růžová", hex: "#ec4899" },
+    { value: "bg-indigo-100 text-indigo-500", label: "Indigo", hex: "#6366f1" },
+    { value: "bg-cyan-100 text-cyan-500", label: "Azurová", hex: "#06b6d4" },
+    { value: "bg-emerald-100 text-emerald-500", label: "Smaragd", hex: "#10b981" },
+    { value: "bg-orange-100 text-orange-500", label: "Oranžová", hex: "#f97316" },
+    { value: "bg-amber-100 text-amber-500", label: "Jantarová", hex: "#f59e0b" },
+    { value: "bg-teal-100 text-teal-500", label: "Modrozelená", hex: "#14b8a6" },
+    { value: "bg-lime-100 text-lime-500", label: "Limetková", hex: "#84cc16" },
+    { value: "bg-slate-100 text-slate-500", label: "Šedá", hex: "#64748b" },
+];
+
+const icons = [
+    {value: "AttachMoney", label: "Peníze"},
+    {value: "DirectionsTransit", label: "Doprava"},
+    {value: "LocalCafe", label: "Kavárna"},
+    {value: "Movie", label: "Zábava"},
+    {value: "QuestionMark", label: "Nezařazeno"},
+    {value: "ShoppingCart", label: "Potraviny"},
+    {value: "ShoppingBag", label: "Nákupy"},
+    {value: "Home", label: "Domov"},
+    {value: "FitnessCenter", label: "Fitness"},
+    {value: "LocalHospital", label: "Zdraví"},
+    {value: "ElectricBolt", label: "Energie"},
+    {value: "Water", label: "Voda"},
+    {value: "LocalGasStation", label: "Pohonné hmoty"},
+    {value: "Flight", label: "Cestování"},
+    {value: "Hotel", label: "Ubytování"},
+    {value: "MenuBook", label: "Vzdělání"},
+    {value: "Work", label: "Práce"},
+    {value: "GamepadRounded", label: "Hry"},
+    {value: "MoreHoriz", label: "Jiné"},
+]

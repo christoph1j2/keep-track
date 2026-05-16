@@ -57,8 +57,10 @@ export function AddTransactionModal({ onSubmit, onCancel }: AddTransactionModalP
     return (
         <>
         {errors && (
-            <div>
-                <strong className="text-red-500">{errors.join(",\n")}</strong>
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                {errors.map((error, idx) => (
+                    <p key={idx}>{error}</p>
+                ))}
             </div>
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
@@ -101,7 +103,7 @@ export function AddTransactionModal({ onSubmit, onCancel }: AddTransactionModalP
                     <option value="" hidden disabled>
                         Vyberte kategorii
                     </option>
-                    {categories.map((category) => (
+                    {[...categories].sort((a, b) => a.order - b.order).map((category) => (
                         <option key={category.id} value={category.id}>
                             {category.label}
                         </option>
