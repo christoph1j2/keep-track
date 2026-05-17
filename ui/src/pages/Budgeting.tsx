@@ -47,7 +47,9 @@ export function Budgeting() {
                 if (!category) return null;
                 // console.log('Budget:', budget);
                 const categoryTransactions = currentMonthTransactions.filter(t => t.categoryId === budget.categoryId);
-                const totalSpent = Math.abs(categoryTransactions.reduce((sum, t) => sum + t.amount, 0));
+                const totalSpent = categoryTransactions
+                    .filter((t) => t.amount < 0)
+                    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
                 return (
                     <div
@@ -111,8 +113,12 @@ export function Budgeting() {
         >
             {selectedBudget && (
                 <EditBudgetModal 
+                    key={`${selectedBudget.categoryId}:${selectedBudget.limit}`}
                     budget={selectedBudget}
                     onSubmit={(categoryId, limit) => {
+                        if (selectedBudget && selectedBudget.categoryId !== categoryId) {
+                            removeBudget(selectedBudget.categoryId); // pokud se mění kategorie, smažeme původní rozpočet (kvůli klíči v useBudgets)
+                        }
                         setBudget(categoryId, limit);
                         setEditBudgetModalOpen(false);
                     }}

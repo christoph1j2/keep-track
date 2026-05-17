@@ -6,7 +6,7 @@ import { useCategories } from "../../hooks/useCategories";
 
 interface EditCategoryModalProps {
     category: Category | null;
-    onSubmit: (newLabel: string, newColorClass: string, newIconName: string, order: number, newParentId: string | null) => void;
+    onSubmit: (newLabel: string, newColorClass: string, newIconName: string, order: number, newParentId: string | undefined) => void;
     onCancel: () => void;
 }
 
@@ -23,7 +23,7 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
     const [label, setLabel] = useState(category?.label || "");
     const [colorClass, setColorClass] = useState(category?.colorClass || "");
     const [iconName, setIconName] = useState(category?.iconName || "");
-    const [parentId, setParentId] = useState<string | null>(category?.parentId || null);
+    const [parentId, setParentId] = useState<string | "">(category?.parentId || "");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<string[] | null>(null);
@@ -47,7 +47,7 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
             return;
         }
 
-        onSubmit(label, colorClass, iconName, category?.order || 0, parentId);
+        onSubmit(label, colorClass, iconName, category?.order || 0, parentId || undefined);
     }
 
     const MenuProps = {
@@ -64,7 +64,7 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
     return (
         <>
             {errors && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
                     {errors.map((error, idx) => (
                         <p key={idx}>{error}</p>
                     ))}
@@ -78,7 +78,6 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
                         id="label"
                         type="text"
                         placeholder="Např. Pohonné hmoty"
-                        defaultValue={category?.label || ""}
                         value={label}
                         onChange={(e) => setLabel(e.target.value)}
                         className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
@@ -152,7 +151,7 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
                     <Select
                         value={parentId || ""}
                         size="small"
-                        onChange={(e) => setParentId(e.target.value || null)}
+                        onChange={(e) => setParentId(e.target.value)}
                         MenuProps={MenuProps}
                         renderValue={(selected) => {
                             if (!selected) return "Žádná";

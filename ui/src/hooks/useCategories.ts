@@ -9,11 +9,12 @@ const DEFAULT_CATEGORIES: Category[] = [
     { id: "salary", label: "Výplata", iconName: "AttachMoney", colorClass: "bg-green-100 text-green-600", order: 3 },
     { id: "entertainment", label: "Zábava", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600", order: 4 },
     { id: "health", label: "Zdraví", iconName: "LocalHospital", colorClass: "bg-red-100 text-red-600", order: 5 },
-    { id: "coffee", label: "Kavárny", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600", parentId: "food", order: 6 },
-    { id: "groceries", label: "Potraviny", iconName: "ShoppingCart", colorClass: "bg-orange-100 text-orange-600", parentId: "food", order: 7 },
-    { id: "energy", label: "Energie", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 8 },
-    { id: "rent", label: "Nájem", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 9 },
-    { id: "fuel", label: "Pohonné hmoty", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600", parentId: "transport", order: 10 },
+    { id: "housing", label: "Bydlení", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600", order: 6 }, 
+    { id: "coffee", label: "Kavárny", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600", parentId: "food", order: 7 },
+    { id: "groceries", label: "Potraviny", iconName: "ShoppingCart", colorClass: "bg-orange-100 text-orange-600", parentId: "food", order: 8 },
+    { id: "energy", label: "Energie", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 9 },
+    { id: "rent", label: "Nájem", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 10 },
+    { id: "fuel", label: "Pohonné hmoty", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600", parentId: "transport", order: 11 },
     { id: "uncategorized", label: "Nezařazeno", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600", order: 999999999 }
 ];
 
@@ -125,10 +126,11 @@ export function useCategories() {
             const newCategories = prev
                 .filter(c => c.id !== id) // vyhodi smazanou
                 .map(c => {
+                    const nextParentId = c.parentId === id ? undefined : c.parentId; // pokud byla kategorie rodičem, nastaví parentId na undefined
                     if (c.order > delCat.order) {
-                        return { ...c, order: c.order - 1 }; // posuneme nahoru kategorie, ktere byly pod mazanym
+                        return { ...c, parentId: nextParentId, order: c.order - 1 }; // posuneme nahoru kategorie, ktere byly pod mazanym
                     }
-                    return c;
+                    return nextParentId !== c.parentId ? { ...c, parentId: nextParentId } : c; // pokud se meni parentId, vratime novy objekt, jinak stary (optimalizace renderu)
                 });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newCategories));
             return newCategories;

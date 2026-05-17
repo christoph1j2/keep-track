@@ -1,5 +1,5 @@
 import { MenuItem, Select } from "@mui/material";
-import {useState} from "react";
+import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
 import type { Budget } from "../../types/budget";
 
@@ -24,6 +24,7 @@ export function EditBudgetModal({ budget, onSubmit, onCancel }: EditBudgetModalP
     // stavy pro formular
     const [categoryId, setCategoryId] = useState(budget.categoryId);
     const [limit, setLimit] = useState<number | "">(budget.limit);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<string[] | null>(null);
 
@@ -64,7 +65,7 @@ export function EditBudgetModal({ budget, onSubmit, onCancel }: EditBudgetModalP
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
                 {errors.map((err, i) => (
                     <p key={i}>{err}</p>
                 ))}
@@ -84,7 +85,6 @@ export function EditBudgetModal({ budget, onSubmit, onCancel }: EditBudgetModalP
                             c => c.id === selected)?.label 
                             || "Neznámá kategorie";
                     }}
-                    defaultValue={budget.categoryId}
                 >
                     <MenuItem value="">Žádná</MenuItem>
                     {(() => {

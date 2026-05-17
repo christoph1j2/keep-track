@@ -55,7 +55,7 @@ export function QuickAddTemplateModal({ template, onSubmit, onCancel }: QuickAdd
     return (
         <>
             {errors && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
                     {errors.map((error, index) => (
                         <p key={index}>{error}</p>
                     ))}
