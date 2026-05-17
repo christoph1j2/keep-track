@@ -45,9 +45,9 @@ export function Overview() {
 
     return (
         <div className="lg:h-full flex flex-col">
-            <div className="mb-6 flex justify-between items-center">
+            <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 items-center text-center">
                 <h2 className="text-3xl font-bold text-slate-800">Přehled transakcí</h2>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-fit"
                 onClick={() => setIsAddTransactionModalOpen(true)}
                 >
                     + Nová transakce

@@ -13,5 +13,6 @@ export interface Category {
     label: string;
     iconName: string;
     colorClass: string;
+    order: number;
     parentId?: string;
 }

@@ -82,5 +82,23 @@ export function useTransactions() {
         })
     }
 
-    return { transactions, addTransaction, updateTransaction, deleteTransaction  };
+    /**
+     * Rewrites categoryId
+     * 
+     * @param oldCategoryId Identifier of the category to replace.
+     * @param newCategoryId Identifier of the category to replace with.
+     */
+    const reassignCategory = (oldCategoryId: string, newCategoryId: string) => {
+        setTransactions((prev: Transaction[]) => {
+            const newTransactions = prev.map(t =>
+                // pokud ma transakce stare id, vratime jeji kopii s novym id
+                t.categoryId === oldCategoryId ? { ...t, categoryId: newCategoryId } : t
+            );
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newTransactions));
+            return newTransactions;
+        });
+    }
+
+
+    return { transactions, addTransaction, updateTransaction, deleteTransaction, reassignCategory };
 }
