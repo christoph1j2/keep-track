@@ -125,8 +125,6 @@ export function useCategories() {
         })
     };
 
-    // TODO FIX, DOESNT SAVE TO LOCALSTORAGE CORRECTLY
-
     const moveCategoryUp = (categoryId: string) => {
         setCategories((prev: Category[]) => {
             const selectedCat = prev.find(c => c.id === categoryId);
