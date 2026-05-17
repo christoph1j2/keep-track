@@ -22,7 +22,6 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
     const [label, setLabel] = useState("");
     const [colorClass, setColorClass] = useState("bg-gray-500");
     const [iconName, setIconName] = useState("question_mark");
-    const [order, setOrder] = useState(0);
     const [parentId, setParentId] = useState<string | "">("");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,9 +35,9 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
         setIsSubmitting(true);
         setErrors(null);
 
-        setOrder(categories.length > 0 
-            ? Math.max(...categories.map(c => c.order)) + 1 
-            : 0); // Nastaví order na nejvyšší existující + 1
+        const nextOrder = categories.length > 0
+            ? Math.max(...categories.map(c => c.order)) + 1
+            : 0;
 
         // validace
         if (!label || !colorClass || !iconName) {
@@ -47,7 +46,7 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
             return;
         }
 
-        onSubmit(label, colorClass, iconName, order, parentId || undefined);
+        onSubmit(label, colorClass, iconName, nextOrder, parentId || undefined);
     }
 
     const MenuProps = {
@@ -64,7 +63,7 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
                 {errors.map((err, idx) => (
                     <p key={idx}>{err}</p>
                 ))}
@@ -162,7 +161,7 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
                     <MenuItem value="">Žádná</MenuItem>
                     {(() => {
                         //console.log("All categories:", categories);
-                        const rootCategories = categories.filter(c => c.parentId === undefined); // Jen kategorie bez rodiče
+                        const rootCategories = categories.filter(c => (c.parentId === undefined || c.parentId === null)); // Jen kategorie bez rodiče
                         //console.log("Root categories:", rootCategories);
                         return rootCategories.map(cat => (
                             <MenuItem key={cat.id} value={cat.id}>
@@ -185,7 +184,7 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
                 >
-                    Uložit transakci
+                    Uložit kategorii
                 </button>
             </div>
         </form>

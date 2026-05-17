@@ -94,7 +94,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
         <>
         <hr />
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
                 {errors.map((error, idx) => (
                     <p key={idx}>{error}</p>
                 ))}

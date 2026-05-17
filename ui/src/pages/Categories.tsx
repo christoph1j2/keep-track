@@ -4,7 +4,6 @@ import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { useState } from "react";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { EditCategoryModal } from "../components/Modals/EditCategoryModal";
-import type { Category } from "../types/category";
 import { AddCategoryModal } from "../components/Modals/AddCategoryModal";
 import { ArrowDownward, ArrowUpward, Delete, Edit } from "@mui/icons-material";
 
@@ -126,15 +125,15 @@ export function Categories() {
                 <EditCategoryModal
                     category={selectedCategory || null}
                     onSubmit={(label, colorClass, iconName, order, parentId) => {
-                        const updatedCategory = {
-                            id: selectedCategory?.id,
+                        if (!selectedCategory) return;
+                        updateCategory({
+                            ...selectedCategory,
                             label,
                             colorClass,
                             iconName,
                             order,
-                            parentId
-                        } as Category;
-                        updateCategory(updatedCategory);
+                            parentId: parentId ?? undefined,
+                        });
                         setEditModalOpen(false);
                     }}
                     onCancel={() => setEditModalOpen(false)}

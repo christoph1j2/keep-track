@@ -61,7 +61,7 @@ export function AddBudgetModal({ onSubmit, onCancel }: AddBudgetModalProps) {
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
                 {errors.map((err, i) => (
                     <p key={i}>{err}</p>
                 ))}

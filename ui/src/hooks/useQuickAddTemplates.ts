@@ -3,6 +3,21 @@ import type { QuickAddTemplate } from "../types/quickadd";
 
 const STORAGE_KEY = "keep-track-quick-add-templates";
 
+
+function isQuickAddTemplate(value: unknown): value is Omit<QuickAddTemplate, "showInHotbar"> & { showInHotbar?: boolean } {  
+    if (!value || typeof value !== "object") return false;  
+    const t = value as Record<string, unknown>;  
+    const hotbarOk = t.showInHotbar === undefined || typeof t.showInHotbar === "boolean";  
+    return (  
+        typeof t.id === "string" &&  
+        typeof t.title === "string" &&  
+        typeof t.amount === "number" &&  
+        typeof t.categoryId === "string" &&  
+        hotbarOk  
+    );  
+}  
+ 
+
 /**
  * Loads the initial quick add template list from localStorage.
  * Falls back to an empty list when storage is unavailable, missing, or invalid.
@@ -17,7 +32,9 @@ function getInitialTemplates(): QuickAddTemplate[] {
         if (!savedData) return [];
         const parsed: unknown = JSON.parse(savedData);
         return Array.isArray(parsed)
-            ? (parsed as QuickAddTemplate[]).map((template) => ({
+            ? parsed
+                .filter(isQuickAddTemplate)
+                .map((template) => ({
                 ...template,
                 showInHotbar: template.showInHotbar ?? true,
             }))
