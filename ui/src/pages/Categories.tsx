@@ -6,8 +6,12 @@ import { BaseModal } from "../components/Modals/BaseModal";
 import { EditCategoryModal } from "../components/Modals/EditCategoryModal";
 import type { Category } from "../types/category";
 import { AddCategoryModal } from "../components/Modals/AddCategoryModal";
-import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
+import { ArrowDownward, ArrowUpward, Delete, Edit } from "@mui/icons-material";
 
+/**
+ * Categories management page for organizing transaction categories.
+ * Allows create, update, delete, and reorder actions through drag-and-drop.
+ */
 export function Categories() {
     const { categories, removeCategory, updateCategory, addCategory, moveCategoryDown, moveCategoryUp } = useCategories();
     const { reassignCategory } = useTransactions();
@@ -28,10 +32,10 @@ export function Categories() {
 
     return (
         <div className="p-2 h-full flex flex-col">
-            <div className="mb-6 flex justify-between items-center">
+            <div className="mb-6 flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
                 <h2 className="text-3xl font-bold text-slate-800">Správa kategorií</h2>
                 <button 
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors w-full md:w-fit"
                     onClick={() => setAddModalOpen(true)}
                 >
                     + Nová kategorie
@@ -71,8 +75,9 @@ export function Categories() {
                                         setSelectedCategory(cat);
                                         setEditModalOpen(true);
                                     }}
-                                    className="px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-md transition-colors"
+                                    className="inline-flex items-center px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-md transition-colors"
                                 >
+                                    <Edit fontSize="small" />
                                     Upravit
                                 </button>
                                 
@@ -80,8 +85,9 @@ export function Categories() {
                                 {cat.id !== "uncategorized" && ( // Nezařazeno nesmíme smazat!
                                     <button 
                                         onClick={() => handleDelete(cat.id)}
-                                        className="px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                        className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
                                     >
+                                        <Delete fontSize="small" />
                                         Smazat
                                     </button>
                                 )}

@@ -38,14 +38,13 @@ function isCategory(value: unknown): value is Category {
 }
 
 /**
- * Exposes categories with localStorage-backed initialization.
- * If storage is unavailable or invalid, default categories are returned.
+ * Loads the initial category list from localStorage.
+ * Falls back to default categories when storage is unavailable, missing, or invalid.
  *
- * @returns Category list and a lookup helper by category id.
+ * @returns Stored categories, or default categories when data cannot be recovered.
  */
-export function useCategories() {
-    const [categories, setCategories] = useState<Category[]>(() => {
-        if (typeof window === "undefined") return DEFAULT_CATEGORIES;
+function getInitialTransactions(): Category[] {
+    if (typeof window === "undefined") return DEFAULT_CATEGORIES;
         try {
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (!savedData) return DEFAULT_CATEGORIES;
@@ -57,6 +56,17 @@ export function useCategories() {
             console.error("Error parsing saved categories:", error);
             return DEFAULT_CATEGORIES;
         }
+}
+
+/**
+ * Exposes categories with localStorage-backed initialization.
+ * If storage is unavailable or invalid, default categories are returned.
+ *
+ * @returns Category list and a lookup helper by category id.
+ */
+export function useCategories() {
+    const [categories, setCategories] = useState<Category[]>(() => {
+        return getInitialTransactions();
     });
 
     /**
@@ -124,8 +134,13 @@ export function useCategories() {
             return newCategories;
         })
     };
-
-    const moveCategoryUp = (categoryId: string) => {
+    /**
+     * Moves a category up in the sort order by swapping with the category above it.
+     * Updates the order field and persists the result.
+     * Does nothing if the category is already at the top.
+     *
+     * @param categoryId Identifier of the category to move up.
+     */    const moveCategoryUp = (categoryId: string) => {
         setCategories((prev: Category[]) => {
             const selectedCat = prev.find(c => c.id === categoryId);
             let selectedCatOrder = selectedCat?.order || 0;
@@ -154,8 +169,13 @@ export function useCategories() {
             return newCategories;
         })
     };
-
-    const moveCategoryDown = (categoryId: string) => {
+    /**
+     * Moves a category down in the sort order by swapping with the category below it.
+     * Updates the order field and persists the result.
+     * Does nothing if the category is already at the bottom.
+     *
+     * @param categoryId Identifier of the category to move down.
+     */    const moveCategoryDown = (categoryId: string) => {
         setCategories((prev: Category[]) => {
             const selectedCat = prev.find(c => c.id === categoryId);
             let selectedCatOrder = selectedCat?.order || 0;

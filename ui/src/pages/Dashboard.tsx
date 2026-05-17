@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useTransactions } from "../hooks/useTransactions";
+import { useQuickAddTemplates } from "../hooks/useQuickAddTemplates";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { StatCard } from "../components/Dashboard/StatCard";
 import { QuickAddButton } from '../components/QuickAdd/QuickAddButton';
-import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro, LocalCafe } from "@mui/icons-material";
+import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro } from "@mui/icons-material";
 import { Graph } from "../components/Dashboard/Graph";
 import { LastTransactions } from "../components/Dashboard/LastTransactions";
 import { ExpensiveCategories } from '../components/Dashboard/ExpensiveCategories';
+import { useCategories } from "../hooks/useCategories";
+import { CategoryIcon } from "../components/Base/CategoryIcon";
+import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
+import { useBudgets } from "../hooks/useBudgets";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -15,7 +20,10 @@ import { ExpensiveCategories } from '../components/Dashboard/ExpensiveCategories
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { transactions, addTransaction } = useTransactions();
-
+    const { templates } = useQuickAddTemplates();
+    const { categories } = useCategories();
+    const hotbarTemplates = templates.filter((template) => template.showInHotbar);
+    const { budgets } = useBudgets();
 
     const now = new Date();
     const currentMonthTransactions = transactions.filter((t) => {
@@ -37,6 +45,27 @@ export function Dashboard() {
         });
     };
 
+    const budgetStatus = budgets.length > 0 ? (() => {
+        let exceeded = 0;
+        let ok = 0;
+
+        budgets.forEach(budget => {
+            const categoryTransactions = currentMonthTransactions.filter(t => t.categoryId === budget.categoryId);
+            const totalSpent = Math.abs(categoryTransactions.reduce((sum, t) => sum + t.amount, 0));
+
+            if (totalSpent > budget.limit) {
+                exceeded++;
+            }
+            if (totalSpent > budget.limit * 0.8) {
+                ok++;
+            }
+        });
+
+        if (exceeded > 0) return 'BAD';
+        if (ok > 0) return 'OK';
+        return 'GOOD';
+    })() : 'GOOD';
+
 
     const income = currentMonthTransactions
                     .filter(t => t.amount > 0)
@@ -48,7 +77,9 @@ export function Dashboard() {
 
     return (
         <div className="p-0">
-        <h2 className="text-3xl font-bold text-slate-800 mb-4">Dashboard</h2>
+        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <h2 className="text-3xl font-bold text-slate-800">Dashboard</h2>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -72,7 +103,7 @@ export function Dashboard() {
             />
             <StatCard 
                 title="Rozpočet tento měsíc"
-                budget_status="OK" // GOOD, BAD, OK, //TODO based on the budgeting in the budgeting tab
+                budget_status={budgetStatus}
                 icon={<CalendarMonth />}
             />
 
@@ -82,8 +113,6 @@ export function Dashboard() {
             <section className="bg-white p-6 rounded-2xl shadow-sm">
             <h3 className="text-xl font-bold mb-4">Quick Add</h3>
             <div className="flex gap-4 overflow-x-auto">
-                {/** Quick add buttons will be rendered here, */}
-                {/** for now, hardcoded example buttons */} {/*TODO BASED ON ACTUAL QUICK ADD BUTTONS THE USER CREATED */}
                 <QuickAddButton 
                     title="Přidat"
                     icon={<Add />}
@@ -92,36 +121,28 @@ export function Dashboard() {
                         setIsModalOpen(true);
                     }}
                 />
-                <QuickAddButton 
-                    title="Káva"
-                    icon={<LocalCafe />}
-                    amount={-29.90}
-                    colorClass="bg-orange-200 text-orange-600 hover:bg-orange-300 transition-colors"
-                    onClick={() => {
-                        addTransaction({
-                            id: crypto.randomUUID(),
-                            title: "Káva",
-                            amount: -29.90,
-                            categoryId: "food",
-                            date: new Date().toISOString(),
-                        });
-                    }}
-                />
-                <QuickAddButton 
-                    title="Brigáda"
-                    icon={<Euro />}
-                    amount={9.90}
-                    colorClass="bg-green-200 text-green-600 hover:bg-green-300 transition-colors"
-                    onClick={() => {
-                        addTransaction({
-                            id: crypto.randomUUID(),
-                            title: "Brigáda",
-                            amount: 9.90,
-                            categoryId: "salary",
-                            date: new Date().toISOString(),
-                        });
-                    }}
-                />
+                {hotbarTemplates.map((template) => {
+                    const category = categories.find((cat) => cat.id === template.categoryId);
+
+                    return (
+                        <QuickAddButton
+                            key={template.id}
+                            title={template.title}
+                            icon={<CategoryIcon name={category?.iconName ?? "QuestionMark"} />}
+                            amount={template.amount}
+                            colorClass={`${category?.colorClass || "bg-gray-200 text-gray-800"} hover:opacity-80 transition-opacity`}
+                            onClick={() => {
+                                addTransaction({
+                                    id: crypto.randomUUID(),
+                                    title: template.title,
+                                    amount: template.amount,
+                                    categoryId: template.categoryId,
+                                    date: new Date().toISOString(),
+                                });
+                            }}
+                        />
+                    );
+                })}
             </div>
             </section>
 
@@ -145,13 +166,25 @@ export function Dashboard() {
         </div>
         
         <BaseModal
-            title="Moje první okno!"
+            title="Přidat transakci"
             isOpen={isModalOpen}
             onClose={()=>{
                 setIsModalOpen(false);
             }}
         >
-            <p>obsah uvnitr modalu</p>
+            <AddTransactionModal
+                onSubmit={(title, amount, categoryId) => {
+                    addTransaction({
+                        id: crypto.randomUUID(),
+                        title,
+                        amount,
+                        categoryId,
+                        date: new Date().toISOString(),
+                    });
+                    setIsModalOpen(false);
+                }}
+                onCancel={() => setIsModalOpen(false)}
+            />
         </BaseModal>
         </div>
         </div>

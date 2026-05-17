@@ -1,9 +1,11 @@
 import { BarChart } from "@mui/x-charts/BarChart";
 import type { Transaction } from "../../types/transaction";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 /**
  * Compares monthly income and expenses over the last six months.
  * The chart expects a transaction provider callback so month filtering logic can stay in the parent.
+ * Chart height is responsive based on screen size.
  *
  * @param props.getTransactionsForMonth Function that returns transactions for a given month and year.
  */
@@ -15,6 +17,7 @@ export function Graph(
         getTransactionsForMonth: (month: number, year: number) => Transaction[]
     }
 ) {
+    const isMobile = useIsMobile();
     const now = new Date();
 
     const graphPeriods = Array.from({ length: 6 }, (_, index) => {
@@ -40,10 +43,13 @@ export function Graph(
         )
     );
 
+    // Responsive chart height: smaller on mobile, larger on desktop
+    const chartHeight = isMobile ? 250 : 350;
+
     return (
         <section className="bg-white p-6 rounded-2xl shadow-sm">
             <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
-            <div className="h-103.5">
+            <div className="h-auto">
                 <BarChart
                     xAxis={[{ data: graphPeriods.map(p => p.label) }]}
                     yAxis={[{
@@ -56,7 +62,7 @@ export function Graph(
                         { label: "Příjmy", data: monthlyIncome },
                         { label: "Výdaje", data: monthlyExpenses },
                     ]}
-                    height={350}
+                    height={chartHeight}
                 />
             </div>
         </section>

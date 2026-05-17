@@ -10,6 +10,14 @@ interface EditCategoryModalProps {
     onCancel: () => void;
 }
 
+/**
+ * Form used to update an existing category.
+ * Pre-fills with current category values and validates that label, color, and icon are provided.
+ *
+ * @param props.category Category record to be edited, or null to handle edge cases.
+ * @param props.onSubmit Called with the updated category fields when form is valid.
+ * @param props.onCancel Called when the user closes the form without saving.
+ */
 export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategoryModalProps) {
     const {categories} = useCategories();
     const [label, setLabel] = useState(category?.label || "");

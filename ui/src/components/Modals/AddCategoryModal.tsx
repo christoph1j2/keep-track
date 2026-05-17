@@ -8,6 +8,14 @@ interface AddCategoryModalProps {
     onCancel: () => void;
 }
 
+/**
+ * Form used to create a new transaction category.
+ * Validates that label, color, and icon are selected.
+ * Automatically assigns the next order value based on existing categories.
+ *
+ * @param props.onSubmit Called with the new category data when form is valid.
+ * @param props.onCancel Called when the user closes the form without saving.
+ */
 export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) {
     const { categories } = useCategories();
 

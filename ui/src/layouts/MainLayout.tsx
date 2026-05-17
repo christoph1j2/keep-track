@@ -10,7 +10,7 @@ import { Topbar } from '../components/Base/Topbar';
  */
 export function MainLayout({ children }: { children: ReactNode }) {
     return (
-        <div className="flex h-screen bg-slate-50">
+        <div className="flex h-screen bg-slate-50 flex-col md:flex-row">
             {/* side panel */}
             <Sidebar />
 
@@ -19,7 +19,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
                 <Topbar />
 
                 {/* main content */}
-                <main className="flex-1 p-8">
+                <main className="flex-1 p-4 md:p-8">
                     {children}
                 </main>
             </div>

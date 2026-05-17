@@ -1,13 +1,27 @@
+import { MobileMenu } from './MobileMenu';
+
 /**
- * Simple application header that currently shows the signed-in user's name and personal id.
- * The content is static for now, but the component is small on purpose so it can later pull from auth or user context.
+ * Application header with user info and mobile hamburger menu.
+ * Shows user details on all screens, hamburger menu only on mobile.
  */
 export function Topbar() {
     return (
-        <header className="h-16 bg-white border-b border-slate-200 p-3 pl-6">
-            <div>
+        <header className="h-16 bg-white border-b border-slate-200 p-3 pl-6 flex items-center justify-between md:justify-start">
+            {/* Desktop user info */}
+            <div className="hidden md:block">
                 <p className="font-semibold">Ernst Christoph Leschka</p>
                 <p className="text-sm text-slate-500">Osobní číslo: A25B0266P</p>
+            </div>
+
+            {/* Mobile hamburger menu (visible only on small screens) */}
+            <div className="md:hidden">
+                <MobileMenu />
+            </div>
+
+            {/* Mobile user info (visible only on small screens) */}
+            <div className="md:hidden text-right">
+                <p className="font-semibold text-sm">Ernst Christoph Leschka</p>
+                <p className="text-xs text-slate-500">Osobní číslo: A25B0266P</p>
             </div>
         </header>
     )
