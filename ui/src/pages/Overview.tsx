@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useTransactions } from "../hooks/useTransactions";
 import { useCategories } from "../hooks/useCategories";
 import { CategoryTree } from "../components/Overview/CategoryTree";
@@ -14,18 +15,16 @@ import { SplitTransactionModal } from "../components/Modals/SplitTransactionModa
 export function Overview() {
     const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
     const { categories } = useCategories();
+    const location = useLocation();
 
     const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
     const [isSplitTransactionModalOpen, setIsSplitTransactionModalOpen] = useState(false);
 
     const [selectedTransaction, setSelectedTransaction] = useState<typeof transactions[0] | null>(null);
 
-    // dbug
-    //{console.log(transactions)}
-
-    // pamet co uzivatel zaklikl ve stromu
-    // na zacatku (null) neni vybrano nic = ukazujeme vse
-    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+    // Get initial category from navigation state, otherwise null
+    const initialCategoryId = (location.state as { selectedCategoryId: string } | null)?.selectedCategoryId || null;
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(initialCategoryId);
 
     //  filtrovane transakce pro datagrid
     const filteredTransactions = selectedCategoryId

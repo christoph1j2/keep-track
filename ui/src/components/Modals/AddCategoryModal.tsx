@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
-import { Select, MenuItem } from "@mui/material";
+import { Select, MenuItem, TextField } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 
 interface AddCategoryModalProps {
@@ -72,20 +72,21 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
             {/* nazev */}
             <div className="flex flex-col gap-1">
-                <label htmlFor="label">Název:</label>
-                <input
-                    id="label"
+                <label className="text-sm font-medium text-slate-700">Název</label>
+                <TextField
+                    fullWidth
+                    size="small"
                     type="text"
-                    placeholder="Např. Transport"
+                    placeholder="Např. Doprava"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
-                    className="border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
             {/* barva */}
             <div className="flex flex-col gap-1">
-                <label htmlFor="colorClass">Barva:</label>
+                <label className="text-sm font-medium text-slate-700">Barva</label>
                 <Select
+                    fullWidth
                     value={colorClass}
                     size="small"
                     onChange={(e) => setColorClass(e.target.value)}
@@ -129,8 +130,9 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
             </div>
             {/* ikona */}
             <div className="flex flex-col gap-1">
-                <label htmlFor="iconName">Ikona:</label>
+                <label className="text-sm font-medium text-slate-700">Ikona</label>
                 <Select
+                    fullWidth
                     value={iconName}
                     size="small"
                     onChange={(e) => setIconName(e.target.value)}
@@ -146,8 +148,9 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
             </div>
             {/* nadřazená kategorie */}
             <div className="flex flex-col gap-1">
-                <label htmlFor="parentId">Nadřazená kategorie:</label>
+                <label className="text-sm font-medium text-slate-700">Nadřazená kategorie</label>
                 <Select
+                    fullWidth
                     value={parentId || ""}
                     size="small"
                     onChange={(e) => setParentId(e.target.value)}

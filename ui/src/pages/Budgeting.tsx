@@ -2,6 +2,7 @@ import { useCategories } from "../hooks/useCategories";
 import { useTransactions } from "../hooks/useTransactions";
 import { useBudgets } from '../hooks/useBudgets';
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../components/Budgeting/ProgressBar";
 import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { BaseModal } from "../components/Modals/BaseModal";
@@ -17,11 +18,16 @@ export function Budgeting() {
     const { transactions } = useTransactions();
     const { categories } = useCategories();
     const { budgets, setBudget, removeBudget } = useBudgets();
+    const navigate = useNavigate();
 
     const [selectedBudget, setSelectedBudget] = useState<typeof budgets[0]>();
 
     const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
     const [isEditBudgetModalOpen, setEditBudgetModalOpen] = useState(false);
+
+    const handleProgressBarClick = (categoryId: string) => {
+        navigate('/overview', { state: { selectedCategoryId: categoryId } });
+    };
 
     const now = new Date();
     const currentMonthTransactions = transactions.filter((t) => {
@@ -61,6 +67,7 @@ export function Budgeting() {
                             categoryIcon={<CategoryIcon name={category.iconName} className="" />}
                             progress={totalSpent}
                             limit={budget.limit}
+                            onClick={() => handleProgressBarClick(budget.categoryId)}
                         />
                         
                         <div className="flex flex-col gap-2 ml-auto">

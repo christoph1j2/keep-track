@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
 import type { QuickAddTemplate } from "../../types/quickadd";
+import { Select, MenuItem, TextField } from "@mui/material";
 
 interface QuickAddTemplateModalProps {
     template?: QuickAddTemplate | null;
@@ -64,44 +65,44 @@ export function QuickAddTemplateModal({ template, onSubmit, onCancel }: QuickAdd
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="quickadd-title">Název:</label>
-                    <input
-                        id="quickadd-title"
+                    <label className="text-sm font-medium text-slate-700">Název</label>
+                    <TextField
+                        fullWidth
+                        size="small"
                         type="text"
                         placeholder="Např. Káva"
                         value={title}
                         onChange={(event) => setTitle(event.target.value)}
-                        className="p-2 border border-slate-400 rounded-md"
                     />
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="quickadd-amount">Částka:</label>
-                    <input
-                        id="quickadd-amount"
+                    <label className="text-sm font-medium text-slate-700">Částka</label>
+                    <TextField
+                        fullWidth
+                        size="small"
                         type="number"
-                        step="0.01"
                         placeholder="Např. -59 nebo 5000"
+                        slotProps={{ htmlInput: { step: "0.01" } }}
                         value={amount}
                         onChange={(event) => setAmount(event.target.value ? parseFloat(event.target.value) : "")}
-                        className="p-2 border border-slate-400 rounded-md"
                     />
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="quickadd-category">Kategorie:</label>
-                    <select
-                        id="quickadd-category"
+                    <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                    <Select
+                        fullWidth
+                        size="small"
                         value={categoryId}
                         onChange={(event) => setCategoryId(event.target.value)}
-                        className="p-2 border border-slate-400 rounded-md"
                     >
                         {sortedCategories.map((category) => (
-                            <option key={category.id} value={category.id}>
+                            <MenuItem key={category.id} value={category.id}>
                                 {category.label}
-                            </option>
+                            </MenuItem>
                         ))}
-                    </select>
+                    </Select>
                 </div>
 
                 <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
