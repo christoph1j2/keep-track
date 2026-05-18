@@ -17,6 +17,7 @@ function App() {
             <MainLayout>
                 <Routes>
                     <Route path="/" element={<Dashboard />} />
+                    <Route path="/keep-track" element={<Dashboard />} />
                     <Route path="/overview" element={<Overview />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route path="/budgeting" element={<Budgeting />} />

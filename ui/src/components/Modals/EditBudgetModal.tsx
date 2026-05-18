@@ -1,4 +1,4 @@
-import { MenuItem, Select } from "@mui/material";
+import { MenuItem, Select, TextField } from "@mui/material";
 import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
 import type { Budget } from "../../types/budget";
@@ -73,8 +73,9 @@ export function EditBudgetModal({ budget, onSubmit, onCancel }: EditBudgetModalP
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-                <label htmlFor="parentId">Kategorie:</label>
+                <label className="text-sm font-medium text-slate-700">Kategorie</label>
                 <Select
+                    fullWidth
                     value={categoryId || ""}
                     size="small"
                     onChange={(e) => setCategoryId(e.target.value)}
@@ -98,15 +99,14 @@ export function EditBudgetModal({ budget, onSubmit, onCancel }: EditBudgetModalP
             </div>
 
             <div className="flex flex-col gap-1">
-                <label htmlFor="limit">Limit (CZK):</label>
-                <input
-                    id="limit"
+                <label className="text-sm font-medium text-slate-700">Limit (CZK)</label>
+                <TextField
+                    fullWidth
+                    size="small"
                     type="number"
                     placeholder="Např. 5000"
                     value={limit}
                     onChange={(e) => setLimit(e.target.value === "" ? "" : Number(e.target.value))}
-                    className="p-2 border border-slate-400 rounded-md"
-                    
                 />
             </div>
 

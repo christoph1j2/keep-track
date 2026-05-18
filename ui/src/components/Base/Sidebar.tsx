@@ -6,6 +6,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StyleIcon from '@mui/icons-material/Style';
 import CategoryIcon from '@mui/icons-material/Category';
+import { Extension } from '@mui/icons-material';
 
 interface MenuItem {
     title: string,
@@ -23,7 +24,7 @@ const MENU_ITEMS: MenuItem[] = [
     { title: 'Přehled', icon: <ShowChartIcon />, path: '/overview' },
     { title: 'Kategorie', icon: <CategoryIcon />, path: '/categories' },
     { title: 'Rozpočty', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
-    { title: 'Šablony', icon: <StyleIcon />, path: '/quickadd' },
+    { title: 'Šablony', icon: <Extension />, path: '/quickadd' },
 ];
 
 /**

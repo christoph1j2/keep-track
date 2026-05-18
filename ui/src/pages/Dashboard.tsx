@@ -132,13 +132,15 @@ export function Dashboard() {
                             amount={template.amount}
                             colorClass={`${category?.colorClass || "bg-gray-200 text-gray-800"} hover:opacity-80 transition-opacity`}
                             onClick={() => {
-                                addTransaction({
-                                    id: crypto.randomUUID(),
-                                    title: template.title,
-                                    amount: template.amount,
-                                    categoryId: template.categoryId,
-                                    date: new Date().toISOString(),
-                                });
+                                if (window.confirm(`Přidat transakci: ${template.title}\n${template.amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}?`)) {
+                                    addTransaction({
+                                        id: crypto.randomUUID(),
+                                        title: template.title,
+                                        amount: template.amount,
+                                        categoryId: template.categoryId,
+                                        date: new Date().toISOString(),
+                                    });
+                                }
                             }}
                         />
                     );

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
+import { Select, MenuItem, TextField } from "@mui/material";
 
 interface AddTransactionModalProps {
     onSubmit: (title: string, amount: number, categoryId: string) => void;
@@ -66,49 +67,49 @@ export function AddTransactionModal({ onSubmit, onCancel }: AddTransactionModalP
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
             {/* nazev */}
             <div className="flex flex-col gap-1">
-                <label htmlFor="title">Název:</label>
-                <input
-                    id="title"
+                <label className="text-sm font-medium text-slate-700">Název</label>
+                <TextField
+                    fullWidth
+                    size="small"
                     type="text"
                     placeholder="Např. Benzin ONO"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="p-2 border border-slate-400 rounded-md"
                 />
             </div>
 
             {/* castka */}
             <div className="flex flex-col gap-1">
-                <label htmlFor="amount">Částka:</label>
-                <input
-                    id="amount"
+                <label className="text-sm font-medium text-slate-700">Částka</label>
+                <TextField
+                    fullWidth
+                    size="small"
                     type="number"
                     placeholder="Např. -1000 (výdaj) nebo 5000 (příjem)"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value ? parseFloat(e.target.value) : "")}
-                className="p-2 border border-slate-400 rounded-md"
-            />
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value ? parseFloat(e.target.value) : "")}
+                />
             </div>
 
             {/* kategorie */}
             <div className="flex flex-col gap-1">
-                <label htmlFor="categoryId">Kategorie:</label>
-                <select
-                    id="categoryId"
+                <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                <Select
+                    fullWidth
+                    size="small"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="p-2 border border-slate-400 rounded-md"
-                    required
+                    renderValue={(selected) => {
+                        if (!selected) return "Vyberte kategorii";
+                        return categories.find(c => c.id === selected)?.label || "Neznámá kategorie";
+                    }}
                 >
-                    <option value="" hidden disabled>
-                        Vyberte kategorii
-                    </option>
-                    {[...categories].sort((a, b) => a.order - b.order).map((category) => (
-                        <option key={category.id} value={category.id}>
+                    {categories.map((category) => (
+                        <MenuItem key={category.id} value={category.id}>
                             {category.label}
-                        </option>
+                        </MenuItem>
                     ))}
-                </select>
+                </Select>
             </div>
 
             {/* tlacitka */}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Select, MenuItem } from "@mui/material";
+import { Select, MenuItem, TextField } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import type { Category } from "../../types/category";
 import { useCategories } from "../../hooks/useCategories";
@@ -73,20 +73,21 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
                 {/* nazev */}
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="label">Název:</label>
-                    <input
-                        id="label"
+                    <label className="text-sm font-medium text-slate-700">Název</label>
+                    <TextField
+                        fullWidth
+                        size="small"
                         type="text"
                         placeholder="Např. Pohonné hmoty"
                         value={label}
                         onChange={(e) => setLabel(e.target.value)}
-                        className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
                     />
                 </div>
                 {/* barva */}
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="colorClass">Barva:</label>
+                    <label className="text-sm font-medium text-slate-700">Barva</label>
                     <Select
+                        fullWidth
                         value={colorClass}
                         size="small"
                         onChange={(e) => setColorClass(e.target.value)}
@@ -130,8 +131,9 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
                 </div>
                 {/* ikona */}
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="iconName">Ikona:</label>
+                    <label className="text-sm font-medium text-slate-700">Ikona</label>
                     <Select
+                        fullWidth
                         value={iconName}
                         size="small"
                         onChange={(e) => setIconName(e.target.value)}
@@ -147,8 +149,9 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
                 </div>
                 {/* nadřazená kategorie */}
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="parentId">Nadřazená kategorie:</label>
+                    <label className="text-sm font-medium text-slate-700">Nadřazená kategorie</label>
                     <Select
+                        fullWidth
                         value={parentId || ""}
                         size="small"
                         onChange={(e) => setParentId(e.target.value)}

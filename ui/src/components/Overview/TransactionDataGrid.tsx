@@ -1,4 +1,6 @@
 import { DataGrid, type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
+import { useState } from "react";
+import { TextField } from "@mui/material";
 import type { Transaction } from "../../types/transaction";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { useCategories } from "../../hooks/useCategories";
@@ -29,6 +31,14 @@ export function TransactionDataGrid({
     }: TransactionDataGridProps) {
     const { categories, getCategoryById } = useCategories();
     const isMobile = useIsMobile();
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Filter transactions by search term (case-insensitive substring match on title)
+    const filteredBySearch = searchTerm.trim()
+        ? transactions.filter((t) =>
+            t.title.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : transactions;
 
     /**
      * Validates and commits inline row edits.
@@ -227,24 +237,37 @@ export function TransactionDataGrid({
     ];
 
     return isMobile ? (
-        <TransactionMobileList transactions={transactions} onUpdateTransaction={onUpdateTransaction} onDeleteTransaction={onDeleteTransaction} onSplitTransaction={onSplitTransaction} />
+        <TransactionMobileList transactions={filteredBySearch} onUpdateTransaction={onUpdateTransaction} onDeleteTransaction={onDeleteTransaction} onSplitTransaction={onSplitTransaction} />
     ) : (
-        <DataGrid
-            rows={transactions}
-            columns={colDef}
-            disableColumnMenu
-            processRowUpdate={handleProcessRowUpdate}
-            sx={{
-                border: 0,
-                '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f8fafc' },
-            }}
-            disableRowSelectionOnClick
-            autoPageSize
-            initialState={{
-                sorting: {
-                    sortModel: [{field: "date", sort: "desc"}]
-                }
-            }}
-        />
+        <div className="flex flex-col gap-4 h-full">
+            <div className="px-4 pt-4">
+                <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Hledat podle názvu..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <div className="flex-1 overflow-hidden">
+                <DataGrid
+                    rows={filteredBySearch}
+                    columns={colDef}
+                    disableColumnMenu
+                    processRowUpdate={handleProcessRowUpdate}
+                    sx={{
+                        border: 0,
+                        '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f8fafc' },
+                    }}
+                    disableRowSelectionOnClick
+                    autoPageSize
+                    initialState={{
+                        sorting: {
+                            sortModel: [{field: "date", sort: "desc"}]
+                        }
+                    }}
+                />
+            </div>
+        </div>
     );
 }

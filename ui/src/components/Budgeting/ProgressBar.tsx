@@ -5,19 +5,22 @@ interface ProgressBarProps {
     categoryIcon?: ReactNode; // optional icon for the category
     progress: number; // how much is spent in CZK, will be converted to percentage based on the limit
     limit: number; // budget limit in CZK
+    onClick?: () => void; // optional callback when the progress bar is clicked
 }
 
 /**
  * Visual budget progress bar showing spending vs. limit for a single category.
  * Color changes based on percentage: green (0-75%), yellow (75-95%), red (95%+).
  * Exceeding the limit caps the bar at 100% but displays the full spent amount.
+ * Clicking the bar triggers the onClick callback (typically for navigation).
  *
  * @param props.categoryName Display name for the budget category.
  * @param props.categoryIcon Optional icon component or node rendered next to the category name.
  * @param props.progress Amount spent so far in CZK.
  * @param props.limit Budget limit in CZK.
+ * @param props.onClick Optional callback fired when the progress bar is clicked.
  */
-export function ProgressBar({ categoryName, categoryIcon, progress, limit }: ProgressBarProps) {
+export function ProgressBar({ categoryName, categoryIcon, progress, limit, onClick }: ProgressBarProps) {
     const percentage = limit > 0 ? (progress / limit) * 100 : 0;
     const isExceeded = percentage > 100;
 
@@ -32,7 +35,14 @@ export function ProgressBar({ categoryName, categoryIcon, progress, limit }: Pro
     const formattedLimit = limit.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' });
 
     return (
-        <div className="w-full min-w-0">
+        <div 
+            className="w-full min-w-0"
+            onClick={onClick}
+            style={onClick ? { cursor: 'pointer' } : {}}
+            role={onClick ? "button" : undefined}
+            tabIndex={onClick ? 0 : undefined}
+            onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+        >
             {/* Header: Category name, icon, and amount */}
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <div className="flex min-w-0 items-center gap-2">

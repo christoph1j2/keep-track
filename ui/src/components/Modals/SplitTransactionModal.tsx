@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
+import { Select, MenuItem, TextField } from "@mui/material";
 import type { Transaction } from "../../types/transaction";
 
 interface SplitTransactionModalProps {
@@ -119,9 +120,9 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                     className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 p-3 sm:grid-cols-3 sm:items-end"
                 >
                     <div className="flex flex-col gap-1">
-                        <label htmlFor={`title-${index}`}>Název</label>
-                        <input
-                            id={`title-${index}`}
+                        <label className="text-sm font-medium text-slate-700">Název</label>
+                        <TextField
+                            size="small"
                             type="text"
                             placeholder="Benzin ONO"
                             value={split.title}
@@ -130,47 +131,41 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                                 newSplits[index].title = e.target.value;
                                 setSplits(newSplits);
                             }}
-                            className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
                         />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <label htmlFor={`amount-${index}`}>Částka</label>
-                        <input
-                            id={`amount-${index}`}
+                        <label className="text-sm font-medium text-slate-700">Částka</label>
+                        <TextField
+                            size="small"
                             type="number"
                             placeholder="Kladnou hodnotu!"
-                            step="0.01"
+                            slotProps={{ htmlInput: { step: "0.01" } }}
                             value={split.amount}
                             onChange={(e) => {
                                 const newSplits = [...splits];
                                 newSplits[index].amount = e.target.value;
                                 setSplits(newSplits);
                             }}
-                            className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
                         />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <label htmlFor={`category-${index}`}>Kategorie</label>
-                        <select
-                            id={`category-${index}`}
+                        <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                        <Select
+                            size="small"
                             value={split.categoryId}
-                            onChange={(e) => {
-                                const newSplits = [...splits];
-                                newSplits[index].categoryId = e.target.value;
-                                setSplits(newSplits);
-                            }}
-                            required
-                            className="w-full min-w-0 rounded-lg border border-slate-400 p-2"
-                        >
-                            <option value="">Vyberte kategorii</option>
-                            {[...categories].sort((a, b) => a.order - b.order).map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
+                        onChange={(e) => {
+                            const newSplits = [...splits];
+                            newSplits[index].categoryId = e.target.value;
+                            setSplits(newSplits);
+                        }}
+                    >
+                        <MenuItem value="">Vyberte kategorii</MenuItem>
+                        {[...categories].sort((a, b) => a.order - b.order).map((category) => (
+                            <MenuItem key={category.id} value={category.id}>
+                                {category.label}
+                            </MenuItem>
+                        ))}
+                    </Select>                    </div>                </div>
             ))}
 
             <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
