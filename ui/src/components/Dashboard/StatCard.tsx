@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 interface StatCardProps {
     title: string;
     amount?: number;
-    budget_status?: 'GOOD' | 'BAD' | 'OK';
+    budget_status?: 'GOOD' | 'BAD' | 'OK' | 'N/A';
     icon: ReactNode;
     trend?: boolean;
 }
@@ -43,7 +43,7 @@ export function StatCard({ title, amount, budget_status, icon, trend }: StatCard
                     amount !== undefined ? amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' }) : ''
                 }
                 {budget_status && (
-                    <span className={`ml-2 text-2xl font-medium ${budget_status === 'GOOD' ? 'text-green-600' : budget_status === 'BAD' ? 'text-red-600' : 'text-yellow-600'}`}>
+                    <span className={`ml-2 text-2xl font-medium ${budget_status === 'GOOD' ? 'text-green-600' : budget_status === 'BAD' ? 'text-red-600' : budget_status === 'N/A' ? 'text-slate-500' : 'text-yellow-600'}`}>
                         {budget_status}
                     </span>
                 )}
