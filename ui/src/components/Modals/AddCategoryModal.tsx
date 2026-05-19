@@ -35,9 +35,11 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
         setIsSubmitting(true);
         setErrors(null);
 
-        const nextOrder = categories.length > 0
-            ? Math.max(...categories.map(c => c.order)) + 1
-            : 0;
+        // Vypočítej next order: vezmi max z všech kategorií KROMĚ "uncategorized"
+        const nonUncategorizedCategories = categories.filter(c => c.id !== 'uncategorized');
+        const nextOrder = nonUncategorizedCategories.length > 0
+            ? Math.max(...nonUncategorizedCategories.map(c => c.order)) + 1
+            : 1;
 
         // validace
         if (!label || !colorClass || !iconName) {

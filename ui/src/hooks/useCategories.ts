@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Category } from "../types/category";
+import { cleanupKeywordsForDeletedCategory } from "../utils/userKeywords";
 
 const STORAGE_KEY = "keep-track-categories";
 
@@ -115,10 +116,14 @@ export function useCategories() {
 
     /**
      * Removes a category by id and persists the result.
+     * Also cleans up any user-learned keywords associated with this category.
      * 
      * @param id Identifier of the category to remove.
      */
     const removeCategory = (id: string) => {
+        // Vyčisti user-learned keywords pro tuto kategorii
+        cleanupKeywordsForDeletedCategory(id);
+
         setCategories((prev: Category[]) => {
             const delCat = prev.find(c => c.id === id);
             if (!delCat) return prev; // kategorie nenalezena, nic nema smysl mazat
