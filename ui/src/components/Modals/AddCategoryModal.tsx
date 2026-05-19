@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
+import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
 
 interface AddCategoryModalProps {
     onSubmit: (label: string, colorClass: string, iconName: string, order: number, parentId: string | undefined) => void;
@@ -35,8 +36,8 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
         setIsSubmitting(true);
         setErrors(null);
 
-        // Vypočítej next order: vezmi max z všech kategorií KROMĚ "uncategorized"
-        const nonUncategorizedCategories = categories.filter(c => c.id !== 'uncategorized');
+        // Compute next order: take max from all categories except uncategorized
+        const nonUncategorizedCategories = categories.filter(c => c.id !== UNCATEGORIZED_ID);
         const nextOrder = nonUncategorizedCategories.length > 0
             ? Math.max(...nonUncategorizedCategories.map(c => c.order)) + 1
             : 1;

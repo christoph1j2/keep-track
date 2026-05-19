@@ -148,16 +148,10 @@ export function Overview() {
                 )}
             </BaseModal>
 
-            <BaseModal
-                title="Import transakcí z banky"
+            <ImportModal
                 isOpen={isImportModalOpen}
                 onClose={() => setIsImportModalOpen(false)}
-            >
-                <ImportModal
-                    isOpen={isImportModalOpen}
-                    onClose={() => setIsImportModalOpen(false)}
-                />
-            </BaseModal>
+            />
         </div>
     );
 }

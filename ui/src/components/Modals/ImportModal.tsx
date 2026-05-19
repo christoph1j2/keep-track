@@ -4,6 +4,7 @@ import { useTransactions } from "../../hooks/useTransactions";
 import { useCategories } from "../../hooks/useCategories";
 import { parseBankCSV, type ParsedTransaction } from "../../utils/bankImport";
 import { saveUserKeyword } from "../../utils/userKeywords";
+import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
 
 interface ImportModalProps {
     isOpen: boolean;
@@ -72,18 +73,35 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
             
             if (!confirmed) return; // Uživatel zrušil
             
-            // Označíme všechny bez kategorie jako "uncategorized"
-            setParsedData(prev => 
-                prev.map(t => 
-                    t.categoryId === null ? { ...t, categoryId: 'uncategorized' } : t
-                )
+            // Compute normalized list in-memory instead of relying on setState
+            const normalizedData = parsedData.map(t => 
+                t.categoryId === null ? { ...t, categoryId: UNCATEGORIZED_ID } : t
             );
-            // Kvůli asynchronní povaze setState, musíme se vrátit - handleSaveAll bude zavolán znovu
+            
+            // Continue with save using the normalized list
+            normalizedData.forEach(t => {
+                addTransaction({
+                    id: crypto.randomUUID(),
+                    title: t.title,
+                    amount: t.amount,
+                    date: t.date,
+                    categoryId: t.categoryId as string
+                });
+
+                // Save keyword only if not uncategorized
+                if (t.categoryId !== UNCATEGORIZED_ID) {
+                    saveUserKeyword(t.title, t.categoryId as string);
+                }
+            });
+
+            // Close and cleanup
+            setParsedData([]);
+            onClose();
             return;
         }
         
-        // Teď všechny transakce mají kategorii
-        // Vyfiltrujeme jen ty, které mají přiřazenou nějakou kategorii
+        // All transactions have a category
+        // Filter only those with assigned category
         const validTransactions = parsedData.filter(t => t.categoryId !== null);
         
         // Uložíme je jednu po druhé (můžeš si v useTransactions udělat i batchAddTransaction pro optimalizaci)
@@ -97,9 +115,9 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                 categoryId: t.categoryId as string
             });
 
-            // Nauč se z tohoto mapování: title -> categoryId
-            // Ulož keyword POUZE pokud to není "uncategorized"
-            if (t.categoryId !== 'uncategorized') {
+            // Learn from this mapping: title -> categoryId
+            // Save keyword only if not uncategorized
+            if (t.categoryId !== UNCATEGORIZED_ID) {
                 saveUserKeyword(t.title, t.categoryId as string);
             }
         });

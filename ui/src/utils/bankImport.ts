@@ -123,18 +123,31 @@ export function parseBankCSV(
 
                         const amount = parseFloat(rawAmount.replace(/\s/g, '').replace(',', '.'));
                         
-                        // Přeskočíme nulové platby nebo chybné řádky
+                        // Skip zero amounts or invalid rows
                         if (isNaN(amount) || amount === 0) continue;
 
-                        let isoDate = new Date().toISOString();
+                        // Parse date and skip row if invalid
+                        let isoDate: string | undefined;
                         try {
                             const [day, month, year] = rawDate.split('.');
                             if (day && month && year) {
-                                isoDate = new Date(`${year.trim()}-${month.trim()}-${day.trim()}`).toISOString();
+                                const parsedDate = new Date(`${year.trim()}-${month.trim()}-${day.trim()}`);
+                                if (!isNaN(parsedDate.getTime())) {
+                                    isoDate = parsedDate.toISOString();
+                                } else {
+                                    console.warn("Invalid date parsed:", rawDate);
+                                    continue;
+                                }
+                            } else {
+                                console.warn("Missing date components:", rawDate);
+                                continue;
                             }
                         } catch (e) {
-                            console.warn("Chyba parsování data:", rawDate, e);
+                            console.warn("Date parsing error:", rawDate, e);
+                            continue;
                         }
+
+                        if (!isoDate) continue;
 
                         const guessedCategory = guessCategory(rawTitle, existingTransactions, categories);
 
