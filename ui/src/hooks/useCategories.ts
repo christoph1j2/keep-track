@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Category } from "../types/category";
+import { cleanupKeywordsForDeletedCategory } from "../utils/userKeywords";
 
 const STORAGE_KEY = "keep-track-categories";
 
@@ -15,7 +16,7 @@ const DEFAULT_CATEGORIES: Category[] = [
     { id: "energy", label: "Energie", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 9 },
     { id: "rent", label: "Nájem", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 10 },
     { id: "fuel", label: "Pohonné hmoty", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600", parentId: "transport", order: 11 },
-    { id: "uncategorized", label: "Nezařazeno", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600", order: 999999999 }
+    { id: "uncategorized", label: "Nezařazeno", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600", order: 999999999 } // TODO: update to use UNCATEGORIZED_ID constant
 ];
 
 /**
@@ -115,10 +116,14 @@ export function useCategories() {
 
     /**
      * Removes a category by id and persists the result.
+     * Also cleans up any user-learned keywords associated with this category.
      * 
      * @param id Identifier of the category to remove.
      */
     const removeCategory = (id: string) => {
+        // Vyčisti user-learned keywords pro tuto kategorii
+        cleanupKeywordsForDeletedCategory(id);
+
         setCategories((prev: Category[]) => {
             const delCat = prev.find(c => c.id === id);
             if (!delCat) return prev; // kategorie nenalezena, nic nema smysl mazat

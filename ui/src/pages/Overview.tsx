@@ -7,6 +7,7 @@ import { TransactionDataGrid } from "../components/Overview/TransactionDataGrid"
 import { BaseModal } from "../components/Modals/BaseModal";
 import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
 import { SplitTransactionModal } from "../components/Modals/SplitTransactionModal";
+import { ImportModal } from "../components/Modals/ImportModal";
 
 /**
  * Overview page for browsing, filtering, and editing transactions.
@@ -19,6 +20,7 @@ export function Overview() {
 
     const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
     const [isSplitTransactionModalOpen, setIsSplitTransactionModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
     const [selectedTransaction, setSelectedTransaction] = useState<typeof transactions[0] | null>(null);
 
@@ -46,11 +48,18 @@ export function Overview() {
         <div className="lg:h-full flex flex-col">
             <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 items-center text-center">
                 <h2 className="text-3xl font-bold text-slate-800">Přehled transakcí</h2>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-fit"
-                onClick={() => setIsAddTransactionModalOpen(true)}
-                >
-                    + Nová transakce
-                </button>
+                <div className="flex gap-4">
+                    <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium w-full md:w-fit"
+                    onClick={() => setIsImportModalOpen(true)}
+                    >
+                        + Import z banky
+                    </button>
+                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-fit"
+                    onClick={() => setIsAddTransactionModalOpen(true)}
+                    >
+                        + Nová transakce
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:flex-1 lg:min-h-0">
@@ -138,6 +147,11 @@ export function Overview() {
                     />
                 )}
             </BaseModal>
+
+            <ImportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+            />
         </div>
     );
 }

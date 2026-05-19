@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Transaction } from "../types/transaction";
 
 const STORAGE_KEY = "keep-track-transactions";
@@ -31,6 +31,16 @@ function getInitialTransactions(): Transaction[] {
 export function useTransactions() {
     const [transactions, setTransactions] = useState<Transaction[]>(getInitialTransactions);
 
+    // Naslouchej custom eventu, když se transakce změní v jiné instance hooků
+    useEffect(() => {
+        const handleTransactionsUpdated = () => {
+            setTransactions(getInitialTransactions());
+        };
+        
+        window.addEventListener('transactions-updated', handleTransactionsUpdated);
+        return () => window.removeEventListener('transactions-updated', handleTransactionsUpdated);
+    }, []);
+
     /**
       * Inserts a new transaction at the top of the list and persists the updated list.
       * Newest-first ordering keeps recent entries visible across UI views.
@@ -42,6 +52,7 @@ export function useTransactions() {
             const updatedTransactions = [newTransaction, ...prev];
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTransactions));
+                window.dispatchEvent(new Event('transactions-updated'));
             } catch (error) {
                 console.error("Error saving transactions:", error);
             }
@@ -61,6 +72,7 @@ export function useTransactions() {
                 t.id === updatedTransaction.id ? updatedTransaction : t
             );
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newTransactions));
+            window.dispatchEvent(new Event('transactions-updated'));
             return newTransactions;
         })
     }
@@ -75,6 +87,7 @@ export function useTransactions() {
             const updatedTransactions = prev.filter((transaction) => transaction.id !== id);
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTransactions));
+                window.dispatchEvent(new Event('transactions-updated'));
             } catch (error) {
                 console.error("Error saving transactions:", error);
             }
@@ -95,6 +108,7 @@ export function useTransactions() {
                 t.categoryId === oldCategoryId ? { ...t, categoryId: newCategoryId } : t
             );
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newTransactions));
+            window.dispatchEvent(new Event('transactions-updated'));
             return newTransactions;
         });
     }

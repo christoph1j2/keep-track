@@ -6,6 +6,7 @@ import { BaseModal } from "../components/Modals/BaseModal";
 import { EditCategoryModal } from "../components/Modals/EditCategoryModal";
 import { AddCategoryModal } from "../components/Modals/AddCategoryModal";
 import { ArrowDownward, ArrowUpward, Delete, Edit } from "@mui/icons-material";
+import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
 
 /**
  * Categories management page for organizing transaction categories.
@@ -24,6 +25,7 @@ export function Categories() {
         const isConfirmed = window.confirm("Opravdu chcete tuto kategorii smazat? Všechny platby budou přesunuty do 'Nezařazeno'.");
         
         if (isConfirmed) {
+            // Import the constant at the top of the file
             reassignCategory(categoryId, "uncategorized");
             removeCategory(categoryId);
         }
@@ -47,7 +49,7 @@ export function Categories() {
                     {[...categories].sort((a, b) => a.order - b.order).map((cat) => (
                         <div key={cat.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 pl-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
                             <div className="flex items-center gap-4">
-                                {cat.id !== "uncategorized" && (
+                                {cat.id !== UNCATEGORIZED_ID && (
                                     <div className="flex flex-col w-5">
                                         <ArrowUpward 
                                             className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 transition-colors" 
@@ -81,7 +83,7 @@ export function Categories() {
                                 </button>
                                 
                                 {/* Tlačítko smazat */}
-                                {cat.id !== "uncategorized" && ( // Nezařazeno nesmíme smazat!
+                                {cat.id !== UNCATEGORIZED_ID && ( // Nezařazeno nesmíme smazat!
                                     <button 
                                         onClick={() => handleDelete(cat.id)}
                                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
