@@ -64,7 +64,7 @@ export function Dashboard() {
         if (exceeded > 0) return 'BAD';
         if (ok > 0) return 'OK';
         return 'GOOD';
-    })() : undefined;
+    })() : 'N/A';
 
 
     const income = currentMonthTransactions
