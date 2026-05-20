@@ -133,6 +133,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                 
                 {/* 1. Fáze: Nahrání souboru */}
                 {parsedData.length === 0 && (
+                    <>
                     <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center">
                         <input 
                             type="file" 
@@ -143,7 +144,12 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                         />
                         {isParsing && <p className="mt-2 text-slate-500">Zpracovávám soubor...</p>}
                         {error && <p className="mt-2 text-red-500">{error}</p>}
+                        
                     </div>
+                    <div className="mt-6 text-sm text-slate-600 bg-blue-50 p-4 rounded-xl text-left shadow-sm">
+                            💡 <strong>Nevíte jak získat CSV?</strong> Přihlaste se do internetového bankovnictví (nikoliv v mobilní aplikaci), přejděte do historie transakcí a zvolte <em>Exportovat</em> (vyberte formát CSV oddělený středníkem nebo čárkou). Např. u ČSOB tuto volbu najdete v detailech účtu.
+                    </div>
+                    </>
                 )}
 
                 {/* 2. Fáze: Náhled a oprava kategorií */}

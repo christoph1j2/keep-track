@@ -199,10 +199,10 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                 // rezim zobrazeni - zobrazeni dat, klik zahajuje editaci
                                 <div onClick={() => handleEdit(transaction)} className="cursor-pointer">
                                     <div className="flex justify-between items-start mb-2">
-                                        <div className="flex items-center gap-2 flex-1">
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
                                             <CategoryIcon name={category?.iconName || ""} />
-                                            <div>
-                                                <p className="font-semibold text-sm">{transaction.title}</p>
+                                            <div className="min-w-0">
+                                                <p className="font-semibold text-sm truncate" title={transaction.title}>{transaction.title}</p>
                                                 <p className="text-xs text-gray-500">
                                                     {new Date(transaction.date).toLocaleDateString("cs-CZ")}
                                                 </p>
@@ -210,7 +210,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                         </div>
                                         {/* castka s barevnym odlisenim pro prijem/vydaj */}
                                         <p
-                                            className={`font-semibold text-sm ${
+                                            className={`font-semibold text-sm shrink-0 ml-2 ${
                                                 transaction.amount >= 0
                                                     ? "text-green-600"
                                                     : "text-red-600"

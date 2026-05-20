@@ -51,7 +51,9 @@ export function Dashboard() {
 
         budgets.forEach(budget => {
             const categoryTransactions = currentMonthTransactions.filter(t => t.categoryId === budget.categoryId);
-            const totalSpent = Math.abs(categoryTransactions.reduce((sum, t) => sum + t.amount, 0));
+            const totalSpent = categoryTransactions
+                .filter(t => t.amount < 0)
+                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
             if (totalSpent > budget.limit) {
                 exceeded++;

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 interface StatCardProps {
     title: string;
     amount?: number;
-    budget_status?: 'GOOD' | 'BAD' | 'OK';
+    budget_status?: 'GOOD' | 'BAD' | 'OK' | 'N/A';
     icon: ReactNode;
     trend?: boolean;
 }
@@ -38,7 +38,10 @@ export function StatCard({ title, amount, budget_status, icon, trend }: StatCard
             </div>
 
             {/** spodni cast */}
-            <div className="text-2xl font-bold text-slate-900">
+            <div 
+                className="text-2xl font-bold text-slate-900 truncate" //! fix overflow a pridani tooltipu
+                title={amount !== undefined ? amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' }) : ''}
+            >
                 { // sikovny formatovni meny :-)
                     amount !== undefined ? amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' }) : ''
                 }
