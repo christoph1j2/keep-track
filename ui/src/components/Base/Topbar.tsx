@@ -79,7 +79,18 @@ export function Topbar() {
                     </div>
                 </div>
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+                <Button 
+                    color="error" 
+                    onClick={() => {
+                        if (window.confirm("Opravdu chcete vymazat všechna data (Factory reset)? Tato akce je nevratná!")) {
+                            localStorage.clear();
+                            window.location.reload();
+                        }
+                    }}
+                >
+                    Factory Reset
+                </Button>
                 <Button onClick={() => setInfoOpen(false)} variant="contained">
                     Zavřít
                 </Button>

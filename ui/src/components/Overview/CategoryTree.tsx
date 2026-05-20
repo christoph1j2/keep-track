@@ -50,14 +50,14 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                         key={mainCat.id}
                         itemId={mainCat.id}
                         
-                        label={
+                        label={ //! fix overflow, pridani tooltipu
                             <div 
-                                className='flex items-center gap-3 py-2'
+                                className='flex items-center gap-3 py-2 min-w-0'
                             >
-                                <div className={`p-1.5 rounded-lg ${mainCat.colorClass}`}>
+                                <div className={`p-1.5 rounded-lg ${mainCat.colorClass} shrink-0`}>
                                     <CategoryIcon name={mainCat.iconName} />
                                 </div>
-                                <span className='font-semibold text-slate-700'>{mainCat.label}</span>
+                                <span className='font-semibold text-slate-700 truncate' title={mainCat.label}>{mainCat.label}</span>
                             </div>
                         }
                     >
@@ -67,10 +67,10 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                                 itemId={subCat.id}
                                 label={
                                     <div 
-                                        className="flex items-center gap-3 py-1.5 opacity-80 hover:opacity-100"
+                                        className="flex items-center gap-3 py-1.5 opacity-80 hover:opacity-100 min-w-0"
                                     >
-                                        <CategoryIcon name={subCat.iconName} className="text-slate-400" />
-                                        <span className="font-medium text-slate-600">{subCat.label}</span>
+                                        <CategoryIcon name={subCat.iconName} className="text-slate-400 shrink-0" />
+                                        <span className="font-medium text-slate-600 truncate" title={subCat.label}>{subCat.label}</span>
                                     </div>
                                 }
                             />

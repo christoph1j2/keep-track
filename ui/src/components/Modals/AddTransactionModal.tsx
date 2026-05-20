@@ -89,6 +89,9 @@ export function AddTransactionModal({ onSubmit, onCancel }: AddTransactionModalP
                     value={amount}
                     onChange={(e) => setAmount(e.target.value ? parseFloat(e.target.value) : "")}
                 />
+                <span className="text-xs text-slate-500 mt-1">
+                    Tip: Zadejte zápornou částku pro výdaj (např. -500) a kladnou pro příjem.
+                </span>
             </div>
 
             {/* kategorie */}

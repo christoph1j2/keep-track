@@ -109,11 +109,11 @@ export function TransactionDataGrid({
             resizable: false,
             renderCell: (params: GridRenderCellParams) => {
                 return (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                         <CategoryIcon 
                             name={getCategoryById(params.row.categoryId)?.iconName || ''} 
                         />
-                        <span>{params.value}</span>
+                        <span className="truncate" title={params.value as string}>{params.value}</span>
                     </div>
                 );
             }
