@@ -109,6 +109,23 @@ export function useTransactions() {
         setTransactions(updatedTransactions);
     }
 
+    /**
+     * Clears all transactions from storage and state. Useful for testing or resetting the app.
+     */
+    const clearTransactions = () => {
+        persistTransactions([]);
+        setTransactions([]);
+    }
 
-    return { transactions, addTransaction, updateTransaction, deleteTransaction, reassignCategory };
+    /**
+     * Generates random mock data. Useful for development and testing when no real transactions exist.
+     * 
+     * @param generatedTransactions Generated transactions from util method
+     */
+    const loadMockData = (generatedTransactions: Transaction[]) => {
+        persistTransactions(generatedTransactions);
+        setTransactions(generatedTransactions);
+    };
+
+    return { transactions, addTransaction, updateTransaction, deleteTransaction, reassignCategory, clearTransactions, loadMockData };
 }

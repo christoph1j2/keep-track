@@ -12,6 +12,7 @@ import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
 import { useBudgets } from "../hooks/useBudgets";
 import { BudgetingList } from "../components/Dashboard/BudgetingList";
+import { generateMockTransactions } from "../utils/mockDataGenerator";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -19,7 +20,7 @@ import { BudgetingList } from "../components/Dashboard/BudgetingList";
  */
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { transactions, addTransaction } = useTransactions();
+    const { transactions, addTransaction, clearTransactions, loadMockData } = useTransactions();
     const { templates } = useQuickAddTemplates();
     const { categories } = useCategories();
     const hotbarTemplates = templates.filter((template) => template.showInHotbar);
@@ -84,12 +85,23 @@ export function Dashboard() {
             <div className="flex flex-col md:flex-row gap-2">
                 <button
                     className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
-                    onClick={() => {console.warn("Reset data - not implemented yet")}}>
+                    onClick={() => {
+                        console.warn("Reset Data");
+                        if (window.confirm("⚠️POZOR!⚠️ \nOpravdu chcete resetovat data?\nTato akce smaže veškeré transakce a nelze vrátit zpět.")) {
+                            clearTransactions();
+                        }
+                    }}>
                     Resetovat Data
                 </button>
                 <button
                     className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
-                    onClick={() => {console.warn("Generate data - not implemented yet")}}>
+                    onClick={() => {
+                        console.warn("Generate data");
+                        if (window.confirm("⚠️POZOR!⚠️ \nOpravdu chcete vygenerovat náhodná data?\nTato akce přepíše veškeré stávající transakce, vrátí 200 nových náhodných transakcí a nelze vrátit zpět.")) {
+                            const mockData = generateMockTransactions(categories);
+                            loadMockData(mockData);
+                        }
+                    }}>
                     Generovat Data
                 </button>
             </div>
