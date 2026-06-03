@@ -62,13 +62,13 @@ export function Budgeting() {
                     t => t.categoryId === budget.categoryId || subcatIds.includes(t.categoryId) 
                 );
 
-                /** NOTE: 
+                /** NOTE:
                  * Rozpočty slouží k hlídání a omezování útrat/výdajů
                  * => do vyčerpaného limitu se počítají tedy pouze záporné transakce, ze kterých se počítá abs pro progress bar
-                 * 
+                 *
                  * Příklad:
-                 * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo. 
-                 * 
+                 * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo.
+                 *
                  * Myslím, že jsem to jen špatně pojmenoval, tzn. že místo "Budgeting" by se tato stránka měla jmenovat spíše "Spending Limits" nebo "Expense Tracking", protože se jedná o sledování a hlídání útrat vůči nastaveným limitům.
                 */
                 const totalSpent = categoryTransactions
