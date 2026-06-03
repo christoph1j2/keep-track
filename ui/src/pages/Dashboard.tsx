@@ -156,7 +156,7 @@ export function Dashboard() {
             />
         </div>
 
-        {/** second row, right col - transactions and categories */}
+        {/** second row, right col - transactions & categories */}
         <div className="lg:col-span-2 md:col-span-2 space-y-6">
             {/** transactions sekce */}
             <LastTransactions
