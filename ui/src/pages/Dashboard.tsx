@@ -80,7 +80,19 @@ export function Dashboard() {
     return (
         <div className="p-0">
         <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <h2 className="text-3xl font-bold text-slate-800">Dashboard</h2>
+            <h2 className="text-center text-3xl font-bold text-slate-800">Dashboard</h2>
+            <div className="flex flex-col md:flex-row gap-2">
+                <button
+                    className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
+                    onClick={() => {console.warn("Reset data - not implemented yet")}}>
+                    Resetovat Data
+                </button>
+                <button
+                    className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
+                    onClick={() => {console.warn("Generate data - not implemented yet")}}>
+                    Generovat Data
+                </button>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
