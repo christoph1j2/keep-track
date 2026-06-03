@@ -36,12 +36,13 @@ export function SortableBudgetItem({
         <div
             ref={setNodeRef}
             style={style}
-            className="inline-flex items-center gap-3 rounded-lg border border-slate-100 bg-white p-4 shadow-sm sm:gap-4 sm:p-6 w-full"
+            className="inline-flex items-center gap-3 rounded-lg border border-slate-100 bg-white p-4 shadow-sm sm:gap-4 sm:p-6 w-full select-none"
         >
             <button
                 type="button"
                 {...attributes}
                 {...listeners}
+                style={{ touchAction: 'none' }}
                 className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 shrink-0"
                 aria-label="Přesunout rozpočet"
             >

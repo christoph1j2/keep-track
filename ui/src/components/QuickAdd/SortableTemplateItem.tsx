@@ -44,14 +44,18 @@ export function SortableTemplateItem({
     const icon = category ? <CategoryIcon name={category.iconName} /> : <CategoryIcon name="QuestionMark" />;
 
     return (
-        <div ref={setNodeRef} style={style} className={compact ? "relative shrink-0" : "bg-white border border-slate-100 rounded-2xl shadow-sm"}>
+        <div 
+            ref={setNodeRef} 
+            style={style} 
+            className={`select-none ${compact ? "relative shrink-0" : "bg-white border border-slate-100 rounded-2xl shadow-sm"}`}>
             {compact ? (
                 <div className="relative p-2 rounded-xl bg-slate-50 border border-slate-100">
                     <button
                         type="button"
                         {...attributes}
                         {...listeners}
-                        className="absolute top-1 left-1 cursor-grab p-1 text-slate-400 hover:text-slate-600 z-10"
+                        style={{ touchAction: 'none' }}
+                        className="absolute top-1 left-1 cursor-grab p-1 text-slate-400 hover:text-slate-600 z-30 touch-none"
                         aria-label="Přesunout šablonu"
                     >
                         <DragIndicator fontSize="small" />
@@ -73,6 +77,7 @@ export function SortableTemplateItem({
                             type="button"
                             {...attributes}
                             {...listeners}
+                            style={{ touchAction: 'none' }}
                             className="cursor-grab p-1 text-slate-400 hover:text-slate-600"
                             aria-label="Přesunout šablonu"
                         >
