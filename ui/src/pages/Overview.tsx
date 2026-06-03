@@ -8,6 +8,7 @@ import { BaseModal } from "../components/Modals/BaseModal";
 import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
 import { SplitTransactionModal } from "../components/Modals/SplitTransactionModal";
 import { ImportModal } from "../components/Modals/ImportModal";
+import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
 
 /**
  * Overview page for browsing, filtering, and editing transactions.
@@ -31,6 +32,10 @@ export function Overview() {
     //  filtrovane transakce pro datagrid
     const filteredTransactions = selectedCategoryId
         ? transactions.filter((t) => {
+            // zjistit, zda kategorie u transakce existuje, pokud ne, přiřadit ji do UNCATEGORIZED
+            const catExists = categories.some(c => c.id === t.categoryId);
+            const effectiveCatId = catExists ? t.categoryId : UNCATEGORIZED_ID;
+
             const selected = categories.find(c => c.id === selectedCategoryId);
             if (!selected) return false;
 
@@ -38,9 +43,10 @@ export function Overview() {
                 const subcatIds = categories
                     .filter(c => c.parentId === selectedCategoryId)
                     .map(c => c.id);
-                return t.categoryId === selectedCategoryId || subcatIds.includes(t.categoryId);
+
+                return effectiveCatId === selectedCategoryId || subcatIds.includes(effectiveCatId);
             }
-            return t.categoryId === selectedCategoryId;
+            return effectiveCatId === selectedCategoryId;
         })
         : transactions;
 
