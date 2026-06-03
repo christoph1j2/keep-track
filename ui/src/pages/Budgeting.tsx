@@ -52,7 +52,25 @@ export function Budgeting() {
                 const category = categories.find(c => c.id === budget.categoryId);
                 if (!category) return null;
                 // console.log('Budget:', budget);
-                const categoryTransactions = currentMonthTransactions.filter(t => t.categoryId === budget.categoryId);
+
+                //! zahrneme i transakce z podkategorií (logicky by měly být zahrnuty, protože rozpočet se vztahuje na celou kategorii včetně podkategorií)
+                const subcatIds = categories
+                    .filter(c => c.parentId === budget.categoryId)
+                    .map(c => c.id);
+
+                const categoryTransactions = currentMonthTransactions.filter(
+                    t => t.categoryId === budget.categoryId || subcatIds.includes(t.categoryId) 
+                );
+
+                /** NOTE: 
+                 * Rozpočty slouží k hlídání a omezování útrat/výdajů
+                 * => do vyčerpaného limitu se počítají tedy pouze záporné transakce, ze kterých se počítá abs pro progress bar
+                 * 
+                 * Příklad:
+                 * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo. 
+                 * 
+                 * Myslím, že jsem to jen špatně pojmenoval, tzn. že místo "Budgeting" by se tato stránka měla jmenovat spíše "Spending Limits" nebo "Expense Tracking", protože se jedná o sledování a hlídání útrat vůči nastaveným limitům.
+                */
                 const totalSpent = categoryTransactions
                     .filter((t) => t.amount < 0)
                     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
