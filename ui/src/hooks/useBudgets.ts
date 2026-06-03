@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Budget } from "../types/budget";
 
 const STORAGE_KEY = "keep-track-budgets";
@@ -20,7 +20,8 @@ function isBudget(obj: unknown): obj is Budget {
  * Falls back to an empty list when storage is unavailable, missing, or invalid.
  *
  * @returns Stored budgets, or an empty array when data cannot be recovered.
- */function getInitialBudgets(): Budget[] {
+ */
+function getInitialBudgets(): Budget[] {
     if (typeof window === "undefined") return [];
         try {
             const savedData = localStorage.getItem(STORAGE_KEY);
@@ -35,6 +36,12 @@ function isBudget(obj: unknown): obj is Budget {
         }
 }
 
+// ! persistence, event-bus, SSoT
+function persistBudgets(budgets: Budget[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(budgets));
+    window.dispatchEvent(new Event('budgets-updated'));
+}
+
 /**
  * Keeps budget state in sync with localStorage.
  * Budgets are linked to categories and define spending limits.
@@ -42,9 +49,20 @@ function isBudget(obj: unknown): obj is Budget {
  * @returns Current budgets and mutation helpers for set and remove actions.
  */
 export function useBudgets() {
-    const [budgets, setBudgets] = useState<Budget[]>(() => {
-        return getInitialBudgets();
-    });
+    const [budgets, setBudgets] = useState<Budget[]>(getInitialBudgets);
+
+    // Listen for updates to budgets from other hook instances
+    useEffect(() => {
+        const handleBudgetsUpdated = () => {
+            setBudgets(getInitialBudgets());
+        };
+
+        window.addEventListener('budgets-updated', handleBudgetsUpdated);
+
+        return () => {
+            window.removeEventListener('budgets-updated', handleBudgetsUpdated);
+        };
+    }, []);
 
     /**
      * Inserts or updates a budget for a category and persists the result.
@@ -54,21 +72,19 @@ export function useBudgets() {
      * @param limit Spending limit in CZK.
      */
     const setBudget = (categoryId: string, limit: number) => {
-        setBudgets((prev: Budget[]) => {
-            const exists = prev.some(b => b.categoryId === categoryId);
+        const current = getInitialBudgets();
+        const exists = current.some(b => b.categoryId === categoryId);
+        let newBudgets: Budget[];
 
-            let newBudgets: Budget[];
-
-            if (exists) {
-                newBudgets = prev.map(b => 
-                    b.categoryId === categoryId ? { categoryId, limit } : b
-                );
-            } else {
-                newBudgets = [...prev, { categoryId, limit }];
-            }
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newBudgets));
-            return newBudgets;
-        });
+        if (exists) {
+            newBudgets = current.map(b => 
+                b.categoryId === categoryId ? { categoryId, limit } : b
+            );
+        } else {
+            newBudgets = [...current, { categoryId, limit }];
+        }
+        persistBudgets(newBudgets);
+        setBudgets(newBudgets);
     }
 
     /**
@@ -77,16 +93,13 @@ export function useBudgets() {
      * @param id Identifier of the category whose budget should be removed.
      */
     const removeBudget = (id: string) => {
-        setBudgets((prev: Budget[]) => {
-            const delBudget = prev.find(b => b.categoryId === id);
-            if (!delBudget) return prev;
+        const current = getInitialBudgets();
+        const delBudget = current.find(b => b.categoryId === id);
+        if (!delBudget) return;
 
-            const newBudgets = prev
-                .filter(b => b.categoryId !== id) /// vyhodi smazanuo
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newBudgets));
-            return newBudgets;
-        })
+        const newBudgets = current.filter(b => b.categoryId !== id);
+        persistBudgets(newBudgets);
+        setBudgets(newBudgets);
     };
 
     return { budgets, setBudget, removeBudget };

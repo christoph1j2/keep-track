@@ -81,7 +81,11 @@ export function Budgeting() {
                                 Upravit
                             </button>
                             <button
-                                onClick={() => removeBudget(budget.categoryId)}
+                                onClick={() => {
+                                    if (window.confirm(`Opravdu chcete smazat rozpočet pro kategorii "${category.label}"?`)) {
+                                        removeBudget(budget.categoryId);
+                                    }
+                                }}
                                 className="shrink-0 rounded-md px-1 font-semibold text-red-600 transition-colors hover:bg-red-50 inline-flex items-center gap-1"
                             >
                                 <Delete fontSize="medium" />

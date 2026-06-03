@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Category } from "../types/category";
 import { cleanupKeywordsForDeletedCategory } from "../utils/userKeywords";
 
@@ -45,7 +45,7 @@ function isCategory(value: unknown): value is Category {
  *
  * @returns Stored categories, or default categories when data cannot be recovered.
  */
-function getInitialTransactions(): Category[] {
+function getInitialCategories(): Category[] {
     if (typeof window === "undefined") return DEFAULT_CATEGORIES;
         try {
             const savedData = localStorage.getItem(STORAGE_KEY);
@@ -60,6 +60,12 @@ function getInitialTransactions(): Category[] {
         }
 }
 
+//! persistence, event-bus, SSoT
+function persistCategories(categories: Category[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
+    window.dispatchEvent(new Event('categories-updated'));
+}
+
 /**
  * Exposes categories with localStorage-backed initialization.
  * If storage is unavailable or invalid, default categories are returned.
@@ -67,9 +73,16 @@ function getInitialTransactions(): Category[] {
  * @returns Category list and a lookup helper by category id.
  */
 export function useCategories() {
-    const [categories, setCategories] = useState<Category[]>(() => {
-        return getInitialTransactions();
-    });
+    const [categories, setCategories] = useState<Category[]>(getInitialCategories);
+
+    // Listen for updates to categories from other hook instances
+    useEffect(() => {
+        const handleCategoriesUpdated = () => {
+            setCategories(getInitialCategories());
+        };
+        window.addEventListener('categories-updated', handleCategoriesUpdated);
+        return () => window.removeEventListener('categories-updated', handleCategoriesUpdated);
+    }, []);
 
     /**
       * Finds a category by id.
@@ -87,15 +100,15 @@ export function useCategories() {
      * @param newCategory New category record to store.
      */
     const addCategory = (newCategory: Category) => {
-        setCategories((prev: Category[]) => {
-            const updatedCategories = [...prev, newCategory];
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCategories));
-            } catch (error) {
-                console.error("Error saving categories:", error);
-            }
-            return updatedCategories;
-        })
+        const current = getInitialCategories();
+
+        const categoryToAdd = current.some(c => c.id === newCategory.id)
+            ? { ...newCategory, id: crypto.randomUUID() }
+            : newCategory;
+
+        const updatedCategories = [...current, categoryToAdd];
+        persistCategories(updatedCategories);
+        setCategories(updatedCategories);
     };
 
     /**
@@ -105,13 +118,12 @@ export function useCategories() {
      * @param updatedCategory Category payload containing the existing id and updated fields.
      */
     const updateCategory = (updatedCategory: Category) => {
-        setCategories((prev: Category[]) => {
-            const newCategories = prev.map(c => 
-                c.id === updatedCategory.id ? updatedCategory : c
-            );
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newCategories));
-            return newCategories;
-        })
+        const current = getInitialCategories();
+        const updatedCategories = current.map(c =>
+            c.id === updatedCategory.id ? updatedCategory : c
+        );
+        persistCategories(updatedCategories);
+        setCategories(updatedCategories);
     };
 
     /**
@@ -124,22 +136,22 @@ export function useCategories() {
         // Vyčisti user-learned keywords pro tuto kategorii
         cleanupKeywordsForDeletedCategory(id);
 
-        setCategories((prev: Category[]) => {
-            const delCat = prev.find(c => c.id === id);
-            if (!delCat) return prev; // kategorie nenalezena, nic nema smysl mazat
-            
-            const newCategories = prev
-                .filter(c => c.id !== id) // vyhodi smazanou
-                .map(c => {
-                    const nextParentId = c.parentId === id ? undefined : c.parentId; // pokud byla kategorie rodičem, nastaví parentId na undefined
-                    if (c.order > delCat.order) {
-                        return { ...c, parentId: nextParentId, order: c.order - 1 }; // posuneme nahoru kategorie, ktere byly pod mazanym
-                    }
-                    return nextParentId !== c.parentId ? { ...c, parentId: nextParentId } : c; // pokud se meni parentId, vratime novy objekt, jinak stary (optimalizace renderu)
-                });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newCategories));
-            return newCategories;
-        })
+        const current = getInitialCategories();
+        const delCat = current.find(c => c.id === id);
+        if (!delCat) return; // kategorie nenalezena, nic nema smysl mazat
+
+        const updatedCategories = current
+            .filter(c => c.id !== id) // vyhodi smazanou
+            .map(c => {
+                const nextParentId = c.parentId === id ? undefined : c.parentId; // pokud byla kategorie rodičem, nastaví parentId na undefined
+                if (c.order > delCat.order) {
+                    return { ...c, parentId: nextParentId, order: c.order - 1 }; // posuneme nahoru kategorie, ktere byly pod mazanym
+                }
+                return nextParentId !== c.parentId ? { ...c, parentId: nextParentId } : c; // pokud se meni parentId, vratime novy objekt, jinak stary (optimalizace renderu)
+            });
+
+        persistCategories(updatedCategories);
+        setCategories(updatedCategories);
     };
     /**
      * Moves a category up in the sort order by swapping with the category above it.
@@ -147,34 +159,34 @@ export function useCategories() {
      * Does nothing if the category is already at the top.
      *
      * @param categoryId Identifier of the category to move up.
-     */    const moveCategoryUp = (categoryId: string) => {
-        setCategories((prev: Category[]) => {
-            const selectedCat = prev.find(c => c.id === categoryId);
-            let selectedCatOrder = selectedCat?.order || 0;
-            const previousCat = prev.find(c => c.order === (selectedCatOrder) - 1);
-            let previousCatOrder = previousCat?.order || 0;
+     */    
+    const moveCategoryUp = (categoryId: string) => {
+        const current = getInitialCategories();
+        const selectedCat = current.find(c => c.id === categoryId);
+        let selectedCatOrder = selectedCat?.order || 0;
+        const previousCat = current.find(c => c.order === (selectedCatOrder) - 1);
+        let previousCatOrder = previousCat?.order || 0;
 
-            if (!selectedCat || !previousCat) {
-                return prev; // nelze posunout
+        if (!selectedCat || !previousCat) {
+            return; // nelze posunout
+        }
+
+        const tmp = selectedCatOrder;
+        selectedCatOrder = previousCatOrder;
+        previousCatOrder = tmp;
+
+        const updatedCategories = current.map(c => {
+            if (c.id === categoryId) {
+                return { ...c, order: selectedCatOrder };
             }
+            if (c.id === previousCat.id) {
+                return { ...c, order: previousCatOrder };
+            }
+            return c;
+        });
 
-            const tmp = selectedCatOrder;
-            selectedCatOrder = previousCatOrder;
-            previousCatOrder = tmp;
-
-            const newCategories = prev.map(c => {
-                if (c.id === categoryId) {
-                    return { ...c, order: selectedCatOrder };
-                }
-                if (c.id === previousCat.id) {
-                    return { ...c, order: previousCatOrder };
-                }
-                return c;
-            });
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newCategories));
-            return newCategories;
-        })
+        persistCategories(updatedCategories);
+        setCategories(updatedCategories);
     };
     /**
      * Moves a category down in the sort order by swapping with the category below it.
@@ -182,34 +194,34 @@ export function useCategories() {
      * Does nothing if the category is already at the bottom.
      *
      * @param categoryId Identifier of the category to move down.
-     */    const moveCategoryDown = (categoryId: string) => {
-        setCategories((prev: Category[]) => {
-            const selectedCat = prev.find(c => c.id === categoryId);
-            let selectedCatOrder = selectedCat?.order || 0;
-            const nextCat = prev.find(c => c.order === selectedCatOrder + 1);
-            let nextCatOrder = nextCat?.order || 0;
+     */    
+    const moveCategoryDown = (categoryId: string) => {
+        const current = getInitialCategories();
+        const selectedCat = current.find(c => c.id === categoryId);
+        let selectedCatOrder = selectedCat?.order || 0;
+        const nextCat = current.find(c => c.order === (selectedCatOrder) + 1);
+        let nextCatOrder = nextCat?.order || 0;
 
-            if (!selectedCat || !nextCat) {
-                return prev; // nelze posunout
+        if (!selectedCat || !nextCat) {
+            return; // nelze posunout
+        }
+
+        const tmp = selectedCatOrder;
+        selectedCatOrder = nextCatOrder;
+        nextCatOrder = tmp;
+
+        const updatedCategories = current.map(c => {
+            if (c.id === categoryId) {
+                return { ...c, order: selectedCatOrder };
             }
+            if (c.id === nextCat.id) {
+                return { ...c, order: nextCatOrder };
+            }
+            return c;
+        });
 
-            const tmp = selectedCatOrder;
-            selectedCatOrder = nextCatOrder;
-            nextCatOrder = tmp;
-
-            const newCategories = prev.map(c => {
-                if (c.id === categoryId) {
-                    return { ...c, order: selectedCatOrder };
-                }
-                if (c.id === nextCat?.id) {
-                    return { ...c, order: nextCatOrder };
-                }
-                return c;
-            });
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newCategories));
-            return newCategories;
-        })
+        persistCategories(updatedCategories);
+        setCategories(updatedCategories);
     };
 
     return { categories, getCategoryById, addCategory, updateCategory, removeCategory, moveCategoryUp, moveCategoryDown };

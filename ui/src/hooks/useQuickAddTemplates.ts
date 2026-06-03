@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { QuickAddTemplate } from "../types/quickadd";
 
 const STORAGE_KEY = "keep-track-quick-add-templates";
@@ -45,6 +45,12 @@ function getInitialTemplates(): QuickAddTemplate[] {
     }
 }
 
+//! persistence, event-bus, SSoT
+function persistTemplates(templates: QuickAddTemplate[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+    window.dispatchEvent(new Event('quick-add-templates-updated'));
+}
+
 /**
  * Keeps quick add template state in sync with localStorage.
  * Quick add templates are pre-configured shortcuts for fast transaction creation.
@@ -54,21 +60,30 @@ function getInitialTemplates(): QuickAddTemplate[] {
 export function useQuickAddTemplates() {
     const [templates, setTemplates] = useState<QuickAddTemplate[]>(getInitialTemplates);
 
+    // Listen for updates to templates from other hook instances
+    useEffect(() => {
+        const handleTemplatesUpdated = () => {
+            setTemplates(getInitialTemplates());
+        };
+        window.addEventListener('quick-add-templates-updated', handleTemplatesUpdated);
+        return () => window.removeEventListener('quick-add-templates-updated', handleTemplatesUpdated);
+    }, []);
+
     /**
      * Inserts a new template at the top of the list and persists the updated list.
      *
      * @param newTemplate New template record to store.
      */
     const addTemplate = (newTemplate: QuickAddTemplate) => {
-        setTemplates((prev: QuickAddTemplate[]) => {
-            const updatedTemplates = [newTemplate, ...prev];
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTemplates));
-            } catch (error) {
-                console.error("Error saving quick add templates:", error);
-            }
-            return updatedTemplates;
-        })
+        const current = getInitialTemplates();
+
+        const templateToAdd = current.some(t => t.id === newTemplate.id)
+            ? { ...newTemplate, id: crypto.randomUUID() }
+            : newTemplate;
+
+        const updatedTemplates = [templateToAdd, ...current];
+        persistTemplates(updatedTemplates);
+        setTemplates(updatedTemplates);
     };
 
     /**
@@ -78,11 +93,13 @@ export function useQuickAddTemplates() {
      * @param updatedTemplate Template payload containing the existing id and updated fields.
      */
     const updateTemplate = (updatedTemplate: QuickAddTemplate) => {
-        setTemplates((prev: QuickAddTemplate[]) => {
-            const newTemplates = prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newTemplates));
-            return newTemplates;
-        });
+        const current = getInitialTemplates();
+        const updatedTemplates = current.map(t =>
+            t.id === updatedTemplate.id ? updatedTemplate : t
+        );
+
+        persistTemplates(updatedTemplates);
+        setTemplates(updatedTemplates);
     };
 
     /**
@@ -91,11 +108,11 @@ export function useQuickAddTemplates() {
      * @param id Identifier of the template to remove.
      */
     const deleteTemplate = (id: string) => {
-        setTemplates((prev: QuickAddTemplate[]) => {
-            const newTemplates = prev.filter(t => t.id !== id);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newTemplates));
-            return newTemplates;
-        });
+        const current = getInitialTemplates();
+        const updatedTemplates = current.filter(t => t.id !== id);
+
+        persistTemplates(updatedTemplates);
+        setTemplates(updatedTemplates);
     };
 
     /**
@@ -105,8 +122,8 @@ export function useQuickAddTemplates() {
      * @param reorderedTemplates Reordered list of templates.
      */
     const reorderTemplates = (reorderedTemplates: QuickAddTemplate[]) => {
+        persistTemplates(reorderedTemplates);
         setTemplates(reorderedTemplates);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(reorderedTemplates));
     };
 
     return { templates, addTemplate, updateTemplate, deleteTemplate, reorderTemplates };

@@ -22,6 +22,12 @@ function getInitialTransactions(): Transaction[] {
     }
 }
 
+//! persistence, event-bus, SSoT
+function persistTransactions(transactions: Transaction[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+    window.dispatchEvent(new Event('transactions-updated'));
+}
+
 /**
  * Keeps transaction state in sync with localStorage.
  * This hook is the main transaction source used by dashboard and overview screens.
@@ -31,12 +37,11 @@ function getInitialTransactions(): Transaction[] {
 export function useTransactions() {
     const [transactions, setTransactions] = useState<Transaction[]>(getInitialTransactions);
 
-    // Naslouchej custom eventu, když se transakce změní v jiné instance hooků
+    // Listen for updates to transactions from other hook instances
     useEffect(() => {
         const handleTransactionsUpdated = () => {
             setTransactions(getInitialTransactions());
         };
-        
         window.addEventListener('transactions-updated', handleTransactionsUpdated);
         return () => window.removeEventListener('transactions-updated', handleTransactionsUpdated);
     }, []);
@@ -48,16 +53,15 @@ export function useTransactions() {
       * @param newTransaction New transaction record to store.
      */
     const addTransaction = (newTransaction: Transaction) => {
-        setTransactions((prev: Transaction[]) => {
-            const updatedTransactions = [newTransaction, ...prev];
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTransactions));
-                window.dispatchEvent(new Event('transactions-updated'));
-            } catch (error) {
-                console.error("Error saving transactions:", error);
-            }
-            return updatedTransactions;
-        })
+        const current = getInitialTransactions();
+
+        const transactionToAdd = current.some(t => t.id === newTransaction.id)
+            ? { ...newTransaction, id: crypto.randomUUID() }
+            : newTransaction;
+
+        const updatedTransactions = [transactionToAdd, ...current];
+        persistTransactions(updatedTransactions);
+        setTransactions(updatedTransactions);
     };
 
     /**
@@ -67,14 +71,13 @@ export function useTransactions() {
       * @param updatedTransaction Transaction payload containing the existing id and updated fields.
      */
     const updateTransaction = (updatedTransaction: Transaction) => {
-        setTransactions((prev: Transaction[]) => {
-            const newTransactions = prev.map(t => 
-                t.id === updatedTransaction.id ? updatedTransaction : t
-            );
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newTransactions));
-            window.dispatchEvent(new Event('transactions-updated'));
-            return newTransactions;
-        })
+        const current = getInitialTransactions();
+        const updatedTransactions = current.map(t =>
+            t.id === updatedTransaction.id ? updatedTransaction : t
+        );
+
+        persistTransactions(updatedTransactions);
+        setTransactions(updatedTransactions);
     }
 
     /**
@@ -83,16 +86,11 @@ export function useTransactions() {
      * @param id Identifier of the transaction to remove.
      */
     const deleteTransaction = (id: string) => {
-        setTransactions((prev: Transaction[]) => {
-            const updatedTransactions = prev.filter((transaction) => transaction.id !== id);
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTransactions));
-                window.dispatchEvent(new Event('transactions-updated'));
-            } catch (error) {
-                console.error("Error saving transactions:", error);
-            }
-            return updatedTransactions;
-        })
+        const current = getInitialTransactions();
+        const updatedTransactions = current.filter(t => t.id !== id);
+
+        persistTransactions(updatedTransactions);
+        setTransactions(updatedTransactions);
     }
 
     /**
@@ -102,15 +100,13 @@ export function useTransactions() {
      * @param newCategoryId Identifier of the category to replace with.
      */
     const reassignCategory = (oldCategoryId: string, newCategoryId: string) => {
-        setTransactions((prev: Transaction[]) => {
-            const newTransactions = prev.map(t =>
-                // pokud ma transakce stare id, vratime jeji kopii s novym id
-                t.categoryId === oldCategoryId ? { ...t, categoryId: newCategoryId } : t
-            );
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newTransactions));
-            window.dispatchEvent(new Event('transactions-updated'));
-            return newTransactions;
-        });
+        const current = getInitialTransactions();
+        const updatedTransactions = current.map(t =>
+            t.categoryId === oldCategoryId ? { ...t, categoryId: newCategoryId } : t
+        );
+
+        persistTransactions(updatedTransactions);
+        setTransactions(updatedTransactions);
     }
 
 
