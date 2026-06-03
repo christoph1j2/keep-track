@@ -7,11 +7,11 @@ import { QuickAddButton } from '../components/QuickAdd/QuickAddButton';
 import { Add, TrendingUp, TrendingDown, CalendarMonth, Euro } from "@mui/icons-material";
 import { Graph } from "../components/Dashboard/Graph";
 import { LastTransactions } from "../components/Dashboard/LastTransactions";
-import { ExpensiveCategories } from '../components/Dashboard/ExpensiveCategories';
 import { useCategories } from "../hooks/useCategories";
 import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
 import { useBudgets } from "../hooks/useBudgets";
+import { BudgetingList } from "../components/Dashboard/BudgetingList";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -163,10 +163,15 @@ export function Dashboard() {
                 transactions={transactions}
             />
 
-            {/** categories sekce */}
-            <ExpensiveCategories
-                transactions={transactions}
-            />
+                {/** categories sekce */}
+                {/* <ExpensiveCategories
+                    transactions={transactions}
+                /> */}
+                {/** budgeting sekce */}
+                <BudgetingList 
+                    budgets={budgets} 
+                />
+            
         </div>
         
         <BaseModal

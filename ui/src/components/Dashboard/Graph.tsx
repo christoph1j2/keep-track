@@ -44,7 +44,7 @@ export function Graph(
     );
 
     // Responsive chart height: smaller on mobile, larger on desktop
-    const chartHeight = isMobile ? 250 : 350;
+    const chartHeight = isMobile ? 250 : 500;
 
     return (
         <section className="bg-white p-6 rounded-2xl shadow-sm">

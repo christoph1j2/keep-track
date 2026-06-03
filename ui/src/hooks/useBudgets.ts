@@ -56,7 +56,6 @@ export function useBudgets() {
         const handleBudgetsUpdated = () => {
             setBudgets(getInitialBudgets());
         };
-
         window.addEventListener('budgets-updated', handleBudgetsUpdated);
 
         return () => {
@@ -74,18 +73,18 @@ export function useBudgets() {
     const setBudget = (categoryId: string, limit: number) => {
         const current = getInitialBudgets();
         const exists = current.some(b => b.categoryId === categoryId);
-        let newBudgets: Budget[];
 
         if (exists) {
-            newBudgets = current.map(b => 
+            const updated = current.map(b =>
                 b.categoryId === categoryId ? { categoryId, limit } : b
             );
+            persistBudgets(updated);
+            setBudgets(updated);
         } else {
-            newBudgets = [...current, { categoryId, limit }];
+            persistBudgets([...current, { categoryId, limit }]);
+            setBudgets([...current, { categoryId, limit }]);
         }
-        persistBudgets(newBudgets);
-        setBudgets(newBudgets);
-    }
+    };
 
     /**
      * Removes a budget by category id and persists the result.
@@ -94,13 +93,20 @@ export function useBudgets() {
      */
     const removeBudget = (id: string) => {
         const current = getInitialBudgets();
-        const delBudget = current.find(b => b.categoryId === id);
-        if (!delBudget) return;
-
-        const newBudgets = current.filter(b => b.categoryId !== id);
-        persistBudgets(newBudgets);
-        setBudgets(newBudgets);
+        const updated = current.filter(b => b.categoryId !== id);
+        persistBudgets(updated);
+        setBudgets(updated);
     };
 
-    return { budgets, setBudget, removeBudget };
+    /**
+     * Reorders the budgets according to the provided list and persists the new order.
+     * 
+     * @param reorderedBudgets 
+     */
+    const reorderBudgets = (reorderedBudgets: Budget[]) => {
+        persistBudgets(reorderedBudgets);
+        setBudgets(reorderedBudgets);
+    };
+
+    return { budgets, setBudget, removeBudget, reorderBudgets };
 }

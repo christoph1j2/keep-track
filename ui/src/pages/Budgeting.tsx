@@ -1,32 +1,44 @@
+import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useCategories } from "../hooks/useCategories";
 import { useTransactions } from "../hooks/useTransactions";
 import { useBudgets } from '../hooks/useBudgets';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ProgressBar } from "../components/Budgeting/ProgressBar";
-import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { AddBudgetModal } from "../components/Modals/AddBudgetModal";
-import { Delete, Edit } from "@mui/icons-material";
 import { EditBudgetModal } from "../components/Modals/EditBudgetModal";
+import { SortableBudgetItem } from "../components/Budgeting/SortableBudgetItem";
 
 /**
  * Budgeting page for managing monthly spending limits.
- * Displays progress bars for each budget category, and allows create, update, and delete actions.
+ * Displays progress bars for each budget category with drag-and-drop reordering support.
  */
 export function Budgeting() {
     const { transactions } = useTransactions();
     const { categories } = useCategories();
-    const { budgets, setBudget, removeBudget } = useBudgets();
+    const { budgets, setBudget, removeBudget, reorderBudgets } = useBudgets();
     const navigate = useNavigate();
 
     const [selectedBudget, setSelectedBudget] = useState<typeof budgets[0]>();
-
     const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
     const [isEditBudgetModalOpen, setEditBudgetModalOpen] = useState(false);
 
     const handleProgressBarClick = (categoryId: string) => {
         navigate('/overview', { state: { selectedCategoryId: categoryId } });
+    };
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) return;
+
+        const oldIndex = budgets.findIndex(b => b.categoryId === active.id);
+        const newIndex = budgets.findIndex(b => b.categoryId === over.id);
+
+        if (oldIndex === -1 || newIndex === -1) return;
+
+        reorderBudgets(arrayMove(budgets, oldIndex, newIndex));
     };
 
     const now = new Date();
@@ -47,77 +59,58 @@ export function Budgeting() {
                 </button>
             </div>
 
-            {/** tady budou "progress bars" rozpočtů */}
-            {budgets.map(budget => {
-                const category = categories.find(c => c.id === budget.categoryId);
-                if (!category) return null;
-                // console.log('Budget:', budget);
-
-                //! zahrneme i transakce z podkategorií (logicky by měly být zahrnuty, protože rozpočet se vztahuje na celou kategorii včetně podkategorií)
-                const subcatIds = categories
-                    .filter(c => c.parentId === budget.categoryId)
-                    .map(c => c.id);
-
-                const categoryTransactions = currentMonthTransactions.filter(
-                    t => t.categoryId === budget.categoryId || subcatIds.includes(t.categoryId) 
-                );
-
-                /** NOTE:
-                 * Rozpočty slouží k hlídání a omezování útrat/výdajů
-                 * => do vyčerpaného limitu se počítají tedy pouze záporné transakce, ze kterých se počítá abs pro progress bar
-                 *
-                 * Příklad:
-                 * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo.
-                 *
-                 * Myslím, že jsem to jen špatně pojmenoval, tzn. že místo "Budgeting" by se tato stránka měla jmenovat spíše "Spending Limits" nebo "Expense Tracking", protože se jedná o sledování a hlídání útrat vůči nastaveným limitům.
-                */
-                const totalSpent = categoryTransactions
-                    .filter((t) => t.amount < 0)
-                    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-                return (
-                    <div
-                        key={budget.categoryId}
-                        className="inline-flex items-center gap-3 rounded-lg border border-slate-100 bg-white p-4 shadow-sm sm:gap-4 sm:p-6"
-                    >
-                        <ProgressBar
-                            categoryName={category.label}
-                            categoryIcon={<CategoryIcon name={category.iconName} className="" />}
-                            progress={totalSpent}
-                            limit={budget.limit}
-                            onClick={() => handleProgressBarClick(budget.categoryId)}
-                        />
-                        
-                        <div className="flex flex-col gap-2 ml-auto">
-                            <button
-                                onClick={() => {
-                                    setSelectedBudget(budget);
-                                    setEditBudgetModalOpen(true);
-                                }}
-                                className="shrink-0 rounded-md px-1 font-semibold text-slate-600 transition-colors hover:bg-slate-50 inline-flex items-center gap-1">
-                                <Edit fontSize="medium" />
-                                Upravit
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (window.confirm(`Opravdu chcete smazat rozpočet pro kategorii "${category.label}"?`)) {
-                                        removeBudget(budget.categoryId);
-                                    }
-                                }}
-                                className="shrink-0 rounded-md px-1 font-semibold text-red-600 transition-colors hover:bg-red-50 inline-flex items-center gap-1"
-                            >
-                                <Delete fontSize="medium" />
-                                Smazat
-                            </button>
-                        </div>
-                    </div>
-                );
-            })}
-            {budgets.length === 0 && (
+            {budgets.length === 0 ? (
                 <div className="text-center text-gray-500 mt-20">
                     <p className="text-lg">Žádné rozpočty nenastaveny.</p>
                     <p className="text-sm">Klikněte na "+ Přidat rozpočet" pro vytvoření prvního rozpočtu.</p>
                 </div>
+            ) : (
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={budgets.map(b => b.categoryId)} strategy={verticalListSortingStrategy}>
+                        <div className="flex flex-col gap-3">
+                            {budgets.map(budget => {
+                                const category = categories.find(c => c.id === budget.categoryId);
+                                if (!category) return null;
+
+                                //! zahrneme i transakce z podkategorií (logicky by měly být zahrnuty, protože rozpočet se vztahuje na celou kategorii včetně podkategorií)
+                                const subcatIds = categories
+                                    .filter(c => c.parentId === budget.categoryId)
+                                    .map(c => c.id);
+
+                                const categoryTransactions = currentMonthTransactions.filter(
+                                    t => t.categoryId === budget.categoryId || subcatIds.includes(t.categoryId) 
+                                );
+
+                                /** NOTE:
+                                 * Rozpočty slouží k hlídání a omezování útrat/výdajů
+                                 * => do vyčerpaného limitu se počítají tedy pouze záporné transakce, ze kterých se počítá abs pro progress bar
+                                 *
+                                 * Příklad:
+                                 * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo.
+                                 *
+                                 * Myslím, že jsem to jen špatně pojmenoval, tzn. že místo "Budgeting" by se tato stránka měla jmenovat spíše "Spending Limits" nebo "Expense Tracking", protože se jedná o sledování a hlídání útrat vůči nastaveným limitům.
+                                */
+                                const totalSpent = categoryTransactions
+                                    .filter((t) => t.amount < 0)
+                                    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+                                return (
+                                    <SortableBudgetItem
+                                        key={budget.categoryId}
+                                        budget={budget}
+                                        spent={totalSpent}
+                                        onProgressBarClick={handleProgressBarClick}
+                                        onEdit={() => {
+                                            setSelectedBudget(budget);
+                                            setEditBudgetModalOpen(true);
+                                        }}
+                                        onDelete={removeBudget}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </SortableContext>
+                </DndContext>
             )}
         </div>
 
@@ -146,7 +139,7 @@ export function Budgeting() {
                     budget={selectedBudget}
                     onSubmit={(categoryId, limit) => {
                         if (selectedBudget && selectedBudget.categoryId !== categoryId) {
-                            removeBudget(selectedBudget.categoryId); // pokud se mění kategorie, smažeme původní rozpočet (kvůli klíči v useBudgets)
+                            removeBudget(selectedBudget.categoryId);
                         }
                         setBudget(categoryId, limit);
                         setEditBudgetModalOpen(false);

@@ -8,6 +8,8 @@ type ExpensiveCategory = Pick<Category, "id" | "label" | "iconName" | "colorClas
 };
 
 /**
+ * @deprecated This component is not in use on the dashboard anymore. It may be removed in the future, but for now it is kept for potential reuse or reference.
+ * 
  * Shows the top expense categories for the current month.
  * Expenses are grouped by category, converted to absolute totals, then sorted descending.
  * 
