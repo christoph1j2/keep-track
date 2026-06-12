@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-//import { useTransactions } from "../hooks/useTransactions";
-import { useCategories } from "../hooks/useCategories";
 import { CategoryTree } from "../components/Overview/CategoryTree";
 import { TransactionDataGrid } from "../components/Overview/TransactionDataGrid";
 import { BaseModal } from "../components/Modals/BaseModal";
@@ -10,15 +8,15 @@ import { SplitTransactionModal } from "../components/Modals/SplitTransactionModa
 import { ImportModal } from "../components/Modals/ImportModal";
 import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
 import { useTransactionStore } from "../store/transactionStore";
+import { useCategoryStore } from "../store/categoryStore";
 
 /**
  * Overview page for browsing, filtering, and editing transactions.
  * This page coordinates category filtering, grid editing, and modal-driven create/split flows.
  */
 export function Overview() {
-    //const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
     const { transactions, addTransaction, deleteTransaction, updateTransaction } = useTransactionStore();
-    const { categories } = useCategories();
+    const categories = useCategoryStore((state) => (state.categories));
     const location = useLocation();
 
     const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
@@ -87,7 +85,6 @@ export function Overview() {
 
                     <div className="flex-1 overflow-y-auto">
                         <CategoryTree
-                            categories={categories}
                             // ulozi se do state, ktery je v Overview, protoze ho potrebuje i DataGrid
                             onSelectCategory={setSelectedCategoryId}
                         />

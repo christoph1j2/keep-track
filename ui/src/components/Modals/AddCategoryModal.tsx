@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useCategories } from "../../hooks/useCategories";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface AddCategoryModalProps {
-    onSubmit: (label: string, colorClass: string, iconName: string, order: number, parentId: string | undefined) => void;
     onCancel: () => void;
 }
 
@@ -14,11 +13,10 @@ interface AddCategoryModalProps {
  * Validates that label, color, and icon are selected.
  * Automatically assigns the next order value based on existing categories.
  *
- * @param props.onSubmit Called with the new category data when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) {
-    const { categories } = useCategories();
+export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
+    const { categories, addCategory } = useCategoryStore();
 
     const [label, setLabel] = useState("");
     const [colorClass, setColorClass] = useState("bg-gray-500");
@@ -49,7 +47,17 @@ export function AddCategoryModal({ onSubmit, onCancel }: AddCategoryModalProps) 
             return;
         }
 
-        onSubmit(label, colorClass, iconName, nextOrder, parentId || undefined);
+        addCategory({
+            label: label,
+            colorClass: colorClass,
+            iconName: iconName,
+            order: nextOrder,
+            parentId: parentId || undefined,
+        });
+
+        // onSubmit(label, colorClass, iconName, nextOrder, parentId || undefined);
+        setIsSubmitting(false);
+        onCancel();
     }
 
     const MenuProps = {

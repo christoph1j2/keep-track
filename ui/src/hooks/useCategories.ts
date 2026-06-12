@@ -71,6 +71,7 @@ function persistCategories(categories: Category[]) {
  * If storage is unavailable or invalid, default categories are returned.
  *
  * @returns Category list and a lookup helper by category id.
+ * @deprecated This hook is being replaced by a Zustand store for better performance and global state management. Use `useCategoryStore` instead.
  */
 export function useCategories() {
     const [categories, setCategories] = useState<Category[]>(getInitialCategories);

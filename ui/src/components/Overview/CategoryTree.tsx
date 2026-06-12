@@ -1,11 +1,10 @@
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
-import type { Category } from "../../types/category";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import React from 'react';
+import { useCategoryStore } from '../../store/categoryStore';
 
 interface CategoryTreeProps {
-    categories: Category[],
     onSelectCategory: (categoryId: string | null) => void,
 }
 
@@ -16,7 +15,9 @@ interface CategoryTreeProps {
  * @param props.categories Category list containing roots and optional children.
  * @param props.onSelectCategory Callback that receives the selected category id, or null.
  */
-export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) {
+export function CategoryTree({onSelectCategory}: CategoryTreeProps) {
+    const categories = useCategoryStore((state) => (state.categories));
+
     const mainCategories = categories.filter(c => c.parentId === undefined);
 
     const [expandedItems, setExpandedItems] = React.useState<string[]>(

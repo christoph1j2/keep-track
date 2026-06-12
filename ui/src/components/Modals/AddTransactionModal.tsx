@@ -60,6 +60,9 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
             date: new Date().toISOString(),
         });
         // onSubmit(title, amount, categoryId);
+
+        setIsSubmitting(false);
+        onCancel();
     };
 
     return (

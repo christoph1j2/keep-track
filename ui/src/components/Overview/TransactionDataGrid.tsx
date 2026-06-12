@@ -3,9 +3,9 @@ import { useState } from "react";
 import { TextField } from "@mui/material";
 import type { Transaction } from "../../types/transaction";
 import { CategoryIcon } from "../Base/CategoryIcon";
-import { useCategories } from "../../hooks/useCategories";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { TransactionMobileList } from "./TransactionMobileList";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface TransactionDataGridProps {
     transactions: Transaction[];
@@ -29,7 +29,7 @@ export function TransactionDataGrid({
         onDeleteTransaction,
         onSplitTransaction
     }: TransactionDataGridProps) {
-    const { categories, getCategoryById } = useCategories();
+    const categories = useCategoryStore((state) =>  state.categories );
     const isMobile = useIsMobile();
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -108,10 +108,12 @@ export function TransactionDataGrid({
             editable: true,
             resizable: false,
             renderCell: (params: GridRenderCellParams) => {
+                const category = categories.find(c => c.id === params.row.categoryId);
+
                 return (
                     <div className="flex items-center gap-2 min-w-0">
                         <CategoryIcon 
-                            name={getCategoryById(params.row.categoryId)?.iconName || ''} 
+                            name={category?.iconName || ''} 
                         />
                         <span className="truncate" title={params.value as string}>{params.value}</span>
                     </div>
@@ -141,7 +143,7 @@ export function TransactionDataGrid({
                 label: c.label
             })),
             renderCell: (params: GridRenderCellParams) => {
-                const category = getCategoryById(params.value);
+                const category = categories.find(c => c.id === params.value);
                 return (
                     <div className="w-full h-full flex items-center">
                         <div 

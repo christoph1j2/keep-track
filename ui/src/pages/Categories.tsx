@@ -1,5 +1,3 @@
-import { useCategories } from "../hooks/useCategories";
-import { useTransactions } from "../hooks/useTransactions";
 import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { useState } from "react";
 import { BaseModal } from "../components/Modals/BaseModal";
@@ -7,14 +5,16 @@ import { EditCategoryModal } from "../components/Modals/EditCategoryModal";
 import { AddCategoryModal } from "../components/Modals/AddCategoryModal";
 import { ArrowDownward, ArrowUpward, Delete, Edit } from "@mui/icons-material";
 import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
+import { useCategoryStore } from "../store/categoryStore";
+import { useTransactionStore } from "../store/transactionStore";
 
 /**
  * Categories management page for organizing transaction categories.
  * Allows create, update, delete, and reorder actions through drag-and-drop.
  */
 export function Categories() {
-    const { categories, removeCategory, updateCategory, addCategory, moveCategoryDown, moveCategoryUp } = useCategories();
-    const { reassignCategory } = useTransactions();
+    const { categories, removeCategory, moveCategoryDown, moveCategoryUp } = useCategoryStore();
+    const { reassignCategory } = useTransactionStore();
 
     const [selectedCategory, setSelectedCategory] = useState<typeof categories[0] | null>(null);
 
@@ -104,17 +104,6 @@ export function Categories() {
                 onClose={()=>setAddModalOpen(false)}
             >
                 <AddCategoryModal 
-                    onSubmit={(label, colorClass, iconName, order, parentId) => {
-                        addCategory({
-                            id: crypto.randomUUID(),
-                            label,
-                            colorClass,
-                            iconName,
-                            order,
-                            parentId
-                        });
-                        setAddModalOpen(false);
-                    }}
                     onCancel={() => setAddModalOpen(false)}
                 />
             </BaseModal>
@@ -126,18 +115,6 @@ export function Categories() {
             >
                 <EditCategoryModal
                     category={selectedCategory || null}
-                    onSubmit={(label, colorClass, iconName, order, parentId) => {
-                        if (!selectedCategory) return;
-                        updateCategory({
-                            ...selectedCategory,
-                            label,
-                            colorClass,
-                            iconName,
-                            order,
-                            parentId: parentId ?? undefined,
-                        });
-                        setEditModalOpen(false);
-                    }}
                     onCancel={() => setEditModalOpen(false)}
                 />
             </BaseModal>

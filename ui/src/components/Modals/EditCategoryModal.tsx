@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import type { Category } from "../../types/category";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface EditCategoryModalProps {
     category: Category | null;
-    onSubmit: (newLabel: string, newColorClass: string, newIconName: string, order: number, newParentId: string | undefined) => void;
     onCancel: () => void;
 }
 
@@ -18,8 +17,8 @@ interface EditCategoryModalProps {
  * @param props.onSubmit Called with the updated category fields when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategoryModalProps) {
-    const {categories} = useCategories();
+export function EditCategoryModal({ category, onCancel }: EditCategoryModalProps) {
+    const { categories, updateCategory } = useCategoryStore();
     const [label, setLabel] = useState(category?.label || "");
     const [colorClass, setColorClass] = useState(category?.colorClass || "");
     const [iconName, setIconName] = useState(category?.iconName || "");
@@ -47,7 +46,18 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
             return;
         }
 
-        onSubmit(label, colorClass, iconName, category?.order || 0, parentId || undefined);
+        updateCategory({
+            id: category!.id,
+            label: label,
+            colorClass: colorClass,
+            order: category!.order,
+            iconName: iconName,
+            parentId: parentId || undefined,
+        });
+
+        // onSubmit(label, colorClass, iconName, category?.order || 0, parentId || undefined);
+        setIsSubmitting(false);
+        onCancel();
     }
 
     const MenuProps = {

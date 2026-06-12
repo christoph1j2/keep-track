@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import type { Transaction } from "../../types/transaction";
 import { CategoryIcon } from "../Base/CategoryIcon";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface TransactionMobileListProps {
     transactions: Transaction[];
@@ -24,8 +24,8 @@ const ITEMS_PER_PAGE = 5;
  */
 export function TransactionMobileList({ transactions, onUpdateTransaction, onDeleteTransaction, onSplitTransaction }: TransactionMobileListProps) {
     // hook pro ziskani kategorii a jejich detailu
-    const { getCategoryById, categories } = useCategories();
-    
+    const categories = useCategoryStore((state) => state.categories);
+
     // id transakce, kterou editujeme
     const [editingId, setEditingId] = useState<string | null>(null);
     
@@ -102,7 +102,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
             <div className="flex-1 overflow-y-auto space-y-2">
                 {/* seznam transakcí na aktualni strance */}
                 {paginatedTransactions.map((transaction) => {
-                    const category = getCategoryById(transaction.categoryId);
+                    const category = categories.find(c => c.id === transaction.categoryId);
                     const isEditing = editingId === transaction.id;
                     const current = { ...transaction, ...editingData };
 

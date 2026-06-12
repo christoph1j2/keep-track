@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryStore } from "../../store/categoryStore";
 import { Select, MenuItem, TextField } from "@mui/material";
 import type { Transaction } from "../../types/transaction";
 
@@ -24,7 +24,7 @@ type SplitRow = {
  * @param props.onCancel Called when the user leaves the split flow.
  */
 export function SplitTransactionModal({ transaction, onSubmit, onCancel }: SplitTransactionModalProps) {
-    const {categories} = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<string[] | null>(null);
