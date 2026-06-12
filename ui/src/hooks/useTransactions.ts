@@ -33,6 +33,7 @@ function persistTransactions(transactions: Transaction[]) {
  * This hook is the main transaction source used by dashboard and overview screens.
  *
  * @returns Current transactions and mutation helpers for add, update, and delete actions.
+ * @deprecated This hook is being replaced by a Zustand store for better performance and global state management. Use `useTransactionStore` instead.
  */
 export function useTransactions() {
     const [transactions, setTransactions] = useState<Transaction[]>(getInitialTransactions);

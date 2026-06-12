@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { useTransactions } from "../hooks/useTransactions";
+//import { useTransactions } from "../hooks/useTransactions";
 import { useCategories } from "../hooks/useCategories";
 import { CategoryTree } from "../components/Overview/CategoryTree";
 import { TransactionDataGrid } from "../components/Overview/TransactionDataGrid";
@@ -9,13 +9,15 @@ import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
 import { SplitTransactionModal } from "../components/Modals/SplitTransactionModal";
 import { ImportModal } from "../components/Modals/ImportModal";
 import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
+import { useTransactionStore } from "../store/transactionStore";
 
 /**
  * Overview page for browsing, filtering, and editing transactions.
  * This page coordinates category filtering, grid editing, and modal-driven create/split flows.
  */
 export function Overview() {
-    const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
+    //const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
+    const { transactions, addTransaction, deleteTransaction, updateTransaction } = useTransactionStore();
     const { categories } = useCategories();
     const location = useLocation();
 
@@ -113,16 +115,6 @@ export function Overview() {
                 onClose={()=>setIsAddTransactionModalOpen(false)}
             >
                 <AddTransactionModal 
-                    onSubmit={(title,amount,categoryId)=>{
-                        addTransaction({
-                            id: crypto.randomUUID(),
-                            title,
-                            amount,
-                            categoryId,
-                            date: new Date().toISOString()
-                         });
-                        setIsAddTransactionModalOpen(false)
-                    }}
                     onCancel={()=>setIsAddTransactionModalOpen(false)}
                 />
             </BaseModal>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTransactions } from "../hooks/useTransactions";
 import { useQuickAddTemplates } from "../hooks/useQuickAddTemplates";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { StatCard } from "../components/Dashboard/StatCard";
@@ -13,6 +12,7 @@ import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
 import { useBudgets } from "../hooks/useBudgets";
 import { BudgetingList } from "../components/Dashboard/BudgetingList";
 import { generateMockTransactions } from "../utils/mockDataGenerator";
+import { useTransactionStore } from "../store/transactionStore";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -20,31 +20,19 @@ import { generateMockTransactions } from "../utils/mockDataGenerator";
  */
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { transactions, addTransaction, clearTransactions, loadMockData } = useTransactions();
     const { templates } = useQuickAddTemplates();
     const { categories } = useCategories();
     const hotbarTemplates = templates.filter((template) => template.showInHotbar);
     const { budgets } = useBudgets();
+
+    const { transactions, addTransaction, clearTransactions, loadMockData } = useTransactionStore();
+
 
     const now = new Date();
     const currentMonthTransactions = transactions.filter((t) => {
         const d = new Date(t.date);
         return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     });
-
-    /**
-     * Filters all transactions for a specific month and year.
-     *
-     * @param month Zero-based month index.
-     * @param year Full year value.
-     * @returns Transactions that belong to the requested period.
-     */
-    const getTransactionsForMonth = (month: number, year: number) => {
-        return transactions.filter((t) => {
-            const d = new Date(t.date);
-            return d.getFullYear() === year && d.getMonth() === month;
-        });
-    };
 
     const budgetStatus = budgets.length > 0 ? (() => {
         let exceeded = 0;
@@ -160,7 +148,6 @@ export function Dashboard() {
                             onClick={() => {
                                 if (window.confirm(`Přidat transakci: ${template.title}\n${template.amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}?`)) {
                                     addTransaction({
-                                        id: crypto.randomUUID(),
                                         title: template.title,
                                         amount: template.amount,
                                         categoryId: template.categoryId,
@@ -175,17 +162,13 @@ export function Dashboard() {
             </section>
 
             {/** graph sekce */}
-            <Graph 
-                getTransactionsForMonth={getTransactionsForMonth}
-            />
+            <Graph/>
         </div>
 
         {/** second row, right col - transactions & categories */}
         <div className="lg:col-span-2 md:col-span-2 space-y-6">
             {/** transactions sekce */}
-            <LastTransactions
-                transactions={transactions}
-            />
+            <LastTransactions/>
 
                 {/** categories sekce */}
                 {/* <ExpensiveCategories
@@ -206,16 +189,6 @@ export function Dashboard() {
             }}
         >
             <AddTransactionModal
-                onSubmit={(title, amount, categoryId) => {
-                    addTransaction({
-                        id: crypto.randomUUID(),
-                        title,
-                        amount,
-                        categoryId,
-                        date: new Date().toISOString(),
-                    });
-                    setIsModalOpen(false);
-                }}
                 onCancel={() => setIsModalOpen(false)}
             />
         </BaseModal>

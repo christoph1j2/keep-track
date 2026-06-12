@@ -1,7 +1,7 @@
 import { CategoryIcon } from "../Base/CategoryIcon";
-import type { Transaction } from "../../types/transaction";
 import { useCategories } from "../../hooks/useCategories";
 import { useState } from "react";
+import { useTransactionStore } from "../../store/transactionStore";
 
 /**
  * Shows the five most recent transactions sorted by date.
@@ -9,13 +9,11 @@ import { useState } from "react";
  *
  * @param props.transactions Transactions to display.
  */
-export function LastTransactions(
-    { transactions }:
-    { transactions: Transaction[] }
-) {
+export function LastTransactions() {
     const { getCategoryById } = useCategories();
-
     const [activeFilter, setActiveFilter] = useState<'all' | 'income' | 'expense'>('all');
+
+    const transactions = useTransactionStore((state) => state.transactions);
 
     const filteredTransactions = transactions.filter(t => {
         if (activeFilter === 'all') return true;

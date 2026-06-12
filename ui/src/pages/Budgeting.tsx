@@ -1,7 +1,7 @@
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useCategories } from "../hooks/useCategories";
-import { useTransactions } from "../hooks/useTransactions";
+//import { useTransactions } from "../hooks/useTransactions";
 import { useBudgets } from '../hooks/useBudgets';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,13 +9,15 @@ import { BaseModal } from "../components/Modals/BaseModal";
 import { AddBudgetModal } from "../components/Modals/AddBudgetModal";
 import { EditBudgetModal } from "../components/Modals/EditBudgetModal";
 import { SortableBudgetItem } from "../components/Budgeting/SortableBudgetItem";
+import { useTransactionStore } from "../store/transactionStore";
 
 /**
  * Budgeting page for managing monthly spending limits.
  * Displays progress bars for each budget category with drag-and-drop reordering support.
  */
 export function Budgeting() {
-    const { transactions } = useTransactions();
+    //const { transactions } = useTransactions();
+    const transactions = useTransactionStore((state) => state.transactions);
     const { categories } = useCategories();
     const { budgets, setBudget, removeBudget, reorderBudgets } = useBudgets();
     const navigate = useNavigate();

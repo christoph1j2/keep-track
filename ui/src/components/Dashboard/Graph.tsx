@@ -1,6 +1,6 @@
 import { BarChart } from "@mui/x-charts/BarChart";
-import type { Transaction } from "../../types/transaction";
 import { useIsMobile } from "../../hooks/useIsMobile";
+import { useTransactionStore } from "../../store/transactionStore";
 
 /**
  * Compares monthly income and expenses over the last six months.
@@ -9,16 +9,25 @@ import { useIsMobile } from "../../hooks/useIsMobile";
  *
  * @param props.getTransactionsForMonth Function that returns transactions for a given month and year.
  */
-export function Graph(
-    {
-        getTransactionsForMonth
-    }:
-    {
-        getTransactionsForMonth: (month: number, year: number) => Transaction[]
-    }
-) {
+export function Graph() {
     const isMobile = useIsMobile();
     const now = new Date();
+
+    const transactions = useTransactionStore((state) => state.transactions);
+
+    /**
+     * Filters all transactions for a specific month and year.
+     *
+     * @param month Zero-based month index.
+     * @param year Full year value.
+     * @returns Transactions that belong to the requested period.
+     */
+    const getTransactionsForMonth = (month: number, year: number) => {
+        return transactions.filter((t) => {
+            const d = new Date(t.date);
+            return d.getFullYear() === year && d.getMonth() === month;
+        });
+    };
 
     const graphPeriods = Array.from({ length: 6 }, (_, index) => {
         const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);

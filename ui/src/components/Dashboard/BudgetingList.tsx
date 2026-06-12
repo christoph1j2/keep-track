@@ -1,16 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { useCategories } from "../../hooks/useCategories";
-import { useTransactions } from "../../hooks/useTransactions";
 import type { Budget } from "../../types/budget";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { ProgressBar } from "../Budgeting/ProgressBar";
+import { useTransactionStore } from "../../store/transactionStore";
 
 export function BudgetingList(
     { budgets }:
     { budgets: Budget[] }
 ) {
     const { categories } = useCategories();
-    const { transactions } = useTransactions();
+    const transactions = useTransactionStore((state) => state.transactions);
 
     const navigate = useNavigate();
     

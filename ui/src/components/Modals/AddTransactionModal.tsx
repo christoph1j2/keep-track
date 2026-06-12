@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useCategories } from "../../hooks/useCategories";
 import { Select, MenuItem, TextField } from "@mui/material";
+import { useTransactionStore } from "../../store/transactionStore";
 
 interface AddTransactionModalProps {
-    onSubmit: (title: string, amount: number, categoryId: string) => void;
     onCancel: () => void;
 }
 
@@ -14,9 +14,10 @@ interface AddTransactionModalProps {
  * @param props.onSubmit Called with a valid title, amount, and category id.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function AddTransactionModal({ onSubmit, onCancel }: AddTransactionModalProps) {
+export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
     const {categories} = useCategories();
 
+    const addTransaction = useTransactionStore((state) => state.addTransaction);
     // stavy pro formular
     const [title, setTitle] = useState("");
     const [amount, setAmount] = useState<number | "">("");
@@ -52,7 +53,13 @@ export function AddTransactionModal({ onSubmit, onCancel }: AddTransactionModalP
             return;
         }
 
-        onSubmit(title, amount, categoryId);
+        addTransaction({
+            title,
+            amount: amount as number,
+            categoryId,
+            date: new Date().toISOString(),
+        });
+        // onSubmit(title, amount, categoryId);
     };
 
     return (

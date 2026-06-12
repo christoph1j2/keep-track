@@ -1,6 +1,6 @@
 import { useCategories } from "../../hooks/useCategories";
+import { useTransactionStore } from "../../store/transactionStore";
 import type { Category } from "../../types/category";
-import type { Transaction } from "../../types/transaction";
 import { CategoryIcon } from "../Base/CategoryIcon";
 
 type ExpensiveCategory = Pick<Category, "id" | "label" | "iconName" | "colorClass"> & {
@@ -16,11 +16,9 @@ type ExpensiveCategory = Pick<Category, "id" | "label" | "iconName" | "colorClas
  * @param props.transactions Transactions to analyze for expensive categories.
  * 
  */
-export function ExpensiveCategories(
-    { transactions }:
-    { transactions: Transaction[] }
-) {
+export function ExpensiveCategories() {
     const { getCategoryById } = useCategories();
+    const transactions = useTransactionStore((state) => state.transactions);
 
     const now = new Date();
     const currentMonthTransactions = transactions.filter((t) => {
