@@ -1,11 +1,11 @@
 import { MenuItem, Select, TextField } from "@mui/material";
 import { useState } from "react";
-import { useCategories } from "../../hooks/useCategories";
 import type { Budget } from "../../types/budget";
+import { useCategoryStore } from "../../store/categoryStore";
+import { useBudgetStore } from "../../store/budgetStore";
 
 interface EditBudgetModalProps {
     budget: Budget;
-    onSubmit: (categoryId: string, limit: number) => void;
     onCancel: () => void;
 }
 
@@ -17,9 +17,10 @@ interface EditBudgetModalProps {
  * @param props.onSubmit Called with the updated category id and limit when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function EditBudgetModal({ budget, onSubmit, onCancel }: EditBudgetModalProps) {
+export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
 
-    const {categories} = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
+    const setBudget = useBudgetStore((state) => state.setBudget);
 
     // stavy pro formular
     const [categoryId, setCategoryId] = useState(budget.categoryId);
@@ -59,7 +60,11 @@ export function EditBudgetModal({ budget, onSubmit, onCancel }: EditBudgetModalP
             return;
         }
 
-        onSubmit(categoryId, limit);
+        setBudget(categoryId, limit);
+        setIsSubmitting(false);
+        onCancel(); // zavre modal po uspesnem upraveni
+
+        // onSubmit(categoryId, limit);
     };
 
     return (

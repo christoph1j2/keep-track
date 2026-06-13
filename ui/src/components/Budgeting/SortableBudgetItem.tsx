@@ -4,7 +4,7 @@ import { DragIndicator, Delete, Edit } from "@mui/icons-material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import type { Budget } from "../../types/budget";
 import { ProgressBar } from "./ProgressBar";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface SortableBudgetItemProps {
     budget: Budget;
@@ -22,9 +22,9 @@ export function SortableBudgetItem({
     onDelete
 }: SortableBudgetItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: budget.categoryId });
-    const { getCategoryById } = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
 
-    const category = getCategoryById(budget.categoryId);
+    const category = categories.find((c) => c.id === budget.categoryId);
     if (!category) return null;
 
     const style = {

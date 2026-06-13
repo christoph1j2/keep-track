@@ -2,9 +2,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { type QuickAddTemplate } from "../../types/quickadd";
 import { QuickAddButton } from "./QuickAddButton";
-import { useCategories } from "../../hooks/useCategories";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { Delete, DragIndicator, Edit, PushPin, PushPinOutlined } from "@mui/icons-material";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface SortableTemplateItemProps {
     template: QuickAddTemplate;
@@ -32,7 +32,7 @@ export function SortableTemplateItem({
     onToggleHotbar,
 }: SortableTemplateItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: template.id });
-    const { categories } = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
 
     const category = categories.find(c => c.id === template.categoryId);
 

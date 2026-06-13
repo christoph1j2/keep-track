@@ -1,4 +1,4 @@
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryStore } from "../../store/categoryStore";
 import { useTransactionStore } from "../../store/transactionStore";
 import type { Category } from "../../types/category";
 import { CategoryIcon } from "../Base/CategoryIcon";
@@ -17,7 +17,7 @@ type ExpensiveCategory = Pick<Category, "id" | "label" | "iconName" | "colorClas
  * 
  */
 export function ExpensiveCategories() {
-    const { getCategoryById } = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
     const transactions = useTransactionStore((state) => state.transactions);
 
     const now = new Date();
@@ -39,7 +39,7 @@ export function ExpensiveCategories() {
 
     const expensiveCategories: ExpensiveCategory[] = Object.entries(categorySums) // z Dictu na pole dvojic
         .map(([categoryId, totalAmount]) => {
-            const category = getCategoryById(categoryId);
+            const category = categories.find((c) => c.id === categoryId);
             return {
                 id: categoryId,
                 label: category?.label || "Nezařazeno",

@@ -1,8 +1,5 @@
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
-import { useCategories } from "../hooks/useCategories";
-//import { useTransactions } from "../hooks/useTransactions";
-import { useBudgets } from '../hooks/useBudgets';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BaseModal } from "../components/Modals/BaseModal";
@@ -10,16 +7,17 @@ import { AddBudgetModal } from "../components/Modals/AddBudgetModal";
 import { EditBudgetModal } from "../components/Modals/EditBudgetModal";
 import { SortableBudgetItem } from "../components/Budgeting/SortableBudgetItem";
 import { useTransactionStore } from "../store/transactionStore";
+import { useCategoryStore } from "../store/categoryStore";
+import { useBudgetStore } from "../store/budgetStore";
 
 /**
  * Budgeting page for managing monthly spending limits.
  * Displays progress bars for each budget category with drag-and-drop reordering support.
  */
 export function Budgeting() {
-    //const { transactions } = useTransactions();
     const transactions = useTransactionStore((state) => state.transactions);
-    const { categories } = useCategories();
-    const { budgets, setBudget, removeBudget, reorderBudgets } = useBudgets();
+    const categories = useCategoryStore((state) => state.categories);
+    const { budgets, removeBudget, reorderBudgets } = useBudgetStore();
     const navigate = useNavigate();
 
     const [selectedBudget, setSelectedBudget] = useState<typeof budgets[0]>();
@@ -122,10 +120,6 @@ export function Budgeting() {
             onClose={() => setAddBudgetModalOpen(false)}
         >
             <AddBudgetModal 
-                onSubmit={(categoryId, limit) => {
-                    setBudget(categoryId, limit);
-                    setAddBudgetModalOpen(false);
-                }}
                 onCancel={() => setAddBudgetModalOpen(false)}
             />
         </BaseModal>
@@ -139,13 +133,6 @@ export function Budgeting() {
                 <EditBudgetModal 
                     key={`${selectedBudget.categoryId}:${selectedBudget.limit}`}
                     budget={selectedBudget}
-                    onSubmit={(categoryId, limit) => {
-                        if (selectedBudget && selectedBudget.categoryId !== categoryId) {
-                            removeBudget(selectedBudget.categoryId);
-                        }
-                        setBudget(categoryId, limit);
-                        setEditBudgetModalOpen(false);
-                    }}
                     onCancel={() => setEditBudgetModalOpen(false)}
                 />
             )}

@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import { useCategories } from "../../hooks/useCategories";
 import type { QuickAddTemplate } from "../../types/quickadd";
 import { Select, MenuItem, TextField } from "@mui/material";
+import { useCategoryStore } from "../../store/categoryStore";
+import { useTemplateStore } from "../../store/quickAddTemplateStore";
 
 interface QuickAddTemplateModalProps {
     template?: QuickAddTemplate | null;
-    onSubmit: (template: Omit<QuickAddTemplate, "id">) => void;
     onCancel: () => void;
 }
 
@@ -18,39 +18,56 @@ interface QuickAddTemplateModalProps {
  * @param props.onSubmit Called with the template data (excluding id) when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function QuickAddTemplateModal({ template, onSubmit, onCancel }: QuickAddTemplateModalProps) {
-    const { categories } = useCategories();
+export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateModalProps) {
+    const categories = useCategoryStore((state) => state.categories);
     const sortedCategories = useMemo(
         () => [...categories].sort((a, b) => a.order - b.order),
         [categories]
     );
+
+    const addTemplate = useTemplateStore((state) => state.addTemplate);
 
     const [title, setTitle] = useState(template?.title ?? "");
     const [amount, setAmount] = useState<number | "">(template?.amount ?? "");
     const [categoryId, setCategoryId] = useState(template?.categoryId ?? sortedCategories[0]?.id ?? "");
     const [showInHotbar] = useState(template?.showInHotbar ?? false);
     const [errors, setErrors] = useState<string[] | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = (event: React.SubmitEvent) => {
         event.preventDefault();
+
+        if (isSubmitting) return; // zabrani dvojitemu odeslani
+        setIsSubmitting(true);
         setErrors(null);
 
         if (!title.trim() || amount === "" || !categoryId) {
             setErrors(["Vyplňte název, částku a kategorii."]);
+            setIsSubmitting(false);
             return;
         }
 
         if (!Number.isFinite(amount) || amount === 0) {
             setErrors(["Částka musí být nenulové číslo."]);
+            setIsSubmitting(false);
             return;
         }
 
-        onSubmit({
+        addTemplate({
+            id: template?.id ?? crypto.randomUUID(),
             title: title.trim(),
             amount,
             categoryId,
             showInHotbar,
         });
+        setIsSubmitting(false);
+        onCancel();
+        // onSubmit({
+        //     title: title.trim(),
+        //     amount,
+        //     categoryId,
+        //     showInHotbar,
+        // });
     };
 
     return (

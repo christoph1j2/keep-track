@@ -47,6 +47,7 @@ function persistBudgets(budgets: Budget[]) {
  * Budgets are linked to categories and define spending limits.
  *
  * @returns Current budgets and mutation helpers for set and remove actions.
+ * @deprecated This hook is deprecated in favor of the Zustand store `useBudgetStore`.
  */
 export function useBudgets() {
     const [budgets, setBudgets] = useState<Budget[]>(getInitialBudgets);

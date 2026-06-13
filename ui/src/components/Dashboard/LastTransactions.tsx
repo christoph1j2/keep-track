@@ -1,7 +1,7 @@
 import { CategoryIcon } from "../Base/CategoryIcon";
-import { useCategories } from "../../hooks/useCategories";
 import { useState } from "react";
 import { useTransactionStore } from "../../store/transactionStore";
+import { useCategoryStore } from "../../store/categoryStore";
 
 /**
  * Shows the five most recent transactions sorted by date.
@@ -10,7 +10,7 @@ import { useTransactionStore } from "../../store/transactionStore";
  * @param props.transactions Transactions to display.
  */
 export function LastTransactions() {
-    const { getCategoryById } = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
     const [activeFilter, setActiveFilter] = useState<'all' | 'income' | 'expense'>('all');
 
     const transactions = useTransactionStore((state) => state.transactions);
@@ -49,7 +49,7 @@ export function LastTransactions() {
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .slice(0,5)
                 .map((t) => {
-                    const category = getCategoryById(t.categoryId)
+                    const category = categories.find((c) => c.id === t.categoryId);
                     return (
                     <div
                         key={t.id}

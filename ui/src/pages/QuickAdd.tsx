@@ -2,11 +2,11 @@ import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { Add } from "@mui/icons-material";
 import { useMemo, useState } from "react";
-import { useQuickAddTemplates } from "../hooks/useQuickAddTemplates";
 import { SortableTemplateItem } from "../components/QuickAdd/SortableTemplateItem";
 import { type QuickAddTemplate } from "../types/quickadd";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { QuickAddTemplateModal } from "../components/Modals/QuickAddTemplateModal";
+import { useTemplateStore } from "../store/quickAddTemplateStore";
 
 // maximalni pocet polozek v hotbaru
 const HOTBAR_LIMIT = 6;
@@ -18,7 +18,7 @@ const HOTBAR_LIMIT = 6;
  */
 export function QuickAdd() {
     // nacti vsechny funkce pro praci s templates z hooku
-    const { templates, addTemplate, updateTemplate, deleteTemplate, reorderTemplates } = useQuickAddTemplates();
+    const { templates, updateTemplate, deleteTemplate, reorderTemplates } = useTemplateStore();
     // stav pro otevreni/zavreni modalu
     const [isModalOpen, setIsModalOpen] = useState(false);
     // stav pro uchovani sablony, kterou chceme editovat (null = vytvoreni nove sablony)
@@ -84,17 +84,6 @@ export function QuickAdd() {
         if (isConfirmed) {
             deleteTemplate(template.id);
         }
-    };
-
-    const handleSubmit = (templateData: Omit<QuickAddTemplate, "id">) => {
-        if (editingTemplate) {
-            updateTemplate({ ...templateData, id: editingTemplate.id });
-        } else {
-            addTemplate({ ...templateData, id: crypto.randomUUID() });
-        }
-
-        setIsModalOpen(false);
-        setEditingTemplate(null);
     };
 
     const handleToggleHotbar = (template: QuickAddTemplate) => {
@@ -186,7 +175,6 @@ export function QuickAdd() {
             >
                 <QuickAddTemplateModal
                     template={editingTemplate}
-                    onSubmit={handleSubmit}
                     onCancel={() => setIsModalOpen(false)}
                 />
             </BaseModal>

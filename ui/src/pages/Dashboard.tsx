@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuickAddTemplates } from "../hooks/useQuickAddTemplates";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { StatCard } from "../components/Dashboard/StatCard";
 import { QuickAddButton } from '../components/QuickAdd/QuickAddButton';
@@ -8,11 +7,12 @@ import { Graph } from "../components/Dashboard/Graph";
 import { LastTransactions } from "../components/Dashboard/LastTransactions";
 import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
-import { useBudgets } from "../hooks/useBudgets";
 import { BudgetingList } from "../components/Dashboard/BudgetingList";
 import { generateMockTransactions } from "../utils/mockDataGenerator";
 import { useTransactionStore } from "../store/transactionStore";
 import { useCategoryStore } from "../store/categoryStore";
+import { useTemplateStore } from "../store/quickAddTemplateStore";
+import { useBudgetStore } from "../store/budgetStore";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -20,9 +20,9 @@ import { useCategoryStore } from "../store/categoryStore";
  */
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { templates } = useQuickAddTemplates();
+    const templates = useTemplateStore((state) => state.templates);
     const hotbarTemplates = templates.filter((template) => template.showInHotbar);
-    const { budgets } = useBudgets();
+    const budgets = useBudgetStore((state) => state.budgets);
 
     const { transactions, addTransaction, clearTransactions, loadMockData } = useTransactionStore();
     const categories = useCategoryStore((state) => (state.categories));

@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { MobileMenu } from './MobileMenu';
 import { InfoOutlined } from '@mui/icons-material';
 import { Dialog, DialogContent, DialogTitle, DialogActions, Button } from '@mui/material';
-
-import { useTransactions } from '../../hooks/useTransactions';
+import { useTransactionStore } from '../../store/transactionStore';
 
 /**
  * Application header with user info and mobile hamburger menu.
@@ -11,7 +10,7 @@ import { useTransactions } from '../../hooks/useTransactions';
  */
 export function Topbar() {
     const [infoOpen, setInfoOpen] = useState(false);
-
+    const transactions = useTransactionStore((state) => state.transactions);
 
     return (
         <>
@@ -74,7 +73,7 @@ export function Topbar() {
                         </p>
                         <br />
                         <p className="text-slate-400 leading-relaxed">
-                            Věděl jsi, že suma všech tvých kladných transakcí je <i>{useTransactions().transactions.filter((t) => t.amount > 0).reduce((sum, t) => sum + t.amount, 0).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}</i>? <br /> A suma všech záporných transakcí je <i>{useTransactions().transactions.filter((t) => t.amount < 0).reduce((sum, t) => sum + t.amount, 0).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}</i>!
+                            Věděl jsi, že suma všech tvých kladných transakcí je <i>{transactions.filter((t) => t.amount > 0).reduce((sum, t) => sum + t.amount, 0).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}</i>? <br /> A suma všech záporných transakcí je <i>{transactions.filter((t) => t.amount < 0).reduce((sum, t) => sum + t.amount, 0).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}</i>!
                         </p>
                     </div>
                 </div>
