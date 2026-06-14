@@ -1,19 +1,27 @@
-import { CategoryIcon } from "../components/Base/CategoryIcon";
 import { useState } from "react";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { EditCategoryModal } from "../components/Modals/EditCategoryModal";
 import { AddCategoryModal } from "../components/Modals/AddCategoryModal";
-import { ArrowDownward, ArrowUpward, Delete, Edit } from "@mui/icons-material";
-import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
 import { useCategoryStore } from "../store/categoryStore";
 import { useTransactionStore } from "../store/transactionStore";
+import { SortableCategoryItem } from "../components/Categories/SortableCategoryItem";
+import {
+    DndContext,
+    closestCenter,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 /**
  * Categories management page for organizing transaction categories.
  * Allows create, update, delete, and reorder actions through drag-and-drop.
  */
 export function Categories() {
-    const { categories, removeCategory, moveCategoryDown, moveCategoryUp } = useCategoryStore();
+    const { categories, removeCategory, reorderCategories } = useCategoryStore();
     const { reassignCategory } = useTransactionStore();
 
     const [selectedCategory, setSelectedCategory] = useState<typeof categories[0] | null>(null);
@@ -31,6 +39,17 @@ export function Categories() {
         }
     };
 
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = categories.findIndex((cat) => cat.id === active.id);
+            const newIndex = categories.findIndex((cat) => cat.id === over.id);
+
+            reorderCategories(arrayMove(categories, oldIndex, newIndex));
+        }
+    };
+
     return (
         <div className="p-2 h-full flex flex-col">
             <div className="mb-6 flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
@@ -45,58 +64,26 @@ export function Categories() {
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 {/* Vykreslení seznamu kategorií */}
-                <div className="flex flex-col">
-                    {[...categories].sort((a, b) => a.order - b.order).map((cat) => (
-                        <div key={cat.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 pl-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
-                            <div className="flex items-center gap-4 min-w-0"> {/*! fix overflow, pridani tooltipu */}
-                                {cat.id !== UNCATEGORIZED_ID && (
-                                    <div className="flex flex-col w-5 shrink-0">
-                                        <ArrowUpward 
-                                            className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 transition-colors" 
-                                            onClick={() => moveCategoryUp(cat.id)}
-                                        />
-                                        <ArrowDownward 
-                                            className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 transition-colors" 
-                                            onClick={() => moveCategoryDown(cat.id)}
-                                        />
-                                    </div>
-                                )}
-                                <div className={`p-2 rounded-lg ${cat.colorClass} shrink-0`}>
-                                    <CategoryIcon name={cat.iconName} />
-                                </div>
-                                <div className="flex flex-col min-w-0">
-                                    <span className="font-bold text-slate-700 truncate" title={cat.label}>{cat.label}</span>
-                                    {cat.parentId && <span className="text-xs text-slate-400">Podkategorie</span>}
-                                </div>
-                            </div>
-
-                            <div className="flex gap-2 mt-3 sm:mt-0 justify-center">
-                                <button
-                                    onClick={() => {
+                <DndContext
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext items={categories.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+                        <div className="flex flex-col">
+                            {categories.map((cat) => (
+                                <SortableCategoryItem 
+                                    key={cat.id} 
+                                    cat={cat} 
+                                    onEdit={() => {
                                         setSelectedCategory(cat);
                                         setEditModalOpen(true);
                                     }}
-                                    className="inline-flex items-center px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-md transition-colors"
-                                >
-                                    <Edit fontSize="small" />
-                                    Upravit
-                                </button>
-                                
-                                {/* Tlačítko smazat */}
-                                {cat.id !== UNCATEGORIZED_ID && ( // Nezařazeno nesmíme smazat!
-                                    <button 
-                                        onClick={() => handleDelete(cat.id)}
-                                        className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                                    >
-                                        <Delete fontSize="small" />
-                                        Smazat
-                                    </button>
-                                )}
-                            </div>
-
+                                    onDelete={handleDelete}
+                                />
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </SortableContext>
+                </DndContext>
             </div>
             <BaseModal
                 title="Přidat kategorii"

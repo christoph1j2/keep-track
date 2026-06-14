@@ -160,7 +160,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         }}
                     >
                         <MenuItem value="">Vyberte kategorii</MenuItem>
-                        {[...categories].sort((a, b) => a.order - b.order).map((category) => (
+                        {categories.map((category) => (
                             <MenuItem key={category.id} value={category.id}>
                                 {category.label}
                             </MenuItem>

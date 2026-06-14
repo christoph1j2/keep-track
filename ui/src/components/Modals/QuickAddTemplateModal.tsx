@@ -21,7 +21,7 @@ interface QuickAddTemplateModalProps {
 export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateModalProps) {
     const categories = useCategoryStore((state) => state.categories);
     const sortedCategories = useMemo(
-        () => [...categories].sort((a, b) => a.order - b.order),
+        () => categories,
         [categories]
     );
 

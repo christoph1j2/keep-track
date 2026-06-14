@@ -50,12 +50,10 @@ export function EditCategoryModal({ category, onCancel }: EditCategoryModalProps
             id: category!.id,
             label: label,
             colorClass: colorClass,
-            order: category!.order,
             iconName: iconName,
             parentId: parentId || undefined,
         });
 
-        // onSubmit(label, colorClass, iconName, category?.order || 0, parentId || undefined);
         setIsSubmitting(false);
         onCancel();
     }

@@ -150,7 +150,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                             }
                                             className="w-full px-2 py-1 border border-slate-200 rounded text-sm"
                                         >
-                                            {[...categories].sort((a, b) => a.order - b.order).map((cat) => (
+                                            {categories.map((cat) => (
                                                 <option key={cat.id} value={cat.id}>
                                                     {cat.label}
                                                 </option>

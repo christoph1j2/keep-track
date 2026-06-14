@@ -138,7 +138,7 @@ export function TransactionDataGrid({
             type: "singleSelect",
             editable: true,
             resizable: false,
-            valueOptions: [...categories].sort((a, b) => a.order - b.order).map((c) => ({
+            valueOptions: categories.map((c) => ({
                 value: c.id,
                 label: c.label
             })),
@@ -173,7 +173,7 @@ export function TransactionDataGrid({
                         }}
                         className="w-full px-2 py-1 border border-slate-400 rounded text-sm"
                     >
-                        {[...categories].sort((a, b) => a.order - b.order).map((cat) => (
+                        {categories.map((cat) => (
                             <option key={cat.id} value={cat.id}>
                                 {cat.label}
                             </option>

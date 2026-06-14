@@ -34,12 +34,6 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
         setIsSubmitting(true);
         setErrors(null);
 
-        // Compute next order: take max from all categories except uncategorized
-        const nonUncategorizedCategories = categories.filter(c => c.id !== UNCATEGORIZED_ID);
-        const nextOrder = nonUncategorizedCategories.length > 0
-            ? Math.max(...nonUncategorizedCategories.map(c => c.order)) + 1
-            : 1;
-
         // validace
         if (!label || !colorClass || !iconName) {
             setErrors(["Vyplňte všechny pole"]);
@@ -51,11 +45,9 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
             label: label,
             colorClass: colorClass,
             iconName: iconName,
-            order: nextOrder,
             parentId: parentId || undefined,
         });
 
-        // onSubmit(label, colorClass, iconName, nextOrder, parentId || undefined);
         setIsSubmitting(false);
         onCancel();
     }
