@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
-import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
 import { useCategoryStore } from "../../store/categoryStore";
 
 interface AddCategoryModalProps {
