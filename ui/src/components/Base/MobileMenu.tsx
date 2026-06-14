@@ -46,13 +46,19 @@ export function MobileMenu() {
     return (
         <>
             {/* Drawer */}
-            <Drawer open={isOpen} onClose={toggleDrawer(false)}>
-                <div className="w-64 flex flex-col h-full">
+            <Drawer 
+                open={isOpen} 
+                onClose={toggleDrawer(false)}
+                classes={{
+                    paper: "dark:bg-slate-900" // Overrides the default white MUI background in dark mode
+                }}
+            >
+                <div className="w-64 flex flex-col h-full bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors">
                     {/* Logo section */}
-                    <div className="p-6 border-b border-slate-200">
-                        <h1 className="text-2xl font-bold text-blue-700 flex items-center gap-2">
-                            <StyleIcon className="text-slate-900" />
-                            Keep<span className="text-slate-800">Track</span>
+                    <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+                        <h1 className="text-2xl font-bold text-blue-700 dark:text-blue-500 flex items-center gap-2">
+                            <StyleIcon className="text-slate-900 dark:text-slate-200" />
+                            Keep<span className="text-slate-800 dark:text-slate-200">Track</span>
                         </h1>
                     </div>
 
@@ -67,11 +73,11 @@ export function MobileMenu() {
                                         to={item.path}
                                         className={`rounded-xl mb-2 transition-colors ${
                                             isActive
-                                                ? 'bg-slate-100 text-slate-900'
-                                                : 'text-slate-600 hover:bg-slate-50'
+                                                ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100'
+                                                : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50 transition-colors'
                                         }`}
                                     >
-                                        <ListItemIcon className={isActive ? 'text-slate-900' : 'text-slate-600'}>
+                                        <ListItemIcon className={isActive ? 'text-slate-900! dark:text-slate-100!' : 'text-slate-600! dark:text-slate-400!'}>
                                             {item.icon}
                                         </ListItemIcon>
                                         <ListItemText primary={item.title} />
@@ -86,7 +92,7 @@ export function MobileMenu() {
             {/* Hamburger button trigger */}
             <button
                 onClick={toggleDrawer(true)}
-                className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg transition-colors"
                 aria-label="Open menu"
             >
                 <svg

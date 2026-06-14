@@ -13,6 +13,7 @@ import { useTransactionStore } from "../store/transactionStore";
 import { useCategoryStore } from "../store/categoryStore";
 import { useTemplateStore } from "../store/quickAddTemplateStore";
 import { useBudgetStore } from "../store/budgetStore";
+import { Link } from "react-router-dom";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -36,27 +37,36 @@ export function Dashboard() {
 
     const budgetStatus = budgets.length > 0 ? (() => {
         let exceeded = 0;
-        let ok = 0;
+        let warning = 0;
+
+        // 1. Create a fast lookup map of subCategory -> parentCategory once
+        const parentMap = new Map();
+        categories.forEach(c => {
+            if (c.parentId) parentMap.set(c.id, c.parentId);
+        });
 
         budgets.forEach(budget => {
-            const categoryTransactions = currentMonthTransactions.filter(t => t.categoryId === budget.categoryId);
+            const categoryTransactions = currentMonthTransactions.filter(t => {
+                // 2. Instant lookup: check if direct ID matches or mapped parent ID matches
+                const resolvedCategoryId = parentMap.get(t.categoryId) || t.categoryId;
+                return resolvedCategoryId === budget.categoryId;
+            });
+
             const totalSpent = categoryTransactions
                 .filter(t => t.amount < 0)
                 .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
             if (totalSpent > budget.limit) {
                 exceeded++;
-            }
-            if (totalSpent > budget.limit * 0.8) {
-                ok++;
+            } else if (totalSpent > budget.limit * 0.8) {
+                warning++;
             }
         });
 
         if (exceeded > 0) return 'BAD';
-        if (ok > 0) return 'OK';
+        if (warning > 0) return 'OK';
         return 'GOOD';
     })() : 'N/A';
-
 
     const income = currentMonthTransactions
                     .filter(t => t.amount > 0)
@@ -67,9 +77,9 @@ export function Dashboard() {
     const balance = income - expenses;
 
     return (
-        <div className="p-0">
-        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <h2 className="text-center text-3xl font-bold text-slate-800">Dashboard</h2>
+        <div className="p-0 dark:text-slate-100 transition-colors">
+        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 dark:text-slate-100 transition-colors">
+            <h2 className="text-center text-3xl font-bold text-slate-800 dark:text-slate-100 transition-colors">Dashboard</h2>  
             <div className="flex flex-col md:flex-row gap-2">
                 <button
                     className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
@@ -124,13 +134,16 @@ export function Dashboard() {
         {/** second row, left col - quick add and graph */}
         <div className="lg:col-span-2 md:col-span-2 space-y-4">
             {/** quick add sekce */}
-            <section className="bg-white p-6 rounded-2xl shadow-sm">
-            <h3 className="text-xl font-bold mb-4">Quick Add</h3>
+            <section className="bg-white p-6 rounded-2xl shadow-sm dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 transition-colors">
+            <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold mb-4">Quick Add</h3>
+                <Link to="/quickadd" className="text-sm text-blue-500 hover:underline mb-4 inline-block">Spravovat šablony</Link>
+            </div>
             <div className="flex gap-4 overflow-x-auto">
                 <QuickAddButton 
                     title="Přidat"
                     icon={<Add />}
-                    colorClass="bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
+                    colorClass="bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 transition-colors"
                     onClick={() => {
                         setIsModalOpen(true);
                     }}

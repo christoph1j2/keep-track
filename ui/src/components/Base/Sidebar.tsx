@@ -33,12 +33,12 @@ const MENU_ITEMS: MenuItem[] = [
  */
 export function Sidebar() {
     return (
-        <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200">
+        <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors">
             {/* logo */}
             <div className='mb-10'>
-                <h1 className='text-2xl font-bold text-blue-700 flex items-center'>
-                    <StyleIcon className="text-slate-900 mr-1" />
-                    Keep<span className='text-slate-800'>Track</span>
+                <h1 className='text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors'>
+                    <StyleIcon className="text-slate-900 mr-1 dark:text-slate-200" />
+                    Keep<span className='text-slate-800 dark:text-slate-200'>Track</span>
                 </h1>
             </div>
 
@@ -50,8 +50,8 @@ export function Sidebar() {
                         to={item.path} // Kam odkaz vede
                         className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors cursor-pointer ${
                             isActive
-                                ? 'bg-white text-slate-900 shadow-sm border border-slate-200'
-                                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                                ? 'bg-white text-slate-900 shadow-sm border border-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 transition-colors'
+                                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100 transition-colors'
                         }`}
                     >
                         {item.icon}
