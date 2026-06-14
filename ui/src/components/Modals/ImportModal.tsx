@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import { BaseModal } from "./BaseModal";
-import { useTransactions } from "../../hooks/useTransactions";
-import { useCategories } from "../../hooks/useCategories";
 import { parseBankCSV, type ParsedTransaction } from "../../utils/bankImport";
 import { saveUserKeyword } from "../../utils/userKeywords";
 import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
+import { useCategoryStore } from "../../store/categoryStore";
+import { useTransactionStore } from "../../store/transactionStore";
 
 interface ImportModalProps {
     isOpen: boolean;
@@ -12,12 +12,12 @@ interface ImportModalProps {
 }
 
 export function ImportModal({ isOpen, onClose }: ImportModalProps) {
-    const { transactions, addTransaction } = useTransactions();
-    const { categories } = useCategories();
+    const { transactions, addTransaction } = useTransactionStore();
+    const categories = useCategoryStore((state) => state.categories);
     
     // Abecedně seřazené kategorie pro select boxy
     const sortedCategories = useMemo(
-        () => [...categories].sort((a, b) => a.order - b.order),
+        () => [...categories].sort((a, b) => a.label.localeCompare(b.label)),
         [categories]
     );
 
@@ -81,7 +81,6 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
             // Continue with save using the normalized list
             normalizedData.forEach(t => {
                 addTransaction({
-                    id: crypto.randomUUID(),
                     title: t.title,
                     amount: t.amount,
                     date: t.date,
@@ -108,7 +107,6 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         validTransactions.forEach(t => {
             // Ulož transakci
             addTransaction({
-                id: crypto.randomUUID(), // v reálné implementaci by ID generoval backend
                 title: t.title,
                 amount: t.amount,
                 date: t.date,

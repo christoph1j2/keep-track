@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useCategories } from "../../hooks/useCategories";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { useTransactionStore } from "../../store/transactionStore";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface AddTransactionModalProps {
     onCancel: () => void;
@@ -15,7 +15,7 @@ interface AddTransactionModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
-    const {categories} = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
 
     const addTransaction = useTransactionStore((state) => state.addTransaction);
     // stavy pro formular
