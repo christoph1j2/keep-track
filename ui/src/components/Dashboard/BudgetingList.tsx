@@ -4,11 +4,11 @@ import { CategoryIcon } from "../Base/CategoryIcon";
 import { ProgressBar } from "../Budgeting/ProgressBar";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
+import { useBudgetStore } from "../../store/budgetStore";
 
-export function BudgetingList(
-    { budgets }:
-    { budgets: Budget[] }
-) {
+export function BudgetingList() {
+    const budgets: Budget[] = useBudgetStore((state) => state.budgets);
+
     const categories = useCategoryStore((state) => state.categories);
     const transactions = useTransactionStore((state) => state.transactions);
 

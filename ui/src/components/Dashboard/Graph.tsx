@@ -53,26 +53,31 @@ export function Graph() {
     );
 
     // Responsive chart height: smaller on mobile, larger on desktop
-    const chartHeight = isMobile ? 250 : 500;
+    const chartHeight = isMobile ? 250 : 250;
 
     return (
         <section className="bg-white p-6 rounded-2xl shadow-sm">
             <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
             <div className="h-auto">
-                <BarChart
-                    xAxis={[{ data: graphPeriods.map(p => p.label) }]}
-                    yAxis={[{
-                        label: "Částka (Kč)",
-                        width: "auto",
-                        min: 0,
-                        max: Math.max(...monthlyIncome, ...monthlyExpenses) * 1.1,
-                    }]}
-                    series={[
-                        { label: "Příjmy", data: monthlyIncome },
-                        { label: "Výdaje", data: monthlyExpenses },
-                    ]}
-                    height={chartHeight}
-                />
+            <BarChart
+            xAxis={[{ 
+                data: graphPeriods.map(p => p.label)
+            }]}
+            yAxis={[{
+                label: "Částka (Kč)",
+                width: "auto",
+                min: 0,
+                max: Math.max(...monthlyIncome, ...monthlyExpenses) * 1.1,
+            }]}
+            series={[
+                // Added explicit IDs to the series objects
+                { id: 'prijmy-series', label: "Příjmy", data: monthlyIncome},
+                { id: 'vydaje-series', label: "Výdaje", data: monthlyExpenses },
+            ]}
+            height={chartHeight}
+            colors={['#32CD32', 'red']} 
+            />
+
             </div>
         </section>
     );

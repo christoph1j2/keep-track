@@ -97,7 +97,7 @@ export function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        {/** first row - stat cards */}
+        {/** first row, left col - stat cards */}
             <StatCard 
                 title="Příjmy tento měsíc"
                 amount={income}
@@ -122,7 +122,7 @@ export function Dashboard() {
             />
 
         {/** second row, left col - quick add and graph */}
-        <div className="lg:col-span-2 md:col-span-2 space-y-6">
+        <div className="lg:col-span-2 md:col-span-2 space-y-4">
             {/** quick add sekce */}
             <section className="bg-white p-6 rounded-2xl shadow-sm">
             <h3 className="text-xl font-bold mb-4">Quick Add</h3>
@@ -161,23 +161,18 @@ export function Dashboard() {
             </div>
             </section>
 
-            {/** graph sekce */}
-            <Graph/>
+
+            {/** transactions sekce */}
+            <LastTransactions/>
         </div>
 
         {/** second row, right col - transactions & categories */}
         <div className="lg:col-span-2 md:col-span-2 space-y-6">
-            {/** transactions sekce */}
-            <LastTransactions/>
+            {/** graph sekce */}
+            <Graph/>
 
-                {/** categories sekce */}
-                {/* <ExpensiveCategories
-                    transactions={transactions}
-                /> */}
-                {/** budgeting sekce */}
-                <BudgetingList 
-                    budgets={budgets} 
-                />
+            {/** budgeting sekce */}
+            <BudgetingList/>
             
         </div>
         
