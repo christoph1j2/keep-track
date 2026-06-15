@@ -70,7 +70,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200" role="alert" aria-live="assertive">
                 {errors.map((err, i) => (
                     <p key={i}>{err}</p>
                 ))}
@@ -119,7 +119,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                    className="px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
                 >
                     Zrušit
                 </button>

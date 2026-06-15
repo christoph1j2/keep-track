@@ -68,6 +68,30 @@ export const useCategoryStore = create<CategoryState>()(
         }),
         {
             name: 'keep-track-categories',
+            merge: (persistedState, currentState) => {
+                                const pState = persistedState as Partial<CategoryState>;
+                if (!pState.categories) return currentState;
+
+                // Sync code changes (like dark mode classes) with saved user categories
+                const mergedCategories = pState.categories.map((pCat) => {
+                    const defaultCat = DEFAULT_CATEGORIES.find((d) => d.id === pCat.id);
+                    if (defaultCat) {
+                        return {
+                            ...pCat,
+                            // Lock the colorClass and iconName to what is currently in your code
+                            colorClass: defaultCat.colorClass,
+                            iconName: defaultCat.iconName,
+                            label: pCat.label, // keep user changes if they can rename it
+                        };
+                    }
+                    return pCat;
+                });
+
+                return {
+                    ...currentState,
+                    categories: mergedCategories,
+                };
+            }
         }
     )
 );

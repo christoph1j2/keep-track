@@ -51,7 +51,7 @@ export function Budgeting() {
         <>
         <div className="h-full flex flex-col gap-4">
             <div className="mb-6 flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
-                <h2 className="text-3xl font-bold text-slate-800">Plánování rozpočtů tento měsíc</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Plánování rozpočtů tento měsíc</h2>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-fit"
                 onClick={() => setAddBudgetModalOpen(true)}
                 >

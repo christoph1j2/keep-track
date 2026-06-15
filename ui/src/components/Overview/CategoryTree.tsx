@@ -58,7 +58,7 @@ export function CategoryTree({onSelectCategory}: CategoryTreeProps) {
                                 <div className={`p-1.5 rounded-lg ${mainCat.colorClass} shrink-0`}>
                                     <CategoryIcon name={mainCat.iconName} />
                                 </div>
-                                <span className='font-semibold text-slate-700 truncate' title={mainCat.label}>{mainCat.label}</span>
+                                <span className='font-semibold text-slate-700 dark:text-slate-300 truncate' title={mainCat.label}>{mainCat.label}</span>
                             </div>
                         }
                     >
@@ -70,8 +70,8 @@ export function CategoryTree({onSelectCategory}: CategoryTreeProps) {
                                     <div 
                                         className="flex items-center gap-3 py-1.5 opacity-80 hover:opacity-100 min-w-0"
                                     >
-                                        <CategoryIcon name={subCat.iconName} className="text-slate-400 shrink-0" />
-                                        <span className="font-medium text-slate-600 truncate" title={subCat.label}>{subCat.label}</span>
+                                        <CategoryIcon name={subCat.iconName} className="text-slate-600 dark:text-slate-400 shrink-0" />
+                                        <span className="font-medium text-slate-600 dark:text-slate-400 truncate" title={subCat.label}>{subCat.label}</span>
                                     </div>
                                 }
                             />

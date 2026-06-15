@@ -18,7 +18,7 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
     const { categories, addCategory } = useCategoryStore();
 
     const [label, setLabel] = useState("");
-    const [colorClass, setColorClass] = useState("bg-gray-500");
+    const [colorClass, setColorClass] = useState("bg-slate-100 text-slate-500 dark:bg-slate-600 dark:text-slate-100");
     const [iconName, setIconName] = useState("question_mark");
     const [parentId, setParentId] = useState<string | "">("");
 
@@ -65,7 +65,7 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200" role="alert" aria-live="assertive">
                 {errors.map((err, idx) => (
                     <p key={idx}>{err}</p>
                 ))}
@@ -177,11 +177,11 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
                 </Select>
             </div>
             {/* tlacitka */}
-            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
+            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                    className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
                 >
                 Zrušit
                 </button>

@@ -53,7 +53,7 @@ export function Overview() {
     return (
         <div className="lg:h-full flex flex-col">
             <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 items-center text-center">
-                <h2 className="text-3xl font-bold text-slate-800">Přehled transakcí</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Přehled transakcí</h2>
                 <div className="flex gap-4">
                     <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium w-full md:w-fit"
                     onClick={() => setIsImportModalOpen(true)}
@@ -70,9 +70,9 @@ export function Overview() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:flex-1 lg:min-h-0">
                 {/** TREE VIEW, KATEGORIE */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 lg:col-span-1 flex flex-col">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 lg:col-span-1 flex flex-col dark:bg-slate-900 dark:border-slate-700 min-h-106 transition-colors dark:text-slate-300">
                     <div className="flex items-center justify-between mb-4 px-2">
-                    <h3 className="text-xl font-bold text-slate-700 mb-4 px-2">Kategorie</h3>
+                    <h3 className="text-xl font-bold text-slate-700 mb-4 px-2 dark:text-slate-300">Kategorie</h3>
                     {selectedCategoryId && (
                         <button 
                             onClick={() => setSelectedCategoryId(null)}
@@ -92,7 +92,7 @@ export function Overview() {
                 </div>
 
                 {/** DATA GRID */}
-                <div className="bg-white rounded-2xl lg:shadow-sm border border-slate-100 p-0 lg:col-span-3 lg:flex lg:flex-col lg:overflow-hidden min-h-106">
+                <div className="bg-white rounded-2xl lg:shadow-sm border border-slate-100 p-0 lg:col-span-3 lg:flex lg:flex-col lg:overflow-hidden min-h-106 dark:bg-slate-900 dark:border-slate-700 transition-colors">
 
                     <TransactionDataGrid 
                         transactions={filteredTransactions}

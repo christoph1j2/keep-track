@@ -65,5 +65,5 @@ const ICON_MAP: Record<string, ElementType> = {
  */
 export function CategoryIcon({ name, className }: { name: string, className?: string }) {
     const IconComponent = ICON_MAP[name] || QuestionMark;
-    return <IconComponent className={className} fontSize="small" />;
+    return <IconComponent className={`${className} transition-colors `} fontSize="small" />;
 }

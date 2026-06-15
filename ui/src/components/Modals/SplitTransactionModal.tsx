@@ -93,9 +93,9 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
 
     return (
         <>
-        <hr />
+        <hr className="border-slate-100 dark:border-slate-800" />
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200" role="alert" aria-live="assertive">
                 {errors.map((error, idx) => (
                     <p key={idx}>{error}</p>
                 ))}
@@ -117,7 +117,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
             {splits.map((split, index) => (
                 <div 
                     key={index}
-                    className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 p-3 sm:grid-cols-3 sm:items-end"
+                    className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:grid-cols-3 sm:items-end"
                 >
                     <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium text-slate-700">Název</label>
@@ -177,7 +177,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                                 ...splits,
                                 { title: "", amount: "", categoryId: "" }
                             ])}
-                            className="h-10 w-10 rounded-full border border-slate-400 text-2xl leading-none transition-colors hover:bg-slate-300"
+                            className="h-10 w-10 rounded-full border border-slate-400 dark:border-slate-700 text-2xl leading-none transition-colors hover:bg-slate-300 dark:hover:bg-slate-800"
 
                         >
                             +
@@ -188,18 +188,18 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         <button
                             type="button"
                             onClick={() => setSplits(splits.slice(0, -1))}
-                            className="h-10 w-10 rounded-full border border-slate-400 text-2xl leading-none transition-colors hover:bg-slate-300"
+                            className="h-10 w-10 rounded-full border border-slate-400 dark:border-slate-700 text-2xl leading-none transition-colors hover:bg-slate-300 dark:hover:bg-slate-800"
                         >
                             -
                         </button>
                     )}
                 </div>
                 {/* tlacitka */}
-                <div className="flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:gap-3 sm:border-t-0 sm:pt-0">
+                <div className="flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 pt-3 sm:flex-row sm:gap-3 sm:border-t-0 sm:pt-0">
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="w-full rounded-lg px-4 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-100 sm:w-auto"
+                        className="w-full rounded-lg px-4 py-2 font-medium text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 sm:w-auto"
 
                     >
                         Zrušit

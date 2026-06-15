@@ -68,7 +68,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-900 dark:text-red-300" role="alert" aria-live="assertive">
                 {errors.map((error, idx) => (
                     <p key={idx}>{error}</p>
                 ))}
@@ -126,11 +126,11 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
             </div>
 
             {/* tlacitka */}
-            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
+            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                    className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
                 >
                     Zrušit
                 </button>

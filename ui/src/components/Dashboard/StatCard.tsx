@@ -40,14 +40,14 @@ export function StatCard({ title, amount, budget_status, icon, trend }: StatCard
 
             {/** spodni cast */}
             <div 
-                className="text-2xl font-bold text-slate-900 truncate dark:text-slate-400 transition-colors"
+                className="text-2xl font-bold text-slate-900 truncate dark:text-slate-300 transition-colors"
                 title={amount !== undefined ? amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' }) : ''}
             >
                 { // sikovny formatovni meny :-)
                     amount !== undefined ? amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' }) : ''
                 }
                 {budget_status && (
-                    <span className={`ml-2 text-2xl font-medium ${budget_status === 'GOOD' ? 'text-green-600 dark:text-green-400' : budget_status === 'BAD' ? 'text-red-600 dark:text-red-400' : budget_status === 'N/A' ? 'text-slate-500 dark:text-slate-400' : 'text-yellow-600 dark:text-yellow-400'} transition-colors`}>
+                    <span className={`ml-2 text-2xl font-medium ${budget_status === 'GOOD' ? 'text-green-600 dark:text-green-400' : budget_status === 'BAD' ? 'text-red-600 dark:text-red-400' : budget_status === 'N/A' ? 'text-slate-500 dark:text-slate-300' : 'text-yellow-600 dark:text-yellow-400'} transition-colors`}>
                         {budget_status}
                     </span>
                 )}

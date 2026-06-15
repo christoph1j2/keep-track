@@ -27,7 +27,7 @@ export function SortableCategoryItem({
         <div 
             ref={setNodeRef}
             style={style}
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 pl-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors bg-white w-full"
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 pl-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors bg-white dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-700 w-full"
         >
             <div className="flex items-center gap-4 min-w-0 flex-1">
                     <button
@@ -35,7 +35,7 @@ export function SortableCategoryItem({
                         {...attributes}
                         {...listeners}
                         style={{ touchAction: 'none' }}
-                        className="cursor-grab active:cursor-grabbing p-1 px-4 text-slate-400 hover:text-slate-600 shrink-0"
+                        className="cursor-grab active:cursor-grabbing p-1 px-4 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 shrink-0"
                         aria-label="Přesunout kategorii"
                     >
                         <DragIndicator fontSize="small" />
@@ -45,8 +45,8 @@ export function SortableCategoryItem({
                     <CategoryIcon name={cat.iconName} />
                 </div>
                 <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-slate-700 truncate" title={cat.label}>{cat.label}</span>
-                    {cat.parentId && <span className="text-xs text-slate-400">Podkategorie</span>}
+                    <span className="font-bold text-slate-700 dark:text-slate-300 dark:truncate" title={cat.label}>{cat.label}</span>
+                    {cat.parentId && <span className="text-xs text-slate-400 dark:text-slate-500">Podkategorie</span>}
                 </div>
             </div>
 
@@ -55,7 +55,7 @@ export function SortableCategoryItem({
                 <>
                 <button
                     onClick={() => onEdit(cat)}
-                    className="inline-flex items-center px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-md transition-colors"
+                    className="inline-flex items-center px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 dark:text-slate-400 rounded-md transition-colors"
                 >
                     <Edit fontSize="small" />
                     Upravit
@@ -63,7 +63,7 @@ export function SortableCategoryItem({
                 
                     <button 
                         onClick={() => onDelete(cat.id)}
-                        className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-slate-600 dark:text-red-500 rounded-md transition-colors"
                     >
                         <Delete fontSize="small" />
                         Smazat

@@ -25,9 +25,11 @@ const ITEMS_PER_PAGE = 5;
 export function TransactionMobileList({ transactions, onUpdateTransaction, onDeleteTransaction, onSplitTransaction }: TransactionMobileListProps) {
     // hook pro ziskani kategorii a jejich detailu
     const categories = useCategoryStore((state) => state.categories);
+    const lineClass = "border-slate-200/70 dark:border-slate-700/40";
 
     // id transakce, kterou editujeme
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
     
     // data zmenenych poli v editovane transakci
     const [editingData, setEditingData] = useState<Partial<Transaction>>({});
@@ -35,9 +37,18 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
     // aktualni stranka pro paginaci
     const [page, setPage] = useState(0);
 
+    const filteredTransactions = useMemo(() => {
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        if (!normalizedSearch) return transactions;
+
+        return transactions.filter((transaction) =>
+            transaction.title.toLowerCase().includes(normalizedSearch)
+        );
+    }, [transactions, searchTerm]);
+
     const sortedTransactions = useMemo(() => {
-        return [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [transactions]);
+        return [...filteredTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [filteredTransactions]);
 
 
     // vypocet transakcí pro aktualni stranku
@@ -48,7 +59,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
     }, [sortedTransactions, page]);
 
     // celkovy pocet stranek
-    const totalPages = Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE);
+    const totalPages = Math.max(1, Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE));
 
     /**
      * Opens inline edit mode for a row.
@@ -98,10 +109,26 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 ">
-            <div className="flex-1 overflow-y-auto space-y-2">
+        <div className="flex flex-col h-full bg-white text-slate-900 dark:bg-slate-950 rounded-lg dark:text-slate-100 transition-colors duration-200">
+            <div className="px-2 pt-2 pb-1">
+                <input
+                    type="search"
+                    placeholder="Hledat podle názvu..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(0);
+                    }}
+                    className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
+                />
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-2 px-2 py-2">
                 {/* seznam transakcí na aktualni strance */}
-                {paginatedTransactions.map((transaction) => {
+                {paginatedTransactions.length === 0 ? (
+                    <div className={`border ${lineClass} rounded-lg p-4 text-center text-sm text-slate-500 dark:text-slate-400`}>
+                        Žádné transakce nenalezeny.
+                    </div>
+                ) : paginatedTransactions.map((transaction) => {
                     const category = categories.find(c => c.id === transaction.categoryId);
                     const isEditing = editingId === transaction.id;
                     const current = { ...transaction, ...editingData };
@@ -109,25 +136,25 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                     return (
                         <div
                             key={transaction.id}
-                            className="border border-slate-200 rounded-lg p-3 bg-white shadow-none"
+                            className={`border ${lineClass} rounded-lg p-3 bg-white dark:bg-slate-900/70 shadow-none transition-colors`}
                         >
                             {isEditing ? (
                                 // rezim editace - zobrazeni formulare
                                 <div className="space-y-2">
                                     <div>
-                                        <label className="text-xs font-semibold text-gray-600">Název</label>
+                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Název</label>
                                         <input
                                             type="text"
                                             value={current.title}
                                             onChange={(e) =>
                                                 setEditingData({ ...editingData, title: e.target.value })
                                             }
-                                            className="w-full px-2 py-1 border border-slate-200 rounded text-sm"
+                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-semibold text-gray-600">Částka</label>
+                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Částka</label>
                                         <input
                                             type="number"
                                             value={current.amount}
@@ -137,18 +164,18 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                                     amount: parseFloat(e.target.value),
                                                 })
                                             }
-                                            className="w-full px-2 py-1 border border-slate-200 rounded text-sm"
+                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-semibold text-gray-600">Kategorie</label>
+                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Kategorie</label>
                                         <select
                                             value={current.categoryId}
                                             onChange={(e) =>
                                                 setEditingData({ ...editingData, categoryId: e.target.value })
                                             }
-                                            className="w-full px-2 py-1 border border-slate-200 rounded text-sm"
+                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
                                         >
                                             {categories.map((cat) => (
                                                 <option key={cat.id} value={cat.id}>
@@ -162,13 +189,13 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                     <div className="flex gap-2 pt-2">
                                         <button
                                             onClick={() => handleSave(transaction)}
-                                            className="flex-1 bg-blue-500 text-white px-2 py-1 rounded text-sm font-semibold"
+                                            className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
                                             Uložit
                                         </button>
                                         <button
                                             onClick={handleCancel}
-                                            className="flex-1 bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm font-semibold"
+                                            className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
                                             Zrušit
                                         </button>
@@ -178,7 +205,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                             onClick={() => {
                                                 onSplitTransaction(transaction);
                                             }}
-                                            className="flex-1 bg-green-500 text-white px-2 py-1 rounded text-sm font-semibold"
+                                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
                                             Rozdělit
                                         </button>
@@ -189,7 +216,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                                     onDeleteTransaction(transaction.id as string);
                                                 }
                                             }}
-                                            className="flex-1 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold"
+                                            className="flex-1 bg-rose-600 hover:bg-rose-500 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
                                             Smazat
                                         </button>
@@ -202,8 +229,8 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                         <div className="flex items-center gap-2 flex-1 min-w-0">
                                             <CategoryIcon name={category?.iconName || ""} />
                                             <div className="min-w-0">
-                                                <p className="font-semibold text-sm truncate" title={transaction.title}>{transaction.title}</p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="font-semibold text-sm truncate text-slate-800 dark:text-slate-200" title={transaction.title}>{transaction.title}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">
                                                     {new Date(transaction.date).toLocaleDateString("cs-CZ")}
                                                 </p>
                                             </div>
@@ -212,8 +239,8 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                         <p
                                             className={`font-semibold text-sm shrink-0 ml-2 ${
                                                 transaction.amount >= 0
-                                                    ? "text-green-600"
-                                                    : "text-red-600"
+                                                    ? "text-emerald-600 dark:text-emerald-400"
+                                                    : "text-rose-600 dark:text-rose-400"
                                             }`}
                                         >
                                             {transaction.amount.toLocaleString("cs-CZ", {
@@ -225,10 +252,12 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
 
                                     {/* badge s kategorii */}
                                     <div
-                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full ${category?.colorClass}-500 ${category?.colorClass}-100 text-xs`}
+                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                                            category?.colorClass ?? "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                        }`}
                                     >
                                         <CategoryIcon name={category?.iconName || ""} />
-                                        <span>{category?.label || "Neprirazeno"}</span>
+                                        <span>{category?.label || "Nepřiřazeno"}</span>
                                     </div>
                                 </div>
                             )}
@@ -238,23 +267,23 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
             </div>
 
             {/* paginace - tlacitka pro navigaci mezi strankami */}
-            <div className="flex items-center justify-between my-4 px-2 mt-auto border-t border-slate-200 pt-4">
+            <div className={`flex items-center justify-between my-4 px-2 mt-auto border-t ${lineClass} pt-4`}>
                 <button
                     onClick={() => setPage(p => Math.max(0, p - 1))}
                     disabled={page === 0}
-                    className="px-3 py-1 rounded bg-gray-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1 rounded bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    ← Predchozi
+                    ← Předchozí
                 </button>
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-slate-600 dark:text-slate-400">
                     Strana {page + 1} z {totalPages}
                 </span>
                 <button
                     onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                     disabled={page === totalPages - 1}
-                    className="px-3 py-1 rounded bg-gray-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1 rounded bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    Dalsi →
+                    Další →
                 </button>
             </div>
         </div>

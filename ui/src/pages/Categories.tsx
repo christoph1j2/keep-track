@@ -53,7 +53,7 @@ export function Categories() {
     return (
         <div className="p-2 h-full flex flex-col">
             <div className="mb-6 flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
-                <h2 className="text-3xl font-bold text-slate-800">Správa kategorií</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Správa kategorií</h2>
                 <button 
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors w-full md:w-fit"
                     onClick={() => setAddModalOpen(true)}
@@ -62,7 +62,7 @@ export function Categories() {
                 </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
                 {/* Vykreslení seznamu kategorií */}
                 <DndContext
                     collisionDetection={closestCenter}
