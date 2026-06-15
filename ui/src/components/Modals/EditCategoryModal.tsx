@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import type { Category } from "../../types/category";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryStore } from "../../store/categoryStore";
 
 interface EditCategoryModalProps {
     category: Category | null;
-    onSubmit: (newLabel: string, newColorClass: string, newIconName: string, order: number, newParentId: string | undefined) => void;
     onCancel: () => void;
 }
 
@@ -18,8 +17,8 @@ interface EditCategoryModalProps {
  * @param props.onSubmit Called with the updated category fields when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategoryModalProps) {
-    const {categories} = useCategories();
+export function EditCategoryModal({ category, onCancel }: EditCategoryModalProps) {
+    const { categories, updateCategory } = useCategoryStore();
     const [label, setLabel] = useState(category?.label || "");
     const [colorClass, setColorClass] = useState(category?.colorClass || "");
     const [iconName, setIconName] = useState(category?.iconName || "");
@@ -47,7 +46,16 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
             return;
         }
 
-        onSubmit(label, colorClass, iconName, category?.order || 0, parentId || undefined);
+        updateCategory({
+            id: category!.id,
+            label: label,
+            colorClass: colorClass,
+            iconName: iconName,
+            parentId: parentId || undefined,
+        });
+
+        setIsSubmitting(false);
+        onCancel();
     }
 
     const MenuProps = {
@@ -64,7 +72,7 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
     return (
         <>
             {errors && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200" role="alert" aria-live="assertive">
                     {errors.map((error, idx) => (
                         <p key={idx}>{error}</p>
                     ))}
@@ -176,11 +184,11 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
                     </Select>
                 </div>
                 {/* tlacitka */}
-                <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
+                <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                        className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
                     >
                     Zrušit
                     </button>
@@ -197,20 +205,20 @@ export function EditCategoryModal({ category, onSubmit, onCancel }: EditCategory
 }
 
 const colors = [
-    { value: "bg-blue-100 text-blue-500", label: "Modrá", hex: "#3b82f6" },
-    { value: "bg-green-100 text-green-500", label: "Zelená", hex: "#22c55e" },
-    { value: "bg-yellow-100 text-yellow-500", label: "Žlutá", hex: "#eab308" },
-    { value: "bg-red-100 text-red-500", label: "Červená", hex: "#ef4444" },
-    { value: "bg-purple-100 text-purple-500", label: "Fialová", hex: "#a855f7" },
-    { value: "bg-pink-100 text-pink-500", label: "Růžová", hex: "#ec4899" },
-    { value: "bg-indigo-100 text-indigo-500", label: "Indigo", hex: "#6366f1" },
-    { value: "bg-cyan-100 text-cyan-500", label: "Azurová", hex: "#06b6d4" },
-    { value: "bg-emerald-100 text-emerald-500", label: "Smaragd", hex: "#10b981" },
-    { value: "bg-orange-100 text-orange-500", label: "Oranžová", hex: "#f97316" },
-    { value: "bg-amber-100 text-amber-500", label: "Jantarová", hex: "#f59e0b" },
-    { value: "bg-teal-100 text-teal-500", label: "Modrozelená", hex: "#14b8a6" },
-    { value: "bg-lime-100 text-lime-500", label: "Limetková", hex: "#84cc16" },
-    { value: "bg-slate-100 text-slate-500", label: "Šedá", hex: "#64748b" },
+    { value: "bg-blue-100 text-blue-500 dark:bg-blue-600 dark:text-blue-100", label: "Modrá", hex: "#3b82f6" },
+    { value: "bg-green-100 text-green-500 dark:bg-green-600 dark:text-green-100", label: "Zelená", hex: "#22c55e" },
+    { value: "bg-yellow-100 text-yellow-500 dark:bg-yellow-600 dark:text-yellow-100", label: "Žlutá", hex: "#eab308" },
+    { value: "bg-red-100 text-red-500 dark:bg-red-600 dark:text-red-100", label: "Červená", hex: "#ef4444" },
+    { value: "bg-purple-100 text-purple-500 dark:bg-purple-600 dark:text-purple-100", label: "Fialová", hex: "#a855f7" },
+    { value: "bg-pink-100 text-pink-500 dark:bg-pink-600 dark:text-pink-100", label: "Růžová", hex: "#ec4899" },
+    { value: "bg-indigo-100 text-indigo-500 dark:bg-indigo-600 dark:text-indigo-100", label: "Indigo", hex: "#6366f1" },
+    { value: "bg-cyan-100 text-cyan-500 dark:bg-cyan-600 dark:text-cyan-100", label: "Azurová", hex: "#06b6d4" },
+    { value: "bg-emerald-100 text-emerald-500 dark:bg-emerald-600 dark:text-emerald-100", label: "Smaragd", hex: "#10b981" },
+    { value: "bg-orange-100 text-orange-500 dark:bg-orange-600 dark:text-orange-100", label: "Oranžová", hex: "#f97316" },
+    { value: "bg-amber-100 text-amber-500 dark:bg-amber-600 dark:text-amber-100", label: "Jantarová", hex: "#f59e0b" },
+    { value: "bg-teal-100 text-teal-500 dark:bg-teal-600 dark:text-teal-100", label: "Modrozelená", hex: "#14b8a6" },
+    { value: "bg-lime-100 text-lime-500 dark:bg-lime-600 dark:text-lime-100", label: "Limetková", hex: "#84cc16" },
+    { value: "bg-slate-100 text-slate-500 dark:bg-slate-600 dark:text-slate-100", label: "Šedá", hex: "#64748b" },
 ];
 
 const icons = [

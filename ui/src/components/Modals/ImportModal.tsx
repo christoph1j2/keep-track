@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import { BaseModal } from "./BaseModal";
-import { useTransactions } from "../../hooks/useTransactions";
-import { useCategories } from "../../hooks/useCategories";
 import { parseBankCSV, type ParsedTransaction } from "../../utils/bankImport";
 import { saveUserKeyword } from "../../utils/userKeywords";
 import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
+import { useCategoryStore } from "../../store/categoryStore";
+import { useTransactionStore } from "../../store/transactionStore";
 
 interface ImportModalProps {
     isOpen: boolean;
@@ -12,12 +12,12 @@ interface ImportModalProps {
 }
 
 export function ImportModal({ isOpen, onClose }: ImportModalProps) {
-    const { transactions, addTransaction } = useTransactions();
-    const { categories } = useCategories();
+    const { transactions, addTransaction } = useTransactionStore();
+    const categories = useCategoryStore((state) => state.categories);
     
     // Abecedně seřazené kategorie pro select boxy
     const sortedCategories = useMemo(
-        () => [...categories].sort((a, b) => a.order - b.order),
+        () => [...categories].sort((a, b) => a.label.localeCompare(b.label)),
         [categories]
     );
 
@@ -81,7 +81,6 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
             // Continue with save using the normalized list
             normalizedData.forEach(t => {
                 addTransaction({
-                    id: crypto.randomUUID(),
                     title: t.title,
                     amount: t.amount,
                     date: t.date,
@@ -108,7 +107,6 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         validTransactions.forEach(t => {
             // Ulož transakci
             addTransaction({
-                id: crypto.randomUUID(), // v reálné implementaci by ID generoval backend
                 title: t.title,
                 amount: t.amount,
                 date: t.date,
@@ -134,19 +132,19 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                 {/* 1. Fáze: Nahrání souboru */}
                 {parsedData.length === 0 && (
                     <>
-                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center">
+                    <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center">
                         <input 
                             type="file" 
                             accept=".csv" 
                             onChange={handleFileUpload} 
                             disabled={isParsing}
-                            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-indigo-500/20 dark:file:text-indigo-200 dark:hover:file:bg-indigo-500/30"
                         />
-                        {isParsing && <p className="mt-2 text-slate-500">Zpracovávám soubor...</p>}
-                        {error && <p className="mt-2 text-red-500">{error}</p>}
+                        {isParsing && <p className="mt-2 text-slate-500 dark:text-slate-400">Zpracovávám soubor...</p>}
+                        {error && <p className="mt-2 text-red-500 dark:text-red-400">{error}</p>}
                         
                     </div>
-                    <div className="mt-6 text-sm text-slate-600 bg-blue-50 p-4 rounded-xl text-left shadow-sm">
+                    <div className="mt-6 text-sm text-slate-600 dark:text-slate-300 bg-blue-50 dark:bg-indigo-500/10 p-4 rounded-xl text-left shadow-sm">
                             💡 <strong>Nevíte jak získat CSV?</strong> Přihlaste se do internetového bankovnictví (nikoliv v mobilní aplikaci), přejděte do historie transakcí a zvolte <em>Exportovat</em> (vyberte formát CSV oddělený středníkem nebo čárkou). Např. u ČSOB tuto volbu najdete v detailech účtu.
                     </div>
                     </>
@@ -155,30 +153,30 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                 {/* 2. Fáze: Náhled a oprava kategorií */}
                 {parsedData.length > 0 && (
                     <div className="flex flex-col gap-4">
-                        <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm">
+                        <div className="bg-yellow-50 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-200 p-3 rounded-lg text-sm">
                             Našli jsme <b>{parsedData.length}</b> transakcí. Zkontrolujte prosím přiřazené kategorie před uložením.
                         </div>
 
-                        <div className="max-h-100 overflow-y-auto border border-slate-200 rounded-lg">
+                        <div className="max-h-100 overflow-y-auto border border-slate-200 dark:border-slate-700/50 rounded-lg">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-slate-50 sticky top-0 shadow-sm">
+                                <thead className="bg-slate-50 dark:bg-slate-900 sticky top-0 shadow-sm">
                                     <tr>
-                                        <th className="p-3 font-semibold text-slate-700">Datum</th>
-                                        <th className="p-3 font-semibold text-slate-700">Položka</th>
-                                        <th className="p-3 font-semibold text-slate-700 text-right">Částka</th>
-                                        <th className="p-3 font-semibold text-slate-700">Kategorie</th>
+                                        <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">Datum</th>
+                                        <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">Položka</th>
+                                        <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-right">Částka</th>
+                                        <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">Kategorie</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {parsedData.map((t) => (
-                                        <tr key={t.id} className="hover:bg-slate-50">
-                                            <td className="p-3 whitespace-nowrap text-slate-500">
+                                        <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/70">
+                                            <td className="p-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
                                                 {new Date(t.date).toLocaleDateString('cs-CZ')}
                                             </td>
-                                            <td className="p-3 font-medium text-slate-800 truncate max-w-37.5" title={t.title}>
+                                            <td className="p-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-37.5" title={t.title}>
                                                 {t.title}
                                             </td>
-                                            <td className={`p-3 text-right font-semibold whitespace-nowrap ${t.amount > 0 ? 'text-green-600' : 'text-slate-800'}`}>
+                                            <td className={`p-3 text-right font-semibold whitespace-nowrap ${t.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}`}>
                                                 {t.amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}
                                             </td>
                                             <td className="p-3">
@@ -186,7 +184,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                                                 <select
                                                     value={t.categoryId || ""}
                                                     onChange={(e) => handleCategoryChange(t.id, e.target.value)}
-                                                    className={`w-full p-1 border rounded text-sm ${!t.categoryId ? 'border-red-400 bg-red-50' : 'border-slate-300'}`}
+                                                    className={`w-full p-1 border rounded text-sm ${!t.categoryId ? 'border-red-400 bg-red-50 dark:bg-red-500/10 dark:text-red-200' : 'border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'}`}
                                                 >
                                                     <option value="" disabled>-- Vyberte --</option>
                                                     {sortedCategories.map(c => (
@@ -200,10 +198,10 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                             </table>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                             <button
                                 onClick={() => setParsedData([])}
-                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
                             >
                                 Zrušit
                             </button>

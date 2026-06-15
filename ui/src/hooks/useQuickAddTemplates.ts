@@ -56,6 +56,7 @@ function persistTemplates(templates: QuickAddTemplate[]) {
  * Quick add templates are pre-configured shortcuts for fast transaction creation.
  *
  * @returns Current templates and mutation helpers for add, update, delete, and reorder actions.
+ * @deprecated This hook is deprecated in favor of the Zustand store `useTemplateStore`.
  */
 export function useQuickAddTemplates() {
     const [templates, setTemplates] = useState<QuickAddTemplate[]>(getInitialTemplates);

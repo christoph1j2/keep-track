@@ -5,18 +5,18 @@ import { cleanupKeywordsForDeletedCategory } from "../utils/userKeywords";
 const STORAGE_KEY = "keep-track-categories";
 
 const DEFAULT_CATEGORIES: Category[] = [
-    { id: "food", label: "Jídlo a pití", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600", order: 1 },
-    { id: "transport", label: "Doprava", iconName: "DirectionsTransit", colorClass: "bg-blue-100 text-blue-600", order: 2 },
-    { id: "salary", label: "Výplata", iconName: "AttachMoney", colorClass: "bg-green-100 text-green-600", order: 3 },
-    { id: "entertainment", label: "Zábava", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600", order: 4 },
-    { id: "health", label: "Zdraví", iconName: "LocalHospital", colorClass: "bg-red-100 text-red-600", order: 5 },
-    { id: "housing", label: "Bydlení", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600", order: 6 }, 
-    { id: "coffee", label: "Kavárny", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600", parentId: "food", order: 7 },
-    { id: "groceries", label: "Potraviny", iconName: "ShoppingCart", colorClass: "bg-orange-100 text-orange-600", parentId: "food", order: 8 },
-    { id: "energy", label: "Energie", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 9 },
-    { id: "rent", label: "Nájem", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing", order: 10 },
-    { id: "fuel", label: "Pohonné hmoty", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600", parentId: "transport", order: 11 },
-    { id: "uncategorized", label: "Nezařazeno", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600", order: 999999999 } // TODO: update to use UNCATEGORIZED_ID constant
+    { id: "food", label: "Jídlo a pití", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600" },
+    { id: "transport", label: "Doprava", iconName: "DirectionsTransit", colorClass: "bg-blue-100 text-blue-600" },
+    { id: "salary", label: "Výplata", iconName: "AttachMoney", colorClass: "bg-green-100 text-green-600" },
+    { id: "entertainment", label: "Zábava", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600" },
+    { id: "health", label: "Zdraví", iconName: "LocalHospital", colorClass: "bg-red-100 text-red-600" },
+    { id: "housing", label: "Bydlení", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600" }, 
+    { id: "coffee", label: "Kavárny", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600", parentId: "food" },
+    { id: "groceries", label: "Potraviny", iconName: "ShoppingCart", colorClass: "bg-orange-100 text-orange-600", parentId: "food" },
+    { id: "energy", label: "Energie", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing" },
+    { id: "rent", label: "Nájem", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600", parentId: "housing" },
+    { id: "fuel", label: "Pohonné hmoty", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600", parentId: "transport" },
+    { id: "uncategorized", label: "Nezařazeno", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600" } // TODO: update to use UNCATEGORIZED_ID constant
 ];
 
 /**
@@ -32,8 +32,7 @@ function isCategory(value: unknown): value is Category {
     }
     const v = value as Record<string, unknown>;
     if (typeof v.id !== "string" || typeof v.label !== "string" || 
-        typeof v.iconName !== "string" || typeof v.colorClass !== "string"
-        || typeof v.order !== "number") {
+        typeof v.iconName !== "string" || typeof v.colorClass !== "string") {
         return false;
     }
     return v.parentId === undefined || typeof v.parentId === "string";
@@ -71,6 +70,7 @@ function persistCategories(categories: Category[]) {
  * If storage is unavailable or invalid, default categories are returned.
  *
  * @returns Category list and a lookup helper by category id.
+ * @deprecated This hook is being replaced by a Zustand store for better performance and global state management. Use `useCategoryStore` instead.
  */
 export function useCategories() {
     const [categories, setCategories] = useState<Category[]>(getInitialCategories);
@@ -144,85 +144,12 @@ export function useCategories() {
             .filter(c => c.id !== id) // vyhodi smazanou
             .map(c => {
                 const nextParentId = c.parentId === id ? undefined : c.parentId; // pokud byla kategorie rodičem, nastaví parentId na undefined
-                if (c.order > delCat.order) {
-                    return { ...c, parentId: nextParentId, order: c.order - 1 }; // posuneme nahoru kategorie, ktere byly pod mazanym
-                }
                 return nextParentId !== c.parentId ? { ...c, parentId: nextParentId } : c; // pokud se meni parentId, vratime novy objekt, jinak stary (optimalizace renderu)
             });
 
         persistCategories(updatedCategories);
         setCategories(updatedCategories);
     };
-    /**
-     * Moves a category up in the sort order by swapping with the category above it.
-     * Updates the order field and persists the result.
-     * Does nothing if the category is already at the top.
-     *
-     * @param categoryId Identifier of the category to move up.
-     */    
-    const moveCategoryUp = (categoryId: string) => {
-        const current = getInitialCategories();
-        const selectedCat = current.find(c => c.id === categoryId);
-        let selectedCatOrder = selectedCat?.order || 0;
-        const previousCat = current.find(c => c.order === (selectedCatOrder) - 1);
-        let previousCatOrder = previousCat?.order || 0;
 
-        if (!selectedCat || !previousCat) {
-            return; // nelze posunout
-        }
-
-        const tmp = selectedCatOrder;
-        selectedCatOrder = previousCatOrder;
-        previousCatOrder = tmp;
-
-        const updatedCategories = current.map(c => {
-            if (c.id === categoryId) {
-                return { ...c, order: selectedCatOrder };
-            }
-            if (c.id === previousCat.id) {
-                return { ...c, order: previousCatOrder };
-            }
-            return c;
-        });
-
-        persistCategories(updatedCategories);
-        setCategories(updatedCategories);
-    };
-    /**
-     * Moves a category down in the sort order by swapping with the category below it.
-     * Updates the order field and persists the result.
-     * Does nothing if the category is already at the bottom.
-     *
-     * @param categoryId Identifier of the category to move down.
-     */    
-    const moveCategoryDown = (categoryId: string) => {
-        const current = getInitialCategories();
-        const selectedCat = current.find(c => c.id === categoryId);
-        let selectedCatOrder = selectedCat?.order || 0;
-        const nextCat = current.find(c => c.order === (selectedCatOrder) + 1);
-        let nextCatOrder = nextCat?.order || 0;
-
-        if (!selectedCat || !nextCat) {
-            return; // nelze posunout
-        }
-
-        const tmp = selectedCatOrder;
-        selectedCatOrder = nextCatOrder;
-        nextCatOrder = tmp;
-
-        const updatedCategories = current.map(c => {
-            if (c.id === categoryId) {
-                return { ...c, order: selectedCatOrder };
-            }
-            if (c.id === nextCat.id) {
-                return { ...c, order: nextCatOrder };
-            }
-            return c;
-        });
-
-        persistCategories(updatedCategories);
-        setCategories(updatedCategories);
-    };
-
-    return { categories, getCategoryById, addCategory, updateCategory, removeCategory, moveCategoryUp, moveCategoryDown };
+    return { categories, getCategoryById, addCategory, updateCategory, removeCategory };
 }

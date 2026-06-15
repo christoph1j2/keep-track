@@ -2,11 +2,11 @@ import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { Add } from "@mui/icons-material";
 import { useMemo, useState } from "react";
-import { useQuickAddTemplates } from "../hooks/useQuickAddTemplates";
 import { SortableTemplateItem } from "../components/QuickAdd/SortableTemplateItem";
 import { type QuickAddTemplate } from "../types/quickadd";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { QuickAddTemplateModal } from "../components/Modals/QuickAddTemplateModal";
+import { useTemplateStore } from "../store/quickAddTemplateStore";
 
 // maximalni pocet polozek v hotbaru
 const HOTBAR_LIMIT = 6;
@@ -18,7 +18,7 @@ const HOTBAR_LIMIT = 6;
  */
 export function QuickAdd() {
     // nacti vsechny funkce pro praci s templates z hooku
-    const { templates, addTemplate, updateTemplate, deleteTemplate, reorderTemplates } = useQuickAddTemplates();
+    const { templates, updateTemplate, deleteTemplate, reorderTemplates } = useTemplateStore();
     // stav pro otevreni/zavreni modalu
     const [isModalOpen, setIsModalOpen] = useState(false);
     // stav pro uchovani sablony, kterou chceme editovat (null = vytvoreni nove sablony)
@@ -86,17 +86,6 @@ export function QuickAdd() {
         }
     };
 
-    const handleSubmit = (templateData: Omit<QuickAddTemplate, "id">) => {
-        if (editingTemplate) {
-            updateTemplate({ ...templateData, id: editingTemplate.id });
-        } else {
-            addTemplate({ ...templateData, id: crypto.randomUUID() });
-        }
-
-        setIsModalOpen(false);
-        setEditingTemplate(null);
-    };
-
     const handleToggleHotbar = (template: QuickAddTemplate) => {
         // nesmi byt vice sablon v hotbaru nez je limit
         if (!template.showInHotbar && hotbarTemplates.length >= HOTBAR_LIMIT) {
@@ -110,7 +99,7 @@ export function QuickAdd() {
     return (
         <div className="p-2 h-full flex flex-col gap-6">
             <div className="flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
-                <h2 className="text-3xl font-bold text-slate-800">Šablony rychlého přidání</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Šablony rychlého přidání</h2>
                 <button
                     type="button"
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors w-full md:w-fit"
@@ -121,10 +110,10 @@ export function QuickAdd() {
                 </button>
             </div>
 
-            <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <section className="bg-white dark:bg-slate-900 dark:border-slate-600 p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between gap-4 mb-4">
-                    <h3 className="text-xl font-bold text-slate-800">Hotbar</h3>
-                    <span className="text-sm text-slate-500">
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Hotbar</h3>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
                         {hotbarTemplates.length}/{HOTBAR_LIMIT} aktivních
                         </span>
                 </div>
@@ -145,21 +134,21 @@ export function QuickAdd() {
                         </SortableContext>
                     </DndContext>
                 ) : (
-                    <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
+                    <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-6 text-center text-slate-500">
                         Zatím tu není žádná šablona. Přidejte ji do hotbaru ve formuláři nebo tlačítkem u šablony.
                     </div>
                 )}
             </section>
 
-            <section className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-6 border-b border-slate-100">
-                    <h3 className="text-xl font-bold text-slate-800">Zásobník šablon</h3>
+            <section className="bg-white dark:bg-slate-900 dark:border-slate-600 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-600">
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Zásobník šablon</h3>
                 </div>
 
                 {templates.length > 0 ? (
                     <DndContext collisionDetection={closestCenter} onDragEnd={(event) => handleDragEnd(event, "all")}>
                         <SortableContext items={templates.map((template) => template.id)} strategy={verticalListSortingStrategy}>
-                            <div className="flex flex-col divide-y divide-slate-100">
+                            <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-600">
                                 {templates.map((template: QuickAddTemplate) => (
                                     <SortableTemplateItem
                                         key={template.id}
@@ -186,7 +175,6 @@ export function QuickAdd() {
             >
                 <QuickAddTemplateModal
                     template={editingTemplate}
-                    onSubmit={handleSubmit}
                     onCancel={() => setIsModalOpen(false)}
                 />
             </BaseModal>

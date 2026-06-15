@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import { useCategories } from "../../hooks/useCategories";
 import type { QuickAddTemplate } from "../../types/quickadd";
 import { Select, MenuItem, TextField } from "@mui/material";
+import { useCategoryStore } from "../../store/categoryStore";
+import { useTemplateStore } from "../../store/quickAddTemplateStore";
 
 interface QuickAddTemplateModalProps {
     template?: QuickAddTemplate | null;
-    onSubmit: (template: Omit<QuickAddTemplate, "id">) => void;
     onCancel: () => void;
 }
 
@@ -18,45 +18,62 @@ interface QuickAddTemplateModalProps {
  * @param props.onSubmit Called with the template data (excluding id) when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function QuickAddTemplateModal({ template, onSubmit, onCancel }: QuickAddTemplateModalProps) {
-    const { categories } = useCategories();
+export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateModalProps) {
+    const categories = useCategoryStore((state) => state.categories);
     const sortedCategories = useMemo(
-        () => [...categories].sort((a, b) => a.order - b.order),
+        () => categories,
         [categories]
     );
+
+    const addTemplate = useTemplateStore((state) => state.addTemplate);
 
     const [title, setTitle] = useState(template?.title ?? "");
     const [amount, setAmount] = useState<number | "">(template?.amount ?? "");
     const [categoryId, setCategoryId] = useState(template?.categoryId ?? sortedCategories[0]?.id ?? "");
     const [showInHotbar] = useState(template?.showInHotbar ?? false);
     const [errors, setErrors] = useState<string[] | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = (event: React.SubmitEvent) => {
         event.preventDefault();
+
+        if (isSubmitting) return; // zabrani dvojitemu odeslani
+        setIsSubmitting(true);
         setErrors(null);
 
         if (!title.trim() || amount === "" || !categoryId) {
             setErrors(["Vyplňte název, částku a kategorii."]);
+            setIsSubmitting(false);
             return;
         }
 
         if (!Number.isFinite(amount) || amount === 0) {
             setErrors(["Částka musí být nenulové číslo."]);
+            setIsSubmitting(false);
             return;
         }
 
-        onSubmit({
+        addTemplate({
+            id: template?.id ?? crypto.randomUUID(),
             title: title.trim(),
             amount,
             categoryId,
             showInHotbar,
         });
+        setIsSubmitting(false);
+        onCancel();
+        // onSubmit({
+        //     title: title.trim(),
+        //     amount,
+        //     categoryId,
+        //     showInHotbar,
+        // });
     };
 
     return (
         <>
             {errors && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200" role="alert" aria-live="assertive">
                     {errors.map((error, index) => (
                         <p key={index}>{error}</p>
                     ))}
@@ -105,11 +122,11 @@ export function QuickAddTemplateModal({ template, onSubmit, onCancel }: QuickAdd
                     </Select>
                 </div>
 
-                <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
+                <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                        className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
                     >
                         Zrušit
                     </button>

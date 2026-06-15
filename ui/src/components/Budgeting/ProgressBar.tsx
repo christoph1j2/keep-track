@@ -47,20 +47,24 @@ export function ProgressBar({ categoryName, categoryIcon, progress, limit, onCli
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <div className="flex min-w-0 items-center gap-2">
                     {categoryIcon && <span className="shrink-0 text-xl">{categoryIcon}</span>}
-                    <span className="min-w-0 truncate font-semibold text-gray-800">{categoryName}</span>
+                    <span className="min-w-0 truncate font-semibold text-gray-800 dark:text-slate-300">
+                        {categoryName}
+                    </span>
                 </div>
 
                 <div className="flex flex-wrap items-baseline gap-x-1 text-sm font-medium sm:shrink-0 sm:justify-end sm:text-right">
-                    <span className={isExceeded ? 'text-red-600' : 'text-gray-600'}>
+                    <span className={isExceeded ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-slate-400'}>
                         {formattedProgress}
                     </span>
-                    <span className="text-gray-400"> / </span>
-                    <span className="text-gray-600">{formattedLimit}</span>
+                    <span className="text-gray-400 dark:text-slate-500"> / </span>
+                    <span className="text-gray-600 dark:text-slate-400">
+                        {formattedLimit}
+                    </span>
                 </div>
             </div>
 
             {/* Progress bar */}
-            <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+            <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-slate-600">
                 <div
                     className={`${progressColorClass} h-full rounded-full transition-all duration-300`}
                     style={{ width: `${displayPercentage}%` }}
@@ -74,7 +78,7 @@ export function ProgressBar({ categoryName, categoryIcon, progress, limit, onCli
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
                     <span className="relative inline-flex size-3 rounded-full bg-orange-500"></span>
                 </span>
-                <div className="mt-1 text-xs text-red-600 font-semibold">
+                <div className="mt-1 text-xs text-red-600 dark:text-red-400 font-semibold">
                     Rozpočet překročen o {(progress - limit).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}
                 </div>
                 </div>

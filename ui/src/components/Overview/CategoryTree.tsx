@@ -1,11 +1,10 @@
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
-import type { Category } from "../../types/category";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import React from 'react';
+import { useCategoryStore } from '../../store/categoryStore';
 
 interface CategoryTreeProps {
-    categories: Category[],
     onSelectCategory: (categoryId: string | null) => void,
 }
 
@@ -16,7 +15,9 @@ interface CategoryTreeProps {
  * @param props.categories Category list containing roots and optional children.
  * @param props.onSelectCategory Callback that receives the selected category id, or null.
  */
-export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) {
+export function CategoryTree({onSelectCategory}: CategoryTreeProps) {
+    const categories = useCategoryStore((state) => (state.categories));
+
     const mainCategories = categories.filter(c => c.parentId === undefined);
 
     const [expandedItems, setExpandedItems] = React.useState<string[]>(
@@ -57,7 +58,7 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                                 <div className={`p-1.5 rounded-lg ${mainCat.colorClass} shrink-0`}>
                                     <CategoryIcon name={mainCat.iconName} />
                                 </div>
-                                <span className='font-semibold text-slate-700 truncate' title={mainCat.label}>{mainCat.label}</span>
+                                <span className='font-semibold text-slate-700 dark:text-slate-300 truncate' title={mainCat.label}>{mainCat.label}</span>
                             </div>
                         }
                     >
@@ -69,8 +70,8 @@ export function CategoryTree({categories, onSelectCategory}: CategoryTreeProps) 
                                     <div 
                                         className="flex items-center gap-3 py-1.5 opacity-80 hover:opacity-100 min-w-0"
                                     >
-                                        <CategoryIcon name={subCat.iconName} className="text-slate-400 shrink-0" />
-                                        <span className="font-medium text-slate-600 truncate" title={subCat.label}>{subCat.label}</span>
+                                        <CategoryIcon name={subCat.iconName} className="text-slate-600 dark:text-slate-400 shrink-0" />
+                                        <span className="font-medium text-slate-600 dark:text-slate-400 truncate" title={subCat.label}>{subCat.label}</span>
                                     </div>
                                 }
                             />

@@ -8,6 +8,7 @@ interface TransactionState {
     addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
     deleteTransaction: (id: string) => void;
     updateTransaction: (transaction: Transaction) => void;
+    reassignCategory: (oldCategoryId: string, newCategoryId: string) => void;
     // For testing purposes
     clearTransactions: () => void;
     loadMockData: (data: Transaction[]) => void;
@@ -39,6 +40,15 @@ export const useTransactionStore = create<TransactionState>()(
             deleteTransaction: (id) => {
                 set((state) => {
                     return { transactions: state.transactions.filter((t) => t.id !== id) };
+                })
+            },
+            reassignCategory: (oldCategoryId, newCategoryId) => {
+                set((state) => {
+                    return {
+                        transactions: state.transactions.map((t) =>
+                            t.categoryId === oldCategoryId ? { ...t, categoryId: newCategoryId } : t
+                        ),
+                    };
                 })
             },
             clearTransactions: () => set({ transactions: [] }),

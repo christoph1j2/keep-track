@@ -1,9 +1,9 @@
 import { MenuItem, Select, TextField } from "@mui/material";
 import {useState} from "react";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryStore } from "../../store/categoryStore";
+import { useBudgetStore } from "../../store/budgetStore";
 
 interface AddBudgetModalProps {
-    onSubmit: (categoryId: string, limit: number) => void;
     onCancel: () => void;
 }
 
@@ -14,9 +14,10 @@ interface AddBudgetModalProps {
  * @param props.onSubmit Called with the selected category id and limit amount when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function AddBudgetModal({ onSubmit, onCancel }: AddBudgetModalProps) {
+export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
 
-    const {categories} = useCategories();
+    const categories = useCategoryStore((state) => state.categories);
+    const setBudget = useBudgetStore((state) => state.setBudget);
 
     // stavy pro formular
     const [categoryId, setCategoryId] = useState("");
@@ -55,13 +56,16 @@ export function AddBudgetModal({ onSubmit, onCancel }: AddBudgetModalProps) {
             return;
         }
 
-        onSubmit(categoryId, limit);
+        setBudget(categoryId, limit);
+        setIsSubmitting(false);
+        onCancel(); // zavre modal po uspesnem pridani
+        // onSubmit(categoryId, limit);
     };
 
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded" role="alert" aria-live="assertive">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200" role="alert" aria-live="assertive">
                 {errors.map((err, i) => (
                     <p key={i}>{err}</p>
                 ))}
@@ -110,7 +114,7 @@ export function AddBudgetModal({ onSubmit, onCancel }: AddBudgetModalProps) {
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                    className="px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
                 >
                     Zrušit
                 </button>

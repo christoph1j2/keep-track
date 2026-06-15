@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-//import { useTransactions } from "../hooks/useTransactions";
-import { useCategories } from "../hooks/useCategories";
 import { CategoryTree } from "../components/Overview/CategoryTree";
 import { TransactionDataGrid } from "../components/Overview/TransactionDataGrid";
 import { BaseModal } from "../components/Modals/BaseModal";
@@ -10,15 +8,15 @@ import { SplitTransactionModal } from "../components/Modals/SplitTransactionModa
 import { ImportModal } from "../components/Modals/ImportModal";
 import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
 import { useTransactionStore } from "../store/transactionStore";
+import { useCategoryStore } from "../store/categoryStore";
 
 /**
  * Overview page for browsing, filtering, and editing transactions.
  * This page coordinates category filtering, grid editing, and modal-driven create/split flows.
  */
 export function Overview() {
-    //const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
     const { transactions, addTransaction, deleteTransaction, updateTransaction } = useTransactionStore();
-    const { categories } = useCategories();
+    const categories = useCategoryStore((state) => (state.categories));
     const location = useLocation();
 
     const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
@@ -55,7 +53,7 @@ export function Overview() {
     return (
         <div className="lg:h-full flex flex-col">
             <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 items-center text-center">
-                <h2 className="text-3xl font-bold text-slate-800">Přehled transakcí</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Přehled transakcí</h2>
                 <div className="flex gap-4">
                     <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium w-full md:w-fit"
                     onClick={() => setIsImportModalOpen(true)}
@@ -72,9 +70,9 @@ export function Overview() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:flex-1 lg:min-h-0">
                 {/** TREE VIEW, KATEGORIE */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 lg:col-span-1 flex flex-col">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 lg:col-span-1 flex flex-col dark:bg-slate-900 dark:border-slate-700 min-h-106 transition-colors dark:text-slate-300">
                     <div className="flex items-center justify-between mb-4 px-2">
-                    <h3 className="text-xl font-bold text-slate-700 mb-4 px-2">Kategorie</h3>
+                    <h3 className="text-xl font-bold text-slate-700 mb-4 px-2 dark:text-slate-300">Kategorie</h3>
                     {selectedCategoryId && (
                         <button 
                             onClick={() => setSelectedCategoryId(null)}
@@ -87,7 +85,6 @@ export function Overview() {
 
                     <div className="flex-1 overflow-y-auto">
                         <CategoryTree
-                            categories={categories}
                             // ulozi se do state, ktery je v Overview, protoze ho potrebuje i DataGrid
                             onSelectCategory={setSelectedCategoryId}
                         />
@@ -95,7 +92,7 @@ export function Overview() {
                 </div>
 
                 {/** DATA GRID */}
-                <div className="bg-white rounded-2xl lg:shadow-sm border border-slate-100 p-0 lg:col-span-3 lg:flex lg:flex-col lg:overflow-hidden min-h-106">
+                <div className="bg-white rounded-2xl lg:shadow-sm border border-slate-100 p-0 lg:col-span-3 lg:flex lg:flex-col lg:overflow-hidden min-h-106 dark:bg-slate-900 dark:border-slate-700 transition-colors">
 
                     <TransactionDataGrid 
                         transactions={filteredTransactions}
