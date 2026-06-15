@@ -3,11 +3,17 @@ import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ChartsTooltipContainer, useAxesTooltip } from "@mui/x-charts";
+import { useTranslation } from "react-i18next";
+import { useSettingsStore } from "../../store/settingsStore"; // Tvůj nový store
 
 
 function CustomTooltip({ isDark }: { isDark: boolean }) {
     const axesTooltip = useAxesTooltip<'bar'>();
     const tooltipData = axesTooltip?.[0];
+
+    const { language, currency } = useSettingsStore();
+    const locale = language === "cs" ? "cs-CZ" : "en-US";
+
     if (!tooltipData) return null;
 
     const bg = isDark ? "#1E293B" : "#ffffff";
@@ -15,10 +21,14 @@ function CustomTooltip({ isDark }: { isDark: boolean }) {
     const color = isDark ? "#F8FAFC" : "#0F172A";
     const subColor = isDark ? "#94A3B8" : "#64748B";
 
-    const formatCzk = (value: number | null) =>
+    const formatCurrency = (value: number | null) =>
         value == null
             ? "–"
-            : value.toLocaleString("cs-CZ", { style: "currency", currency: "CZK", maximumFractionDigits: 0 });
+            : new Intl.NumberFormat(locale, { 
+                style: "currency", 
+                currency: currency, 
+                maximumFractionDigits: 0 
+            }).format(value);
 
     return (
         <ChartsTooltipContainer>
@@ -47,7 +57,7 @@ function CustomTooltip({ isDark }: { isDark: boolean }) {
                         }} />
                         <span style={{ flex: 1 }}>{item.formattedLabel}</span>
                         <span style={{ fontWeight: 600 }}>
-                            {formatCzk(item.value as number)}
+                            {formatCurrency(item.value as number)}
                         </span>
                     </div>
                 ))}
@@ -62,6 +72,10 @@ export function Graph() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
+    const { t } = useTranslation();
+    const { language, currency } = useSettingsStore(); // Použití tvého nového store
+    const locale = language === "cs" ? "cs-CZ" : "en-US";
+
     const transactions = useTransactionStore((state) => state.transactions);
 
     const getTransactionsForMonth = (month: number, year: number) =>
@@ -75,7 +89,7 @@ export function Graph() {
         return {
             month: date.getMonth(),
             year: date.getFullYear(),
-            label: date.toLocaleString("cs-CZ", { month: "short" }),
+            label: date.toLocaleString(locale, { month: "short" }),
         };
     });
 
@@ -101,13 +115,13 @@ export function Graph() {
 
     return (
         <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100 transition-colors">
-            <h3 className="text-xl font-bold mb-4">Příjmy vs Výdaje</h3>
+            <h3 className="text-xl font-bold mb-4">{t('dashboard.graph.title')}</h3>
             <BarChart
-                key={theme}
+                key={`${theme}-${language}-${currency}`} // Přidání jazyka a měny do klíče
                 localeText={{
-                    loading: 'Data should be available soon.',
-                    noData: 'Select some data to display.',
-                }}
+                        loading: t('dashboard.graph.loading'),
+                        noData: t('dashboard.graph.noData'),
+                    }}
                 xAxis={[{
                     data: graphPeriods.map(p => p.label),
                     tickLabelStyle: { fill: axisColor },
@@ -118,7 +132,7 @@ export function Graph() {
                     },
                 }]}
                 yAxis={[{
-                    label: "Částka (Kč)",
+                    label: t('dashboard.graph.amount') + ` (${currency})`,
                     width: 80,
                     min: 0,
                     max: maxValue * 1.1 || 100,
@@ -130,8 +144,8 @@ export function Graph() {
                     },
                 }]}
                 series={[
-                    { id: 'prijmy-series', label: "Příjmy", data: monthlyIncome },
-                    { id: 'vydaje-series', label: "Výdaje", data: monthlyExpenses },
+                    { id: 'prijmy-series', label: t('common.income'), data: monthlyIncome },
+                    { id: 'vydaje-series', label: t('common.expenses'), data: monthlyExpenses },
                 ]}
                 height={chartHeight}
                 colors={['#10B981', '#F43F5E']}

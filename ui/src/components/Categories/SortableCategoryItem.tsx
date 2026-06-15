@@ -4,6 +4,7 @@ import { DragIndicator, Delete, Edit } from "@mui/icons-material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import type { Category } from "../../types/category";
 import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
+import { useTranslation } from "react-i18next";
 
 interface SortableCategoryItemProps {
     cat: Category;
@@ -22,6 +23,8 @@ export function SortableCategoryItem({
         transform: CSS.Transform.toString(transform),
         transition
     };
+
+    const { t } = useTranslation();
 
     return (
         <div 
@@ -46,7 +49,7 @@ export function SortableCategoryItem({
                 </div>
                 <div className="flex flex-col min-w-0">
                     <span className="font-bold text-slate-700 dark:text-slate-300 dark:truncate" title={cat.label}>{cat.label}</span>
-                    {cat.parentId && <span className="text-xs text-slate-400 dark:text-slate-500">Podkategorie</span>}
+                    {cat.parentId && <span className="text-xs text-slate-400 dark:text-slate-500">{t("common.subcategory")}</span>}
                 </div>
             </div>
 
@@ -58,7 +61,7 @@ export function SortableCategoryItem({
                     className="inline-flex items-center px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 dark:text-slate-400 rounded-md transition-colors"
                 >
                     <Edit fontSize="small" />
-                    Upravit
+                    {t("common.edit")}
                 </button>
                 
                     <button 
@@ -66,7 +69,7 @@ export function SortableCategoryItem({
                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-slate-600 dark:text-red-500 rounded-md transition-colors"
                     >
                         <Delete fontSize="small" />
-                        Smazat
+                        {t("common.delete")}
                     </button>
                 </>
                 )}

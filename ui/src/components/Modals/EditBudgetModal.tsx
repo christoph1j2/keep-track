@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { Budget } from "../../types/budget";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useBudgetStore } from "../../store/budgetStore";
+import { useTranslation } from "react-i18next";
 
 interface EditBudgetModalProps {
     budget: Budget;
@@ -18,6 +19,8 @@ interface EditBudgetModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
+    // <-- Přesunuto na začátek, abychom t() mohli použít i ve funkcích
+    const { t } = useTranslation(); 
 
     const categories = useCategoryStore((state) => state.categories);
     const setBudget = useBudgetStore((state) => state.setBudget);
@@ -40,7 +43,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
         },
     };
 
-    const handleSubmit = (e: React.SubmitEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault(); // zabrani refreshi po odeslani formulare
 
         if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -49,13 +52,13 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
 
         // validace
         if (!categoryId || limit === "") {
-            setErrors(["Vyplňte všechny pole"]);
+            setErrors([t('budgeting.errors.missingFields')]); // <-- Překlad
             setIsSubmitting(false);
             return;
         }
 
         if (limit <= 0) {
-            setErrors(["Limit musí být kladné číslo"]);
+            setErrors([t('budgeting.errors.positiveLimit')]); // <-- Překlad
             setIsSubmitting(false);
             return;
         }
@@ -63,8 +66,6 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
         setBudget(categoryId, limit);
         setIsSubmitting(false);
         onCancel(); // zavre modal po uspesnem upraveni
-
-        // onSubmit(categoryId, limit);
     };
 
     return (
@@ -78,7 +79,8 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                {/* <-- Přidáno dark:text-slate-300 */}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('common.category')}</label>
                 <Select
                     fullWidth
                     value={categoryId || ""}
@@ -86,13 +88,14 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
                     onChange={(e) => setCategoryId(e.target.value)}
                     MenuProps={MenuProps}
                     renderValue={(selected) => {
-                        if (!selected) return "Žádná";
+                        if (!selected) return t('common.none');
                         return categories.find(
                             c => c.id === selected)?.label 
-                            || "Neznámá kategorie";
+                            || t('common.unknownCategory');
                     }}
                 >
-                    <MenuItem value="">Žádná</MenuItem>
+                    {/* <-- Překlad a sjednocení na 'common.none' */}
+                    <MenuItem value="">{t('common.none')}</MenuItem>
                     {(() => {
                         return categories.map(cat => (
                             <MenuItem key={cat.id} value={cat.id}>
@@ -104,12 +107,13 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
             </div>
 
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Limit (CZK)</label>
+                {/* <-- Přidáno dark:text-slate-300 */}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('budgeting.limit')}</label>
                 <TextField
                     fullWidth
                     size="small"
                     type="number"
-                    placeholder="Např. 5000"
+                    placeholder={t('budgeting.placeholder')}
                     value={limit}
                     onChange={(e) => setLimit(e.target.value === "" ? "" : Number(e.target.value))}
                 />
@@ -121,13 +125,13 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
                     onClick={onCancel}
                     className="px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
                 >
-                    Zrušit
+                    {t('common.cancel')}
                 </button>
                 <button
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
-                    Upravit rozpočet
+                    {t('common.save')}
                 </button>
             </div>
         </form>

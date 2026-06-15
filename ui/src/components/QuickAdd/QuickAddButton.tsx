@@ -1,6 +1,7 @@
 import type { ReactNode, ReactElement } from "react";
 import { cloneElement, isValidElement } from "react";
 import type { SxProps } from "@mui/system";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface QuickAddButtonProps {
     title: string;
@@ -29,6 +30,7 @@ export function QuickAddButton({ title, amount, icon, colorClass, onClick }: Qui
         })
         : icon;
 
+
     return (
         <button
             onClick={onClick}
@@ -41,7 +43,7 @@ export function QuickAddButton({ title, amount, icon, colorClass, onClick }: Qui
                 {title}
             </span>
             {amount !== undefined && (
-                <span className="font-semibold">{amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}</span>
+                <span className="font-semibold">{formatCurrency(amount)}</span>
             )}
         </button>
     )

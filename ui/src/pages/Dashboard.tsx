@@ -14,6 +14,9 @@ import { useCategoryStore } from "../store/categoryStore";
 import { useTemplateStore } from "../store/quickAddTemplateStore";
 import { useBudgetStore } from "../store/budgetStore";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useConfirmStore } from "../store/confirmStore";
+import { formatCurrency } from "../utils/formatCurrency";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -21,6 +24,8 @@ import { Link } from "react-router-dom";
  */
 export function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const showConfirm = useConfirmStore((state) => state.showConfirm);
+
     const templates = useTemplateStore((state) => state.templates);
     const hotbarTemplates = templates.filter((template) => template.showInHotbar);
     const budgets = useBudgetStore((state) => state.budgets);
@@ -28,6 +33,7 @@ export function Dashboard() {
     const { transactions, addTransaction, clearTransactions, loadMockData } = useTransactionStore();
     const categories = useCategoryStore((state) => (state.categories));
 
+    const { t } = useTranslation();
 
     const now = new Date();
     const currentMonthTransactions = transactions.filter((t) => {
@@ -79,28 +85,34 @@ export function Dashboard() {
     return (
         <div className="p-0 dark:text-slate-100 transition-colors">
         <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 dark:text-slate-100 transition-colors">
-            <h2 className="text-center text-3xl font-bold text-slate-800 dark:text-slate-100 transition-colors">Dashboard</h2>  
+            <h2 className="text-center text-3xl font-bold text-slate-800 dark:text-slate-100 transition-colors">
+                {t("dashboard.title")}
+            </h2>  
             <div className="flex flex-col md:flex-row gap-2">
                 <button
                     className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
                     onClick={() => {
-                        console.warn("Reset Data");
-                        if (window.confirm("⚠️POZOR!⚠️ \nOpravdu chcete resetovat data?\nTato akce smaže veškeré transakce a nelze vrátit zpět.")) {
-                            clearTransactions();
-                        }
+                        showConfirm(
+                            t("dashboard.buttons.resetData"),
+                            t("dashboard.buttons.resetDataConfirm"),
+                            () => clearTransactions()
+                        );
                     }}>
-                    Resetovat Data
+                    {t("dashboard.buttons.resetData")}
                 </button>
                 <button
                     className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
                     onClick={() => {
-                        console.warn("Generate data");
-                        if (window.confirm("⚠️POZOR!⚠️ \nOpravdu chcete vygenerovat náhodná data?\nTato akce přepíše veškeré stávající transakce, vrátí 200 nových náhodných transakcí a nelze vrátit zpět.")) {
-                            const mockData = generateMockTransactions(categories);
-                            loadMockData(mockData);
-                        }
+                        showConfirm(
+                            t("dashboard.buttons.generateData"),
+                            t("dashboard.buttons.generateDataConfirm"),
+                            () => {
+                                const mockData = generateMockTransactions(categories);
+                                loadMockData(mockData);
+                            }
+                        );
                     }}>
-                    Generovat Data
+                    {t("dashboard.buttons.generateData")}
                 </button>
             </div>
         </div>
@@ -109,24 +121,24 @@ export function Dashboard() {
 
         {/** first row, left col - stat cards */}
             <StatCard 
-                title="Příjmy tento měsíc"
+                title={t("dashboard.stats.income")}
                 amount={income}
                 icon={<TrendingUp />}
                 trend={true}
             />
             <StatCard 
-                title="Výdaje tento měsíc"
+                title={t("dashboard.stats.expenses")}
                 amount={expenses}
                 icon={<TrendingDown />}
                 trend={false}
             />
             <StatCard
-                title="Bilance tento měsíc"
+                title={t("dashboard.stats.balance")}
                 amount={balance}
                 icon={<Euro />}
             />
             <StatCard 
-                title="Rozpočet tento měsíc"
+                title={t("dashboard.stats.budget")}
                 budget_status={budgetStatus}
                 icon={<CalendarMonth />}
             />
@@ -137,11 +149,11 @@ export function Dashboard() {
             <section className="bg-white p-6 rounded-2xl shadow-sm dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 transition-colors">
             <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold mb-4">Quick Add</h3>
-                <Link to="/quickadd" className="text-sm text-blue-500 hover:underline mb-4 inline-block">Spravovat šablony</Link>
+                <Link to="/quickadd" className="text-sm text-blue-500 hover:underline mb-4 inline-block">{t("dashboard.links.manageTemplates")}</Link>
             </div>
             <div className="flex gap-4 overflow-x-auto">
                 <QuickAddButton 
-                    title="Přidat"
+                    title={t("common.add")}
                     icon={<Add />}
                     colorClass="bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 transition-colors"
                     onClick={() => {
@@ -159,14 +171,20 @@ export function Dashboard() {
                             amount={template.amount}
                             colorClass={`${category?.colorClass || "bg-gray-200 text-gray-800"} hover:opacity-80 transition-opacity`}
                             onClick={() => {
-                                if (window.confirm(`Přidat transakci: ${template.title}\n${template.amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}?`)) {
-                                    addTransaction({
+                                showConfirm(
+                                    t("dashboard.modalTitle"),
+                                    t("dashboard.transactionConfirm", {
                                         title: template.title,
-                                        amount: template.amount,
-                                        categoryId: template.categoryId,
-                                        date: new Date().toISOString(),
-                                    });
-                                }
+                                        amount: formatCurrency(template.amount)
+                                    }),
+                                    () => {
+                                        addTransaction({
+                                            title: template.title,
+                                            amount: template.amount,
+                                            categoryId: template.categoryId,
+                                            date: new Date().toISOString(),
+                                        });
+                                })
                             }}
                         />
                     );
@@ -190,7 +208,7 @@ export function Dashboard() {
         </div>
         
         <BaseModal
-            title="Přidat transakci"
+            title={t("dashboard.modalTitle")}
             isOpen={isModalOpen}
             onClose={()=>{
                 setIsModalOpen(false);
@@ -200,6 +218,7 @@ export function Dashboard() {
                 onCancel={() => setIsModalOpen(false)}
             />
         </BaseModal>
+
         </div>
         </div>
     )

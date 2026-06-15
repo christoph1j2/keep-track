@@ -9,6 +9,7 @@ import { SortableBudgetItem } from "../components/Budgeting/SortableBudgetItem";
 import { useTransactionStore } from "../store/transactionStore";
 import { useCategoryStore } from "../store/categoryStore";
 import { useBudgetStore } from "../store/budgetStore";
+import { useTranslation } from "react-i18next";
 
 /**
  * Budgeting page for managing monthly spending limits.
@@ -19,6 +20,7 @@ export function Budgeting() {
     const categories = useCategoryStore((state) => state.categories);
     const { budgets, removeBudget, reorderBudgets } = useBudgetStore();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [selectedBudget, setSelectedBudget] = useState<typeof budgets[0]>();
     const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
@@ -51,18 +53,18 @@ export function Budgeting() {
         <>
         <div className="h-full flex flex-col gap-4">
             <div className="mb-6 flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
-                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Plánování rozpočtů tento měsíc</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">{t("budgeting.title")}</h2>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-fit"
                 onClick={() => setAddBudgetModalOpen(true)}
                 >
-                    + Přidat rozpočet
+                    {t("budgeting.addButton")}
                 </button>
             </div>
 
             {budgets.length === 0 ? (
                 <div className="text-center text-gray-500 mt-20">
-                    <p className="text-lg">Žádné rozpočty nenastaveny.</p>
-                    <p className="text-sm">Klikněte na "+ Přidat rozpočet" pro vytvoření prvního rozpočtu.</p>
+                    <p className="text-lg">{t("budgeting.emptyMessage")}</p>
+                    <p className="text-sm">{t("budgeting.emptySubMessage")}</p>
                 </div>
             ) : (
                 <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -115,7 +117,7 @@ export function Budgeting() {
         </div>
 
         <BaseModal
-            title="Přidat nový rozpočet"
+            title={t("budgeting.modalTitleAdd")}
             isOpen={isAddBudgetModalOpen}
             onClose={() => setAddBudgetModalOpen(false)}
         >
@@ -125,7 +127,8 @@ export function Budgeting() {
         </BaseModal>
 
         <BaseModal
-            title="Upravit rozpočet"
+            title={t("budgeting.modalTitleEdit")}
+
             isOpen={isEditBudgetModalOpen}
             onClose={() => setEditBudgetModalOpen(false)}
         >

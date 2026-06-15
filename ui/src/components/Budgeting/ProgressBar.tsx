@@ -1,12 +1,15 @@
 import type { ReactNode } from "react";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { useTranslation } from "react-i18next";
 
 interface ProgressBarProps {
     categoryName: string; // e.g. "Food", "Transport"
-    categoryIcon?: ReactNode; // optional icon for the category
-    progress: number; // how much is spent in CZK, will be converted to percentage based on the limit
+    categoryIcon?: ReactNode; // optional icon component or node
+    progress: number; // amount spent so far in CZK
     limit: number; // budget limit in CZK
-    onClick?: () => void; // optional callback when the progress bar is clicked
+    onClick?: () => void; // optional click handler for the progress bar
 }
+
 
 /**
  * Visual budget progress bar showing spending vs. limit for a single category.
@@ -24,6 +27,8 @@ export function ProgressBar({ categoryName, categoryIcon, progress, limit, onCli
     const percentage = limit > 0 ? (progress / limit) * 100 : 0;
     const isExceeded = percentage > 100;
 
+    const { t } = useTranslation();
+
     const progressColorClass = percentage < 75
         ? 'bg-green-500'
         : percentage < 95
@@ -31,8 +36,8 @@ export function ProgressBar({ categoryName, categoryIcon, progress, limit, onCli
             : 'bg-red-500';
 
     const displayPercentage = Math.min(percentage, 100);
-    const formattedProgress = progress.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' });
-    const formattedLimit = limit.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' });
+    const formattedProgress = formatCurrency(progress);
+    const formattedLimit = formatCurrency(limit);
 
     return (
         <div 
@@ -79,7 +84,7 @@ export function ProgressBar({ categoryName, categoryIcon, progress, limit, onCli
                     <span className="relative inline-flex size-3 rounded-full bg-orange-500"></span>
                 </span>
                 <div className="mt-1 text-xs text-red-600 dark:text-red-400 font-semibold">
-                    Rozpočet překročen o {(progress - limit).toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}
+                    {t('budgeting.limitReached', { amount: formatCurrency(progress - limit) })}
                 </div>
                 </div>
             )}

@@ -5,12 +5,15 @@ import { ProgressBar } from "../Budgeting/ProgressBar";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useBudgetStore } from "../../store/budgetStore";
+import { useTranslation } from "react-i18next";
 
 export function BudgetingList() {
   const budgets: Budget[] = useBudgetStore((state) => state.budgets);
   const categories = useCategoryStore((state) => state.categories);
   const transactions = useTransactionStore((state) => state.transactions);
   const navigate = useNavigate();
+
+  const { t } = useTranslation();
 
   const now = new Date();
   const currentMonthTransactions = transactions.filter((t) => {
@@ -23,12 +26,12 @@ export function BudgetingList() {
   return (
     <section className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold">Rozpočty</h3>
+        <h3 className="text-xl font-bold">{t('dashboard.budgetingList.title')}</h3>
         <span
           onClick={() => navigate("/budgeting")}
           className="text-blue-500 hover:text-blue-700 cursor-pointer text-sm transition-colors"
         >
-          Všechny rozpočty
+          {t('dashboard.budgetingList.allBudgets')}
         </span>
       </div>
 
@@ -68,7 +71,7 @@ export function BudgetingList() {
       ) : (
         <div className="py-4">
           <p className="text-slate-600 dark:text-slate-400 text-sm text-center italic">
-            Zatím jste nenastavili žádné rozpočty.
+            {t('dashboard.budgetingList.emptyMessage')}
           </p>
         </div>
       )}

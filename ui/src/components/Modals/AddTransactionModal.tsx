@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
+import { useTranslation } from "react-i18next";
 
 interface AddTransactionModalProps {
     onCancel: () => void;
@@ -15,9 +16,12 @@ interface AddTransactionModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
+    // <-- Přesunuto nahoru, abychom t() mohli používat i uvnitř handleSubmit
+    const { t } = useTranslation(); 
+    
     const categories = useCategoryStore((state) => state.categories);
-
     const addTransaction = useTransactionStore((state) => state.addTransaction);
+    
     // stavy pro formular
     const [title, setTitle] = useState("");
     const [amount, setAmount] = useState<number | "">("");
@@ -29,26 +33,26 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
     /**
      * Validates the form and submits a new transaction when everything is filled in correctly.
      */
-    const handleSubmit = (e: React.SubmitEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault(); // zabrani refreshi po odeslani formulare
 
         if (isSubmitting) return; // zabrani dvojitemu odeslani
         setIsSubmitting(true);
         setErrors(null);
 
-        // validace
+        // validace s využitím překladů
         if (!title || amount === "" || !categoryId) {
-            setErrors(["Vyplňte všechny pole"]);
+            setErrors([t('transactions.errors.missingFields')]);
             setIsSubmitting(false);
             return;
         }
         if (amount === 0) {
-            setErrors(["Částka nemůže být nula"]);
+            setErrors([t('transactions.errors.zeroAmount')]);
             setIsSubmitting(false);
             return;
         }
-        if (isNaN(amount)) {
-            setErrors(["Částka musí být číslo"]);
+        if (isNaN(Number(amount))) {
+            setErrors([t('transactions.errors.notANumber')]);
             setIsSubmitting(false);
             return;
         }
@@ -59,7 +63,6 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
             categoryId,
             date: new Date().toISOString(),
         });
-        // onSubmit(title, amount, categoryId);
 
         setIsSubmitting(false);
         onCancel();
@@ -68,7 +71,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
     return (
         <>
         {errors && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-900 dark:text-red-300" role="alert" aria-live="assertive">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-900/50 dark:text-red-200" role="alert" aria-live="assertive">
                 {errors.map((error, idx) => (
                     <p key={idx}>{error}</p>
                 ))}
@@ -77,12 +80,13 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
             {/* nazev */}
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Název</label>
+                {/* <-- Přidáno dark:text-slate-300 */}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('common.name')}</label>
                 <TextField
                     fullWidth
                     size="small"
                     type="text"
-                    placeholder="Např. Benzin ONO"
+                    placeholder={t('transactions.placeholders.title')}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
@@ -90,31 +94,33 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
 
             {/* castka */}
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Částka</label>
+                {/* <-- Přidáno dark:text-slate-300 */}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('common.amount')}</label>
                 <TextField
                     fullWidth
                     size="small"
                     type="number"
-                    placeholder="Např. -1000 (výdaj) nebo 5000 (příjem)"
+                    placeholder={t('transactions.placeholders.amount')}
                     value={amount}
                     onChange={(e) => setAmount(e.target.value ? parseFloat(e.target.value) : "")}
                 />
-                <span className="text-xs text-slate-500 mt-1">
-                    Tip: Zadejte zápornou částku pro výdaj (např. -500) a kladnou pro příjem.
+                <span className="text-xs text-slate-500 mt-1 dark:text-slate-400">
+                    {t('transactions.tip')}
                 </span>
             </div>
 
             {/* kategorie */}
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                {/* <-- Přidáno dark:text-slate-300 */}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('common.category')}</label>
                 <Select
                     fullWidth
                     size="small"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
                     renderValue={(selected) => {
-                        if (!selected) return "Vyberte kategorii";
-                        return categories.find(c => c.id === selected)?.label || "Neznámá kategorie";
+                        if (!selected) return t('common.chooseCategory');
+                        return categories.find(c => c.id === selected)?.label || t('common.unknownCategory');
                     }}
                 >
                     {categories.map((category) => (
@@ -132,13 +138,13 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
                     onClick={onCancel}
                     className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
                 >
-                    Zrušit
+                    {t('common.cancel')}
                 </button>
                 <button 
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
                 >
-                    Uložit transakci
+                    {t('transactions.modalAdd')}
                 </button>
             </div>
         </form>

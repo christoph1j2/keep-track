@@ -2,6 +2,8 @@ import { CategoryIcon } from "../Base/CategoryIcon";
 import { useState } from "react";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
+import { useTranslation } from "react-i18next";
+import { useSettingsStore } from "../../store/settingsStore";
 
 /**
  * Shows the ten most recent transactions sorted by date.
@@ -12,6 +14,10 @@ import { useCategoryStore } from "../../store/categoryStore";
 export function LastTransactions() {
     const categories = useCategoryStore((state) => state.categories);
     const [activeFilter, setActiveFilter] = useState<'all' | 'income' | 'expense'>('all');
+
+    const { t } = useTranslation();
+    const { language, currency } = useSettingsStore(); // Použití tvého nového store
+    const locale = language === "cs" ? "cs-CZ" : "en-US";
 
     const transactions = useTransactionStore((state) => state.transactions);
 
@@ -25,7 +31,7 @@ export function LastTransactions() {
     return (
         <section className="bg-white p-6 rounded-2xl shadow-sm dark:bg-slate-900 transition-colors">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Poslední transakce</h3>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t('dashboard.lastTransactions.title')}</h3>
                 <div className="w-full sm:w-auto flex items-center overflow-hidden rounded-lg text-sm bg-slate-100 dark:bg-slate-800 p-1">
                     <button 
                         className={`w-full sm:w-auto text-xs font-medium py-1.5 px-3 transition-colors rounded-md ${
@@ -34,7 +40,7 @@ export function LastTransactions() {
                                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
                         }`} 
                         onClick={() => setActiveFilter('all')}
-                    >Vše</button>
+                    >{t('common.all')}</button>
                     <button 
                         className={`w-full sm:w-auto text-xs font-medium py-1.5 px-3 transition-colors rounded-md ${
                             activeFilter === 'income' 
@@ -42,7 +48,7 @@ export function LastTransactions() {
                                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
                         }`} 
                         onClick={() => setActiveFilter('income')}
-                    >Příjmy</button>
+                    >{t('common.income')}</button>
                     <button 
                         className={`w-full sm:w-auto text-xs font-medium py-1.5 px-3 transition-colors rounded-md ${
                             activeFilter === 'expense' 
@@ -50,7 +56,7 @@ export function LastTransactions() {
                                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
                         }`} 
                         onClick={() => setActiveFilter('expense')}
-                    >Výdaje</button>
+                    >{t('common.expenses')}</button>
                 </div>
             </div>
             <div className="flex flex-col gap-1">
@@ -74,13 +80,13 @@ export function LastTransactions() {
                                 {t.title}
                             </span>
                             <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                                {new Date(t.date).toLocaleDateString('cs-CZ')}
+                                {new Date(t.date).toLocaleDateString(locale)}
                             </span>
                             </div>
                         </div>
                         {/** castka */}
                         <span className={`font-semibold text-sm ${t.amount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                            {t.amount >= 0 ? '+' : ''}{t.amount.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}
+                            {t.amount >= 0 ? '+' : ''}{t.amount.toLocaleString(locale, { style: 'currency', currency: currency })}
                         </span>
                     </div>
                     )
@@ -90,7 +96,7 @@ export function LastTransactions() {
 
                 {filteredTransactions.length === 0 && (
                     <div className="text-center text-slate-400 dark:text-slate-500 py-8 text-sm italic">
-                        Zatím žádné transakce. :-)
+                        {t('dashboard.lastTransactions.noTransactions')}
                     </div>
                 )}
             </div>

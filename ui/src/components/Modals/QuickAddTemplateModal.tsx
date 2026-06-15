@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next"; // <-- Přidáno
 import type { QuickAddTemplate } from "../../types/quickadd";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { useCategoryStore } from "../../store/categoryStore";
@@ -19,6 +20,7 @@ interface QuickAddTemplateModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateModalProps) {
+    const { t } = useTranslation(); // <-- Inicializace překladů
     const categories = useCategoryStore((state) => state.categories);
     const sortedCategories = useMemo(
         () => categories,
@@ -34,7 +36,7 @@ export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateMo
     const [errors, setErrors] = useState<string[] | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (event: React.SubmitEvent) => {
+    const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
         if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -42,13 +44,13 @@ export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateMo
         setErrors(null);
 
         if (!title.trim() || amount === "" || !categoryId) {
-            setErrors(["Vyplňte název, částku a kategorii."]);
+            setErrors([t('quickAdd.errors.missingFields')]); // <-- Překlad
             setIsSubmitting(false);
             return;
         }
 
         if (!Number.isFinite(amount) || amount === 0) {
-            setErrors(["Částka musí být nenulové číslo."]);
+            setErrors([t('quickAdd.errors.invalidAmount')]); // <-- Překlad
             setIsSubmitting(false);
             return;
         }
@@ -62,12 +64,6 @@ export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateMo
         });
         setIsSubmitting(false);
         onCancel();
-        // onSubmit({
-        //     title: title.trim(),
-        //     amount,
-        //     categoryId,
-        //     showInHotbar,
-        // });
     };
 
     return (
@@ -82,24 +78,29 @@ export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateMo
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
                 <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-slate-700">Název</label>
+                    {/* <-- Přidáno dark:text-slate-300 pro lepší vzhled */}
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {t('quickAdd.form.titleLabel')}
+                    </label>
                     <TextField
                         fullWidth
                         size="small"
                         type="text"
-                        placeholder="Např. Káva"
+                        placeholder={t('quickAdd.form.titlePlaceholder')}
                         value={title}
                         onChange={(event) => setTitle(event.target.value)}
                     />
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-slate-700">Částka</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {t('quickAdd.form.amountLabel')}
+                    </label>
                     <TextField
                         fullWidth
                         size="small"
                         type="number"
-                        placeholder="Např. -59 nebo 5000"
+                        placeholder={t('quickAdd.form.amountPlaceholder')}
                         slotProps={{ htmlInput: { step: "0.01" } }}
                         value={amount}
                         onChange={(event) => setAmount(event.target.value ? parseFloat(event.target.value) : "")}
@@ -107,7 +108,9 @@ export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateMo
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {t('quickAdd.form.categoryLabel')}
+                    </label>
                     <Select
                         fullWidth
                         size="small"
@@ -128,13 +131,13 @@ export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateMo
                         onClick={onCancel}
                         className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
                     >
-                        Zrušit
+                        {t('common.cancel')}
                     </button>
                     <button
                         type="submit"
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
                     >
-                        Uložit šablonu
+                        {t('quickAdd.form.save')}
                     </button>
                 </div>
             </form>

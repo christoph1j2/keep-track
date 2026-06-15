@@ -2,6 +2,9 @@ import { useState, useMemo } from "react";
 import type { Transaction } from "../../types/transaction";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { useCategoryStore } from "../../store/categoryStore";
+import { useConfirmStore } from "../../store/confirmStore";
+import { useTranslation } from "react-i18next";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface TransactionMobileListProps {
     transactions: Transaction[];
@@ -36,6 +39,10 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
     
     // aktualni stranka pro paginaci
     const [page, setPage] = useState(0);
+
+    const { t } = useTranslation();
+    const showConfirm = useConfirmStore((state) => state.showConfirm);
+
 
     const filteredTransactions = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -82,22 +89,25 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
         // validace - castka musi byt cislo, nesmi byt nula
         const amount = parseFloat(newRow.amount as unknown as string);
         if (isNaN(amount)) {
-            alert("Castka musi byt platne cislo.");
+            alert(t('overview.confirm.invalidNumber'));
             return;
         }
         if (amount === 0) {
-            alert("Castka nesmi byt nula.");
+            alert(t('overview.confirm.zeroAmount'));
             return;
         }
         newRow.amount = amount;
 
         // potvrzeni od uzivatele pred ulozenim
-        const isConfirmed = window.confirm("Opravdu chcete ulozit zmeny?");
-        if (isConfirmed) {
-            onUpdateTransaction(newRow);
-            setEditingId(null);
-            setEditingData({});
-        }
+        showConfirm(
+            t('common.warning'),
+            t('overview.confirm.saveChanges'),
+            () => {
+                onUpdateTransaction(newRow);
+                setEditingId(null);
+                setEditingData({});
+            }
+        );
     };
 
     /**
@@ -113,7 +123,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
             <div className="px-2 pt-2 pb-1">
                 <input
                     type="search"
-                    placeholder="Hledat podle názvu..."
+                    placeholder={t('overview.searchPlaceholder')}
                     value={searchTerm}
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
@@ -126,7 +136,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                 {/* seznam transakcí na aktualni strance */}
                 {paginatedTransactions.length === 0 ? (
                     <div className={`border ${lineClass} rounded-lg p-4 text-center text-sm text-slate-500 dark:text-slate-400`}>
-                        Žádné transakce nenalezeny.
+                        {t('overview.noTransactions')}
                     </div>
                 ) : paginatedTransactions.map((transaction) => {
                     const category = categories.find(c => c.id === transaction.categoryId);
@@ -142,7 +152,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                 // rezim editace - zobrazeni formulare
                                 <div className="space-y-2">
                                     <div>
-                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Název</label>
+                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t('overview.columns.title')}</label>
                                         <input
                                             type="text"
                                             value={current.title}
@@ -154,7 +164,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Částka</label>
+                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t('overview.columns.amount')}</label>
                                         <input
                                             type="number"
                                             value={current.amount}
@@ -169,7 +179,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Kategorie</label>
+                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t('overview.columns.category')}</label>
                                         <select
                                             value={current.categoryId}
                                             onChange={(e) =>
@@ -191,13 +201,13 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                             onClick={() => handleSave(transaction)}
                                             className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
-                                            Uložit
+                                            {t('common.save')}
                                         </button>
                                         <button
                                             onClick={handleCancel}
                                             className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
-                                            Zrušit
+                                            {t('common.cancel')}
                                         </button>
                                     </div>
                                     <div className="flex gap-2 pt-2">
@@ -207,18 +217,21 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                             }}
                                             className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
-                                            Rozdělit
+                                            {t('overview.columns.split')}
                                         </button>
                                         <button
                                             onClick={() => {
-                                                const isConfirmed = window.confirm("Opravdu chcete smazat tuto transakci?");
-                                                if (isConfirmed) {
-                                                    onDeleteTransaction(transaction.id as string);
-                                                }
+                                                showConfirm(
+                                                    t('common.warning'),
+                                                    t('overview.confirm.delete'),
+                                                    () => {
+                                                        onDeleteTransaction(transaction.id as string);
+                                                    }
+                                                );
                                             }}
                                             className="flex-1 bg-rose-600 hover:bg-rose-500 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
-                                            Smazat
+                                            {t('overview.columns.delete')}
                                         </button>
                                     </div>
                                 </div>
@@ -243,10 +256,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                                     : "text-rose-600 dark:text-rose-400"
                                             }`}
                                         >
-                                            {transaction.amount.toLocaleString("cs-CZ", {
-                                                style: "currency",
-                                                currency: "CZK",
-                                            })}
+                                            {formatCurrency(transaction.amount)}
                                         </p>
                                     </div>
 
@@ -273,17 +283,17 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                     disabled={page === 0}
                     className="px-3 py-1 rounded bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    ← Předchozí
+                    {t('overview.pagination.previous')}
                 </button>
                 <span className="text-xs text-slate-600 dark:text-slate-400">
-                    Strana {page + 1} z {totalPages}
+                    {t('overview.pagination.pageInfo', { current: page + 1, total: totalPages })}
                 </span>
                 <button
                     onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                     disabled={page === totalPages - 1}
                     className="px-3 py-1 rounded bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    Další →
+                    {t('overview.pagination.next')}
                 </button>
             </div>
         </div>

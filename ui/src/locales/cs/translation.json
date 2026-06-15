@@ -1,0 +1,309 @@
+{
+  "common": {
+    "cancel": "Zrušit",
+    "save": "Uložit",
+    "delete": "Smazat",
+    "add": "Přidat",
+    "warning": "⚠️POZOR!⚠️",
+    "openMenu": "Otevřít menu",
+    "income": "Příjmy",
+    "expenses": "Výdaje",
+    "all": "Vše",
+    "edit": "Upravit",
+    "name": "Název",
+    "color": "Barva",
+    "icon": "Ikona",
+    "none": "Žádná",
+    "amount": "Částka",
+    "category": "Kategorie",
+    "subcategory": "Podkategorie",
+    "date": "Datum",
+    "actions": "Akce",
+    "noData": "Žádná data",
+    "chooseCategory": "Vyberte kategorii",
+    "unknownCategory": "Neznámá kategorie",
+    "confirm": "Potvrdit"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "overview": "Přehled",
+    "budgeting": "Rozpočty",
+    "quickAdd": "Šablony",
+    "settings": "Nastavení",
+    "categories": "Kategorie"
+  },
+  "topbar": {
+    "tooltips": {
+      "info": "Informace o projektu",
+      "theme": "Přepnout vzhled"
+    },
+    "about": {
+      "title": "O projektu",
+      "author": "Autor",
+      "subject": "Předmět",
+      "work": "Práce",
+      "workName": "Správa Osobních Financí",
+      "description1": "Keep Track je moderní webová aplikace navržená pro efektivní správu osobních financí a rozpočtů. Aplikace poskytuje komplexní řešení pro sledování příjmů, výdajů a kontrolu výdajů prostřednictvím flexibilního systému rozpočtů a kategorií. Uživatelé mohou snadno zaznamenávat transakce, organizovat je do vlastních kategorií a analyzovat své výdaje přes interaktivní grafy a statistiky.",
+      "description2": "Ústředním prvkem aplikace je funkce Quick Add, která umožňuje uživatelům vytvářet šablony pro často opakované transakce, což zrychluje zaznamenávání a zlepšuje produktivitu. Aplikace také nabízí možnost rozdělovat transakce, což je užitečné při sdílení výdajů nebo detailnější analýze. Všechna data jsou",
+      "currently": "aktuálně",
+      "description3": "spravována lokálně v prohlížeči, čímž se zajišťuje soukromí a bezpečnost uživatele.",
+      "statsIncome": "Věděl jsi, že suma všech tvých kladných transakcí je {{income}}?",
+      "statsExpenses": "A suma všech záporných transakcí je {{expenses}}!"
+    },
+    "buttons": {
+      "factoryReset": "Factory Reset",
+      "close": "Zavřít"
+    },
+    "confirm": {
+      "resetTitle": "Factory Reset",
+      "resetMessage": "Opravdu chcete vymazat všechna data (Factory reset)?\nTato akce je nevratná!"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "buttons": {
+      "resetData": "Resetovat Data",
+      "generateData": "Generovat Data",
+      "resetDataConfirm": "⚠️POZOR!⚠️ \nOpravdu chcete resetovat data?\nTato akce smaže veškeré transakce a nelze vrátit zpět.",
+      "generateDataConfirm": "⚠️POZOR!⚠️ \nOpravdu chcete vygenerovat náhodná data?\nTato akce přepíše veškeré stávající transakce, vrátí 200 nových náhodných transakcí a nelze vrátit zpět."
+    },
+    "stats": {
+      "income": "Příjmy tento měsíc",
+      "expenses": "Výdaje tento měsíc",
+      "balance": "Bilance tento měsíc",
+      "budget": "Rozpočet tento měsíc"
+    },
+    "quickAddSection": "Rychlé přidání",
+    "links": {
+      "manageTemplates": "Spravovat šablony"
+    },
+    "modalTitle": "Přidat transakci",
+    "transactionConfirm": "Opravdu chcete přidat transakci:\n{{title}}\n{{amount}}?",
+    "graph": {
+      "title": "Příjmy vs Výdaje",
+      "loading": "Data by měla být brzy k dispozici.",
+      "noData": "Vyberte nějaká data k zobrazení.",
+      "amount": "Částka"
+    },
+    "lastTransactions": {
+      "title": "Poslední transakce",
+      "noTransactions": "Zatím žádné transakce. :-)"
+    },
+    "budgetingList": {
+      "title": "Rozpočty",
+      "allBudgets": "Všechny rozpočty",
+      "emptyMessage": "Zatím žádné rozpočty. :-)"
+    }
+  },
+  "budgeting": {
+    "title": "Plánování rozpočtů tento měsíc",
+    "addButton": "+ Přidat rozpočet",
+    "modalAdd": "Přidat rozpočet",
+    "modalEdit": "Upravit rozpočet",
+    "emptyMessage": "Žádné rozpočty nenastaveny.",
+    "emptySubMessage": "Klikněte na \"+ Přidat rozpočet\" pro vytvoření prvního rozpočtu.",
+    "modalTitleAdd": "Přidat nový rozpočet",
+    "modalTitleEdit": "Upravit rozpočet",
+    "limitReached": "Rozpočet překročen o {{amount}}",
+    "deleteConfirm": "Opravdu chcete smazat rozpočet pro kategorii \"{{category}}\"?",
+    "moveBudget": "Přesunout rozpočet",
+    "limit": "Limit (CZK)",
+    "placeholder": "Např. 5000",
+    "errors": {
+      "missingFields": "Vyplňte všechna pole",
+      "positiveLimit": "Limit musí být kladné číslo"
+    }
+  },
+  "overview": {
+    "title": "Přehled transakcí",
+    "importBank": "+ Import z banky",
+    "newTransaction": "+ Nová transakce",
+    "newTransaction2": "Přidat novou transakci",
+    "splitTransaction": "Rozdělit transakci",
+    "categories": "Kategorie",
+    "clearFilter": "Zrušit filtr",
+    "unassigned": "Nepřiřazeno",
+    "searchPlaceholder": "Hledat podle názvu...",
+    "noTransactions": "Žádné transakce nenalezeny.",
+    "pagination": {
+      "previous": "← Předchozí",
+      "next": "Další →",
+      "pageInfo": "Strana {{current}} z {{total}}"
+    },
+    "columns": {
+      "title": "Název",
+      "amount": "Částka",
+      "category": "Kategorie",
+      "date": "Datum",
+      "split": "Rozdělit",
+      "delete": "Smazat"
+    },
+    "confirm": {
+      "delete": "Opravdu chcete smazat tuto transakci?",
+      "updateAmount": "Opravdu chcete změnit částku z {{oldAmount}} na {{newAmount}}?",
+      "updateTitle": "Opravdu chcete změnit název z \"{{oldTitle}}\" na \"{{newTitle}}\"?",
+      "updateCategory": "Opravdu chcete změnit kategorii?",
+      "saveChanges": "Opravdu chcete uložit změny?",
+      "invalidNumber": "Částka musí být platné číslo.",
+      "zeroAmount": "Částka nesmí být nula."
+    }
+  },
+  "categories": {
+    "title": "Správa kategorií",
+    "add": "+ Nová kategorie",
+    "addModal": "Přidat kategorii",
+    "editModal": "Upravit kategorii",
+    "deleteConfirm": "Opravdu chcete tuto kategorii smazat? Všechny transakce budou přesunuty do 'Nesřadováno'.",
+    "placeholder": "Např. Potraviny",
+    "parentCategory": "Nadřazená kategorie",
+    "noParent": "Žádná",
+    "errors": {
+      "missingFields": "Vyplňte všechna pole",
+      "selfParent": "Kategorie nemůže být sama sobě nadřazenou kategorií"
+    },
+    "colors": {
+      "blue": "Modrá",
+      "green": "Zelená",
+      "yellow": "Žlutá",
+      "red": "Červená",
+      "purple": "Fialová",
+      "pink": "Růžová",
+      "indigo": "Indigo",
+      "cyan": "Azurová",
+      "emerald": "Smaragd",
+      "orange": "Oranžová",
+      "amber": "Jantarová",
+      "teal": "Modrozelená",
+      "lime": "Limetková",
+      "slate": "Šedá"
+    },
+    "icons": {
+      "money": "Peníze",
+      "transit": "Doprava",
+      "cafe": "Kavárna",
+      "entertainment": "Zábava",
+      "uncategorized": "Nezařazeno",
+      "groceries": "Potraviny",
+      "shopping": "Nákupy",
+      "home": "Domov",
+      "fitness": "Fitness",
+      "health": "Zdraví",
+      "energy": "Energie",
+      "water": "Voda",
+      "fuel": "Pohonné hmoty",
+      "travel": "Cestování",
+      "accommodation": "Ubytování",
+      "education": "Vzdělání",
+      "work": "Práce",
+      "gaming": "Hry",
+      "other": "Jiné"
+    }
+  },
+  "quickAdd": {
+    "title": "Šablony rychlého přidání",
+    "addNew": "Přidat novou šablonu",
+    "hotbarTitle": "Hotbar",
+    "hotbarActive": "{{current}}/{{limit}} aktivních",
+    "hotbarEmpty": "Zatím tu není žádná šablona. Přidejte ji do hotbaru ve formuláři nebo tlačítkem u šablony.",
+    "stackTitle": "Zásobník šablon",
+    "stackEmpty": "Zatím nemáte žádné šablony.",
+    "modalTitleEdit": "Upravit šablonu",
+    "modalTitleAdd": "Přidat šablonu",
+    "confirmDelete": "Opravdu chcete smazat šablonu \"{{title}}\"?",
+    "hotbarLimitReached": "Můžete mít maximálně {{limit}} šablon v hotbaru. Odeberte nějakou stávající šablonu z hotbaru, abyste mohli přidat tuto.",
+    "moveTemplate": "Přesunout šablonu",
+    "hotbarToggle": "Hotbar",
+    "form": {
+      "titleLabel": "Název",
+      "titlePlaceholder": "Např. Káva",
+      "amountLabel": "Částka",
+      "amountPlaceholder": "Např. -59 nebo 5000",
+      "categoryLabel": "Kategorie",
+      "save": "Uložit šablonu"
+    },
+    "errors": {
+      "missingFields": "Vyplňte název, částku a kategorii.",
+      "invalidAmount": "Částka musí být nenulové číslo."
+    }
+  },
+  "transactions": {
+    "tip": "Tip: Zadejte zápornou částku pro výdaj (např. -500) a kladnou pro příjem.",
+    "placeholders": {
+      "title": "Např. Benzin ONO",
+      "amount": "Např. -1500 pro výdaj, 2000 pro příjem"
+    },
+    "modalAdd": "Uložit transakci",
+    "errors": {
+      "missingFields": "Vyplňte všechna pole",
+      "zeroAmount": "Částka nemůže být nula",
+      "notANumber": "Částka musí být číslo"
+    }
+  },
+  "import": {
+    "title": "Import transakcí z banky",
+    "parseError": "Nepodařilo se zpracovat CSV soubor. Zkontrolujte formát.",
+    "processing": "Zpracovávám soubor...",
+    "helpPrefix": "💡 Nevíte jak získat CSV?",
+    "helpText": "Přihlaste se do internetového bankovnictví (nikoliv v mobilní aplikaci), přejděte do historie transakcí a zvolte Exportovat (vyberte formát CSV oddělený středníkem nebo čárkou). Např. u ČSOB tuto volbu najdete v detailech účtu.",
+    "summary": "Našli jsme {{count}} transakcí. Zkontrolujte prosím přiřazené kategorie před uložením.",
+    "columns": {
+      "date": "Datum",
+      "title": "Položka",
+      "amount": "Částka",
+      "category": "Kategorie"
+    },
+    "selectCategory": "-- Vyberte --",
+    "saveButton": "Uložit {{count}} transakcí",
+    "uncategorizedWarning": "Zbývá {{count}} transakcí bez zvolené kategorie.\n\nPokud je teď neuložíte s kategorií, budou uloženy jako \"Nepřiřazeno\".\n\nChcete pokračovat?"
+  },
+  "splitTransaction": {
+    "errors": {
+      "missingFields": "Vyplňte všechna pole",
+      "zeroAmount": "Částka nemůže být nula",
+      "notANumber": "Částka musí být číslo",
+      "negativeAmount": "Zadejte prosím pouze kladné částky",
+      "amountsMismatch": "Částky nesouhlasí, zbývá {{remaining}}"
+    },
+    "info": {
+      "splitTitle": "Rozdělení transakce",
+      "inCategory": "V kategorii",
+      "remaining": "K rozdělení zbývá",
+      "unknownCategory": "Neznámá"
+    },
+    "form": {
+      "titleLabel": "Název",
+      "titlePlaceholder": "Benzin ONO",
+      "amountLabel": "Částka",
+      "amountPlaceholder": "Kladnou hodnotu!",
+      "categoryLabel": "Kategorie",
+      "selectCategory": "Vyberte kategorii"
+    },
+    "buttons": {
+      "save": "Uložit rozdělení"
+    }
+  },
+  "settings": {
+    "title": "Nastavení",
+    "preferences": "Předvolby aplikace",
+    "language": "Jazyk aplikace",
+    "currency": "Hlavní měna",
+    "dangerZone": "Nebezpečná zóna",
+    "dangerWarning": "Akce v této sekci jsou nevratné. Prosím, postupujte opatrně.",
+    "factoryReset": "Smazat všechna data (Factory Reset)",
+    "factoryResetConfirm": "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení."
+  },
+  "default_categories": {
+    "food": "Jídlo a pití",
+    "transport": "Doprava",
+    "salary": "Výplata",
+    "entertainment": "Zábava",
+    "health": "Zdraví",
+    "housing": "Bydlení",
+    "coffee_shops": "Kavárny",
+    "groceries": "Potraviny",
+    "energy": "Energie",
+    "rent": "Nájem",
+    "fuel": "Pohonné hmoty",
+    "uncategorized": "Nezařazeno"
+  }
+}

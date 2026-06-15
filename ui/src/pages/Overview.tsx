@@ -9,6 +9,7 @@ import { ImportModal } from "../components/Modals/ImportModal";
 import { UNCATEGORIZED_ID } from "../constants/categoryConstants";
 import { useTransactionStore } from "../store/transactionStore";
 import { useCategoryStore } from "../store/categoryStore";
+import { useTranslation } from "react-i18next";
 
 /**
  * Overview page for browsing, filtering, and editing transactions.
@@ -18,6 +19,7 @@ export function Overview() {
     const { transactions, addTransaction, deleteTransaction, updateTransaction } = useTransactionStore();
     const categories = useCategoryStore((state) => (state.categories));
     const location = useLocation();
+    const { t } = useTranslation();
 
     const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
     const [isSplitTransactionModalOpen, setIsSplitTransactionModalOpen] = useState(false);
@@ -53,17 +55,17 @@ export function Overview() {
     return (
         <div className="lg:h-full flex flex-col">
             <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 items-center text-center">
-                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Přehled transakcí</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">{t('overview.title')}</h2>
                 <div className="flex gap-4">
                     <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium w-full md:w-fit"
                     onClick={() => setIsImportModalOpen(true)}
                     >
-                        + Import z banky
+                        {t('overview.importBank')}
                     </button>
                     <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-fit"
                     onClick={() => setIsAddTransactionModalOpen(true)}
                     >
-                        + Nová transakce
+                        {t('overview.newTransaction')}
                     </button>
                 </div>
             </div>
@@ -72,13 +74,13 @@ export function Overview() {
                 {/** TREE VIEW, KATEGORIE */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 lg:col-span-1 flex flex-col dark:bg-slate-900 dark:border-slate-700 min-h-106 transition-colors dark:text-slate-300">
                     <div className="flex items-center justify-between mb-4 px-2">
-                    <h3 className="text-xl font-bold text-slate-700 mb-4 px-2 dark:text-slate-300">Kategorie</h3>
+                    <h3 className="text-xl font-bold text-slate-700 mb-4 px-2 dark:text-slate-300">{t('overview.categories')}</h3>
                     {selectedCategoryId && (
                         <button 
                             onClick={() => setSelectedCategoryId(null)}
                             className="text-xs text-blue-600 hover:underline font-semibold"
                         >
-                            Zrušit filtr
+                            {t('overview.clearFilter')}
                         </button>
                     )}
                     </div>
@@ -107,7 +109,7 @@ export function Overview() {
             </div>
 
             <BaseModal
-                title="Přidat novou transakci"
+                title={t('overview.newTransaction2')}
                 isOpen={isAddTransactionModalOpen}
                 onClose={()=>setIsAddTransactionModalOpen(false)}
             >
@@ -117,7 +119,7 @@ export function Overview() {
             </BaseModal>
 
             <BaseModal
-                title="Rozdělit transakci"
+                title={t('overview.splitTransaction')}
                 isOpen={isSplitTransactionModalOpen}
                 onClose={()=>setIsSplitTransactionModalOpen(false)}
             >

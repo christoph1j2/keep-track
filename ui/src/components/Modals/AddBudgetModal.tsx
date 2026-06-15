@@ -1,7 +1,8 @@
 import { MenuItem, Select, TextField } from "@mui/material";
-import {useState} from "react";
+import { useState } from "react";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useBudgetStore } from "../../store/budgetStore";
+import { useTranslation } from "react-i18next";
 
 interface AddBudgetModalProps {
     onCancel: () => void;
@@ -15,6 +16,8 @@ interface AddBudgetModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
+    // <-- Přesunuto na začátek, abychom mohli překládat chyby
+    const { t } = useTranslation(); 
 
     const categories = useCategoryStore((state) => state.categories);
     const setBudget = useBudgetStore((state) => state.setBudget);
@@ -36,7 +39,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
         },
     };
 
-    const handleSubmit = (e: React.SubmitEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault(); // zabrani refreshi po odeslani formulare
 
         if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -45,13 +48,13 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
 
         // validace
         if (!categoryId || limit === "") {
-            setErrors(["Vyplňte všechny pole"]);
+            setErrors([t('budgeting.errors.missingFields')]); // <-- Přeloženo
             setIsSubmitting(false);
             return;
         }
 
         if (limit <= 0) {
-            setErrors(["Limit musí být kladné číslo"]);
+            setErrors([t('budgeting.errors.positiveLimit')]); // <-- Přeloženo
             setIsSubmitting(false);
             return;
         }
@@ -59,7 +62,6 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
         setBudget(categoryId, limit);
         setIsSubmitting(false);
         onCancel(); // zavre modal po uspesnem pridani
-        // onSubmit(categoryId, limit);
     };
 
     return (
@@ -73,7 +75,8 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                {/* <-- Přidáno dark:text-slate-300 a opraven klíč */}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('common.category')}</label>
                 <Select
                     fullWidth
                     value={categoryId || ""}
@@ -81,13 +84,13 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
                     onChange={(e) => setCategoryId(e.target.value)}
                     MenuProps={MenuProps}
                     renderValue={(selected) => {
-                        if (!selected) return "Žádná";
+                        if (!selected) return t('common.none'); // <-- Přeloženo
                         return categories.find(
                             c => c.id === selected)?.label 
-                            || "Neznámá kategorie";
+                            || t('common.unknownCategory'); // <-- Přeloženo
                     }}
                 >
-                    <MenuItem value="">Žádná</MenuItem>
+                    <MenuItem value="">{t('common.none')}</MenuItem>
                     {(() => {
                         return categories.map(cat => (
                             <MenuItem key={cat.id} value={cat.id}>
@@ -99,12 +102,13 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
             </div>
 
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Limit (CZK)</label>
+                {/* <-- Přidáno dark:text-slate-300 */}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('budgeting.limit')}</label>
                 <TextField
                     fullWidth
                     size="small"
                     type="number"
-                    placeholder="Např. 5000"
+                    placeholder={t('budgeting.placeholder')}
                     value={limit}
                     onChange={(e) => setLimit(e.target.value === "" ? "" : Number(e.target.value))}
                 />
@@ -116,14 +120,14 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
                     onClick={onCancel}
                     className="px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
                 >
-                    Zrušit
+                    {t('common.cancel')}
                 </button>
                 <button
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
                     disabled={isSubmitting}
                 >
-                    Přidat rozpočet
+                    {t('common.add')}
                 </button>
             </div>
         </form>
