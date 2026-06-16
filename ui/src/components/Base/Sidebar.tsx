@@ -4,12 +4,14 @@ import { NavLink } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import StyleIcon from '@mui/icons-material/Style';
+import SettingsIcon from '@mui/icons-material/Settings';
 import CategoryIcon from '@mui/icons-material/Category';
+import StyleIcon from '@mui/icons-material/Style';
 import { Extension } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 interface MenuItem {
-    title: string,
+    translationKey: string,
     icon: ReactNode,
     path: string,
     isActive?: boolean
@@ -20,11 +22,12 @@ interface MenuItem {
  * Each entry maps a title and icon to a route.
  */
 const MENU_ITEMS: MenuItem[] = [
-    { title: 'Dashboard', icon: <DashboardIcon />, path: '/', isActive: true },
-    { title: 'Přehled', icon: <ShowChartIcon />, path: '/overview' },
-    { title: 'Kategorie', icon: <CategoryIcon />, path: '/categories' },
-    { title: 'Rozpočty', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
-    { title: 'Šablony', icon: <Extension />, path: '/quickadd' },
+    { translationKey: 'sidebar.dashboard', icon: <DashboardIcon />, path: '/', isActive: true },
+    { translationKey: 'sidebar.overview', icon: <ShowChartIcon />, path: '/overview' },
+    { translationKey: 'sidebar.categories', icon: <CategoryIcon />, path: '/categories' },
+    { translationKey: 'sidebar.budgeting', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
+    { translationKey: 'sidebar.quickAdd', icon: <Extension />, path: '/quickadd' },
+    { translationKey: 'sidebar.settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 
 /**
@@ -32,6 +35,8 @@ const MENU_ITEMS: MenuItem[] = [
  * Hidden on mobile so the main content can use full width.
  */
 export function Sidebar() {
+    const { t } = useTranslation();
+
     return (
         <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors">
             {/* logo */}
@@ -46,7 +51,7 @@ export function Sidebar() {
             <nav className='flex flex-col gap-2'>
                 {MENU_ITEMS.map((item) => (
                     <NavLink
-                        key={item.title}
+                        key={item.translationKey}
                         to={item.path} // Kam odkaz vede
                         className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors cursor-pointer ${
                             isActive
@@ -55,7 +60,7 @@ export function Sidebar() {
                         }`}
                     >
                         {item.icon}
-                        {item.title}
+                        {t(item.translationKey)}
                     </NavLink>
                 ))}
             </nav>

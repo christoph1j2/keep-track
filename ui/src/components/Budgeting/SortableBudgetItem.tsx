@@ -5,6 +5,8 @@ import { CategoryIcon } from "../Base/CategoryIcon";
 import type { Budget } from "../../types/budget";
 import { ProgressBar } from "./ProgressBar";
 import { useCategoryStore } from "../../store/categoryStore";
+import { useTranslation } from "react-i18next";
+import { useConfirmStore } from "../../store/confirmStore";
 
 interface SortableBudgetItemProps {
     budget: Budget;
@@ -24,8 +26,12 @@ export function SortableBudgetItem({
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: budget.categoryId });
     const categories = useCategoryStore((state) => state.categories);
 
+    const { t } = useTranslation();
+    const showConfirm = useConfirmStore((state) => state.showConfirm);
+
     const category = categories.find((c) => c.id === budget.categoryId);
     if (!category) return null;
+    const categoryLabel = category.label.startsWith("default_categories.") ? t(category.label) : category.label;
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -44,14 +50,14 @@ export function SortableBudgetItem({
                 {...listeners}
                 style={{ touchAction: 'none' }}
                 className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 shrink-0"
-                aria-label="Přesunout rozpočet"
+                aria-label={t('budgeting.moveBudget')}
             >
                 <DragIndicator fontSize="small" />
             </button>
 
             <div className="flex-1" onClick={() => onProgressBarClick(budget.categoryId)}>
                 <ProgressBar
-                    categoryName={category.label}
+                    categoryName={categoryLabel}
                     categoryIcon={<CategoryIcon name={category.iconName} className="text-slate-500 dark:text-slate-300" />}
                     progress={spent}
                     limit={budget.limit}
@@ -64,19 +70,21 @@ export function SortableBudgetItem({
                     onClick={() => onEdit(budget)}
                     className="shrink-0 rounded-md px-1 font-semibold text-slate-600 dark:text-slate-400 dark:hover:bg-slate-600 transition-colors hover:bg-slate-50 inline-flex items-center gap-1">
                     <Edit fontSize="medium" />
-                    Upravit
+                    {t('common.edit')}
                 </button>
                 <button
                     type="button"
                     onClick={() => {
-                        if (window.confirm(`Opravdu chcete smazat rozpočet pro kategorii "${category.label}"?`)) {
-                            onDelete(budget.categoryId);
-                        }
+                        showConfirm(
+                            t('common.warning'),
+                            t('budgeting.deleteConfirm', { category: categoryLabel }),
+                            () => onDelete(budget.categoryId)
+                        );
                     }}
                     className="shrink-0 rounded-md px-1 font-semibold text-red-600 dark:text-red-500 dark:hover:bg-slate-600 transition-colors hover:bg-red-50 inline-flex items-center gap-1"
                 >
                     <Delete fontSize="medium" />
-                    Smazat
+                    {t('common.delete')}
                 </button>
             </div>
         </div>

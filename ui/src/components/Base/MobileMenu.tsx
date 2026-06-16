@@ -8,19 +8,21 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StyleIcon from '@mui/icons-material/Style';
 import CategoryIcon from '@mui/icons-material/Category';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 interface MenuItem {
-    title: string;
+    translationKey: string;
     icon: ReactNode;
     path: string;
 }
 
 const MENU_ITEMS: MenuItem[] = [
-    { title: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { title: 'Přehled', icon: <ShowChartIcon />, path: '/overview' },
-    { title: 'Kategorie', icon: <CategoryIcon />, path: '/categories' },
-    { title: 'Rozpočty', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
-    { title: 'Šablony', icon: <StyleIcon />, path: '/quickadd' },
+    { translationKey: 'sidebar.dashboard', icon: <DashboardIcon />, path: '/' },
+    { translationKey: 'sidebar.overview', icon: <ShowChartIcon />, path: '/overview' },
+    { translationKey: 'sidebar.categories', icon: <CategoryIcon />, path: '/categories' },
+    { translationKey: 'sidebar.budgeting', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
+    { translationKey: 'sidebar.quickAdd', icon: <StyleIcon />, path: '/quickadd' },
+    { translationKey: 'sidebar.settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 
 /**
@@ -67,7 +69,7 @@ export function MobileMenu() {
                         {MENU_ITEMS.map((item) => {
                             const isActive = location.pathname === item.path;
                             return (
-                                <ListItem key={item.title} disablePadding>
+                                <ListItem key={item.translationKey} disablePadding>
                                     <ListItemButton
                                         component={NavLink}
                                         to={item.path}
@@ -80,7 +82,7 @@ export function MobileMenu() {
                                         <ListItemIcon className={isActive ? 'text-slate-900! dark:text-slate-100!' : 'text-slate-600! dark:text-slate-400!'}>
                                             {item.icon}
                                         </ListItemIcon>
-                                        <ListItemText primary={item.title} />
+                                        <ListItemText primary={item.translationKey} />
                                     </ListItemButton>
                                 </ListItem>
                             );

@@ -4,18 +4,18 @@ import type { Category } from '../types/category';
 import { cleanupKeywordsForDeletedCategory } from '../utils/userKeywords';
 
 const DEFAULT_CATEGORIES: Category[] = [
-    { id: "food", label: "Jídlo a pití", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100" },
-    { id: "transport", label: "Doprava", iconName: "DirectionsTransit", colorClass: "bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100" },
-    { id: "salary", label: "Výplata", iconName: "AttachMoney", colorClass: "bg-green-100 text-green-600 dark:bg-green-600 dark:text-green-100" },
-    { id: "entertainment", label: "Zábava", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600 dark:bg-purple-600 dark:text-purple-100" },
-    { id: "health", label: "Zdraví", iconName: "LocalHospital", colorClass: "bg-red-100 text-red-600 dark:bg-red-600 dark:text-red-100" },
-    { id: "housing", label: "Bydlení", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100" }, 
-    { id: "coffee", label: "Kavárny", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100", parentId: "food" },
-    { id: "groceries", label: "Potraviny", iconName: "ShoppingCart", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100", parentId: "food" },
-    { id: "energy", label: "Energie", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100", parentId: "housing" },
-    { id: "rent", label: "Nájem", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100", parentId: "housing" },
-    { id: "fuel", label: "Pohonné hmoty", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100", parentId: "transport" },
-    { id: "uncategorized", label: "Nezařazeno", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300" }
+    { id: "food", label: "default_categories.food", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100" },
+    { id: "transport", label: "default_categories.transport", iconName: "DirectionsTransit", colorClass: "bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100" },
+    { id: "salary", label: "default_categories.salary", iconName: "AttachMoney", colorClass: "bg-green-100 text-green-600 dark:bg-green-600 dark:text-green-100" },
+    { id: "entertainment", label: "default_categories.entertainment", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600 dark:bg-purple-600 dark:text-purple-100" },
+    { id: "health", label: "default_categories.health", iconName: "LocalHospital", colorClass: "bg-red-100 text-red-600 dark:bg-red-600 dark:text-red-100" },
+    { id: "housing", label: "default_categories.housing", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100" }, 
+    { id: "coffee", label: "default_categories.coffee_shops", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100", parentId: "food" },
+    { id: "groceries", label: "default_categories.groceries", iconName: "ShoppingCart", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100", parentId: "food" },
+    { id: "energy", label: "default_categories.energy", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100", parentId: "housing" },
+    { id: "rent", label: "default_categories.rent", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100", parentId: "housing" },
+    { id: "fuel", label: "default_categories.fuel", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100", parentId: "transport" },
+    { id: "uncategorized", label: "default_categories.uncategorized", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300" }
 ];
 
 interface CategoryState {

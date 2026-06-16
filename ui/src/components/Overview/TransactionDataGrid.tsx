@@ -7,6 +7,10 @@ import { useIsMobile } from "../../hooks/useIsMobile";
 import { TransactionMobileList } from "./TransactionMobileList";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useTranslation } from "react-i18next";
+import { useConfirmStore } from "../../store/confirmStore";
+import { useSettingsStore } from "../../store/settingsStore";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface TransactionDataGridProps {
   transactions: Transaction[];
@@ -25,6 +29,11 @@ export function TransactionDataGrid({
   const categories = useCategoryStore((state) => state.categories);
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
+
+  const { t } = useTranslation();
+  const showConfirm = useConfirmStore((state) => state.showConfirm);
+  const { language } = useSettingsStore();
+  const locale = language === "cs" ? "cs-CZ" : "en-US";
 
   const isDark = theme === "dark";
   const gridLineColor = isDark ? "rgba(148, 163, 184, 0.08)" : "rgba(148, 163, 184, 0.2)";
@@ -47,11 +56,11 @@ export function TransactionDataGrid({
 
     const amount = parseFloat(newRow.amount as unknown as string);
     if (isNaN(amount)) {
-      alert("Částka musí být platné číslo.");
+      alert(t('overview.invalidNumber'));
       return oldRow;
     }
     if (amount === 0) {
-      alert("Částka nesmí být nula.");
+      alert(t('overview.zeroAmount'));
       return oldRow;
     }
     newRow.amount = amount;
@@ -67,7 +76,7 @@ export function TransactionDataGrid({
         newRow.amount !== oldRow.amount
           ? `částku z ${oldRow.amount} na ${newRow.amount}`
           : `název z "${oldRow.title}" na "${newRow.title}"`;
-      const isConfirmed = window.confirm(`Opravdu chcete změnit ${changes}?`);
+      const isConfirmed = window.confirm(t('overview.updateConfirm', { changes }));
       if (!isConfirmed) {
         return oldRow;
       }
@@ -79,7 +88,7 @@ export function TransactionDataGrid({
   const colDef: GridColDef[] = [
     {
       field: "title",
-      headerName: "Název",
+      headerName: t('overview.columns.title'),
       flex: 0.75,
       editable: true,
       resizable: false,
@@ -97,15 +106,11 @@ export function TransactionDataGrid({
     },
     {
       field: "amount",
-      headerName: "Částka",
+      headerName: t('overview.columns.amount'),
       flex: 0.5,
       editable: true,
       resizable: false,
       renderCell: (params: GridRenderCellParams) => {
-        const value = params.value.toLocaleString("cs-CZ", {
-          style: "currency",
-          currency: "CZK",
-        });
         // Úprava barev částek, aby byly dobře čitelné na světlém i tmavém pozadí
         return (
           <span className={`font-medium ${
@@ -113,14 +118,14 @@ export function TransactionDataGrid({
               ? "text-emerald-600 dark:text-emerald-400" 
               : "text-rose-600 dark:text-rose-400"
           }`}>
-            {value}
+            {formatCurrency(params.value)}
           </span>
         );
       },
     },
     {
       field: "categoryId",
-      headerName: "Kategorie",
+      headerName: t('overview.columns.category'),
       flex: 0.5,
       type: "singleSelect",
       editable: true,
@@ -138,7 +143,7 @@ export function TransactionDataGrid({
             >
               <CategoryIcon name={category?.iconName || ""} />
               <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                {category?.label || "Nepřiřazeno"}
+                {category?.label || t('overview.unassigned')}
               </span>
             </div>
           </div>
@@ -151,11 +156,8 @@ export function TransactionDataGrid({
             value={params.value}
             onChange={(e) => {
               const newValue = e.target.value;
-              const isConfirmed = window.confirm(`Opravdu chcete změnit kategorii?`);
-              if (isConfirmed) {
                 params.api.setEditCellValue({ id: params.id, field: "categoryId", value: newValue });
-                params.api.stopCellEditMode({ id: params.id, field: "categoryId" });
-              }
+                params.api.stopCellEditMode({ id: params.id, field: "categoryId" });            
             }}
             className="w-full px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded text-sm focus:outline-none focus:border-indigo-500"
           >
@@ -170,17 +172,17 @@ export function TransactionDataGrid({
     },
     {
       field: "date",
-      headerName: "Datum",
+      headerName: t('overview.columns.date'),
       flex: 0.5,
       resizable: false,
       renderCell: (params: GridRenderCellParams) => {
-        const date = new Date(params.value).toLocaleDateString("cs-CZ");
+        const date = new Date(params.value).toLocaleDateString(locale);
         return <span className="text-slate-500 dark:text-slate-400">{date}</span>;
       },
     },
     {
       field: "split",
-      headerName: "Rozdělit",
+      headerName: t('overview.columns.split'),
       flex: 0.3,
       resizable: false,
       sortable: false,
@@ -198,7 +200,7 @@ export function TransactionDataGrid({
     },
     {
       field: "delete",
-      headerName: "Smazat",
+      headerName: t('overview.columns.delete'),
       flex: 0.3,
       resizable: false,
       sortable: false,
@@ -208,10 +210,11 @@ export function TransactionDataGrid({
           <button
             className="cursor-pointer hover:scale-110 transition-transform p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800"
             onClick={() => {
-              const isConfirmed = window.confirm("Opravdu chcete smazat tuto transakci?");
-              if (isConfirmed) {
-                onDeleteTransaction(params.id as string);
-              }
+            showConfirm(
+                t('common.warning'),
+                t('overview.confirm.delete'),
+                () => onDeleteTransaction(params.id as string)
+              );
             }}
           >
             🗑️
@@ -234,7 +237,7 @@ export function TransactionDataGrid({
         <TextField
           fullWidth
           size="small"
-          placeholder="Hledat podle názvu..."
+          placeholder={t('overview.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           sx={{

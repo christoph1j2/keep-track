@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useCategoryStore } from "../../store/categoryStore";
 import { Select, MenuItem, TextField } from "@mui/material";
 import type { Transaction } from "../../types/transaction";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { useTranslation } from "react-i18next"; // <-- Přidáno
 
 interface SplitTransactionModalProps {
     transaction: Transaction;
@@ -25,6 +27,7 @@ type SplitRow = {
  */
 export function SplitTransactionModal({ transaction, onSubmit, onCancel }: SplitTransactionModalProps) {
     const categories = useCategoryStore((state) => state.categories);
+    const { t } = useTranslation(); // <-- Inicializace překladů
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<string[] | null>(null);
@@ -46,7 +49,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
      * Validates all split rows and submits them only when the total matches the original transaction.
      * Users enter positive values; we apply the original sign at submission.
      */
-    const handleSubmit = (e: React.SubmitEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault(); // zabrani refreshi po odeslani formulare
 
         if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -57,27 +60,27 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
         const parsedAmounts = splits.map((split) => Number(split.amount));
 
         if (splits.some((split) => !split.title) || splits.some((split) => split.amount === "") || splits.some((split) => !split.categoryId)) {
-            setErrors(["Vyplňte všechny pole"]);
+            setErrors([t("splitTransaction.errors.missingFields")]);
             setIsSubmitting(false);
             return;
         }
         if (parsedAmounts.some(a => a === 0)) {
-            setErrors(["Částka nemůže být nula"]);
+            setErrors([t("splitTransaction.errors.zeroAmount")]);
             setIsSubmitting(false);
             return;
         }
         if (parsedAmounts.some(a => isNaN(a))) {
-            setErrors(["Částka musí být číslo"]);
+            setErrors([t("splitTransaction.errors.notANumber")]);
             setIsSubmitting(false);
             return;
         }
         if (parsedAmounts.some(a => a < 0)) {
-            setErrors(["Zadejte prosím pouze kladné částky"]);
+            setErrors([t("splitTransaction.errors.negativeAmount")]);
             setIsSubmitting(false);
             return;
         }
-        if (remaining !== 0) {
-            setErrors([`Částky nesouhlasí, zbývá ${remaining.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}`]);
+        if (Math.abs(remaining) > 0.005) { // tolerance pro floaty
+            setErrors([t("splitTransaction.errors.amountsMismatch", { remaining: formatCurrency(remaining) })]);
             setIsSubmitting(false);
             return;
         }
@@ -102,15 +105,15 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
             </div>
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
-            <div>
+            <div className="text-slate-700 dark:text-slate-300">
                 <span>
-                    Rozdělení transakce <strong>"{transaction.title}"</strong>,
+                    {t("splitTransaction.info.splitTitle")} <strong className="text-slate-900 dark:text-slate-100">"{transaction.title}"</strong>,
                 </span> <br />
                 <span>
-                    V kategorii <strong>"{categories.find(c => c.id === transaction.categoryId)?.label || 'Neznámá'}"</strong>, <br />
+                    {t("splitTransaction.info.inCategory")} <strong className="text-slate-900 dark:text-slate-100">"{categories.find(c => c.id === transaction.categoryId)?.label || t("splitTransaction.info.unknownCategory")}"</strong>, <br />
                 </span>
                 <span>
-                    K rozdělení zbývá <strong>{remaining.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' })}</strong>
+                    {t("splitTransaction.info.remaining")} <strong className="text-slate-900 dark:text-slate-100">{formatCurrency(remaining)}</strong>
                 </span>
             </div>
             {/* vezme vsechny split polozky a postavi je dle indexu */}
@@ -120,11 +123,11 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                     className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:grid-cols-3 sm:items-end"
                 >
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-slate-700">Název</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("splitTransaction.form.titleLabel")}</label>
                         <TextField
                             size="small"
                             type="text"
-                            placeholder="Benzin ONO"
+                            placeholder={t("splitTransaction.form.titlePlaceholder")}
                             value={split.title}
                             onChange={(e) => {
                                 const newSplits = [...splits];
@@ -134,11 +137,11 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-slate-700">Částka</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("splitTransaction.form.amountLabel")}</label>
                         <TextField
                             size="small"
                             type="number"
-                            placeholder="Kladnou hodnotu!"
+                            placeholder={t("splitTransaction.form.amountPlaceholder")}
                             slotProps={{ htmlInput: { step: "0.01" } }}
                             value={split.amount}
                             onChange={(e) => {
@@ -149,17 +152,17 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-slate-700">Kategorie</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("splitTransaction.form.categoryLabel")}</label>
                         <Select
                             size="small"
                             value={split.categoryId}
-                        onChange={(e) => {
+                            onChange={(e) => {
                             const newSplits = [...splits];
                             newSplits[index].categoryId = e.target.value;
                             setSplits(newSplits);
                         }}
                     >
-                        <MenuItem value="">Vyberte kategorii</MenuItem>
+                        <MenuItem value="">{t("splitTransaction.form.selectCategory")}</MenuItem>
                         {categories.map((category) => (
                             <MenuItem key={category.id} value={category.id}>
                                 {category.label}
@@ -177,7 +180,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                                 ...splits,
                                 { title: "", amount: "", categoryId: "" }
                             ])}
-                            className="h-10 w-10 rounded-full border border-slate-400 dark:border-slate-700 text-2xl leading-none transition-colors hover:bg-slate-300 dark:hover:bg-slate-800"
+                            className="h-10 w-10 rounded-full border border-slate-400 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-2xl leading-none transition-colors hover:bg-slate-300 dark:hover:bg-slate-800"
 
                         >
                             +
@@ -188,7 +191,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         <button
                             type="button"
                             onClick={() => setSplits(splits.slice(0, -1))}
-                            className="h-10 w-10 rounded-full border border-slate-400 dark:border-slate-700 text-2xl leading-none transition-colors hover:bg-slate-300 dark:hover:bg-slate-800"
+                            className="h-10 w-10 rounded-full border border-slate-400 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-2xl leading-none transition-colors hover:bg-slate-300 dark:hover:bg-slate-800"
                         >
                             -
                         </button>
@@ -202,13 +205,13 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
                         className="w-full rounded-lg px-4 py-2 font-medium text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 sm:w-auto"
 
                     >
-                        Zrušit
+                        {t("common.cancel")}
                     </button>
                     <button 
                     type="submit"
                     className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-blue-700 sm:w-auto"
                     >
-                        Uložit rozdělení
+                        {t("splitTransaction.buttons.save")}
                     </button>
                 </div>
             </div>

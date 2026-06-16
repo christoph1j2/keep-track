@@ -7,6 +7,8 @@ import { type QuickAddTemplate } from "../types/quickadd";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { QuickAddTemplateModal } from "../components/Modals/QuickAddTemplateModal";
 import { useTemplateStore } from "../store/quickAddTemplateStore";
+import { useConfirmStore } from "../store/confirmStore";
+import { useTranslation } from "react-i18next";
 
 // maximalni pocet polozek v hotbaru
 const HOTBAR_LIMIT = 6;
@@ -23,6 +25,9 @@ export function QuickAdd() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     // stav pro uchovani sablony, kterou chceme editovat (null = vytvoreni nove sablony)
     const [editingTemplate, setEditingTemplate] = useState<QuickAddTemplate | null>(null);
+
+    const {t} = useTranslation();
+    const showConfirm = useConfirmStore((state) => state.showConfirm);
 
     // filtruj jen ty, ktere maji showInHotbar = true
     // useMemo zajisti, ze se tento vypocet provede jen pri zmene templates, ne pri kazdem renderu
@@ -80,16 +85,21 @@ export function QuickAdd() {
     };
 
     const handleDeleteClick = (template: QuickAddTemplate) => {
-        const isConfirmed = window.confirm(`Opravdu chcete smazat šablonu "${template.title}"?`);
-        if (isConfirmed) {
-            deleteTemplate(template.id);
-        }
+        showConfirm(
+            t('common.warning'),
+            t('quickAdd.confirmDelete', { title: template.title }),
+            () => deleteTemplate(template.id)
+        );
     };
 
     const handleToggleHotbar = (template: QuickAddTemplate) => {
         // nesmi byt vice sablon v hotbaru nez je limit
         if (!template.showInHotbar && hotbarTemplates.length >= HOTBAR_LIMIT) {
-            alert(`Můžete mít maximálně ${HOTBAR_LIMIT} šablon v hotbaru. Odeberte nějakou stávající šablonu z hotbaru, abyste mohli přidat tuto.`);
+            showConfirm(
+                t('common.warning'),
+                t('quickAdd.hotbarLimitReached', { limit: HOTBAR_LIMIT }),
+                () => {}
+            );
             return;
         }
         // jinak prepni showInHotbar a uloz zmenu
@@ -99,23 +109,23 @@ export function QuickAdd() {
     return (
         <div className="p-2 h-full flex flex-col gap-6">
             <div className="flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
-                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Šablony rychlého přidání</h2>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">{t('quickAdd.title')}</h2>
                 <button
                     type="button"
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors w-full md:w-fit"
                     onClick={handleCreateClick}
                 >
                     <Add fontSize="small" />
-                    Přidat novou šablonu
+                    {t('quickAdd.addNew')}
                 </button>
             </div>
 
             <section className="bg-white dark:bg-slate-900 dark:border-slate-600 p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between gap-4 mb-4">
-                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Hotbar</h3>
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">{t('quickAdd.hotbarTitle')}</h3>
                     <span className="text-sm text-slate-500 dark:text-slate-400">
-                        {hotbarTemplates.length}/{HOTBAR_LIMIT} aktivních
-                        </span>
+                        {t('quickAdd.hotbarActive', { current: hotbarTemplates.length, limit: HOTBAR_LIMIT })}
+                    </span>
                 </div>
 
                 {hotbarTemplates.length > 0 ? (
@@ -135,14 +145,14 @@ export function QuickAdd() {
                     </DndContext>
                 ) : (
                     <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-6 text-center text-slate-500">
-                        Zatím tu není žádná šablona. Přidejte ji do hotbaru ve formuláři nebo tlačítkem u šablony.
+                        {t('quickAdd.hotbarEmpty')}
                     </div>
                 )}
             </section>
 
             <section className="bg-white dark:bg-slate-900 dark:border-slate-600 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="p-6 border-b border-slate-600">
-                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Zásobník šablon</h3>
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">{t('quickAdd.stackTitle')}</h3>
                 </div>
 
                 {templates.length > 0 ? (
@@ -163,13 +173,13 @@ export function QuickAdd() {
                     </DndContext>
                 ) : (
                     <div className="p-8 text-center text-slate-500">
-                        Zatím nemáte žádné šablony.
+                        {t('quickAdd.stackEmpty')}
                     </div>
                 )}
             </section>
 
             <BaseModal
-                title={editingTemplate ? "Upravit šablonu" : "Přidat šablonu"}
+                title={editingTemplate ? t('quickAdd.modalTitleEdit') : t('quickAdd.modalTitleAdd')}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
             >

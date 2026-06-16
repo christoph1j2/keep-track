@@ -5,6 +5,8 @@ import { QuickAddButton } from "./QuickAddButton";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { Delete, DragIndicator, Edit, PushPin, PushPinOutlined } from "@mui/icons-material";
 import { useCategoryStore } from "../../store/categoryStore";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { useTranslation } from "react-i18next";
 
 interface SortableTemplateItemProps {
     template: QuickAddTemplate;
@@ -36,6 +38,8 @@ export function SortableTemplateItem({
 
     const category = categories.find(c => c.id === template.categoryId);
 
+    const {t} = useTranslation();
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition
@@ -56,7 +60,7 @@ export function SortableTemplateItem({
                         {...listeners}
                         style={{ touchAction: 'none' }}
                         className="absolute top-1 left-1 cursor-grab p-1 text-slate-400 hover:text-slate-600 z-30 touch-none"
-                        aria-label="Přesunout šablonu"
+                        aria-label={t('quickAdd.moveTemplate')}
                     >
                         <DragIndicator fontSize="small" />
                     </button>
@@ -79,7 +83,7 @@ export function SortableTemplateItem({
                             {...listeners}
                             style={{ touchAction: 'none' }}
                             className="cursor-grab p-1 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
-                            aria-label="Přesunout šablonu"
+                            aria-label={t('quickAdd.moveTemplate')}
                         >
                             <DragIndicator />
                         </button>
@@ -89,7 +93,7 @@ export function SortableTemplateItem({
                         <div className="min-w-0">
                             <div className="font-bold text-slate-800 dark:text-slate-300 truncate">{template.title}</div>
                             <div className="text-sm text-slate-500 dark:text-slate-400">
-                                {template.amount.toLocaleString("cs-CZ", { style: "currency", currency: "CZK" })}
+                                {formatCurrency(template.amount)}
                                 {category ? ` · ${category.label}` : ""}
                             </div>
                         </div>
@@ -106,7 +110,7 @@ export function SortableTemplateItem({
                             }`}
                         >
                             {template.showInHotbar ? <PushPin fontSize="small" /> : <PushPinOutlined fontSize="small" />}
-                            Hotbar
+                            {t('quickAdd.hotbar')}
                         </button>
                         <button
                             type="button"
@@ -114,7 +118,7 @@ export function SortableTemplateItem({
                             className="inline-flex items-center gap-1 px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-600 rounded-md transition-colors"
                         >
                             <Edit fontSize="small" />
-                            Upravit
+                            {t('common.edit')}
                         </button>
                         <button
                             type="button"
@@ -122,7 +126,7 @@ export function SortableTemplateItem({
                             className="inline-flex items-center gap-1 px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-slate-600 rounded-md transition-colors"
                         >
                             <Delete fontSize="small" />
-                            Smazat
+                            {t('common.delete')}
                         </button>
                     </div>
                 </div>
