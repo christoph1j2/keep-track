@@ -41,7 +41,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
         setErrors(null);
 
         // validace s využitím překladů
-        if (!title || amount === "" || !categoryId) {
+        if (!title.trim() || amount === "" || !categoryId) {
             setErrors([t('transactions.errors.missingFields')]);
             setIsSubmitting(false);
             return;
@@ -51,14 +51,14 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
             setIsSubmitting(false);
             return;
         }
-        if (isNaN(Number(amount))) {
+        if (!Number.isFinite(Number(amount))) {
             setErrors([t('transactions.errors.notANumber')]);
             setIsSubmitting(false);
             return;
         }
 
         addTransaction({
-            title,
+            title: title.trim(),
             amount: amount as number,
             categoryId,
             date: new Date().toISOString(),

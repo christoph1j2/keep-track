@@ -79,7 +79,7 @@ export function SplitTransactionModal({ transaction, onSubmit, onCancel }: Split
             setIsSubmitting(false);
             return;
         }
-        if (remaining !== 0) {
+        if (Math.abs(remaining) > 0.005) { // tolerance pro floaty
             setErrors([t("splitTransaction.errors.amountsMismatch", { remaining: formatCurrency(remaining) })]);
             setIsSubmitting(false);
             return;

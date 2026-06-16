@@ -34,10 +34,7 @@ export function ConfirmDialog({ open, title, message, onConfirm, onCancel }: Con
                     {t('common.cancel')}
                 </Button>
                 <Button 
-                    onClick={() => {
-                        onConfirm();
-                        onCancel(); // Dialog se sám zavře ihned po potvrzení
-                    }} 
+                    onClick={onConfirm} 
                     variant="contained" 
                     color="error"
                 >

@@ -25,6 +25,7 @@ export function SortableCategoryItem({
     };
 
     const { t } = useTranslation();
+    const categoryLabel = cat.label.startsWith("default_categories.") ? t(cat.label) : cat.label;
 
     return (
         <div 
@@ -39,7 +40,7 @@ export function SortableCategoryItem({
                         {...listeners}
                         style={{ touchAction: 'none' }}
                         className="cursor-grab active:cursor-grabbing p-1 px-4 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 shrink-0"
-                        aria-label="Přesunout kategorii"
+                        aria-label={t("common.moveCategory")}
                     >
                         <DragIndicator fontSize="small" />
                     </button>
@@ -48,7 +49,7 @@ export function SortableCategoryItem({
                     <CategoryIcon name={cat.iconName} />
                 </div>
                 <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-slate-700 dark:text-slate-300 dark:truncate" title={cat.label}>{cat.label}</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300 dark:truncate" title={categoryLabel}>{categoryLabel}</span>
                     {cat.parentId && <span className="text-xs text-slate-400 dark:text-slate-500">{t("common.subcategory")}</span>}
                 </div>
             </div>

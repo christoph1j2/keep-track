@@ -31,6 +31,7 @@ export function SortableBudgetItem({
 
     const category = categories.find((c) => c.id === budget.categoryId);
     if (!category) return null;
+    const categoryLabel = category.label.startsWith("default_categories.") ? t(category.label) : category.label;
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -56,7 +57,7 @@ export function SortableBudgetItem({
 
             <div className="flex-1" onClick={() => onProgressBarClick(budget.categoryId)}>
                 <ProgressBar
-                    categoryName={category.label}
+                    categoryName={categoryLabel}
                     categoryIcon={<CategoryIcon name={category.iconName} className="text-slate-500 dark:text-slate-300" />}
                     progress={spent}
                     limit={budget.limit}
@@ -76,7 +77,7 @@ export function SortableBudgetItem({
                     onClick={() => {
                         showConfirm(
                             t('common.warning'),
-                            t('budgeting.deleteConfirm', { category: category.label }),
+                            t('budgeting.deleteConfirm', { category: categoryLabel }),
                             () => onDelete(budget.categoryId)
                         );
                     }}

@@ -17,6 +17,7 @@
     "amount": "Amount",
     "category": "Category",
     "subcategory": "Subcategory",
+    "moveCategory": "Move category",
     "date": "Date",
     "actions": "Actions",
     "noData": "No data",
@@ -107,7 +108,7 @@
     "limitReached": "Budget exceeded by {{amount}}",
     "deleteConfirm": "Are you sure you want to delete the budget for the \"{{category}}\" category?",
     "moveBudget": "Move budget",
-    "limit": "Limit (CZK)",
+    "limit": "Limit",
     "placeholder": "E.g. 5000",
     "errors": {
       "missingFields": "Please fill in all fields",

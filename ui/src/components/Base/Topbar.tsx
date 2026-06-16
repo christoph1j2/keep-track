@@ -7,6 +7,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { DarkMode, LightMode } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useConfirmStore } from '../../store/confirmStore'; // Přidán globální store pro potvrzení
+import { formatCurrency } from '../../utils/formatCurrency'; // Přidán formátovací utilitka pro měnu
 
 /**
  * Application header with user info and mobile hamburger menu.
@@ -98,12 +99,12 @@ export function Topbar() {
                         <br />
                         <p className="text-slate-400 dark:text-slate-500 leading-relaxed">
                             {t("topbar.about.statsIncome", { 
-                                income: incomeSum.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' }) 
+                                income: formatCurrency(incomeSum)
                             })}
                             <span className="text-green-600 dark:text-green-400 font-italic hidden"></span> {/* Jen pro zachování tvých barev, pokud bys to chtěl obalit */}
                             <br /> 
                             {t("topbar.about.statsExpenses", { 
-                                expenses: expensesSum.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' }) 
+                                expenses: formatCurrency(expensesSum)
                             })}
                         </p>
                     </div>

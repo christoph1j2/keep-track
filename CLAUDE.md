@@ -36,7 +36,7 @@ keep-track/
 
 ## Tech Stack
 
-- **React 18** - UI framework
+- **React 19.2.4** - UI framework
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
 - **React Router DOM** - Client-side routing
@@ -71,6 +71,13 @@ The application uses Zustand for global state management with localStorage persi
 5. **useCategoryStore** (`src/store/categoryStore.ts`)
    - Manages categories
    - Persists as `keep-track-categories`
+
+6. **useSettings** (`src/store/settingsStore`)
+   - Manages user settings
+   - Persists as `keep-track-settings`
+  
+7. **confirmStore** (`src/store/confirmStore`)
+   - Keeps the modal confirm persistence
 
 ## Data Models
 
@@ -123,6 +130,7 @@ interface Budget {
 - `/categories` - Category management
 - `/budgeting` - Budget tracking
 - `/quickadd` - Quick add transaction
+- `/settings` - Settings
 - `*` - 404 page
 
 ## Development

@@ -40,9 +40,14 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
     // aktualni stranka pro paginaci
     const [page, setPage] = useState(0);
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const showConfirm = useConfirmStore((state) => state.showConfirm);
+    const locale = i18n.resolvedLanguage ?? i18n.language ?? "en";
 
+    const translateCategoryLabel = (label?: string) => {
+        if (!label) return "";
+        return label.startsWith("default_categories.") ? t(label) : label;
+    };
 
     const filteredTransactions = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -57,8 +62,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
         return [...filteredTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }, [filteredTransactions]);
 
-
-    // vypocet transakcí pro aktualni stranku
+    // vypocet transakcÃ­ pro aktualni stranku
     const paginatedTransactions = useMemo(() => {
         const start = page * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
@@ -133,7 +137,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                 />
             </div>
             <div className="flex-1 overflow-y-auto space-y-2 px-2 py-2">
-                {/* seznam transakcí na aktualni strance */}
+                {/* seznam transakcÃ­ na aktualni strance */}
                 {paginatedTransactions.length === 0 ? (
                     <div className={`border ${lineClass} rounded-lg p-4 text-center text-sm text-slate-500 dark:text-slate-400`}>
                         {t('overview.noTransactions')}
@@ -189,7 +193,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                         >
                                             {categories.map((cat) => (
                                                 <option key={cat.id} value={cat.id}>
-                                                    {cat.label}
+                                                    {translateCategoryLabel(cat.label)}
                                                 </option>
                                             ))}
                                         </select>
@@ -244,7 +248,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                             <div className="min-w-0">
                                                 <p className="font-semibold text-sm truncate text-slate-800 dark:text-slate-200" title={transaction.title}>{transaction.title}</p>
                                                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                    {new Date(transaction.date).toLocaleDateString("cs-CZ")}
+                                                    {new Date(transaction.date).toLocaleDateString(locale)}
                                                 </p>
                                             </div>
                                         </div>
@@ -267,7 +271,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                         }`}
                                     >
                                         <CategoryIcon name={category?.iconName || ""} />
-                                        <span>{category?.label || "Nepřiřazeno"}</span>
+                                        <span>{translateCategoryLabel(category?.label) || t("common.unassigned")}</span>
                                     </div>
                                 </div>
                             )}

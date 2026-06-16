@@ -47,7 +47,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
         setErrors(null);
 
         // validace
-        if (!categoryId || limit === "") {
+        if (!categoryId || limit === "" || !Number.isFinite(limit)) {
             setErrors([t('budgeting.errors.missingFields')]); // <-- Přeloženo
             setIsSubmitting(false);
             return;
@@ -55,6 +55,12 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
 
         if (limit <= 0) {
             setErrors([t('budgeting.errors.positiveLimit')]); // <-- Přeloženo
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (isNaN(limit)) {
+            setErrors([t('budgeting.errors.invalidLimit')]); // <-- Přeloženo
             setIsSubmitting(false);
             return;
         }
@@ -110,7 +116,14 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
                     type="number"
                     placeholder={t('budgeting.placeholder')}
                     value={limit}
-                    onChange={(e) => setLimit(e.target.value === "" ? "" : Number(e.target.value))}
+                    onChange={(e) => {
+                        if (e.target.value === "") {
+                            setLimit("");
+                            return;
+                        }
+                        const parsed = Number(e.target.value);
+                        setLimit(Number.isFinite(parsed) ? parsed : "");
+                    }}
                 />
             </div>
 

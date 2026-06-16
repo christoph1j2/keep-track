@@ -17,6 +17,7 @@
     "amount": "Částka",
     "category": "Kategorie",
     "subcategory": "Podkategorie",
+    "moveCategory": "Přesunout kategorii",
     "date": "Datum",
     "actions": "Akce",
     "noData": "Žádná data",
@@ -107,11 +108,12 @@
     "limitReached": "Rozpočet překročen o {{amount}}",
     "deleteConfirm": "Opravdu chcete smazat rozpočet pro kategorii \"{{category}}\"?",
     "moveBudget": "Přesunout rozpočet",
-    "limit": "Limit (CZK)",
+    "limit": "Limit",
     "placeholder": "Např. 5000",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
-      "positiveLimit": "Limit musí být kladné číslo"
+      "positiveLimit": "Limit musí být kladné číslo",
+      "invalidLimit": "Limit musí být platné číslo"
     }
   },
   "overview": {

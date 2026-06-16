@@ -8,6 +8,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StyleIcon from '@mui/icons-material/Style';
 import CategoryIcon from '@mui/icons-material/Category';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 interface MenuItem {
     translationKey: string;
@@ -20,7 +21,8 @@ const MENU_ITEMS: MenuItem[] = [
     { translationKey: 'sidebar.overview', icon: <ShowChartIcon />, path: '/overview' },
     { translationKey: 'sidebar.categories', icon: <CategoryIcon />, path: '/categories' },
     { translationKey: 'sidebar.budgeting', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
-    { translationKey: 'sidebar.quickadd', icon: <StyleIcon />, path: '/quickadd' },
+    { translationKey: 'sidebar.quickAdd', icon: <StyleIcon />, path: '/quickadd' },
+    { translationKey: 'sidebar.settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 
 /**
