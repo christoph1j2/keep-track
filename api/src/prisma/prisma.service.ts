@@ -8,11 +8,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     // nodejs postgres pool
     const connectionString = process.env.DATABASE_URL;
+
+    if (!connectionString) {
+      throw new Error('DATABASE_URL environment variable is not set!');
+    }
+
     const pool = new Pool({ connectionString });
 
     // obalime pool do prisma adapteru
     const adapter = new PrismaPg(pool);
-    super({ adapter});
+    super({ adapter });
   }
   async onModuleInit() {
     await this.$connect();

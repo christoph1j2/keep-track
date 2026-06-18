@@ -8,8 +8,14 @@ datasource db {
 
 model User {
   id            String   @id @default(uuid())
+  username      String   @unique
   email         String   @unique
   passwordHash  String
+
+  // AUTH a TOKENS
+  hashedRefreshToken String? // ulozeny hash refresh tokenu (bezpecne odhlaseni)
+  resetPasswordToken  String? // token pro reset hesla
+  resetPasswordTokenExpiry DateTime? // expirace tokenu pro
 
   // tady si uživatel zvolí "základní měnu"
   baseCurrency  String
