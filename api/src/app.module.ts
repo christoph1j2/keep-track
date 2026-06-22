@@ -9,6 +9,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { BudgetModule } from './budget/budget.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TransactionModule } from './transaction/transaction.module';
     AuthModule,
     CategoryModule,
     TransactionModule,
+    BudgetModule,
   ],
   controllers: [AppController],
   providers: [
