@@ -306,5 +306,28 @@
     "rent": "Rent",
     "fuel": "Fuel",
     "uncategorized": "Uncategorized"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in to your account",
+      "submit": "Sign in",
+      "switchToRegister": "Don't have an account? Register"
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Set up your new account",
+      "submit": "Create account",
+      "switchToLogin": "Already have an account? Sign in"
+    },
+    "fields": {
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "baseCurrency": "Default currency"
+    },
+    "errors": {
+      "generic": "An error occurred during login/registration"
+    }
   }
 }

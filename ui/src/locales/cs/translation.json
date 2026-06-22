@@ -307,5 +307,28 @@
     "rent": "Nájem",
     "fuel": "Pohonné hmoty",
     "uncategorized": "Nezařazeno"
+  },
+  "auth": {
+    "login": {
+      "title": "Přihlášení",
+      "subtitle": "Přihlaste se ke svému účtu",
+      "submit": "Přihlásit se",
+      "switchToRegister": "Nemáš účet? Zaregistruj se"
+    },
+    "register": {
+      "title": "Registrace",
+      "subtitle": "Vytvořte si nový účet",
+      "submit": "Vytvořit účet",
+      "switchToLogin": "Už máš účet? Přihlas se"
+    },
+    "fields": {
+      "username": "Uživatelské jméno",
+      "email": "E-mail",
+      "password": "Heslo",
+      "baseCurrency": "Výchozí měna"
+    },
+    "errors": {
+      "generic": "Nastala chyba při přihlašování/registraci"
+    }
   }
 }
