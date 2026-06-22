@@ -12,6 +12,7 @@ import { ConfirmDialog } from "./components/Modals/ConfirmDialog";
 import { Settings } from "./pages/Settings";
 import { Login } from "./pages/Login";
 import { ProtectedRoute } from "./components/Base/ProtectedRoute";
+import { Toaster } from "react-hot-toast";
 
 /**
  * Root application component that wires routing into the shared layout shell.
@@ -23,6 +24,7 @@ function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <MainLayout>
+        <Toaster position="top-center" />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<ProtectedRoute />}>

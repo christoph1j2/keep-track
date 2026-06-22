@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../contexts/ThemeContext";
+import { toast } from "react-hot-toast";
 
 export const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -97,6 +98,9 @@ export const Login = () => {
         );
         navigate("/");
       }
+      toast.success(
+        isRegister ? t("auth.register.success") : t("auth.login.success"),
+      );
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || t("auth.errors.generic"));

@@ -110,6 +110,9 @@
     "moveBudget": "Přesunout rozpočet",
     "limit": "Limit",
     "placeholder": "Např. 5000",
+    "added": "Rozpočet byl úspěšně přidán.",
+    "updated": "Rozpočet byl úspěšně aktualizován.",
+    "deleted": "Rozpočet byl úspěšně smazán.",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "positiveLimit": "Limit musí být kladné číslo",
@@ -159,6 +162,9 @@
     "placeholder": "Např. Potraviny",
     "parentCategory": "Nadřazená kategorie",
     "noParent": "Žádná",
+    "added": "Kategorie byla úspěšně přidána.",
+    "updated": "Kategorie byla úspěšně aktualizována.",
+    "deleted": "Kategorie byla úspěšně smazána.",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "selfParent": "Kategorie nemůže být sama sobě nadřazenou kategorií"
@@ -215,6 +221,9 @@
     "hotbarLimitReached": "Můžete mít maximálně {{limit}} šablon v hotbaru. Odeberte nějakou stávající šablonu z hotbaru, abyste mohli přidat tuto.",
     "moveTemplate": "Přesunout šablonu",
     "hotbarToggle": "Hotbar",
+    "added": "Šablona byla úspěšně přidána.",
+    "updated": "Šablona byla úspěšně aktualizována.",
+    "deleted": "Šablona byla úspěšně smazána.",
     "form": {
       "titleLabel": "Název",
       "titlePlaceholder": "Např. Káva",
@@ -235,6 +244,10 @@
       "amount": "Např. -1500 pro výdaj, 2000 pro příjem"
     },
     "modalAdd": "Uložit transakci",
+    "added": "Transakce byla úspěšně přidána.",
+    "updated": "Transakce byla úspěšně aktualizována.",
+    "deleted": "Transakce byla úspěšně smazána.",
+    "split": "Transakce byla úspěšně rozdělena.",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "zeroAmount": "Částka nemůže být nula",
@@ -256,7 +269,8 @@
     },
     "selectCategory": "-- Vyberte --",
     "saveButton": "Uložit {{count}} transakcí",
-    "uncategorizedWarning": "Zbývá {{count}} transakcí bez zvolené kategorie.\n\nPokud je teď neuložíte s kategorií, budou uloženy jako \"Nepřiřazeno\".\n\nChcete pokračovat?"
+    "uncategorizedWarning": "Zbývá {{count}} transakcí bez zvolené kategorie.\n\nPokud je teď neuložíte s kategorií, budou uloženy jako \"Nepřiřazeno\".\n\nChcete pokračovat?",
+    "saving": "Ukládám transakce..."
   },
   "splitTransaction": {
     "errors": {
@@ -313,13 +327,15 @@
       "title": "Přihlášení",
       "subtitle": "Přihlaste se ke svému účtu",
       "submit": "Přihlásit se",
-      "switchToRegister": "Nemáš účet? Zaregistruj se"
+      "switchToRegister": "Nemáš účet? Zaregistruj se",
+      "success": "Úspěšně přihlášeno!"
     },
     "register": {
       "title": "Registrace",
       "subtitle": "Vytvořte si nový účet",
       "submit": "Vytvořit účet",
-      "switchToLogin": "Už máš účet? Přihlas se"
+      "switchToLogin": "Už máš účet? Přihlas se",
+      "success": "Úspěšně zaregistrováno!"
     },
     "fields": {
       "username": "Uživatelské jméno",

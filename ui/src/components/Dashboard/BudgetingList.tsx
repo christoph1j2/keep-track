@@ -18,20 +18,30 @@ export function BudgetingList() {
   const now = new Date();
   const currentMonthTransactions = transactions.filter((t) => {
     const d = new Date(t.date);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    return (
+      d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+    );
   });
+
+  const category = categories.find((c) => c.id === budgets[0]?.categoryId);
+  if (!category) return null;
+  const categoryLabel = category.label.startsWith("default_categories.")
+    ? t(category.label)
+    : category.label;
 
   const topBudgets = budgets.slice(0, 4);
 
   return (
     <section className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold">{t('dashboard.budgetingList.title')}</h3>
+        <h3 className="text-xl font-bold">
+          {t("dashboard.budgetingList.title")}
+        </h3>
         <span
           onClick={() => navigate("/budgeting")}
           className="text-blue-500 hover:text-blue-700 cursor-pointer text-sm transition-colors"
         >
-          {t('dashboard.budgetingList.allBudgets')}
+          {t("dashboard.budgetingList.allBudgets")}
         </span>
       </div>
 
@@ -46,7 +56,9 @@ export function BudgetingList() {
               .map((c) => c.id);
 
             const categoryTransactions = currentMonthTransactions.filter(
-              (t) => t.categoryId === budget.categoryId || subcatIds.includes(t.categoryId)
+              (t) =>
+                t.categoryId === budget.categoryId ||
+                subcatIds.includes(t.categoryId),
             );
 
             const totalSpent = categoryTransactions
@@ -60,7 +72,7 @@ export function BudgetingList() {
               >
                 <ProgressBar
                   categoryIcon={<CategoryIcon name={category.iconName} />}
-                  categoryName={category.label}
+                  categoryName={categoryLabel}
                   progress={totalSpent}
                   limit={budget.limit}
                 />
@@ -71,7 +83,7 @@ export function BudgetingList() {
       ) : (
         <div className="py-4">
           <p className="text-slate-600 dark:text-slate-400 text-sm text-center italic">
-            {t('dashboard.budgetingList.emptyMessage')}
+            {t("dashboard.budgetingList.emptyMessage")}
           </p>
         </div>
       )}

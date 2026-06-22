@@ -4,10 +4,11 @@ import type { QuickAddTemplate } from "../../types/quickadd";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTemplateStore } from "../../store/quickAddTemplateStore";
+import { toast } from "react-hot-toast";
 
 interface QuickAddTemplateModalProps {
-    template?: QuickAddTemplate | null;
-    onCancel: () => void;
+  template?: QuickAddTemplate | null;
+  onCancel: () => void;
 }
 
 /**
@@ -19,128 +20,152 @@ interface QuickAddTemplateModalProps {
  * @param props.onSubmit Called with the template data (excluding id) when form is valid.
  * @param props.onCancel Called when the user closes the form without saving.
  */
-export function QuickAddTemplateModal({ template, onCancel }: QuickAddTemplateModalProps) {
-    const { t } = useTranslation(); // <-- Inicializace překladů
-    const categories = useCategoryStore((state) => state.categories);
-    const sortedCategories = useMemo(
-        () => categories,
-        [categories]
-    );
+export function QuickAddTemplateModal({
+  template,
+  onCancel,
+}: QuickAddTemplateModalProps) {
+  const { t } = useTranslation(); // <-- Inicializace překladů
+  const categories = useCategoryStore((state) => state.categories);
+  const sortedCategories = useMemo(() => categories, [categories]);
 
-    const addTemplate = useTemplateStore((state) => state.addTemplate);
+  const addTemplate = useTemplateStore((state) => state.addTemplate);
+  const updateTemplate = useTemplateStore((state) => state.updateTemplate);
 
-    const [title, setTitle] = useState(template?.title ?? "");
-    const [amount, setAmount] = useState<number | "">(template?.amount ?? "");
-    const [categoryId, setCategoryId] = useState(template?.categoryId ?? sortedCategories[0]?.id ?? "");
-    const [showInHotbar] = useState(template?.showInHotbar ?? false);
-    const [errors, setErrors] = useState<string[] | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [title, setTitle] = useState(template?.title ?? "");
+  const [amount, setAmount] = useState<number | "">(template?.amount ?? "");
+  const [categoryId, setCategoryId] = useState(
+    template?.categoryId ?? sortedCategories[0]?.id ?? "",
+  );
+  const [showInHotbar] = useState(template?.showInHotbar ?? false);
+  const [errors, setErrors] = useState<string[] | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
 
-        if (isSubmitting) return; // zabrani dvojitemu odeslani
-        setIsSubmitting(true);
-        setErrors(null);
+    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    setIsSubmitting(true);
+    setErrors(null);
 
-        if (!title.trim() || amount === "" || !categoryId) {
-            setErrors([t('quickAdd.errors.missingFields')]); // <-- Překlad
-            setIsSubmitting(false);
-            return;
-        }
+    if (!title.trim() || amount === "" || !categoryId) {
+      setErrors([t("quickAdd.errors.missingFields")]); // <-- Překlad
+      setIsSubmitting(false);
+      return;
+    }
 
-        if (!Number.isFinite(amount) || amount === 0) {
-            setErrors([t('quickAdd.errors.invalidAmount')]); // <-- Překlad
-            setIsSubmitting(false);
-            return;
-        }
+    if (!Number.isFinite(amount) || amount === 0) {
+      setErrors([t("quickAdd.errors.invalidAmount")]); // <-- Překlad
+      setIsSubmitting(false);
+      return;
+    }
 
-        addTemplate({
-            id: template?.id ?? crypto.randomUUID(),
-            title: title.trim(),
-            amount,
-            categoryId,
-            showInHotbar,
-        });
-        setIsSubmitting(false);
-        onCancel();
-    };
+    if (template) {
+      updateTemplate({
+        id: template.id,
+        title: title.trim(),
+        amount,
+        categoryId,
+        showInHotbar,
+      });
+    } else {
+      addTemplate({
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        amount,
+        categoryId,
+        showInHotbar,
+      });
+    }
+    toast.success(template ? t("quickAdd.updated") : t("quickAdd.added")); // <-- Překlad a toast
+    setIsSubmitting(false);
+    onCancel();
+  };
 
-    return (
-        <>
-            {errors && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200" role="alert" aria-live="assertive">
-                    {errors.map((error, index) => (
-                        <p key={index}>{error}</p>
-                    ))}
-                </div>
-            )}
+  return (
+    <>
+      {errors && (
+        <div
+          className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200"
+          role="alert"
+          aria-live="assertive"
+        >
+          {errors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>
+      )}
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
-                <div className="flex flex-col gap-1">
-                    {/* <-- Přidáno dark:text-slate-300 pro lepší vzhled */}
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {t('quickAdd.form.titleLabel')}
-                    </label>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        type="text"
-                        placeholder={t('quickAdd.form.titlePlaceholder')}
-                        value={title}
-                        onChange={(event) => setTitle(event.target.value)}
-                    />
-                </div>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+        <div className="flex flex-col gap-1">
+          {/* <-- Přidáno dark:text-slate-300 pro lepší vzhled */}
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("quickAdd.form.titleLabel")}
+          </label>
+          <TextField
+            fullWidth
+            size="small"
+            type="text"
+            placeholder={t("quickAdd.form.titlePlaceholder")}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </div>
 
-                <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {t('quickAdd.form.amountLabel')}
-                    </label>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        type="number"
-                        placeholder={t('quickAdd.form.amountPlaceholder')}
-                        slotProps={{ htmlInput: { step: "0.01" } }}
-                        value={amount}
-                        onChange={(event) => setAmount(event.target.value ? parseFloat(event.target.value) : "")}
-                    />
-                </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("quickAdd.form.amountLabel")}
+          </label>
+          <TextField
+            fullWidth
+            size="small"
+            type="number"
+            placeholder={t("quickAdd.form.amountPlaceholder")}
+            slotProps={{ htmlInput: { step: "0.01" } }}
+            value={amount}
+            onChange={(event) =>
+              setAmount(
+                event.target.value ? parseFloat(event.target.value) : "",
+              )
+            }
+          />
+        </div>
 
-                <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {t('quickAdd.form.categoryLabel')}
-                    </label>
-                    <Select
-                        fullWidth
-                        size="small"
-                        value={categoryId}
-                        onChange={(event) => setCategoryId(event.target.value)}
-                    >
-                        {sortedCategories.map((category) => (
-                            <MenuItem key={category.id} value={category.id}>
-                                {category.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("quickAdd.form.categoryLabel")}
+          </label>
+          <Select
+            fullWidth
+            size="small"
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+          >
+            {sortedCategories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.label.startsWith("default_categories.")
+                  ? t(category.label)
+                  : category.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
 
-                <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
-                    >
-                        {t('common.cancel')}
-                    </button>
-                    <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
-                    >
-                        {t('quickAdd.form.save')}
-                    </button>
-                </div>
-            </form>
-        </>
-    );
+        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
+          >
+            {t("common.cancel")}
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
+          >
+            {t("quickAdd.form.save")}
+          </button>
+        </div>
+      </form>
+    </>
+  );
 }

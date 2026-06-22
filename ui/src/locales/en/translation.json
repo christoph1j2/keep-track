@@ -21,7 +21,7 @@
     "date": "Date",
     "actions": "Actions",
     "noData": "No data",
-    "chooseCategory": "Choose category",
+    "chooseCategory": "Choose a category",
     "unknownCategory": "Unknown category",
     "confirm": "Confirm"
   },
@@ -36,7 +36,7 @@
   "topbar": {
     "tooltips": {
       "info": "Project information",
-      "theme": "Toggle theme"
+      "theme": "Switch theme"
     },
     "about": {
       "title": "About the project",
@@ -44,8 +44,8 @@
       "subject": "Subject",
       "work": "Work",
       "workName": "Personal Finance Management",
-      "description1": "Keep Track is a modern web application designed for efficient personal finance and budget management. The app provides a comprehensive solution for tracking income, expenses, and controlling spending through a flexible system of budgets and categories. Users can easily record transactions, organize them into custom categories, and analyze their spending via interactive charts and statistics.",
-      "description2": "A central feature of the application is the Quick Add function, which allows users to create templates for frequently repeated transactions, speeding up recording and improving productivity. The app also offers the ability to split transactions, which is useful when sharing expenses or for more detailed analysis. All data is",
+      "description1": "Keep Track is a modern web application designed for efficient management of personal finances and budgets. The application provides a comprehensive solution for tracking income, expenses, and controlling spending through a flexible system of budgets and categories. Users can easily record transactions, organize them into custom categories, and analyze their spending via interactive charts and statistics.",
+      "description2": "The central element of the application is the Quick Add feature, which allows users to create templates for frequently repeated transactions, speeding up recording and improving productivity. The application also offers the ability to split transactions, which is useful when sharing expenses or for more detailed analysis. All data is",
       "currently": "currently",
       "description3": "managed locally in the browser, ensuring user privacy and security.",
       "statsIncome": "Did you know that the sum of all your positive transactions is {{income}}?",
@@ -57,7 +57,7 @@
     },
     "confirm": {
       "resetTitle": "Factory Reset",
-      "resetMessage": "Are you sure you want to delete all data (Factory reset)?\nThis action cannot be undone!"
+      "resetMessage": "Do you really want to delete all data (Factory reset)?\nThis action is irreversible!"
     }
   },
   "dashboard": {
@@ -65,8 +65,8 @@
     "buttons": {
       "resetData": "Reset Data",
       "generateData": "Generate Data",
-      "resetDataConfirm": "⚠️WARNING!⚠️ \nAre you sure you want to reset data?\nThis action will delete all transactions and cannot be undone.",
-      "generateDataConfirm": "⚠️WARNING!⚠️ \nAre you sure you want to generate random data?\nThis action will overwrite all existing transactions, generate 200 new random transactions, and cannot be undone."
+      "resetDataConfirm": "⚠️WARNING!⚠️ \nDo you really want to reset data?\nThis action will delete all transactions and cannot be undone.",
+      "generateDataConfirm": "⚠️WARNING!⚠️ \nDo you really want to generate random data?\nThis action will overwrite all existing transactions, return 200 new random transactions, and cannot be undone."
     },
     "stats": {
       "income": "Income this month",
@@ -79,7 +79,7 @@
       "manageTemplates": "Manage templates"
     },
     "modalTitle": "Add transaction",
-    "transactionConfirm": "Are you sure you want to add this transaction:\n{{title}}\n{{amount}}?",
+    "transactionConfirm": "Do you really want to add the transaction:\n{{title}}\n{{amount}}?",
     "graph": {
       "title": "Income vs Expenses",
       "loading": "Data should be available soon.",
@@ -102,17 +102,21 @@
     "modalAdd": "Add budget",
     "modalEdit": "Edit budget",
     "emptyMessage": "No budgets set.",
-    "emptySubMessage": "Click \"+ Add budget\" to create your first budget.",
-    "modalTitleAdd": "Add a new budget",
+    "emptySubMessage": "Click on \"+ Add budget\" to create your first budget.",
+    "modalTitleAdd": "Add new budget",
     "modalTitleEdit": "Edit budget",
     "limitReached": "Budget exceeded by {{amount}}",
-    "deleteConfirm": "Are you sure you want to delete the budget for the \"{{category}}\" category?",
+    "deleteConfirm": "Do you really want to delete the budget for category \"{{category}}\"?",
     "moveBudget": "Move budget",
     "limit": "Limit",
     "placeholder": "E.g. 5000",
+    "added": "Budget was successfully added.",
+    "updated": "Budget was successfully updated.",
+    "deleted": "Budget was successfully deleted.",
     "errors": {
-      "missingFields": "Please fill in all fields",
-      "positiveLimit": "The limit must be a positive number"
+      "missingFields": "Fill in all fields",
+      "positiveLimit": "Limit must be a positive number",
+      "invalidLimit": "Limit must be a valid number"
     }
   },
   "overview": {
@@ -124,7 +128,7 @@
     "categories": "Categories",
     "clearFilter": "Clear filter",
     "unassigned": "Unassigned",
-    "searchPlaceholder": "Search by title...",
+    "searchPlaceholder": "Search by name...",
     "noTransactions": "No transactions found.",
     "pagination": {
       "previous": "← Previous",
@@ -132,7 +136,7 @@
       "pageInfo": "Page {{current}} of {{total}}"
     },
     "columns": {
-      "title": "Title",
+      "title": "Name",
       "amount": "Amount",
       "category": "Category",
       "date": "Date",
@@ -140,13 +144,13 @@
       "delete": "Delete"
     },
     "confirm": {
-      "delete": "Are you sure you want to delete this transaction?",
-      "updateAmount": "Are you sure you want to change the amount from {{oldAmount}} to {{newAmount}}?",
-      "updateTitle": "Are you sure you want to change the title from \"{{oldTitle}}\" to \"{{newTitle}}\"?",
-      "updateCategory": "Are you sure you want to change the category?",
-      "saveChanges": "Are you sure you want to save the changes?",
-      "invalidNumber": "The amount must be a valid number.",
-      "zeroAmount": "The amount cannot be zero."
+      "delete": "Do you really want to delete this transaction?",
+      "updateAmount": "Do you really want to change the amount from {{oldAmount}} to {{newAmount}}?",
+      "updateTitle": "Do you really want to change the name from \"{{oldTitle}}\" to \"{{newTitle}}\"?",
+      "updateCategory": "Do you really want to change the category?",
+      "saveChanges": "Do you really want to save changes?",
+      "invalidNumber": "Amount must be a valid number.",
+      "zeroAmount": "Amount cannot be zero."
     }
   },
   "categories": {
@@ -154,13 +158,16 @@
     "add": "+ New category",
     "addModal": "Add category",
     "editModal": "Edit category",
-    "deleteConfirm": "Are you sure you want to delete this category? All transactions will be moved to 'Unassigned'.",
+    "deleteConfirm": "Do you really want to delete this category? All transactions will be moved to 'Uncategorized'.",
     "placeholder": "E.g. Groceries",
     "parentCategory": "Parent category",
     "noParent": "None",
+    "added": "Category was successfully added.",
+    "updated": "Category was successfully updated.",
+    "deleted": "Category was successfully deleted.",
     "errors": {
-      "missingFields": "Please fill in all fields",
-      "selfParent": "A category cannot be its own parent category"
+      "missingFields": "Fill in all fields",
+      "selfParent": "Category cannot be its own parent category"
     },
     "colors": {
       "blue": "Blue",
@@ -176,11 +183,11 @@
       "amber": "Amber",
       "teal": "Teal",
       "lime": "Lime",
-      "slate": "Gray"
+      "slate": "Slate"
     },
     "icons": {
       "money": "Money",
-      "transit": "Transport",
+      "transit": "Transit",
       "cafe": "Cafe",
       "entertainment": "Entertainment",
       "uncategorized": "Uncategorized",
@@ -196,7 +203,7 @@
       "accommodation": "Accommodation",
       "education": "Education",
       "work": "Work",
-      "gaming": "Games",
+      "gaming": "Gaming",
       "other": "Other"
     }
   },
@@ -205,17 +212,20 @@
     "addNew": "Add new template",
     "hotbarTitle": "Hotbar",
     "hotbarActive": "{{current}}/{{limit}} active",
-    "hotbarEmpty": "There are no templates here yet. Add one to the hotbar in the form or via the button on a template.",
+    "hotbarEmpty": "There is no template here yet. Add one to the hotbar in the form or using the button next to the template.",
     "stackTitle": "Template stack",
     "stackEmpty": "You don't have any templates yet.",
     "modalTitleEdit": "Edit template",
     "modalTitleAdd": "Add template",
-    "confirmDelete": "Are you sure you want to delete the template \"{{title}}\"?",
+    "confirmDelete": "Do you really want to delete template \"{{title}}\"?",
     "hotbarLimitReached": "You can have a maximum of {{limit}} templates in the hotbar. Remove an existing template from the hotbar to add this one.",
     "moveTemplate": "Move template",
     "hotbarToggle": "Hotbar",
+    "added": "Template was successfully added.",
+    "updated": "Template was successfully updated.",
+    "deleted": "Template was successfully deleted.",
     "form": {
-      "titleLabel": "Title",
+      "titleLabel": "Name",
       "titlePlaceholder": "E.g. Coffee",
       "amountLabel": "Amount",
       "amountPlaceholder": "E.g. -59 or 5000",
@@ -223,29 +233,33 @@
       "save": "Save template"
     },
     "errors": {
-      "missingFields": "Please fill in the title, amount, and category.",
-      "invalidAmount": "The amount must be a non-zero number."
+      "missingFields": "Fill in name, amount and category.",
+      "invalidAmount": "Amount must be a non-zero number."
     }
   },
   "transactions": {
-    "tip": "Tip: Enter a negative amount for an expense (e.g., -500) and a positive one for income.",
+    "tip": "Tip: Enter a negative amount for an expense (e.g. -500) and positive for income.",
     "placeholders": {
       "title": "E.g. Gas Station",
       "amount": "E.g. -1500 for expense, 2000 for income"
     },
     "modalAdd": "Save transaction",
+    "added": "Transaction was successfully added.",
+    "updated": "Transaction was successfully updated.",
+    "deleted": "Transaction was successfully deleted.",
+    "split": "Transaction was successfully split.",
     "errors": {
-      "missingFields": "Please fill in all fields",
-      "zeroAmount": "The amount cannot be zero",
-      "notANumber": "The amount must be a number"
+      "missingFields": "Fill in all fields",
+      "zeroAmount": "Amount cannot be zero",
+      "notANumber": "Amount must be a number"
     }
   },
   "import": {
     "title": "Import transactions from bank",
-    "parseError": "Failed to process the CSV file. Please check the format.",
+    "parseError": "Failed to parse CSV file. Check the format.",
     "processing": "Processing file...",
-    "helpPrefix": "💡 Don't know how to get a CSV?",
-    "helpText": "Log in to your internet banking (not the mobile app), go to transaction history, and select Export (choose CSV format separated by a semicolon or comma). E.g. in ČSOB, you can find this option in the account details.",
+    "helpPrefix": "💡 Don't know how to get CSV?",
+    "helpText": "Log in to your internet banking (not the mobile app), go to transaction history and choose Export (select CSV format separated by semicolon or comma). For example, at ČSOB you will find this option in account details.",
     "summary": "We found {{count}} transactions. Please check the assigned categories before saving.",
     "columns": {
       "date": "Date",
@@ -255,29 +269,30 @@
     },
     "selectCategory": "-- Select --",
     "saveButton": "Save {{count}} transactions",
-    "uncategorizedWarning": "There are {{count}} transactions left without a selected category.\n\nIf you don't save them with a category now, they will be saved as \"Unassigned\".\n\nDo you want to continue?"
+    "uncategorizedWarning": "There are {{count}} transactions left without a selected category.\n\nIf you don't save them with a category now, they will be saved as \"Unassigned\".\n\nDo you want to continue?",
+    "saving": "Saving transactions..."
   },
   "splitTransaction": {
     "errors": {
-      "missingFields": "Please fill in all fields",
-      "zeroAmount": "The amount cannot be zero",
-      "notANumber": "The amount must be a number",
-      "negativeAmount": "Please enter positive amounts only",
-      "amountsMismatch": "The amounts do not match, {{remaining}} remaining"
+      "missingFields": "Fill in all fields",
+      "zeroAmount": "Amount cannot be zero",
+      "notANumber": "Amount must be a number",
+      "negativeAmount": "Please enter only positive amounts",
+      "amountsMismatch": "Amounts do not match, remaining {{remaining}}"
     },
     "info": {
-      "splitTitle": "Splitting the transaction",
+      "splitTitle": "Transaction split",
       "inCategory": "In category",
       "remaining": "Remaining to split",
       "unknownCategory": "Unknown"
     },
     "form": {
-      "titleLabel": "Title",
+      "titleLabel": "Name",
       "titlePlaceholder": "Gas Station",
       "amountLabel": "Amount",
       "amountPlaceholder": "Positive value!",
       "categoryLabel": "Category",
-      "selectCategory": "Select a category"
+      "selectCategory": "Select category"
     },
     "buttons": {
       "save": "Save split"
@@ -291,16 +306,16 @@
     "dangerZone": "Danger zone",
     "dangerWarning": "Actions in this section are irreversible. Please proceed with caution.",
     "factoryReset": "Delete all data (Factory Reset)",
-    "factoryResetConfirm": "Are you sure you want to delete all application data? This action is irreversible and will delete all your transactions, budgets, and settings."
+    "factoryResetConfirm": "Do you really want to delete all application data? This action is irreversible and will delete all your transactions, budgets, and settings."
   },
   "default_categories": {
-    "food": "Food and drinks",
+    "food": "Food and Drink",
     "transport": "Transport",
     "salary": "Salary",
     "entertainment": "Entertainment",
     "health": "Health",
     "housing": "Housing",
-    "coffee_shops": "Coffee shops",
+    "coffee_shops": "Coffee Shops",
     "groceries": "Groceries",
     "energy": "Energy",
     "rent": "Rent",
@@ -309,22 +324,24 @@
   },
   "auth": {
     "login": {
-      "title": "Sign in",
-      "subtitle": "Sign in to your account",
-      "submit": "Sign in",
-      "switchToRegister": "Don't have an account? Register"
+      "title": "Login",
+      "subtitle": "Log in to your account",
+      "submit": "Log in",
+      "switchToRegister": "Don't have an account? Register",
+      "success": "Successfully logged in!"
     },
     "register": {
-      "title": "Create account",
-      "subtitle": "Set up your new account",
+      "title": "Registration",
+      "subtitle": "Create a new account",
       "submit": "Create account",
-      "switchToLogin": "Already have an account? Sign in"
+      "switchToLogin": "Already have an account? Log in",
+      "success": "Successfully registered!"
     },
     "fields": {
       "username": "Username",
-      "email": "Email",
+      "email": "E-mail",
       "password": "Password",
-      "baseCurrency": "Default currency"
+      "baseCurrency": "Base currency"
     },
     "errors": {
       "generic": "An error occurred during login/registration"
