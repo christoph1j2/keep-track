@@ -1,0 +1,37 @@
+# --- Fáze 1: Build ---
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Kopírování balíčků a instalace závislostí
+COPY package*.json ./
+RUN npm install
+
+# Zkopírování zdrojových kódů a Prisma schématu
+COPY . .
+
+# Vygenerování Prisma klienta (Nutné před buildem!)
+RUN npx prisma generate
+
+# Zkompilování NestJS (TypeScript -> JavaScript)
+RUN npm run build
+
+# --- Fáze 2: Produkce ---
+FROM node:20-alpine
+
+# Alpine linux občas potřebuje doinstalovat openssl pro Prismu
+RUN apk add --no-cache openssl
+
+WORKDIR /app
+
+# Zkopírujeme jen to nejnutnější z první fáze
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/prisma ./prisma
+
+# Otevření portu
+EXPOSE 3000
+
+# Spuštění produkčního serveru
+CMD ["node", "dist/src/main.js"]
