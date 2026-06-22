@@ -47,23 +47,6 @@ export class UsersService {
   }
 
   /**
-   * This method retrieves all users from the database. It returns an array of user objects, each containing selected fields such as id, email, username, baseCurrency, createdAt, and updatedAt.
-   * @returns All Users
-   */
-  async findAll() {
-    return this.prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        baseCurrency: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-  }
-
-  /**
    * This method retrieves a user from the database by their email. It returns the user object for Auth purposes.
    * @param email Email of the user
    * @returns User
@@ -134,10 +117,6 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        username: true,
-        baseCurrency: true,
-        createdAt: true,
-        updatedAt: true,
       },
     });
   }

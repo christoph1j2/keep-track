@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
   Req,
   UseGuards,
@@ -14,6 +13,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -21,38 +21,45 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('create')
+  //! REGISTRATION
+  @Post()
+  @ApiOperation({ summary: 'Create a new user' })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  //! GET PROFILE
   @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user profile' })
   getProfile(@Req() req: AuthenticatedRequest) {
     return this.usersService.findOne(req.user.id);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  //! UPDATE PROFILE
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update current user profile' })
+  update(
+    @Req() req: AuthenticatedRequest,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(req.user.id, updateUserDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  //! DELETE ACCOUNT
+  @Delete('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete current user account' })
+  remove(@Req() req: AuthenticatedRequest) {
+    return this.usersService.remove(req.user.id);
   }
 }
