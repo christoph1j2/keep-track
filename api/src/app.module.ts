@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
+import { TemplateModule } from './template/template.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BudgetModule } from './budget/budget.module';
     CategoryModule,
     TransactionModule,
     BudgetModule,
+    TemplateModule,
   ],
   controllers: [AppController],
   providers: [
