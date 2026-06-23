@@ -7,37 +7,37 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  username      String
-  email         String   @unique
-  passwordHash  String
+  id           String @id @default(uuid())
+  username     String
+  email        String @unique
+  passwordHash String
 
   // AUTH a TOKENS
-  hashedRefreshToken String? // ulozeny hash refresh tokenu (bezpecne odhlaseni)
-  resetPasswordToken  String? // token pro reset hesla
+  hashedRefreshToken       String? // ulozeny hash refresh tokenu (bezpecne odhlaseni)
+  resetPasswordToken       String? // token pro reset hesla
   resetPasswordTokenExpiry DateTime? // expirace tokenu pro
 
   // tady si uživatel zvolí "základní měnu"
-  baseCurrency  String
+  baseCurrency String
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  transactions  Transaction[]
-  categories    Category[]
-  budgets       Budget[]
-  templates     Template[]
+  transactions Transaction[]
+  categories   Category[]
+  budgets      Budget[]
+  templates    Template[]
 }
 
 model Category {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  label       String
-  iconName    String
-  colorClass  String
-  parentId    String?
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label      String
+  iconName   String
+  colorClass String
+  parentId   String?
 
   // Prisma vyžaduje, abychom sem přidali i "opačný směr" relací
   transactions Transaction[]
@@ -46,58 +46,58 @@ model Category {
 }
 
 model Transaction {
-  id                 String   @id @default(uuid())
-  userId             String
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  categoryId         String?
-  category           Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  
-  title              String
-  date               DateTime
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  title String
+  date  DateTime
+
   // 1. Reálná útrata (např. platil jsi na dovolené 10 EUR)
-  originalAmount     Float
-  originalCurrency   String   
-  
+  originalAmount   Float
+  originalCurrency String
+
   // 2. Přepočtená hodnota do baseCurrency uživatele k danému dni (např. 250 CZK)
   // Tuto hodnotu bude posílat API do grafů na frontend!
-  amount             Float    
-  
+  amount Float
+
   // Data z banky a AI (příprava na budoucí featury)
-  bankReferenceId    String?  @unique // ID transakce z GoCardless/Nordigen
-  isAiCategorized    Boolean  @default(false)
-  
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  bankReferenceId String? @unique // ID transakce z GoCardless/Nordigen
+  isAiCategorized Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Budget {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  categoryId  String
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String
   // Přidaná relace na Category!
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
-  limit       Float    // Vždy uloženo v baseCurrency uživatele
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  limit Float // Vždy uloženo v baseCurrency uživatele
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Template {
-  id           String   @id @default(uuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade) // Opraven překlep
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) // Opraven překlep
 
-  title        String
-  amount       Float
+  title  String
+  amount Float
 
-  categoryId   String
+  categoryId String
   // Přidaná relace na Category!
-  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  showInHotbar Boolean  @default(false)
+  showInHotbar Boolean @default(false)
 }

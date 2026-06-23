@@ -28,23 +28,134 @@ export class UsersService {
     const hash = await bcrypt.hash(createUserDto.password, salt);
 
     // Zápis do DB
-    return await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         email: createUserDto.email,
         username: createUserDto.username,
         passwordHash: hash,
         baseCurrency: createUserDto.baseCurrency || 'CZK', // Defaultní měna, pokud není zadána
       },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        baseCurrency: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
+
+    // await this.seedDefaultCategories(user.id);
+
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      baseCurrency: user.baseCurrency,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
+
+  // private async seedDefaultCategories(userId: string) {
+  //   const food = await this.prisma.category.create({
+  //     data: {
+  //       userId,
+  //       label: 'default_categories.food',
+  //       iconName: 'LocalCafe',
+  //       colorClass:
+  //         'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
+  //     },
+  //   });
+  //   const transport = await this.prisma.category.create({
+  //     data: {
+  //       userId,
+  //       label: 'default_categories.transport',
+  //       iconName: 'DirectionsTransit',
+  //       colorClass:
+  //         'bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100',
+  //     },
+  //   });
+  //   const housing = await this.prisma.category.create({
+  //     data: {
+  //       userId,
+  //       label: 'default_categories.housing',
+  //       iconName: 'Home',
+  //       colorClass:
+  //         'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
+  //     },
+  //   });
+
+  //   await this.prisma.category.createMany({
+  //     data: [
+  //       {
+  //         userId,
+  //         label: 'default_categories.salary',
+  //         iconName: 'AttachMoney',
+  //         colorClass:
+  //           'bg-green-100 text-green-600 dark:bg-green-600 dark:text-green-100',
+  //       },
+  //       {
+  //         userId,
+  //         label: 'default_categories.entertainment',
+  //         iconName: 'Movie',
+  //         colorClass:
+  //           'bg-purple-100 text-purple-600 dark:bg-purple-600 dark:text-purple-100',
+  //       },
+  //       {
+  //         userId,
+  //         label: 'default_categories.health',
+  //         iconName: 'LocalHospital',
+  //         colorClass:
+  //           'bg-red-100 text-red-600 dark:bg-red-600 dark:text-red-100',
+  //       },
+  //       {
+  //         userId,
+  //         label: 'default_categories.uncategorized',
+  //         iconName: 'QuestionMark',
+  //         colorClass:
+  //           'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300',
+  //       },
+  //     ],
+  //   });
+
+  //   await this.prisma.category.createMany({
+  //     data: [
+  //       {
+  //         userId,
+  //         parentId: food.id,
+  //         label: 'default_categories.coffee_shops',
+  //         iconName: 'LocalCafe',
+  //         colorClass:
+  //           'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
+  //       },
+  //       {
+  //         userId,
+  //         parentId: food.id,
+  //         label: 'default_categories.groceries',
+  //         iconName: 'ShoppingCart',
+  //         colorClass:
+  //           'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
+  //       },
+  //       {
+  //         userId,
+  //         parentId: housing.id,
+  //         label: 'default_categories.energy',
+  //         iconName: 'ElectricBolt',
+  //         colorClass:
+  //           'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
+  //       },
+  //       {
+  //         userId,
+  //         parentId: housing.id,
+  //         label: 'default_categories.rent',
+  //         iconName: 'Home',
+  //         colorClass:
+  //           'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
+  //       },
+  //       {
+  //         userId,
+  //         parentId: transport.id,
+  //         label: 'default_categories.fuel',
+  //         iconName: 'LocalGasStation',
+  //         colorClass:
+  //           'bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100',
+  //       },
+  //     ],
+  //   });
+  // }
 
   /**
    * This method retrieves a user from the database by their email. It returns the user object for Auth purposes.

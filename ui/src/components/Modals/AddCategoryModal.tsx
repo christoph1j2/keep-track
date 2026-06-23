@@ -30,7 +30,7 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[] | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // zabrani refreshi po odesilani
 
     if (isSubmitting) return; // zabrani dvojitemu odesilani
@@ -44,16 +44,22 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
       return;
     }
 
-    addCategory({
-      label: label,
-      colorClass: colorClass,
-      iconName: iconName,
-      parentId: parentId || undefined,
-    });
+    try {
+      await addCategory({
+        label: label.trim(),
+        colorClass: colorClass,
+        iconName: iconName,
+        parentId: parentId || null,
+      });
 
-    setIsSubmitting(false);
-    toast.success(t("categories.added")); // <-- Přeloženo
-    onCancel();
+      toast.success(t("categories.added")); // <-- Přeloženo
+      onCancel(); // zavre modal po uspesnem pridani
+    } catch (error) {
+      console.error("Error adding category:", error);
+      setErrors([t("categories.errors.addFailed")]); // <-- Přeloženo
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const MenuProps = {

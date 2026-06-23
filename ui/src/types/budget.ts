@@ -1,11 +1,18 @@
+import type { Category } from "./category";
+
 /**
  * Budget configuration for tracking spending limits against a category.
  * The budget limit is compared against total expenses (negative transactions) in the given category for the current month.
- *
- * @property categoryId - Unique identifier for the category this budget applies to.
- * @property limit - Monthly spending limit in CZK (Czech Koruna).
  */
 export interface Budget {
-    categoryId: string;
-    limit: number;
+  id: string; // Přidáno ID (chybělo v původním souboru)
+  userId: string;
+  categoryId: string;
+  limit: number; // Hodnota v baseCurrency uživatele (už ne napevno CZK)
+
+  createdAt: string;
+  updatedAt: string;
+
+  // Relace připojená z backendu (include: { category: true })
+  category?: Category;
 }

@@ -14,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../contexts/ThemeContext";
 import { toast } from "react-hot-toast";
+import { useSettingsStore } from "../store/settingsStore";
 
 export const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -82,6 +83,9 @@ export const Login = () => {
           baseCurrency,
         });
 
+        const initCurrency = useSettingsStore.getState().initCurrency;
+        initCurrency(baseCurrency as "CZK" | "USD" | "EUR" | "PLN" | "ISK");
+
         const loginRes = await api.post("/auth/login", { email, password });
         setAuth(
           loginRes.data.user,
@@ -91,6 +95,19 @@ export const Login = () => {
         navigate("/");
       } else {
         const loginRes = await api.post("/auth/login", { email, password });
+
+        const initCurrency = useSettingsStore.getState().initCurrency;
+        if (loginRes.data.user.baseCurrency) {
+          initCurrency(
+            loginRes.data.user.baseCurrency as
+              | "CZK"
+              | "USD"
+              | "EUR"
+              | "PLN"
+              | "ISK",
+          );
+        }
+
         setAuth(
           loginRes.data.user,
           loginRes.data.access_token,

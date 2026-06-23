@@ -15,10 +15,11 @@ import { useTranslation } from "react-i18next";
 import { useConfirmStore } from "../../store/confirmStore";
 import { useSettingsStore } from "../../store/settingsStore";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { toast } from "react-hot-toast";
 
 interface TransactionDataGridProps {
   transactions: Transaction[];
-  onUpdateTransaction: (updated: Transaction) => void;
+  onUpdateTransaction: (updated: Transaction) => Promise<void>;
   onDeleteTransaction: (id: string) => void;
   onSplitTransaction: (transaction: Transaction) => void;
 }
@@ -39,11 +40,6 @@ export function TransactionDataGrid({
   const { language } = useSettingsStore();
   const locale = language === "cs" ? "cs-CZ" : "en-US";
 
-  const category = categories.find((c) => c.id === transactions[0]?.categoryId);
-  const categoryLabel = category?.label.startsWith("default_categories.")
-    ? t(category.label)
-    : category?.label;
-
   const isDark = theme === "dark";
   const gridLineColor = isDark
     ? "rgba(148, 163, 184, 0.08)"
@@ -55,7 +51,10 @@ export function TransactionDataGrid({
       )
     : transactions;
 
-  const handleProcessRowUpdate = (newRow: Transaction, oldRow: Transaction) => {
+  const handleProcessRowUpdate = async (
+    newRow: Transaction,
+    oldRow: Transaction,
+  ) => {
     if (
       newRow.title === oldRow.title &&
       newRow.amount === oldRow.amount &&
@@ -94,8 +93,15 @@ export function TransactionDataGrid({
         return oldRow;
       }
     }
-    onUpdateTransaction(newRow);
-    return newRow;
+
+    try {
+      await onUpdateTransaction(newRow);
+      toast.success(t("transactions.updated"));
+      return newRow;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "");
+      return oldRow;
+    }
   };
 
   const colDef: GridColDef[] = [
@@ -151,6 +157,11 @@ export function TransactionDataGrid({
       valueOptions: categories.map((c) => ({ value: c.id, label: c.label })),
       renderCell: (params: GridRenderCellParams) => {
         const category = categories.find((c) => c.id === params.value);
+        const currentCategoryLabel = category?.label.startsWith(
+          "default_categories.",
+        )
+          ? t(category.label)
+          : category?.label;
         return (
           <div className="w-full h-full flex items-center">
             <div
@@ -167,7 +178,7 @@ export function TransactionDataGrid({
             >
               <CategoryIcon name={category?.iconName || ""} />
               <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                {categoryLabel || t("overview.unassigned")}
+                {currentCategoryLabel || t("overview.unassigned")}
               </span>
             </div>
           </div>
@@ -177,9 +188,12 @@ export function TransactionDataGrid({
         return (
           <select
             autoFocus
-            value={params.value}
+            value={params.value || ""}
             onChange={(e) => {
-              const newValue = e.target.value;
+              // pokud user vybere "nepřiřazeno", nastavíme categoryId na null
+
+              const newValue = e.target.value === "" ? null : e.target.value;
+
               params.api.setEditCellValue({
                 id: params.id,
                 field: "categoryId",
@@ -192,6 +206,7 @@ export function TransactionDataGrid({
             }}
             className="w-full px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded text-sm focus:outline-none focus:border-indigo-500"
           >
+            <option value="">{t("overview.unassigned")}</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.label.startsWith("default_categories.")

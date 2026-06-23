@@ -4,6 +4,7 @@
  */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { api } from "../utils/api";
 
 /**
  * Available language codes for the application interface.
@@ -20,29 +21,12 @@ type Currency = "CZK" | "EUR" | "ISK" | "PLN" | "USD" | "GBP";
  * Manages language and currency preferences with persistence support.
  */
 interface SettingsState {
-  /**
-   * Current language preference for the application interface.
-   * @default 'en'
-   */
   language: Language;
-
-  /**
-   * Current currency preference for displaying financial amounts.
-   * @default 'EUR'
-   */
   currency: Currency;
-
-  /**
-   * Sets the application's language preference.
-   * @param language - The language code to set ('cs' or 'en')
-   */
   setLanguage: (language: Language) => void;
 
-  /**
-   * Sets the application's currency preference.
-   * @param currency - The currency code to set ('CZK', 'EUR', 'ISK', 'PLN', 'USD', or 'GBP')
-   */
-  setCurrency: (currency: Currency) => void;
+  setCurrency: (currency: Currency) => Promise<void>;
+  initCurrency: (currency: Currency) => void;
 }
 
 /**
@@ -76,7 +60,12 @@ export const useSettingsStore = create<SettingsState>()(
        * Updates the currency preference and persists to localStorage.
        * @param currency - The new currency code
        */
-      setCurrency: (currency) => set({ currency }),
+      setCurrency: async (currency) => {
+        await api.patch("users/me", { baseCurrency: currency });
+        set({ currency });
+      },
+
+      initCurrency: (currency) => set({ currency }),
     }),
     {
       /**

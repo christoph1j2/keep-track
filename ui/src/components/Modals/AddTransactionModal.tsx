@@ -4,6 +4,7 @@ import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { useSettingsStore } from "../../store/settingsStore";
 
 interface AddTransactionModalProps {
   onCancel: () => void;
@@ -19,6 +20,7 @@ interface AddTransactionModalProps {
 export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   // <-- Přesunuto nahoru, abychom t() mohli používat i uvnitř handleSubmit
   const { t } = useTranslation();
+  const { currency } = useSettingsStore();
 
   const categories = useCategoryStore((state) => state.categories);
   const addTransaction = useTransactionStore((state) => state.addTransaction);
@@ -34,7 +36,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   /**
    * Validates the form and submits a new transaction when everything is filled in correctly.
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // zabrani refreshi po odeslani formulare
 
     if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -42,7 +44,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
     setErrors(null);
 
     // validace s využitím překladů
-    if (!title.trim() || amount === "" || !categoryId) {
+    if (!title.trim() || amount === "" ) {
       setErrors([t("transactions.errors.missingFields")]);
       setIsSubmitting(false);
       return;
@@ -58,16 +60,27 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
       return;
     }
 
-    addTransaction({
-      title: title.trim(),
-      amount: amount as number,
-      categoryId,
-      date: new Date().toISOString(),
-    });
+    try {
+      const numAmount = Number(amount);
+      await addTransaction({
+        title: title.trim(),
+        amount: numAmount,
+        categoryId: categoryId === "" ? null : categoryId,
+        date: new Date().toISOString(),
 
-    setIsSubmitting(false);
-    toast.success(t("transactions.added")); // <-- Přidáno toastové hlášení
-    onCancel();
+        originalAmount: numAmount,
+        originalCurrency: currency, // napojeni na settings store
+        isAiCategorized: false,
+      });
+
+      toast.success(t("transactions.added"));
+      onCancel(); // zavre modal po uspesnem pridani
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      setErrors([t("transactions.errors.addFailed")]);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -140,6 +153,9 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
               );
             }}
           >
+            <MenuItem key={t("common.chooseCategory")} value="">
+              {t("common.chooseCategory")}
+            </MenuItem>
             {categories.map((category) => (
               <MenuItem key={category.id} value={category.id}>
                 {category.label}

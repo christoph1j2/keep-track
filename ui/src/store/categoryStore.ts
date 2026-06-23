@@ -1,97 +1,71 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { Category } from '../types/category';
-import { cleanupKeywordsForDeletedCategory } from '../utils/userKeywords';
-
-const DEFAULT_CATEGORIES: Category[] = [
-    { id: "food", label: "default_categories.food", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100" },
-    { id: "transport", label: "default_categories.transport", iconName: "DirectionsTransit", colorClass: "bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100" },
-    { id: "salary", label: "default_categories.salary", iconName: "AttachMoney", colorClass: "bg-green-100 text-green-600 dark:bg-green-600 dark:text-green-100" },
-    { id: "entertainment", label: "default_categories.entertainment", iconName: "Movie", colorClass: "bg-purple-100 text-purple-600 dark:bg-purple-600 dark:text-purple-100" },
-    { id: "health", label: "default_categories.health", iconName: "LocalHospital", colorClass: "bg-red-100 text-red-600 dark:bg-red-600 dark:text-red-100" },
-    { id: "housing", label: "default_categories.housing", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100" }, 
-    { id: "coffee", label: "default_categories.coffee_shops", iconName: "LocalCafe", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100", parentId: "food" },
-    { id: "groceries", label: "default_categories.groceries", iconName: "ShoppingCart", colorClass: "bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100", parentId: "food" },
-    { id: "energy", label: "default_categories.energy", iconName: "ElectricBolt", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100", parentId: "housing" },
-    { id: "rent", label: "default_categories.rent", iconName: "Home", colorClass: "bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100", parentId: "housing" },
-    { id: "fuel", label: "default_categories.fuel", iconName: "LocalGasStation", colorClass: "bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100", parentId: "transport" },
-    { id: "uncategorized", label: "default_categories.uncategorized", iconName: "QuestionMark", colorClass: "bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300" }
-];
+import { create } from "zustand";
+import type { Category } from "../types/category";
+import { cleanupKeywordsForDeletedCategory } from "../utils/userKeywords";
+import { api } from "../utils/api";
 
 interface CategoryState {
-    categories: Category[];
-    addCategory: (newCategory: Omit<Category, 'id'>) => void;
-    updateCategory: (updatedCategory: Category) => void;
-    removeCategory: (id: string) => void;
-    reorderCategories: (newCategories: Category[]) => void;
+  categories: Category[];
+  isLoading: boolean;
+
+  fetchCategories: () => Promise<void>;
+  addCategory: (categoryData: Omit<Category, "id" | "userId">) => Promise<void>;
+  updateCategory: (updatedCategory: Omit<Category, "userId">) => Promise<void>;
+  removeCategory: (id: string) => Promise<void>;
+  reorderCategories: (newCategories: Category[]) => void;
 }
 
-export const useCategoryStore = create<CategoryState>()(
-    persist(
-        (set) => ({
-            // Výchozí stav se nastaví automaticky, pokud v localStorage nic není
-            categories: DEFAULT_CATEGORIES,
+export const useCategoryStore = create<CategoryState>((set) => ({
+  categories: [],
+  isLoading: false,
 
-            addCategory: (categoryData) => {
-                set((state) => {
-                    const newCategory: Category = {
-                        ...categoryData,
-                        id: crypto.randomUUID(),
-                    };
-                    return { categories: [...state.categories, newCategory] };
-                })
-            },
-            updateCategory: (updatedCategory) => 
-                set((state) => ({
-                    categories: state.categories.map(c => c.id === updatedCategory.id ? updatedCategory : c)
-                })),
+  fetchCategories: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get("/categories");
+      set({ categories: response.data, isLoading: false });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      set({ isLoading: false });
+    }
+  },
 
-            removeCategory: (id) => {
-                // 1. Externí side-effect před změnou stavu
-                cleanupKeywordsForDeletedCategory(id);
+  addCategory: async (categoryData) => {
+    const response = await api.post("/categories", categoryData);
+    set((state) => ({
+      categories: [...state.categories, response.data],
+    }));
+  },
 
-                // 2. Úprava samotného stavu
-                set((state) => {
-                    const updatedCategories = state.categories
-                        .filter(c => c.id !== id)
-                        .map(c => {
-                            const nextParentId = c.parentId === id ? undefined : c.parentId;
-                            return nextParentId !== c.parentId ? { ...c, parentId: nextParentId } : c;
-                        });
+  updateCategory: async (updatedCategory) => {
+    const { id, ...data } = updatedCategory;
+    const response = await api.patch(`/categories/${id}`, data);
+    set((state) => ({
+      categories: state.categories.map((cat) =>
+        cat.id === id ? response.data : cat,
+      ),
+    }));
+  },
 
-                    return { categories: updatedCategories };
-                });
-            },
+  removeCategory: async (id) => {
+    await api.delete(`/categories/${id}`);
 
-            reorderCategories: (newCategories) =>
-                set(() => ({ categories: newCategories })),
-        }),
-        {
-            name: 'keep-track-categories',
-            merge: (persistedState, currentState) => {
-                                const pState = persistedState as Partial<CategoryState>;
-                if (!pState.categories) return currentState;
+    cleanupKeywordsForDeletedCategory(id);
 
-                // Sync code changes (like dark mode classes) with saved user categories
-                const mergedCategories = pState.categories.map((pCat) => {
-                    const defaultCat = DEFAULT_CATEGORIES.find((d) => d.id === pCat.id);
-                    if (defaultCat) {
-                        return {
-                            ...pCat,
-                            // Lock the colorClass and iconName to what is currently in your code
-                            colorClass: defaultCat.colorClass,
-                            iconName: defaultCat.iconName,
-                            label: pCat.label, // keep user changes if they can rename it
-                        };
-                    }
-                    return pCat;
-                });
+    set((state) => {
+      const updatedCategories = state.categories
+        .filter((cat) => cat.id !== id)
+        .map((cat) => {
+          const nextParentId = cat.parentId === id ? null : cat.parentId;
+          return nextParentId !== cat.parentId
+            ? { ...cat, parentId: nextParentId }
+            : cat;
+        });
 
-                return {
-                    ...currentState,
-                    categories: mergedCategories,
-                };
-            }
-        }
-    )
-);
+      return { categories: updatedCategories };
+    });
+  },
+
+  reorderCategories: (newCategories) => {
+    set({ categories: newCategories });
+  },
+}));

@@ -22,9 +22,8 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
   const { t } = useTranslation();
   const showConfirm = useConfirmStore((state) => state.showConfirm);
-  const { language } = useSettingsStore();
+  const { language, currency } = useSettingsStore();
   const locale = language === "cs" ? "cs-CZ" : "en-US";
-  
 
   // Abecedně seřazené kategorie pro select boxy
   const sortedCategories = useMemo(
@@ -85,6 +84,9 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         amount: t.amount,
         date: t.date,
         categoryId: t.categoryId as string,
+        originalAmount: t.amount,
+        originalCurrency: currency,
+        isAiCategorized: false,
       });
 
       if (t.categoryId !== UNCATEGORIZED_ID) {

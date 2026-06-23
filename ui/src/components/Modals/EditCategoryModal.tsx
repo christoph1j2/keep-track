@@ -40,7 +40,7 @@ export function EditCategoryModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[] | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // zabrani refreshi po odesilani formulare
 
     if (isSubmitting) return;
@@ -59,17 +59,23 @@ export function EditCategoryModal({
       return;
     }
 
-    updateCategory({
-      id: category!.id,
-      label: label,
-      colorClass: colorClass,
-      iconName: iconName,
-      parentId: parentId || undefined,
-    });
+    try {
+      await updateCategory({
+        id: category!.id,
+        label: label,
+        colorClass: colorClass,
+        iconName: iconName,
+        parentId: parentId || null,
+      });
 
-    setIsSubmitting(false);
-    toast.success(t("categories.updated"));
-    onCancel();
+      toast.success(t("categories.updated"));
+      onCancel();
+    } catch (error) {
+      console.error("Error updating category:", error);
+      setErrors([t("categories.errors.updateFailed")]);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const MenuProps = {

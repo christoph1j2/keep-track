@@ -23,7 +23,8 @@
     "noData": "Žádná data",
     "chooseCategory": "Vyberte kategorii",
     "unknownCategory": "Neznámá kategorie",
-    "confirm": "Potvrdit"
+    "confirm": "Potvrdit",
+    "error": "Došlo k chybě."
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -167,7 +168,9 @@
     "deleted": "Kategorie byla úspěšně smazána.",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
-      "selfParent": "Kategorie nemůže být sama sobě nadřazenou kategorií"
+      "selfParent": "Kategorie nemůže být sama sobě nadřazenou kategorií",
+      "addFailed": "Nepodařilo se přidat kategorii. Zkontrolujte prosím zadané údaje.",
+      "updateFailed": "Nepodařilo se aktualizovat kategorii. Zkontrolujte prosím zadané údaje."
     },
     "colors": {
       "blue": "Modrá",
@@ -251,7 +254,9 @@
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "zeroAmount": "Částka nemůže být nula",
-      "notANumber": "Částka musí být číslo"
+      "notANumber": "Částka musí být číslo",
+      "addFailed": "Nepodařilo se přidat transakci. Zkontrolujte prosím zadané údaje.",
+      "updateFailed": "Nepodařilo se aktualizovat transakci. Zkontrolujte prosím zadané údaje."
     }
   },
   "import": {
@@ -306,7 +311,9 @@
     "dangerZone": "Nebezpečná zóna",
     "dangerWarning": "Akce v této sekci jsou nevratné. Prosím, postupujte opatrně.",
     "factoryReset": "Smazat všechna data (Factory Reset)",
-    "factoryResetConfirm": "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení."
+    "factoryResetConfirm": "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
+    "currencyLocked": "Základní měnu nelze změnit, protože již máte uložené transakce. Pro změnu měny byste museli smazat všechna data.",
+    "currencyChanged": "Základní měna byla úspěšně změněna."
   },
   "default_categories": {
     "food": "Jídlo a pití",

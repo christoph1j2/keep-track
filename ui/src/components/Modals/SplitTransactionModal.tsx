@@ -72,8 +72,7 @@ export function SplitTransactionModal({
 
     if (
       splits.some((split) => !split.title) ||
-      splits.some((split) => split.amount === "") ||
-      splits.some((split) => !split.categoryId)
+      splits.some((split) => split.amount === "")
     ) {
       setErrors([t("splitTransaction.errors.missingFields")]);
       setIsSubmitting(false);

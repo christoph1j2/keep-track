@@ -4,7 +4,7 @@ import { BaseModal } from "../components/Modals/BaseModal";
 import { EditCategoryModal } from "../components/Modals/EditCategoryModal";
 import { AddCategoryModal } from "../components/Modals/AddCategoryModal";
 import { useCategoryStore } from "../store/categoryStore";
-import { useTransactionStore } from "../store/transactionStore";
+import { useTransactionStore } from "../store/transactionStore"; // Zde teď můžeme přidat reload transakcí
 import { SortableCategoryItem } from "../components/Categories/SortableCategoryItem";
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import {
@@ -15,30 +15,37 @@ import {
 import { useConfirmStore } from "../store/confirmStore";
 import toast from "react-hot-toast";
 
-/**
- * Categories management page for organizing transaction categories.
- * Allows create, update, delete, and reorder actions through drag-and-drop.
- */
 export function Categories() {
   const { t } = useTranslation();
   const { categories, removeCategory, reorderCategories } = useCategoryStore();
-  const { reassignCategory } = useTransactionStore();
+  const { fetchTransactions } = useTransactionStore(); // Použijeme pro aktualizaci po smazání
 
   const showConfirm = useConfirmStore((state) => state.showConfirm);
 
   const [selectedCategory, setSelectedCategory] = useState<
     (typeof categories)[0] | null
   >(null);
-
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
 
   const handleDelete = (categoryId: string) => {
-    showConfirm(t("common.warning"), t("categories.deleteConfirm"), () => {
-      reassignCategory(categoryId, "uncategorized");
-      toast.success(t("categories.deleted"));
-      removeCategory(categoryId);
-    });
+    showConfirm(
+      t("common.warning"),
+      t("categories.deleteConfirm"),
+      async () => {
+        try {
+          // 1. Smažeme z DB. Prisma díky SetNull automaticky uvolní transakce.
+          await removeCategory(categoryId);
+          toast.success(t("categories.deleted"));
+
+          // 2. Pro jistotu znovu stáhneme transakce, aby se u nich na frontendu ztratila smazaná kategorie
+          fetchTransactions();
+        } catch (error) {
+          toast.error(t("common.error"));
+          console.error(error);
+        }
+      },
+    );
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -67,7 +74,6 @@ export function Categories() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
-        {/* Vykreslení seznamu kategorií */}
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
@@ -91,9 +97,7 @@ export function Categories() {
                       setSelectedCategory(cat);
                       setEditModalOpen(true);
                     }}
-                    onDelete={() => {
-                      handleDelete(cat.id);
-                    }}
+                    onDelete={() => handleDelete(cat.id)}
                   />
                 );
               })}
@@ -101,6 +105,7 @@ export function Categories() {
           </SortableContext>
         </DndContext>
       </div>
+
       <BaseModal
         title={t("categories.addModal")}
         isOpen={isAddModalOpen}
