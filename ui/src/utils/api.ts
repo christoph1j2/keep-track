@@ -22,6 +22,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (originalRequest.url.includes("/auth/login")) {
+      return Promise.reject(error); // pokud je to login rq, nebudeme se snažit refreshovat tokeny
+    }
+
     // pokud api vratilo 401 a jeste jsme to nezkouseli znovu
     // (_retry je nase vlastni vlajecka, aby nedošlo k nekonečnému loopu)
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -29,6 +33,10 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = useAuthStore.getState().refreshToken;
+
+        if (!refreshToken) {
+          return Promise.reject(error); // pokud nemáme refresh token, jen předáme chybu dál
+        }
 
         const response = await axios.post(`${API_URL}/auth/refresh`, {
           refreshToken,

@@ -116,7 +116,7 @@ export class AuthService {
 
       return this.login(validatedUser);
     } catch (e) {
-      throw new UnauthorizedException('Invalid refresh token', { cause: e });
+      throw new UnauthorizedException('Invalid refresh token ', { cause: e });
     }
   }
 

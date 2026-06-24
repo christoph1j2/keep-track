@@ -4,6 +4,7 @@ import { Sidebar } from "../components/Base/Sidebar";
 import { Topbar } from "../components/Base/Topbar";
 import { useCategoryStore } from "../store/categoryStore";
 import { useTransactionStore } from "../store/transactionStore";
+import { useAuthStore } from "../store/authStore";
 
 /**
  * Shared app shell with sidebar navigation, top bar, and page content area.
@@ -12,15 +13,19 @@ import { useTransactionStore } from "../store/transactionStore";
  * @param props.children Active page content.
  */
 export function MainLayout({ children }: { children: ReactNode }) {
+  const token = useAuthStore((state) => state.accessToken);
+
   const fetchCategories = useCategoryStore((state) => state.fetchCategories);
   const fetchTransactions = useTransactionStore(
     (state) => state.fetchTransactions,
   );
 
   useEffect(() => {
-    fetchCategories();
-    fetchTransactions();
-  }, [fetchCategories, fetchTransactions]);
+    if (token) {
+      fetchCategories();
+      fetchTransactions();
+    }
+  }, [token, fetchCategories, fetchTransactions]);
 
   return (
     <div className="flex h-screen bg-slate-50 flex-col md:flex-row dark:bg-slate-800 transition-colors">
