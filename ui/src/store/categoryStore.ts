@@ -67,5 +67,7 @@ export const useCategoryStore = create<CategoryState>((set) => ({
 
   reorderCategories: (newCategories) => {
     set({ categories: newCategories });
+
+    // TODO: API call in the future.
   },
 }));

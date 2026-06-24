@@ -20,7 +20,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
   const { t } = useTranslation();
 
   const categories = useCategoryStore((state) => state.categories);
-  const setBudget = useBudgetStore((state) => state.setBudget);
+  const addBudget = useBudgetStore((state) => state.addBudget);
 
   // stavy pro formular
   const [categoryId, setCategoryId] = useState("");
@@ -39,7 +39,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
     },
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // zabrani refreshi po odeslani formulare
 
     if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -65,10 +65,16 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
       return;
     }
 
-    setBudget(categoryId, limit);
-    setIsSubmitting(false);
-    toast.success(t("budgeting.added")); // <-- Přeloženo
-    onCancel(); // zavre modal po uspesnem pridani
+    try {
+      await addBudget({ categoryId, limit: Number(limit) });
+      toast.success(t("budgeting.added"));
+      onCancel(); // zavre modal po uspesnem pridani
+    } catch (err) {
+      console.error("Failed to add budget:", err);
+      setErrors([t("budgeting.errors.addFailed")]); // <-- Přeloženo
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -24,7 +24,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
   const { t } = useTranslation();
 
   const categories = useCategoryStore((state) => state.categories);
-  const setBudget = useBudgetStore((state) => state.setBudget);
+  const updateBudget = useBudgetStore((state) => state.updateBudget);
 
   // stavy pro formular
   const [categoryId, setCategoryId] = useState(budget.categoryId);
@@ -44,7 +44,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
     },
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // zabrani refreshi po odeslani formulare
 
     if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -64,10 +64,16 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
       return;
     }
 
-    setBudget(categoryId, limit);
-    toast.success(t("budgeting.updated")); // <-- Přidáno toastové hlášení o úspěchu
-    setIsSubmitting(false);
-    onCancel(); // zavre modal po uspesnem upraveni
+    try {
+      await updateBudget(budget.id, { categoryId, limit: Number(limit) });
+      toast.success(t("budgeting.updated")); // <-- Přidáno toastové hlášení o úspěchu
+    } catch (err) {
+      console.error("Failed to update budget:", err);
+      setErrors([t("budgeting.errors.updateFailed")]); // <-- Překlad
+    } finally {
+      setIsSubmitting(false);
+      onCancel(); // zavre modal po uspesnem upraveni
+    }
   };
 
   return (

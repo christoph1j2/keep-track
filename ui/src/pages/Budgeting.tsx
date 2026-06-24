@@ -100,7 +100,7 @@ export function Budgeting() {
                   const categoryTransactions = currentMonthTransactions.filter(
                     (t) =>
                       t.categoryId === budget.categoryId ||
-                      subcatIds.includes(t.categoryId),
+                      subcatIds.includes(t.categoryId || ""),
                   );
 
                   /** NOTE:
@@ -127,7 +127,7 @@ export function Budgeting() {
                         setEditBudgetModalOpen(true);
                       }}
                       onDelete={() => {
-                        removeBudget(budget.categoryId);
+                        removeBudget(budget.id);
                         toast.success(t("budgeting.deleted"));
                       }}
                     />
