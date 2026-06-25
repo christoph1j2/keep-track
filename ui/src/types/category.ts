@@ -9,4 +9,6 @@ export interface Category {
   iconName: string;
   colorClass: string;
   parentId?: string | null;
+
+  order: number; // Přidáno z backendu
 }

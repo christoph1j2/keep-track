@@ -21,6 +21,7 @@ export class BudgetService {
     return this.prisma.budget.findMany({
       where: { userId },
       include: { category: true },
+      orderBy: { order: 'asc' },
     });
   }
 

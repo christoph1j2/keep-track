@@ -21,6 +21,7 @@ export class TemplateService {
     return this.prisma.template.findMany({
       where: { userId },
       include: { category: true },
+      orderBy: { order: 'asc' },
     });
   }
 

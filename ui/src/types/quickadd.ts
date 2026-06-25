@@ -14,4 +14,6 @@ export interface QuickAddTemplate {
 
   // Relace připojená z backendu (include: { category: true })
   category?: Category;
+
+  order: number; // Přidáno z backendu
 }

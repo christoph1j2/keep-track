@@ -15,6 +15,7 @@ import { UpdateTemplateDto } from './dto/update-template.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -27,7 +28,10 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('templates')
 export class TemplateController {
-  constructor(private readonly templateService: TemplateService) {}
+  constructor(
+    private readonly templateService: TemplateService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Vytvořit novou šablonu' })
@@ -42,6 +46,18 @@ export class TemplateController {
   @ApiOperation({ summary: 'Získat všechny šablony uživatele' })
   findAll(@Req() req: AuthenticatedRequest) {
     return this.templateService.findAll(req.user.id);
+  }
+
+  @Patch('reorder')
+  @ApiOperation({ summary: 'Přeuspořádat šablony' })
+  async reorder(@Body() reorderedTemplates: { id: string; order: number }[]) {
+    const updates = reorderedTemplates.map((template) =>
+      this.prisma.template.update({
+        where: { id: template.id },
+        data: { order: template.order },
+      }),
+    );
+    return this.prisma.$transaction(updates);
   }
 
   @Get(':id')

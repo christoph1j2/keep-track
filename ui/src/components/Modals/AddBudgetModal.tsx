@@ -20,7 +20,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
   const { t } = useTranslation();
 
   const categories = useCategoryStore((state) => state.categories);
-  const addBudget = useBudgetStore((state) => state.addBudget);
+  const { budgets, addBudget } = useBudgetStore();
 
   // stavy pro formular
   const [categoryId, setCategoryId] = useState("");
@@ -66,7 +66,11 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
     }
 
     try {
-      await addBudget({ categoryId, limit: Number(limit) });
+      await addBudget({
+        categoryId,
+        limit: Number(limit),
+        order: budgets.length,
+      });
       toast.success(t("budgeting.added"));
       onCancel(); // zavre modal po uspesnem pridani
     } catch (err) {

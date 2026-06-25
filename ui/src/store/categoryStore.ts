@@ -11,7 +11,7 @@ interface CategoryState {
   addCategory: (categoryData: Omit<Category, "id" | "userId">) => Promise<void>;
   updateCategory: (updatedCategory: Omit<Category, "userId">) => Promise<void>;
   removeCategory: (id: string) => Promise<void>;
-  reorderCategories: (newCategories: Category[]) => void;
+  reorderCategories: (newCategories: Category[]) => Promise<void>;
 }
 
 export const useCategoryStore = create<CategoryState>((set) => ({
@@ -65,9 +65,20 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     });
   },
 
-  reorderCategories: (newCategories) => {
-    set({ categories: newCategories });
+  reorderCategories: async (reorderedCategories) => {
+    set({ categories: reorderedCategories });
 
-    // TODO: API call in the future.
+    const payload = reorderedCategories.map((cat, index) => ({
+      id: cat.id,
+      order: index,
+    }));
+
+    try {
+      await api.patch("/categories/reorder", payload);
+    } catch (error) {
+      console.error("Error reordering categories:", error);
+      // Optionally, you can refetch the categories to ensure the state is consistent
+      await useCategoryStore.getState().fetchCategories();
+    }
   },
 }));

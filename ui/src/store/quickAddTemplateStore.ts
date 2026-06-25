@@ -85,6 +85,16 @@ export const useTemplateStore = create<TemplateState>()((set) => ({
   reorderTemplates: async (reorderedTemplates) => {
     set({ templates: reorderedTemplates });
 
-    // TODO: API call in the future.
+    const payload = reorderedTemplates.map((template, index) => ({
+      id: template.id,
+      order: index,
+    }));
+    try {
+      await api.patch("/templates/reorder", payload);
+    } catch (error) {
+      console.error("Error reordering templates:", error);
+      // Optionally, you can refetch the templates to ensure the state is consistent
+      await useTemplateStore.getState().fetchTemplates();
+    }
   },
 }));

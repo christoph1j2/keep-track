@@ -50,6 +50,8 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
         colorClass: colorClass,
         iconName: iconName,
         parentId: parentId || null,
+
+        order: categories.length,
       });
 
       toast.success(t("categories.added")); // <-- Přeloženo

@@ -28,8 +28,7 @@ export function QuickAddTemplateModal({
   const categories = useCategoryStore((state) => state.categories);
   const sortedCategories = useMemo(() => categories, [categories]);
 
-  const addTemplate = useTemplateStore((state) => state.addTemplate);
-  const updateTemplate = useTemplateStore((state) => state.updateTemplate);
+  const { templates, addTemplate, updateTemplate } = useTemplateStore();
 
   const [title, setTitle] = useState(template?.title ?? "");
   const [amount, setAmount] = useState<number | "">(template?.amount ?? "");
@@ -74,6 +73,8 @@ export function QuickAddTemplateModal({
           amount: Number(amount),
           categoryId,
           showInHotbar,
+
+          order: templates.length,
         });
         toast.success(t("quickAdd.added"));
       }

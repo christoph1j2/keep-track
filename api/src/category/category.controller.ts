@@ -15,6 +15,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -27,7 +28,10 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('categories')
 export class CategoryController {
-  constructor(private readonly categoriesService: CategoryService) {}
+  constructor(
+    private readonly categoriesService: CategoryService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Vytvořit novou kategorii' })
@@ -42,6 +46,18 @@ export class CategoryController {
   @ApiOperation({ summary: 'Získat všechny kategorie uživatele' })
   findAll(@Req() req: AuthenticatedRequest) {
     return this.categoriesService.findAll(req.user.id);
+  }
+
+  @Patch('reorder')
+  @ApiOperation({ summary: 'Přeuspořádat kategorie' })
+  async reorder(@Body() reorderedCategories: { id: string; order: number }[]) {
+    const updates = reorderedCategories.map((category) =>
+      this.prisma.category.update({
+        where: { id: category.id },
+        data: { order: category.order },
+      }),
+    );
+    return this.prisma.$transaction(updates);
   }
 
   @Get(':id')

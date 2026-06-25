@@ -15,6 +15,7 @@ import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -27,7 +28,10 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('budgets')
 export class BudgetController {
-  constructor(private readonly budgetService: BudgetService) {}
+  constructor(
+    private readonly budgetService: BudgetService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Vytvořit nový rozpočet' })
@@ -42,6 +46,18 @@ export class BudgetController {
   @ApiOperation({ summary: 'Získat všechny rozpočty uživatele' })
   findAll(@Req() req: AuthenticatedRequest) {
     return this.budgetService.findAll(req.user.id);
+  }
+
+  @Patch('reorder')
+  @ApiOperation({ summary: 'Přeuspořádat rozpočty' })
+  async reorder(@Body() reorderedBudgets: { id: string; order: number }[]) {
+    const updates = reorderedBudgets.map((budget) =>
+      this.prisma.budget.update({
+        where: { id: budget.id },
+        data: { order: budget.order },
+      }),
+    );
+    return this.prisma.$transaction(updates);
   }
 
   @Get(':id')

@@ -19,6 +19,7 @@ export class CategoryService {
   async findAll(userId: string) {
     return this.prisma.category.findMany({
       where: { userId },
+      orderBy: { order: 'asc' }, // Seřadíme podle pořadí
     });
   }
 
