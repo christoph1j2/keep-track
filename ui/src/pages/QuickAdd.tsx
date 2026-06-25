@@ -105,14 +105,19 @@ export function QuickAdd() {
     showConfirm(
       t("common.warning"),
       t("quickAdd.confirmDelete", { title: template.title }),
-      () => {
-        deleteTemplate(template.id);
-        toast.success(t("quickAdd.deleted"));
+      async () => {
+        try {
+          await deleteTemplate(template.id);
+          toast.success(t("quickAdd.deleted"));
+        } catch (err) {
+          console.error("Error deleting template:", err);
+          toast.error(t("common.error"));
+        }
       },
     );
   };
 
-  const handleToggleHotbar = (template: QuickAddTemplate) => {
+  const handleToggleHotbar = async (template: QuickAddTemplate) => {
     // nesmi byt vice sablon v hotbaru nez je limit
     if (!template.showInHotbar && hotbarTemplates.length >= HOTBAR_LIMIT) {
       showConfirm(
@@ -123,7 +128,14 @@ export function QuickAdd() {
       return;
     }
     // jinak prepni showInHotbar a uloz zmenu
-    updateTemplate({ ...template, showInHotbar: !template.showInHotbar });
+    try {
+      await updateTemplate(template.id, {
+        ...template,
+        showInHotbar: !template.showInHotbar,
+      });
+    } catch (err) {
+      console.error("Error toggling hotbar:", err);
+    }
   };
 
   return (

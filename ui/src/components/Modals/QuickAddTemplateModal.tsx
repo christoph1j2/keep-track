@@ -40,7 +40,7 @@ export function QuickAddTemplateModal({
   const [errors, setErrors] = useState<string[] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isSubmitting) return; // zabrani dvojitemu odeslani
@@ -59,26 +59,31 @@ export function QuickAddTemplateModal({
       return;
     }
 
-    if (template) {
-      updateTemplate({
-        id: template.id,
-        title: title.trim(),
-        amount,
-        categoryId,
-        showInHotbar,
-      });
-    } else {
-      addTemplate({
-        id: crypto.randomUUID(),
-        title: title.trim(),
-        amount,
-        categoryId,
-        showInHotbar,
-      });
+    try {
+      if (template) {
+        await updateTemplate(template.id, {
+          title: title.trim(),
+          amount: Number(amount),
+          categoryId,
+          showInHotbar,
+        });
+        toast.success(t("quickAdd.updated"));
+      } else {
+        await addTemplate({
+          title: title.trim(),
+          amount: Number(amount),
+          categoryId,
+          showInHotbar,
+        });
+        toast.success(t("quickAdd.added"));
+      }
+      onCancel();
+    } catch (err) {
+      console.error("Error saving template:", err);
+      setErrors([t("common.error")]);
+    } finally {
+      setIsSubmitting(false);
     }
-    toast.success(template ? t("quickAdd.updated") : t("quickAdd.added")); // <-- Překlad a toast
-    setIsSubmitting(false);
-    onCancel();
   };
 
   return (

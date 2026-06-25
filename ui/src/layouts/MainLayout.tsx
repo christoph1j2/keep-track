@@ -6,6 +6,7 @@ import { useCategoryStore } from "../store/categoryStore";
 import { useTransactionStore } from "../store/transactionStore";
 import { useAuthStore } from "../store/authStore";
 import { useBudgetStore } from "../store/budgetStore";
+import { useTemplateStore } from "../store/quickAddTemplateStore";
 
 /**
  * Shared app shell with sidebar navigation, top bar, and page content area.
@@ -21,14 +22,16 @@ export function MainLayout({ children }: { children: ReactNode }) {
     (state) => state.fetchTransactions,
   );
   const fetchBudgets = useBudgetStore((state) => state.fetchBudgets);
+  const fetchTemplates = useTemplateStore((state) => state.fetchTemplates);
 
   useEffect(() => {
     if (token) {
       fetchCategories();
       fetchTransactions();
       fetchBudgets();
+      fetchTemplates();
     }
-  }, [token, fetchCategories, fetchTransactions, fetchBudgets]);
+  }, [token, fetchCategories, fetchTransactions, fetchBudgets, fetchTemplates]);
 
   return (
     <div className="flex h-screen bg-slate-50 flex-col md:flex-row dark:bg-slate-800 transition-colors">
