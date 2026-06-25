@@ -23,7 +23,8 @@
     "noData": "No data",
     "chooseCategory": "Choose a category",
     "unknownCategory": "Unknown category",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "error": "An error occurred."
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -167,7 +168,9 @@
     "deleted": "Category was successfully deleted.",
     "errors": {
       "missingFields": "Fill in all fields",
-      "selfParent": "Category cannot be its own parent category"
+      "selfParent": "Category cannot be its own parent category",
+      "addFailed": "Failed to add category. Please check the entered data.",
+      "updateFailed": "Failed to update category. Please check the entered data."
     },
     "colors": {
       "blue": "Blue",
@@ -251,7 +254,9 @@
     "errors": {
       "missingFields": "Fill in all fields",
       "zeroAmount": "Amount cannot be zero",
-      "notANumber": "Amount must be a number"
+      "notANumber": "Amount must be a number",
+      "addFailed": "Failed to add transaction. Please check the entered data.",
+      "updateFailed": "Failed to update transaction. Please check the entered data."
     }
   },
   "import": {
@@ -306,7 +311,9 @@
     "dangerZone": "Danger zone",
     "dangerWarning": "Actions in this section are irreversible. Please proceed with caution.",
     "factoryReset": "Delete all data (Factory Reset)",
-    "factoryResetConfirm": "Do you really want to delete all application data? This action is irreversible and will delete all your transactions, budgets, and settings."
+    "factoryResetConfirm": "Do you really want to delete all application data? This action is irreversible and will delete all your transactions, budgets, and settings.",
+    "currencyLocked": "The base currency cannot be changed because you already have saved transactions. To change the currency, you would need to delete all data.",
+    "currencyChanged": "Base currency was successfully changed."
   },
   "default_categories": {
     "food": "Food and Drink",
@@ -328,14 +335,14 @@
       "subtitle": "Log in to your account",
       "submit": "Log in",
       "switchToRegister": "Don't have an account? Register",
-      "success": "Successfully logged in!"
+      "success": "Logged in successfully!"
     },
     "register": {
       "title": "Registration",
       "subtitle": "Create a new account",
       "submit": "Create account",
       "switchToLogin": "Already have an account? Log in",
-      "success": "Successfully registered!"
+      "success": "Registered successfully!"
     },
     "fields": {
       "username": "Username",
