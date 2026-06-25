@@ -24,7 +24,8 @@
     "chooseCategory": "Vyberte kategorii",
     "unknownCategory": "Neznámá kategorie",
     "confirm": "Potvrdit",
-    "error": "Došlo k chybě."
+    "error": "Došlo k chybě.",
+    "type": "Typ"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -171,6 +172,10 @@
       "selfParent": "Kategorie nemůže být sama sobě nadřazenou kategorií",
       "addFailed": "Nepodařilo se přidat kategorii. Zkontrolujte prosím zadané údaje.",
       "updateFailed": "Nepodařilo se aktualizovat kategorii. Zkontrolujte prosím zadané údaje."
+    },
+    "types": {
+      "income": "Příjem",
+      "expense": "Výdaj"
     },
     "colors": {
       "blue": "Modrá",

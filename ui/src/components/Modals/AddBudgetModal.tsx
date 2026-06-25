@@ -20,7 +20,10 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
   const { t } = useTranslation();
 
   const categories = useCategoryStore((state) => state.categories);
-  const { budgets, addBudget } = useBudgetStore();
+  const expenseCategories = categories.filter((c) => c.type === "EXPENSE");
+
+
+  const { budgets, addBudget, updateBudget } = useBudgetStore();
 
   // stavy pro formular
   const [categoryId, setCategoryId] = useState("");
@@ -66,6 +69,16 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
     }
 
     try {
+      if (budgets.some((b) => b.categoryId === categoryId)) {
+        const budget = budgets.find((b) => b.categoryId === categoryId);
+        await updateBudget(
+          budget!.id, { categoryId, limit: Number(limit) }
+        );
+        toast.success(t("budgeting.updated"));
+        onCancel(); // zavre modal po uspesnem pridani
+        return;
+      }
+
       await addBudget({
         categoryId,
         limit: Number(limit),
@@ -116,7 +129,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
           >
             <MenuItem value="">{t("common.none")}</MenuItem>
             {(() => {
-              return categories.map((cat) => (
+              return expenseCategories.map((cat) => (
                 <MenuItem key={cat.id} value={cat.id}>
                   {cat.label}
                 </MenuItem>

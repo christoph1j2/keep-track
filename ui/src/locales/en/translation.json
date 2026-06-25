@@ -24,7 +24,8 @@
     "chooseCategory": "Choose a category",
     "unknownCategory": "Unknown category",
     "confirm": "Confirm",
-    "error": "An error occurred."
+    "error": "An error occurred.",
+    "type": "Type"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -171,6 +172,10 @@
       "selfParent": "Category cannot be its own parent category",
       "addFailed": "Failed to add category. Please check the entered data.",
       "updateFailed": "Failed to update category. Please check the entered data."
+    },
+    "types": {
+      "income": "Income",
+      "expense": "Expense"
     },
     "colors": {
       "blue": "Blue",

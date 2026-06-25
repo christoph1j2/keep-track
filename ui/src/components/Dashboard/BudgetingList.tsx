@@ -23,12 +23,6 @@ export function BudgetingList() {
     );
   });
 
-  const category = categories.find((c) => c.id === budgets[0]?.categoryId);
-  if (!category) return null;
-  const categoryLabel = category.label.startsWith("default_categories.")
-    ? t(category.label)
-    : category.label;
-
   const topBudgets = budgets.slice(0, 4);
 
   return (
@@ -51,14 +45,19 @@ export function BudgetingList() {
             const category = categories.find((c) => c.id === budget.categoryId);
             if (!category) return null;
 
+            const categoryLabel = category.label.startsWith("default_categories.")
+              ? t(category.label)
+              : category.label;
+
             const subcatIds = categories
               .filter((c) => c.parentId === budget.categoryId)
               .map((c) => c.id);
 
             const categoryTransactions = currentMonthTransactions.filter(
-              (t) =>
-                t.categoryId === budget.categoryId ||
-                subcatIds.includes(t.categoryId),
+              (tx) =>
+                tx.amount < 0 &&
+                (tx.categoryId === budget.categoryId ||
+                  subcatIds.includes(tx.categoryId || "")),
             );
 
             const totalSpent = categoryTransactions

@@ -30,6 +30,8 @@ export function EditCategoryModal({
     ? t(category.label)
     : category?.label;
 
+  const type = category?.type || "EXPENSE";
+
   const [label, setLabel] = useState(categoryLabel || "");
   const [colorClass, setColorClass] = useState(category?.colorClass || "");
   const [iconName, setIconName] = useState(category?.iconName || "");
@@ -43,7 +45,7 @@ export function EditCategoryModal({
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // zabrani refreshi po odesilani formulare
 
-    if (isSubmitting) return;
+    if (!category || isSubmitting) return;
     setIsSubmitting(true);
     setErrors(null);
 
@@ -66,6 +68,8 @@ export function EditCategoryModal({
         colorClass: colorClass,
         iconName: iconName,
         parentId: parentId || null,
+        type: category!.type,
+        order: category!.order,
       });
 
       toast.success(t("categories.updated"));
@@ -208,6 +212,7 @@ export function EditCategoryModal({
               const rootCategories = categories.filter(
                 (c) =>
                   (c.parentId === undefined || c.parentId === null) &&
+                  c.type === type &&
                   c.id !== category?.id,
               );
               return rootCategories.map((cat) => (

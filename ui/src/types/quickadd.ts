@@ -9,7 +9,7 @@ export interface QuickAddTemplate {
   userId: string; // Přidáno z backendu
   title: string;
   amount: number; // Hodnota v baseCurrency uživatele
-  categoryId: string;
+  categoryId: string | null;
   showInHotbar: boolean;
 
   // Relace připojená z backendu (include: { category: true })

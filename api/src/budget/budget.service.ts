@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -8,6 +8,17 @@ export class BudgetService {
   constructor(private prisma: PrismaService) {}
 
   async create(userId: string, dto: CreateBudgetDto) {
+    const category = await this.prisma.category.findUnique({
+      where: { id: dto.categoryId },
+    });
+    if (!category) throw new BadRequestException('Kategorie nenalezena');
+
+    if (category.type !== 'EXPENSE') {
+      throw new BadRequestException(
+        'Budget can only be set for categories for expenses.'
+      )
+    }
+
     return this.prisma.budget.create({
       data: {
         ...dto,

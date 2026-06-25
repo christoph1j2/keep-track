@@ -27,6 +27,8 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
   const [iconName, setIconName] = useState("QuestionMark"); // Změněno na "QuestionMark" (CamelCase) jako ve výchozím seznamu ikon
   const [parentId, setParentId] = useState<string | "">("");
 
+  const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE"); // <-- Přidáno pro typ kategorie
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[] | null>(null);
 
@@ -51,6 +53,7 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
         iconName: iconName,
         parentId: parentId || null,
 
+        type: type,
         order: categories.length,
       });
 
@@ -74,6 +77,171 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
       },
     },
   };
+
+  return (
+    <>
+      {errors && (
+        <div
+          className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200"
+          role="alert"
+          aria-live="assertive"
+        >
+          {errors.map((err, idx) => (
+            <p key={idx}>{err}</p>
+          ))}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+        {/* nazev */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("common.name")}
+          </label>
+          <TextField
+            fullWidth
+            size="small"
+            type="text"
+            placeholder={t("categories.placeholder")}
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+          />
+        </div>
+        {/* typ */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("common.type")}
+          </label>
+          <Select
+            fullWidth
+            value={type}
+            size="small"
+            onChange={(e) => setType(e.target.value as "INCOME" | "EXPENSE")}
+            MenuProps={MenuProps}
+          >
+            <MenuItem value="EXPENSE">{t("categories.types.expense")}</MenuItem>
+            <MenuItem value="INCOME">{t("categories.types.income")}</MenuItem>
+          </Select>
+        </div>
+        {/* barva */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("common.color")}
+          </label>
+          <Select
+            fullWidth
+            value={colorClass}
+            size="small"
+            onChange={(e) => setColorClass(e.target.value)}
+            MenuProps={MenuProps}
+            renderValue={(selected) => {
+              const color = colors.find((c) => c.value === selected);
+              return (
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      borderRadius: "50%",
+                      backgroundColor: color?.hex,
+                    }}
+                  />
+                  {color ? t(color.translationKey) : ""}
+                </div>
+              );
+            }}
+          >
+            {colors.map((color) => (
+              <MenuItem key={color.value} value={color.value}>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      borderRadius: "50%",
+                      backgroundColor: color.hex,
+                    }}
+                  />
+                  {t(color.translationKey)}
+                </div>
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+        {/* ikona */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("common.icon")}
+          </label>
+          <Select
+            fullWidth
+            value={iconName}
+            size="small"
+            onChange={(e) => setIconName(e.target.value)}
+            MenuProps={MenuProps}
+          >
+            {icons.map((icon) => (
+              <MenuItem key={icon.value} value={icon.value}>
+                <CategoryIcon name={icon.value} className="mr-1.5" />
+                {t(icon.translationKey)}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+        {/* nadřazená kategorie */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("categories.parentCategory")}
+          </label>
+          <Select
+            fullWidth
+            value={parentId || ""}
+            size="small"
+            onChange={(e) => setParentId(e.target.value)}
+            MenuProps={MenuProps}
+            renderValue={(selected) => {
+              if (!selected) return t("categories.noParent");
+              const parent = categories.find((c) => c.id === selected);
+              return parent?.label || t("common.unknownCategory");
+            }}
+          >
+            <MenuItem value="">{t("categories.noParent")}</MenuItem>
+            {(() => {
+              // Jen kategorie bez rodiče
+              const rootCategories = categories.filter(
+                (c) => (c.parentId === undefined || c.parentId === null) && c.type === type,
+              );
+              return rootCategories.map((cat) => (
+                <MenuItem key={cat.id} value={cat.id}>
+                  {cat.label}
+                </MenuItem>
+              ));
+            })()}
+          </Select>
+        </div>
+        {/* tlacitka */}
+        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
+          >
+            {t("common.cancel")}
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
+          >
+            {t("categories.addModal")}
+          </button>
+        </div>
+      </form>
+    </>
+  );
+}
 
   // Stejná pole s překlady jako u EditCategoryModal
   const colors = [
@@ -178,152 +346,3 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
     { value: "GamepadRounded", translationKey: "categories.icons.gaming" },
     { value: "MoreHoriz", translationKey: "categories.icons.other" },
   ];
-
-  return (
-    <>
-      {errors && (
-        <div
-          className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-500/10 dark:text-red-200"
-          role="alert"
-          aria-live="assertive"
-        >
-          {errors.map((err, idx) => (
-            <p key={idx}>{err}</p>
-          ))}
-        </div>
-      )}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
-        {/* nazev */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            {t("common.name")}
-          </label>
-          <TextField
-            fullWidth
-            size="small"
-            type="text"
-            placeholder={t("categories.placeholder")}
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-          />
-        </div>
-        {/* barva */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            {t("common.color")}
-          </label>
-          <Select
-            fullWidth
-            value={colorClass}
-            size="small"
-            onChange={(e) => setColorClass(e.target.value)}
-            MenuProps={MenuProps}
-            renderValue={(selected) => {
-              const color = colors.find((c) => c.value === selected);
-              return (
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
-                  <div
-                    style={{
-                      width: "16px",
-                      height: "16px",
-                      borderRadius: "50%",
-                      backgroundColor: color?.hex,
-                    }}
-                  />
-                  {color ? t(color.translationKey) : ""}
-                </div>
-              );
-            }}
-          >
-            {colors.map((color) => (
-              <MenuItem key={color.value} value={color.value}>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
-                  <div
-                    style={{
-                      width: "16px",
-                      height: "16px",
-                      borderRadius: "50%",
-                      backgroundColor: color.hex,
-                    }}
-                  />
-                  {t(color.translationKey)}
-                </div>
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-        {/* ikona */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            {t("common.icon")}
-          </label>
-          <Select
-            fullWidth
-            value={iconName}
-            size="small"
-            onChange={(e) => setIconName(e.target.value)}
-            MenuProps={MenuProps}
-          >
-            {icons.map((icon) => (
-              <MenuItem key={icon.value} value={icon.value}>
-                <CategoryIcon name={icon.value} className="mr-1.5" />
-                {t(icon.translationKey)}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-        {/* nadřazená kategorie */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            {t("categories.parentCategory")}
-          </label>
-          <Select
-            fullWidth
-            value={parentId || ""}
-            size="small"
-            onChange={(e) => setParentId(e.target.value)}
-            MenuProps={MenuProps}
-            renderValue={(selected) => {
-              if (!selected) return t("categories.noParent");
-              const parent = categories.find((c) => c.id === selected);
-              return parent?.label || t("common.unknownCategory");
-            }}
-          >
-            <MenuItem value="">{t("categories.noParent")}</MenuItem>
-            {(() => {
-              // Jen kategorie bez rodiče
-              const rootCategories = categories.filter(
-                (c) => c.parentId === undefined || c.parentId === null,
-              );
-              return rootCategories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.id}>
-                  {cat.label}
-                </MenuItem>
-              ));
-            })()}
-          </Select>
-        </div>
-        {/* tlacitka */}
-        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
-          >
-            {t("common.cancel")}
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
-          >
-            {t("categories.addModal")}
-          </button>
-        </div>
-      </form>
-    </>
-  );
-}

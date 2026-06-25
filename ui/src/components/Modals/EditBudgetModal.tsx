@@ -24,6 +24,8 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
   const { t } = useTranslation();
 
   const categories = useCategoryStore((state) => state.categories);
+  const expenseCategories = categories.filter((c) => c.type === "EXPENSE");
+
   const updateBudget = useBudgetStore((state) => state.updateBudget);
 
   // stavy pro formular
@@ -67,12 +69,13 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
     try {
       await updateBudget(budget.id, { categoryId, limit: Number(limit) });
       toast.success(t("budgeting.updated")); // <-- Přidáno toastové hlášení o úspěchu
+      onCancel(); // zavre modal po uspesnem upraveni
+
     } catch (err) {
       console.error("Failed to update budget:", err);
       setErrors([t("budgeting.errors.updateFailed")]); // <-- Překlad
     } finally {
       setIsSubmitting(false);
-      onCancel(); // zavre modal po uspesnem upraveni
     }
   };
 
@@ -104,7 +107,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
             renderValue={(selected) => {
               if (!selected) return t("common.none");
               return (
-                categories.find((c) => c.id === selected)?.label ||
+                expenseCategories.find((c) => c.id === selected)?.label ||
                 t("common.unknownCategory")
               );
             }}
@@ -112,7 +115,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
             {/* <-- Překlad a sjednocení na 'common.none' */}
             <MenuItem value="">{t("common.none")}</MenuItem>
             {(() => {
-              return categories.map((cat) => (
+              return expenseCategories.map((cat) => (
                 <MenuItem key={cat.id} value={cat.id}>
                   {cat.label}
                 </MenuItem>

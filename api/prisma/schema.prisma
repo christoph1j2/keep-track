@@ -29,6 +29,11 @@ model User {
   templates    Template[]
 }
 
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
 model Category {
   id     String @id @default(uuid())
   userId String
@@ -40,6 +45,8 @@ model Category {
   parentId   String?
 
   order Int @default(0)
+
+  type CategoryType @default(EXPENSE)
 
   // Prisma vyžaduje, abychom sem přidali i "opačný směr" relací
   transactions Transaction[]
@@ -99,9 +106,9 @@ model Template {
   title  String
   amount Float
 
-  categoryId String
+  categoryId String?
   // Přidaná relace na Category!
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   order Int @default(0)
 

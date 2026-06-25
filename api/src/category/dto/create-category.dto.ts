@@ -1,5 +1,6 @@
-import { IsString, IsOptional, IsUUID } from 'class-validator';
+import { IsString, IsOptional, IsUUID, IsEnum } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CategoryType } from '@prisma/client/edge';
 
 export class CreateCategoryDto {
   @ApiProperty({ example: 'Jídlo', description: 'Název kategorie' })
@@ -27,4 +28,11 @@ export class CreateCategoryDto {
   @IsOptional()
   @IsUUID()
   parentId?: string;
+
+  @IsEnum(CategoryType)
+  @ApiProperty({
+    example: 'EXPENSE',
+    description: 'Typ kategorie (INCOME nebo EXPENSE)',
+  })
+  type: CategoryType;
 }

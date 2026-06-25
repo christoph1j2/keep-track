@@ -1,3 +1,5 @@
+export type CategoryType = 'INCOME' | 'EXPENSE'
+
 /**
  * Category record used to group transactions and render category visuals.
  * Optional parentId enables a two-level hierarchy in the overview tree.
@@ -11,4 +13,5 @@ export interface Category {
   parentId?: string | null;
 
   order: number; // Přidáno z backendu
+  type: CategoryType;
 }

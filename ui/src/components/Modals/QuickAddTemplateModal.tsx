@@ -32,6 +32,7 @@ export function QuickAddTemplateModal({
 
   const [title, setTitle] = useState(template?.title ?? "");
   const [amount, setAmount] = useState<number | "">(template?.amount ?? "");
+  
   const [categoryId, setCategoryId] = useState(
     template?.categoryId ?? sortedCategories[0]?.id ?? "",
   );
@@ -46,7 +47,7 @@ export function QuickAddTemplateModal({
     setIsSubmitting(true);
     setErrors(null);
 
-    if (!title.trim() || amount === "" || !categoryId) {
+    if (!title.trim() || amount === "") {
       setErrors([t("quickAdd.errors.missingFields")]); // <-- Překlad
       setIsSubmitting(false);
       return;
@@ -58,12 +59,14 @@ export function QuickAddTemplateModal({
       return;
     }
 
+    const finalCategoryId = categoryId === "" ? null : categoryId;
+
     try {
       if (template) {
         await updateTemplate(template.id, {
           title: title.trim(),
           amount: Number(amount),
-          categoryId,
+          categoryId: finalCategoryId,
           showInHotbar,
         });
         toast.success(t("quickAdd.updated"));
@@ -71,7 +74,7 @@ export function QuickAddTemplateModal({
         await addTemplate({
           title: title.trim(),
           amount: Number(amount),
-          categoryId,
+          categoryId: finalCategoryId,
           showInHotbar,
 
           order: templates.length,
@@ -146,6 +149,9 @@ export function QuickAddTemplateModal({
             value={categoryId}
             onChange={(event) => setCategoryId(event.target.value)}
           >
+            <MenuItem value="">
+              <em>{t("categories.noParent")}</em>
+            </MenuItem>
             {sortedCategories.map((category) => (
               <MenuItem key={category.id} value={category.id}>
                 {category.label.startsWith("default_categories.")
