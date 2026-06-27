@@ -322,7 +322,11 @@
     "security": "Zabezpečení účtu",
     "changePasswordBtn": "Změnit heslo",
     "oldPassword": "Staré heslo",
-    "newPassword": "Nové heslo"
+    "newPassword": "Nové heslo",
+    "deleteAccount": "Smazat účet",
+    "deleteAccountConfirm": "Opravdu chcete smazat svůj účet? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
+    "accountDeleted": "Váš účet byl úspěšně smazán.",
+    "deleteAccountTitle": "Smazat účet"
   },
   "default_categories": {
     "food": "Jídlo a pití",

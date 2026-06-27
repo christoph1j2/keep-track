@@ -322,7 +322,11 @@
     "security": "Account Security",
     "changePasswordBtn": "Change Password",
     "oldPassword": "Old Password",
-    "newPassword": "New Password"
+    "newPassword": "New Password",
+    "deleteAccount": "Delete Account",
+    "deleteAccountConfirm": "Are you sure you want to delete your account? This action is irreversible and will delete all your transactions, budgets, and settings.",
+    "accountDeleted": "Your account has been successfully deleted.",
+    "deleteAccountTitle": "Delete Account"
   },
   "default_categories": {
     "food": "Food and Drink",
