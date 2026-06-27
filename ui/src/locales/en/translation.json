@@ -310,15 +310,19 @@
   },
   "settings": {
     "title": "Settings",
-    "preferences": "Application preferences",
-    "language": "Application language",
-    "currency": "Main currency",
-    "dangerZone": "Danger zone",
+    "preferences": "Application Preferences",
+    "language": "App Language",
+    "currency": "Primary Currency",
+    "dangerZone": "Danger Zone",
     "dangerWarning": "Actions in this section are irreversible. Please proceed with caution.",
-    "factoryReset": "Delete all data (Factory Reset)",
-    "factoryResetConfirm": "Do you really want to delete all application data? This action is irreversible and will delete all your transactions, budgets, and settings.",
-    "currencyLocked": "The base currency cannot be changed because you already have saved transactions. To change the currency, you would need to delete all data.",
-    "currencyChanged": "Base currency was successfully changed."
+    "factoryReset": "Erase All Data (Factory Reset)",
+    "factoryResetConfirm": "Are you sure you want to erase all app data? This action is irreversible and will delete all your transactions, budgets, and settings.",
+    "currencyLocked": "The primary currency cannot be changed because you already have saved transactions. To change the currency, you would need to erase all data.",
+    "currencyChanged": "The primary currency has been successfully changed.",
+    "security": "Account Security",
+    "changePasswordBtn": "Change Password",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password"
   },
   "default_categories": {
     "food": "Food and Drink",

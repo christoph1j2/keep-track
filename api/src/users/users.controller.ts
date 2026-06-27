@@ -14,6 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -60,6 +61,18 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete current user account' })
   remove(@Req() req: AuthenticatedRequest) {
-    return this.usersService.remove(req.user.id);
+    return this.usersService.deleteAccount(req.user.id);
+  }
+
+  //! CHANGE PASSWORD
+  @Patch('me/password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change current user password' })
+  changePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.usersService.changePassword(req.user.id, changePasswordDto);
   }
 }

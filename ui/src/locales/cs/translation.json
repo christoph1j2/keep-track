@@ -318,7 +318,11 @@
     "factoryReset": "Smazat všechna data (Factory Reset)",
     "factoryResetConfirm": "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
     "currencyLocked": "Základní měnu nelze změnit, protože již máte uložené transakce. Pro změnu měny byste museli smazat všechna data.",
-    "currencyChanged": "Základní měna byla úspěšně změněna."
+    "currencyChanged": "Základní měna byla úspěšně změněna.",
+    "security": "Zabezpečení účtu",
+    "changePasswordBtn": "Změnit heslo",
+    "oldPassword": "Staré heslo",
+    "newPassword": "Nové heslo"
   },
   "default_categories": {
     "food": "Jídlo a pití",

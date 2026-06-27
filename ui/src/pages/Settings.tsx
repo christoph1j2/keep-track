@@ -1,17 +1,29 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TextField, CircularProgress } from "@mui/material";
 import { useSettingsStore } from "../store/settingsStore";
 import { useConfirmStore } from "../store/confirmStore";
 import { useTransactionStore } from "../store/transactionStore";
+import { useAuthStore } from "../store/authStore";
+import { api } from "../utils/api";
 import toast from "react-hot-toast";
 
 export function Settings() {
   const { t, i18n } = useTranslation();
+
+  // Stores
   const { language, currency, setLanguage, setCurrency } = useSettingsStore();
   const showConfirm = useConfirmStore((state) => state.showConfirm);
-
+  const logout = useAuthStore((state) => state.logout);
   const transactions = useTransactionStore((state) => state.transactions);
   const hasTransactions = transactions.length > 0;
 
+  // Lokální stavy pro změnu hesla
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // --- Handlery pro preference ---
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value as "cs" | "en";
     setLanguage(newLang);
@@ -32,10 +44,40 @@ export function Settings() {
     }
   };
 
-  const handleFactoryReset = () => {
-    //TODO: tady taky API v budoucnu
-    localStorage.clear();
-    window.location.reload();
+  // --- Handlery pro zabezpečení ---
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!oldPassword || !newPassword) return;
+
+    setIsSubmitting(true);
+    try {
+      await api.patch("/users/me/password", { oldPassword, newPassword });
+      toast.success(
+        t(
+          "settings.passwordChanged",
+          "Heslo bylo úspěšně změněno. Znovu se přihlaste.",
+        ),
+      );
+      logout(); // Odhlásí uživatele po změně hesla
+    } catch (error) {
+      toast.error(t("settings.passwordError", "Chyba při změně hesla."));
+      console.error("Error changing password:", error);
+    } finally {
+      setIsSubmitting(false);
+      setOldPassword("");
+      setNewPassword("");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await api.delete("/users/me");
+      toast.success(t("settings.accountDeleted", "Účet byl úspěšně smazán."));
+      logout(); // Vyčistí frontendový stav a tokeny
+    } catch (error) {
+      toast.error(t("settings.deleteError", "Nepodařilo se smazat účet."));
+      console.error("Error deleting account:", error);
+    }
   };
 
   return (
@@ -85,8 +127,8 @@ export function Settings() {
               id="currency"
               value={currency}
               onChange={handleCurrencyChange}
-              disabled={hasTransactions} // Disable if there are transactions
-              className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors cursor-pointer"
+              disabled={hasTransactions}
+              className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <option value="CZK">CZK</option>
               <option value="EUR">EUR</option>
@@ -100,7 +142,7 @@ export function Settings() {
               <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
                 {t(
                   "settings.currencyLocked",
-                  "Základní měnu nelze změnit, protože již máte uložené transakce. Pro změnu měny byste museli smazat všechna data.",
+                  "Základní měnu nelze změnit, protože již máte uložené transakce.",
                 )}
               </p>
             )}
@@ -108,32 +150,124 @@ export function Settings() {
         </div>
       </section>
 
-      {/* KARTA 2: Nebezpečná zóna */}
-      <section className="bg-red-50 dark:bg-red-950/20 p-6 rounded-2xl border border-red-200 dark:border-red-900/50 transition-colors mt-4">
+      {/* KARTA 2: Zabezpečení (Změna hesla) */}
+      <section className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+        <h3 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-100 text-center">
+          {t("settings.security", "Zabezpečení účtu")}
+        </h3>
+
+        <form
+          onSubmit={handlePasswordChange}
+          className="flex flex-col gap-4 max-w-sm mx-auto w-full"
+        >
+          <TextField
+            label={t("settings.oldPassword", "Současné heslo")}
+            type="password"
+            size="small"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            required
+            fullWidth
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: "rgb(226, 232, 240)" },
+                "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
+                "&.Mui-focused fieldset": { borderColor: "rgb(59, 130, 246)" },
+              },
+              "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
+              "& .MuiInputLabel-root": { color: "rgb(100, 116, 139)" },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "rgb(59, 130, 246)",
+              },
+              ".dark &": {
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgb(51, 65, 85)" },
+                  "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgb(59, 130, 246)",
+                  },
+                },
+                "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
+                "& .MuiInputLabel-root": { color: "rgb(148, 163, 184)" },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "rgb(59, 130, 246)",
+                },
+              },
+            }}
+          />
+          <TextField
+            label={t("settings.newPassword", "Nové heslo")}
+            type="password"
+            size="small"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            fullWidth
+            slotProps={{ htmlInput: { minLength: 6 } }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: "rgb(226, 232, 240)" },
+                "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
+                "&.Mui-focused fieldset": { borderColor: "rgb(59, 130, 246)" },
+              },
+              "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
+              "& .MuiInputLabel-root": { color: "rgb(100, 116, 139)" },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "rgb(59, 130, 246)",
+              },
+              ".dark &": {
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgb(51, 65, 85)" },
+                  "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgb(59, 130, 246)",
+                  },
+                },
+                "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
+                "& .MuiInputLabel-root": { color: "rgb(148, 163, 184)" },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "rgb(59, 130, 246)",
+                },
+              },
+            }}
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting || !oldPassword || !newPassword}
+            className="mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 w-full"
+          >
+            {isSubmitting && <CircularProgress size={16} color="inherit" />}
+            {t("settings.changePasswordBtn", "Změnit heslo")}
+          </button>
+        </form>
+      </section>
+
+      {/* KARTA 3: Nebezpečná zóna */}
+      <section className="bg-red-50 dark:bg-red-950/20 p-6 rounded-2xl border border-red-200 dark:border-red-900/50 transition-colors">
         <h3 className="text-xl font-semibold mb-2 text-red-700 dark:text-red-400">
           {t("settings.dangerZone", "Nebezpečná zóna")}
         </h3>
         <p className="text-sm text-red-600/80 dark:text-red-400/80 mb-4">
           {t(
             "settings.dangerWarning",
-            "Akce v této sekci jsou nevratné. Prosím, postupujte opatrně.",
+            "Akce v této sekci are nevratné. Smazáním účtu přijdete o všechny transakce, kategorie a nastavení.",
           )}
         </p>
 
         <button
           onClick={() =>
             showConfirm(
-              t("settings.factoryReset", "Smazat všechna data"),
+              t("settings.deleteAccountTitle", "Smazat účet"),
               t(
-                "settings.factoryResetConfirm",
-                "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
+                "settings.deleteAccountConfirm",
+                "Opravdu chcete nenávratně smazat svůj účet a veškerá svá data?",
               ),
-              handleFactoryReset,
+              handleDeleteAccount,
             )
           }
           className="bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-xl transition-colors"
         >
-          {t("settings.factoryReset", "Smazat všechna data (Factory Reset)")}
+          {t("settings.deleteAccount", "Smazat účet a všechna data")}
         </button>
       </section>
     </div>

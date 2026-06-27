@@ -1,8 +1,13 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -222,13 +227,39 @@ export class UsersService {
    * @param id ID of the user
    * @returns Removed user
    */
-  async remove(id: string) {
-    return this.prisma.user.delete({
-      where: { id },
+  async deleteAccount(userId: string) {
+    await this.prisma.user.delete({
+      where: { id: userId },
       select: {
         id: true,
         email: true,
       },
     });
+    return { message: 'User account deleted successfully' };
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) return;
+
+    const isPasswordValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const newHashedPW = await bcrypt.hash(dto.newPassword, salt);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newHashedPW, hashedRefreshToken: null },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 }
