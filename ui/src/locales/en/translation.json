@@ -319,14 +319,18 @@
     "factoryResetConfirm": "Are you sure you want to erase all app data? This action is irreversible and will delete all your transactions, budgets, and settings.",
     "currencyLocked": "The primary currency cannot be changed because you already have saved transactions. To change the currency, you would need to erase all data.",
     "currencyChanged": "The primary currency has been successfully changed.",
-    "security": "Account Security",
+    "security": "Modify Profile",
     "changePasswordBtn": "Change Password",
     "oldPassword": "Old Password",
     "newPassword": "New Password",
     "deleteAccount": "Delete Account",
     "deleteAccountConfirm": "Are you sure you want to delete your account? This action is irreversible and will delete all your transactions, budgets, and settings.",
     "accountDeleted": "Your account has been successfully deleted.",
-    "deleteAccountTitle": "Delete Account"
+    "deleteAccountTitle": "Delete Account",
+    "changeUsernameBtn": "Change Username",
+    "newUsername": "New Username",
+    "usernameChanged": "Username has been successfully changed.",
+    "usernameError": "Error occurred while changing username. Please check the entered details."
   },
   "default_categories": {
     "food": "Food and Drink",

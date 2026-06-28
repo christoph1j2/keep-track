@@ -13,6 +13,7 @@ export function Settings() {
 
   // Stores
   const { language, currency, setLanguage, setCurrency } = useSettingsStore();
+  const user = useAuthStore((state) => state.user);
   const showConfirm = useConfirmStore((state) => state.showConfirm);
   const logout = useAuthStore((state) => state.logout);
   const transactions = useTransactionStore((state) => state.transactions);
@@ -22,6 +23,9 @@ export function Settings() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Lokální stavy pro změnu uživatelského jména
+  const [newUsername, setNewUsername] = useState("");
 
   // --- Handlery pro preference ---
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -77,6 +81,35 @@ export function Settings() {
     } catch (error) {
       toast.error(t("settings.deleteError", "Nepodařilo se smazat účet."));
       console.error("Error deleting account:", error);
+    }
+  };
+
+  const handleUsernameChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUsername) return;
+
+    setIsSubmitting(true);
+    try {
+      await api.patch("/users/me", { username: newUsername });
+
+      if (user) {
+        useAuthStore.setState({ user: { ...user, username: newUsername } });
+      }
+
+      toast.success(
+        t(
+          "settings.usernameChanged",
+          "Uživatelské jméno bylo úspěšně změněno.",
+        ),
+      );
+    } catch (error) {
+      toast.error(
+        t("settings.usernameError", "Chyba při změně uživatelského jména."),
+      );
+      console.error("Error changing username:", error);
+    } finally {
+      setIsSubmitting(false);
+      setNewUsername("");
     }
   };
 
@@ -155,91 +188,146 @@ export function Settings() {
         <h3 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-100 text-center">
           {t("settings.security", "Zabezpečení účtu")}
         </h3>
-
-        <form
-          onSubmit={handlePasswordChange}
-          className="flex flex-col gap-4 max-w-sm mx-auto w-full"
-        >
-          <TextField
-            label={t("settings.oldPassword", "Současné heslo")}
-            type="password"
-            size="small"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            required
-            fullWidth
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "rgb(226, 232, 240)" },
-                "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
-                "&.Mui-focused fieldset": { borderColor: "rgb(59, 130, 246)" },
-              },
-              "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
-              "& .MuiInputLabel-root": { color: "rgb(100, 116, 139)" },
-              "& .MuiInputLabel-root.Mui-focused": {
-                color: "rgb(59, 130, 246)",
-              },
-              ".dark &": {
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "rgb(51, 65, 85)" },
-                  "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "rgb(59, 130, 246)",
-                  },
-                },
-                "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
-                "& .MuiInputLabel-root": { color: "rgb(148, 163, 184)" },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "rgb(59, 130, 246)",
-                },
-              },
-            }}
-          />
-          <TextField
-            label={t("settings.newPassword", "Nové heslo")}
-            type="password"
-            size="small"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-            fullWidth
-            slotProps={{ htmlInput: { minLength: 6 } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "rgb(226, 232, 240)" },
-                "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
-                "&.Mui-focused fieldset": { borderColor: "rgb(59, 130, 246)" },
-              },
-              "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
-              "& .MuiInputLabel-root": { color: "rgb(100, 116, 139)" },
-              "& .MuiInputLabel-root.Mui-focused": {
-                color: "rgb(59, 130, 246)",
-              },
-              ".dark &": {
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "rgb(51, 65, 85)" },
-                  "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "rgb(59, 130, 246)",
-                  },
-                },
-                "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
-                "& .MuiInputLabel-root": { color: "rgb(148, 163, 184)" },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "rgb(59, 130, 246)",
-                },
-              },
-            }}
-          />
-          <button
-            type="submit"
-            disabled={isSubmitting || !oldPassword || !newPassword}
-            className="mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 w-full"
+        <div className="flex gap-4">
+          <form
+            onSubmit={handlePasswordChange}
+            className="flex flex-col justify gap-4 max-w-sm mx-auto w-full"
           >
-            {isSubmitting && <CircularProgress size={16} color="inherit" />}
-            {t("settings.changePasswordBtn", "Změnit heslo")}
-          </button>
-        </form>
+            <TextField
+              label={t("settings.oldPassword", "Současné heslo")}
+              type="password"
+              size="small"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              required
+              fullWidth
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgb(226, 232, 240)" },
+                  "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgb(59, 130, 246)",
+                  },
+                },
+                "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
+                "& .MuiInputLabel-root": { color: "rgb(100, 116, 139)" },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "rgb(59, 130, 246)",
+                },
+                ".dark &": {
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "rgb(51, 65, 85)" },
+                    "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "rgb(59, 130, 246)",
+                    },
+                  },
+                  "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
+                  "& .MuiInputLabel-root": { color: "rgb(148, 163, 184)" },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "rgb(59, 130, 246)",
+                  },
+                },
+              }}
+            />
+            <TextField
+              label={t("settings.newPassword", "Nové heslo")}
+              type="password"
+              size="small"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              fullWidth
+              slotProps={{ htmlInput: { minLength: 6 } }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgb(226, 232, 240)" },
+                  "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgb(59, 130, 246)",
+                  },
+                },
+                "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
+                "& .MuiInputLabel-root": { color: "rgb(100, 116, 139)" },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "rgb(59, 130, 246)",
+                },
+                ".dark &": {
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "rgb(51, 65, 85)" },
+                    "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "rgb(59, 130, 246)",
+                    },
+                  },
+                  "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
+                  "& .MuiInputLabel-root": { color: "rgb(148, 163, 184)" },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "rgb(59, 130, 246)",
+                  },
+                },
+              }}
+            />
+            <button
+              type="submit"
+              disabled={isSubmitting || !oldPassword || !newPassword}
+              className="mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 w-full"
+            >
+              {isSubmitting && <CircularProgress size={16} color="inherit" />}
+              {t("settings.changePasswordBtn", "Změnit heslo")}
+            </button>
+          </form>
+          <form
+            onSubmit={handleUsernameChange}
+            className="flex flex-col justify-between gap-4 max-w-sm mx-auto w-full"
+          >
+            <TextField
+              label={t("settings.newUsername", "Nové uživatelské jméno")}
+              type="text"
+              size="small"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              required
+              fullWidth
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgb(226, 232, 240)" },
+                  "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgb(59, 130, 246)",
+                  },
+                },
+                "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
+                "& .MuiInputLabel-root": { color: "rgb(100, 116, 139)" },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "rgb(59, 130, 246)",
+                },
+                ".dark &": {
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "rgb(51, 65, 85)" },
+                    "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "rgb(59, 130, 246)",
+                    },
+                  },
+                  "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
+                  "& .MuiInputLabel-root": { color: "rgb(148, 163, 184)" },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "rgb(59, 130, 246)",
+                  },
+                },
+              }}
+            />
+            <button
+              type="submit"
+              disabled={isSubmitting || !newUsername}
+              className="mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 w-full"
+            >
+              {isSubmitting && <CircularProgress size={16} color="inherit" />}
+              {t("settings.changeUsernameBtn", "Změnit uživatelské jméno")}
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* KARTA 3: Nebezpečná zóna */}

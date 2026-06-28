@@ -319,14 +319,18 @@
     "factoryResetConfirm": "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
     "currencyLocked": "Základní měnu nelze změnit, protože již máte uložené transakce. Pro změnu měny byste museli smazat všechna data.",
     "currencyChanged": "Základní měna byla úspěšně změněna.",
-    "security": "Zabezpečení účtu",
+    "security": "Upravit Účet",
     "changePasswordBtn": "Změnit heslo",
     "oldPassword": "Staré heslo",
     "newPassword": "Nové heslo",
     "deleteAccount": "Smazat účet",
     "deleteAccountConfirm": "Opravdu chcete smazat svůj účet? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
     "accountDeleted": "Váš účet byl úspěšně smazán.",
-    "deleteAccountTitle": "Smazat účet"
+    "deleteAccountTitle": "Smazat účet",
+    "changeUsernameBtn": "Změnit uživatelské jméno",
+    "newUsername": "Nové uživatelské jméno",
+    "usernameChanged": "Uživatelské jméno bylo úspěšně změněno.",
+    "usernameError": "Chyba při změně uživatelského jména. Zkontrolujte prosím zadané údaje."
   },
   "default_categories": {
     "food": "Jídlo a pití",
