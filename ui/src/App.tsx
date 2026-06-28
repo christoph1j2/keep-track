@@ -13,6 +13,8 @@ import { Settings } from "./pages/Settings";
 import { Login } from "./pages/Login";
 import { ProtectedRoute } from "./components/Base/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import { ResetPassword } from "./pages/ResetPassword";
 
 /**
  * Root application component that wires routing into the shared layout shell.
@@ -27,6 +29,8 @@ function App() {
         <Toaster position="top-center" />
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/overview" element={<Overview />} />

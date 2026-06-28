@@ -3,6 +3,9 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { EmailService } from '../email/email.service';
 
 export type ValidatedUser = {
   id: string;
@@ -19,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private emailService: EmailService,
   ) {}
 
   // overit email a heslo
@@ -125,5 +129,63 @@ export class AuthService {
       where: { id: userId },
       data: { hashedRefreshToken: null },
     });
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      return { message: 'If the email exists, a reset link will be sent.' };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    const resetExpires = new Date();
+    resetExpires.setHours(resetExpires.getHours() + 1); // 1h
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: resetToken,
+        resetPasswordTokenExpiry: resetExpires,
+      },
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+    await this.emailService.sendPasswordResetEmail(user.email, resetUrl);
+
+    return { message: 'If the email exists, a reset link will be sent.' };
+  }
+
+  async resetPassword(token: string, dto: ResetPasswordDto) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordTokenExpiry: { gte: new Date() },
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid or expired reset token');
+    }
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new UnauthorizedException('Passwords do not match');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, salt);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordTokenExpiry: null,
+        hashedRefreshToken: null, // log out user from all devices
+      },
+    });
+
+    return { message: 'Password has been reset successfully' };
   }
 }

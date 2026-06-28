@@ -11,10 +11,25 @@ import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
 import { TemplateModule } from './template/template.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp-relay.brevo.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.BREVO_SMTP_USER,
+          pass: process.env.BREVO_SMTP_PASSWORD,
+        },
+      },
+      defaults: {
+        from: '"Keep Track" <keep-track@ecl-it.cz>',
+      },
+    }),
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

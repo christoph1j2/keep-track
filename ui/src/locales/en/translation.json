@@ -348,7 +348,8 @@
       "subtitle": "Log in to your account",
       "submit": "Log in",
       "switchToRegister": "Don't have an account? Register",
-      "success": "Logged in successfully!"
+      "success": "Logged in successfully!",
+      "forgotPassword": "Forgot your password?"
     },
     "register": {
       "title": "Registration",
@@ -364,7 +365,8 @@
       "baseCurrency": "Base currency"
     },
     "errors": {
-      "generic": "An error occurred during login/registration"
+      "generic": "An error occurred during the operation. Please try again.",
+      "tooManyRequests": "Too many requests. Please try again later."
     }
   }
 }

@@ -14,7 +14,7 @@ model User {
 
   // AUTH a TOKENS
   hashedRefreshToken       String? // ulozeny hash refresh tokenu (bezpecne odhlaseni)
-  resetPasswordToken       String? // token pro reset hesla
+  resetPasswordToken       String?   @unique // token pro reset hesla
   resetPasswordTokenExpiry DateTime? // expirace tokenu pro
 
   // tady si uživatel zvolí "základní měnu"

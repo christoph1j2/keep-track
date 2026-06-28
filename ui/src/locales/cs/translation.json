@@ -348,7 +348,8 @@
       "subtitle": "Přihlaste se ke svému účtu",
       "submit": "Přihlásit se",
       "switchToRegister": "Nemáš účet? Zaregistruj se",
-      "success": "Úspěšně přihlášeno!"
+      "success": "Úspěšně přihlášeno!",
+      "forgotPassword": "Zapomněli jste heslo?"
     },
     "register": {
       "title": "Registrace",
@@ -364,7 +365,8 @@
       "baseCurrency": "Výchozí měna"
     },
     "errors": {
-      "generic": "Nastala chyba při přihlašování/registraci"
+      "generic": "Něco se pokazilo během operace. Zkuste to prosím znovu.",
+      "tooManyRequests": "Příliš mnoho požadavků. Zkuste to prosím znovu později."
     }
   }
 }

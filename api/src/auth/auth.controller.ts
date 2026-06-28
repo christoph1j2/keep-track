@@ -3,6 +3,8 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Req,
   UnauthorizedException,
@@ -13,6 +15,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -51,5 +55,24 @@ export class AuthController {
   async logout(@Req() req: AuthenticatedRequest) {
     await this.authService.logout(req.user.id);
     return { message: 'Logged out successfully' };
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 3, ttl: 86400000 } })
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body('email') email: string) {
+    await this.authService.forgotPassword(email);
+    return { message: 'Password reset email sent if the email exists' };
+  }
+
+  @Patch('reset-password/:token')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Param('token') token: string,
+  ) {
+    await this.authService.resetPassword(token, resetPasswordDto);
+    return { message: 'Password has been reset successfully' };
   }
 }

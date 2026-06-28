@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "../contexts/ThemeContext";
 import { toast } from "react-hot-toast";
 import { useSettingsStore } from "../store/settingsStore";
+import { Link } from "react-router-dom";
 
 export const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -234,6 +235,17 @@ export const Login = () => {
               ? t("auth.register.switchToLogin")
               : t("auth.login.switchToRegister")}
           </button>
+
+          {!isRegister && (
+            <div className="mt-2">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium transition-colors"
+              >
+                {t("auth.login.forgotPassword")}
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
