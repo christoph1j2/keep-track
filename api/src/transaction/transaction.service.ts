@@ -34,6 +34,14 @@ export class TransactionService {
     return transaction;
   }
 
+  // async findManyByIds(userId: string, ids: string[]) {
+  //   const transactions = await this.prisma.transaction.findMany({
+  //     where: { id: { in: ids }, userId },
+  //     include: { category: true },
+  //   });
+  //   return transactions;
+  // }
+
   async update(userId: string, id: string, dto: UpdateTransactionDto) {
     await this.findOne(userId, id);
     return this.prisma.transaction.update({

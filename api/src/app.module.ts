@@ -12,6 +12,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
 import { TemplateModule } from './template/template.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     TransactionModule,
     BudgetModule,
     TemplateModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

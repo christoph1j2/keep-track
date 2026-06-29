@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { BaseModal } from "./BaseModal";
 import { parseBankCSV, type ParsedTransaction } from "../../utils/bankImport";
-import { saveUserKeyword } from "../../utils/userKeywords";
 import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTransactionStore } from "../../store/transactionStore";
@@ -10,19 +9,27 @@ import { useConfirmStore } from "../../store/confirmStore";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { useSettingsStore } from "../../store/settingsStore";
 import { toast } from "react-hot-toast";
+import { api } from "../../utils/api";
+import { CircularProgress } from "@mui/material";
 
 interface ImportModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+// Rozšíříme typ o AI příznak pro potřeby UI
+export interface ReviewedTransaction extends ParsedTransaction {
+  categoryId: string | null;
+  isAiCategorized: boolean;
+}
+
 export function ImportModal({ isOpen, onClose }: ImportModalProps) {
-  const { transactions, addTransaction } = useTransactionStore();
+  const { addTransaction } = useTransactionStore();
   const categories = useCategoryStore((state) => state.categories);
 
   const { t } = useTranslation();
   const showConfirm = useConfirmStore((state) => state.showConfirm);
-  const { language, currency } = useSettingsStore();
+  const { language } = useSettingsStore();
   const locale = language === "cs" ? "cs-CZ" : "en-US";
 
   // Abecedně seřazené kategorie pro select boxy
@@ -32,10 +39,11 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   );
 
   const [isParsing, setIsParsing] = useState(false);
-  const [parsedData, setParsedData] = useState<ParsedTransaction[]>([]);
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
+  const [parsedData, setParsedData] = useState<ReviewedTransaction[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Zpracování nahrání souboru
+  // Zpracování nahrání souboru a AI kategorizace
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -46,33 +54,54 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
     setError(null);
 
     try {
-      const data = await parseBankCSV(file, transactions, categories);
-      setParsedData(data);
+      // 1. Lokální vyčištění CSV
+      const rawData = await parseBankCSV(file);
+      setIsParsing(false);
+
+      if (rawData.length === 0) {
+        setError(
+          t("import.noData", "V souboru nebyly nalezeny platné transakce."),
+        );
+        return;
+      }
+
+      // 2. Volání NestJS backendu pro dohledání v historii a OpenRouter AI
+      setIsAiProcessing(true);
+      const response = await api.post("/ai/categorize-batch", {
+        transactions: rawData,
+      });
+
+      // console.log(rawData);
+      // console.log(response);
+
+      setParsedData(response.data);
+      toast.success(t("import.aiSuccess", "Transakce byly analyzovány!"));
     } catch (err) {
-      setError(t("import.parseError"));
+      setError(t("import.parseError", "Při zpracování souboru nastala chyba."));
       console.error(err);
     } finally {
       setIsParsing(false);
-      // Vyresetujeme input, aby šel nahrát stejný soubor znovu
+      setIsAiProcessing(false);
       event.target.value = "";
     }
   };
 
   // Uživatel ručně změní kategorii v tabulce
-  // PROPAGUJ změnu na všechny řádky se stejným title
   const handleCategoryChange = (id: string, newCategoryId: string) => {
     setParsedData((prev) => {
       const changedItem = prev.find((t) => t.id === id);
       if (!changedItem) return prev;
 
-      // Aktualizuj VŠECHNY řádky se stejným title
+      // Aktualizuj VŠECHNY řádky se stejným title a zruš jim AI příznak
       return prev.map((t) =>
-        t.title === changedItem.title ? { ...t, categoryId: newCategoryId } : t,
+        t.title === changedItem.title
+          ? { ...t, categoryId: newCategoryId, isAiCategorized: false }
+          : t,
       );
     });
   };
 
-  // Vytáhneme samotnou logiku ukládání ven, abychom ji mohli zavolat přímo, nebo po potvrzení v modalu
+  // Uložení finálních dat
   const performSave = () => {
     const normalizedData = parsedData.map((t) =>
       t.categoryId === null ? { ...t, categoryId: UNCATEGORIZED_ID } : t,
@@ -84,37 +113,31 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         amount: t.amount,
         date: t.date,
         categoryId: t.categoryId as string,
-        originalAmount: t.amount,
-        originalCurrency: currency,
-        isAiCategorized: false,
+        originalAmount: t.originalAmount,
+        originalCurrency: t.originalCurrency,
+        isAiCategorized: t.isAiCategorized,
       });
-
-      if (t.categoryId !== UNCATEGORIZED_ID) {
-        saveUserKeyword(t.title, t.categoryId as string);
-      }
     });
 
     setParsedData([]);
     onClose();
   };
 
-  // Uložení všech plateb do reálné databáze
+  // Validace před uložením
   const handleSaveAll = () => {
     const uncategorizedCount = parsedData.filter(
       (t) => t.categoryId === null,
     ).length;
 
-    toast.success(t("import.saving")); // Okamžitá zpětná vazba, že se něco děje
+    toast.success(t("import.saving"));
 
     if (uncategorizedCount > 0) {
-      // Použití globálního confirm modalu
       showConfirm(
         t("common.warning"),
         t("import.uncategorizedWarning", { count: uncategorizedCount }),
         performSave,
       );
     } else {
-      // Vše je přiřazeno, můžeme rovnou uložit
       performSave();
     }
   };
@@ -122,42 +145,60 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   return (
     <BaseModal title={t("import.title")} isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col gap-4">
-        {/* 1. Fáze: Nahrání souboru */}
+        {/* 1. Fáze: Nahrání souboru a Loading */}
         {parsedData.length === 0 && (
           <>
-            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center">
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                disabled={isParsing}
-                className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-indigo-500/20 dark:file:text-indigo-200 dark:hover:file:bg-indigo-500/30"
-              />
-              {isParsing && (
-                <p className="mt-2 text-slate-500 dark:text-slate-400">
-                  {t("import.processing")}
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center flex flex-col items-center justify-center">
+              {isParsing || isAiProcessing ? (
+                <div className="flex flex-col items-center gap-3 text-blue-600 dark:text-blue-400 py-4">
+                  <CircularProgress size={32} color="inherit" />
+                  <p className="text-sm font-medium animate-pulse">
+                    {isParsing
+                      ? t("import.readingFile", "Čtu strukturu CSV souboru...")
+                      : t(
+                          "import.aiThinking",
+                          "AI analyzuje a dohledává kategorie...",
+                        )}
+                  </p>
+                </div>
+              ) : (
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  disabled={isParsing || isAiProcessing}
+                  className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-indigo-500/20 dark:file:text-indigo-200 dark:hover:file:bg-indigo-500/30 cursor-pointer"
+                />
+              )}
+
+              {error && (
+                <p className="mt-4 text-red-500 dark:text-red-400 font-medium">
+                  {error}
                 </p>
               )}
-              {error && (
-                <p className="mt-2 text-red-500 dark:text-red-400">{error}</p>
-              )}
             </div>
-            <div className="mt-6 text-sm text-slate-600 dark:text-slate-300 bg-blue-50 dark:bg-indigo-500/10 p-4 rounded-xl text-left shadow-sm">
-              <strong>{t("import.helpPrefix")}</strong> {t("import.helpText")}
-            </div>
+
+            {!isParsing && !isAiProcessing && (
+              <div className="mt-6 text-sm text-slate-600 dark:text-slate-300 bg-blue-50 dark:bg-indigo-500/10 p-4 rounded-xl text-left shadow-sm">
+                <strong>{t("import.helpPrefix")}</strong> {t("import.helpText")}
+              </div>
+            )}
           </>
         )}
 
         {/* 2. Fáze: Náhled a oprava kategorií */}
         {parsedData.length > 0 && (
           <div className="flex flex-col gap-4">
-            <div className="bg-yellow-50 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-200 p-3 rounded-lg text-sm font-medium">
-              {t("import.summary", { count: parsedData.length })}
+            <div className="flex justify-between items-center bg-blue-50 text-blue-800 dark:bg-indigo-500/10 dark:text-indigo-200 p-3 rounded-lg text-sm font-medium">
+              <span>{t("import.summary", { count: parsedData.length })}</span>
+              <span className="text-xs opacity-80">
+                ⭐ Zkontrolujte automaticky navržené položky
+              </span>
             </div>
 
             <div className="max-h-100 overflow-y-auto border border-slate-200 dark:border-slate-700/50 rounded-lg">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 dark:bg-slate-900 sticky top-0 shadow-sm">
+                <thead className="bg-slate-50 dark:bg-slate-900 sticky top-0 shadow-sm z-10">
                   <tr>
                     <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">
                       {t("import.columns.date")}
@@ -193,13 +234,19 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                       >
                         {formatCurrency(tItem.amount)}
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 relative min-w-45">
                         <select
                           value={tItem.categoryId || ""}
                           onChange={(e) =>
                             handleCategoryChange(tItem.id, e.target.value)
                           }
-                          className={`w-full p-1 border rounded text-sm ${!tItem.categoryId ? "border-red-400 bg-red-50 dark:bg-red-500/10 dark:text-red-200" : "border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"}`}
+                          className={`w-full p-2 pr-8 border rounded text-sm transition-colors ${
+                            !tItem.categoryId
+                              ? "border-red-400 bg-red-50 dark:bg-red-500/10 dark:text-red-200 focus:border-red-500"
+                              : tItem.isAiCategorized
+                                ? "border-purple-300 bg-purple-50 text-purple-900 dark:border-purple-500/30 dark:bg-purple-900/20 dark:text-purple-200 focus:border-purple-500"
+                                : "border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-blue-500"
+                          }`}
                         >
                           <option value="" disabled>
                             {t("import.selectCategory")}
@@ -210,6 +257,16 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                             </option>
                           ))}
                         </select>
+
+                        {/* Ikonka pro AI zařazení */}
+                        {tItem.isAiCategorized && (
+                          <span
+                            title="Kategorie navržena pomocí AI"
+                            className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none drop-shadow-sm"
+                          >
+                            ✨
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}

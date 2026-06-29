@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import type { Category } from "../types/category";
-import { cleanupKeywordsForDeletedCategory } from "../utils/userKeywords";
 import { api } from "../utils/api";
 
 interface CategoryState {
@@ -49,7 +48,7 @@ export const useCategoryStore = create<CategoryState>((set) => ({
   removeCategory: async (id) => {
     await api.delete(`/categories/${id}`);
 
-    cleanupKeywordsForDeletedCategory(id);
+    // cleanupKeywordsForDeletedCategory(id);
 
     set((state) => {
       const updatedCategories = state.categories
