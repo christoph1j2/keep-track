@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OpenRouter } from '@openrouter/sdk';
@@ -41,6 +45,14 @@ export class AiService {
       select: { id: true, label: true },
     });
 
+    if (userCategories.length === 0) {
+      return incomingTransactions.map((t) => ({
+        ...t,
+        categoryId: null,
+        isAiCategorized: false,
+      }));
+    }
+
     const results: ProcessedTransaction[] = [];
     const unmappedForAi: Transaction[] = [];
 
@@ -73,18 +85,30 @@ export class AiService {
         .join('\n');
 
       const systemPrompt = `
-        You are an expert financial assistant. Categorize bank transactions based on their names.
-        
+        You are an expert financial assistant specializing in the Czech Republic and European markets. 
+        Your task is to categorize bank transactions based on their merchant names.
+
         Available user categories (use ONLY these IDs):
         ${categoryContext}
 
+        Context & Cheat Sheet for common (Czech/European) merchants:
+        - Groceries/Supermarkets: Tesco, Kaufland, Albert, Lidl, Penny, Billa, Globus, Makro, Coop. ...
+        - Public Transport/Trains: ČD (České dráhy), PMDP (Plzeňské městské dopravní podniky), RegioJet, FlixBus, Leo Express, IDS. ...
+        - Drugstores/Cosmetics: dm drogerie, Teta, Rossmann, Notino. ...
+        - Food/Restaurants: Wolt, Foodora, Bolt Food, McDonald's, KFC, Burger King. ...
+        - Tech/Hobby: Alza, CZC, Datart, Hornbach, OBI, Bauhaus. ...
+
         Rules:
-        - Return ONLY clean valid JSON in the format of an array of objects: [{"title": "exact_transaction_title", "categoryId": "category_id"}]
-        - If unsure, set "categoryId": null.
-        CRITICAL: Output absolutely nothing but the JSON array. Do not include markdown backticks.
+        1. Return ONLY clean valid JSON in the format of an array of objects: [{"title": "exact_transaction_title", "categoryId": "category_id"}]
+        2. If *ABSOLUTELY* unsure, set "categoryId": null.
+        3. Ignore corporate filler words like "a.s.", "s.r.o.", "z.s.", city names, or phrases like "platba kartou". Focus on the core merchant name to make your decision.
+        4. CRITICAL: Output absolutely nothing but the JSON array. Do not include markdown backticks or explanations.
       `;
 
       // Step B: Process in chunks of 40 to avoid free-tier token limits/timeouts
+      // Quick and dirty sleep helper
+      const sleep = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
       const CHUNK_SIZE = 40;
 
       for (let i = 0; i < uniqueTitles.length; i += CHUNK_SIZE) {
@@ -93,60 +117,79 @@ export class AiService {
           `Processing AI chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(uniqueTitles.length / CHUNK_SIZE)}`,
         );
 
-        try {
-          const aiResponse = await this.aiClient.chat.send({
-            chatRequest: {
-              model: 'openrouter/free',
-              responseFormat: { type: 'json_object' },
-              messages: [
-                { role: 'system', content: systemPrompt },
-                {
-                  role: 'user',
-                  content: JSON.stringify(
-                    titleChunk.map((title) => ({ title })),
-                  ),
-                },
-              ],
-              stream: false,
-            },
-          });
+        let retries = 3; // Give it 3 chances to succeed
+        while (retries > 0) {
+          try {
+            const aiResponse = await this.aiClient.chat.send({
+              chatRequest: {
+                model: 'openrouter/free',
+                responseFormat: { type: 'json_object' },
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  {
+                    role: 'user',
+                    content: JSON.stringify(
+                      titleChunk.map((title) => ({ title })),
+                    ),
+                  },
+                ],
+                stream: false,
+              },
+            });
 
-          // Step C: Null safety check
-          const content = aiResponse?.choices?.[0]?.message?.content;
-          if (!content) {
-            console.warn(
-              `AI returned empty response for chunk ${i}. Skipping chunk.`,
-            );
-            continue;
-          }
+            // Step C: Null safety check
+            const content = aiResponse?.choices?.[0]?.message?.content;
+            if (!content) {
+              console.warn(
+                `AI returned empty response for chunk ${i}. Skipping chunk.`,
+              );
+              break; // Break the retry loop and move to the next chunk
+            }
 
-          const cleanJson = content.replace(/```(json)?/gi, '').trim();
-          let parsedData = JSON.parse(cleanJson);
+            const cleanJson = content.replace(/```(json)?/gi, '').trim();
+            let parsedData = JSON.parse(cleanJson);
 
-          if (
-            !Array.isArray(parsedData) &&
-            typeof parsedData === 'object' &&
-            parsedData !== null
-          ) {
-            const extractedArray = Object.values(parsedData).find((val) =>
-              Array.isArray(val),
-            );
-            parsedData = extractedArray || [];
-          }
+            if (
+              !Array.isArray(parsedData) &&
+              typeof parsedData === 'object' &&
+              parsedData !== null
+            ) {
+              const extractedArray = Object.values(parsedData).find((val) =>
+                Array.isArray(val),
+              );
+              parsedData = extractedArray || [];
+            }
 
-          if (Array.isArray(parsedData)) {
-            for (const item of parsedData) {
-              if (item.title) {
-                aiTitleToCategoryMap.set(item.title, item.categoryId || null);
+            if (Array.isArray(parsedData)) {
+              for (const item of parsedData) {
+                if (item.title) {
+                  aiTitleToCategoryMap.set(item.title, item.categoryId || null);
+                }
               }
             }
+
+            break; // Success! Break the retry loop and move to the next chunk
+          } catch (error: any) {
+            // Check if it's a rate limit error
+            if (error.statusCode === 429) {
+              console.warn(
+                `Rate limit hit on chunk ${i}. Waiting 6.5 seconds before retrying... (${retries} retries left)`,
+              );
+              await sleep(6500); // Wait just over 6 seconds as requested by the API
+              retries--;
+            } else {
+              console.error(
+                `Unexpected error processing AI chunk starting at index ${i}:`,
+                error,
+              );
+              break; // If it's a different error, stop retrying this chunk
+            }
           }
-        } catch (error) {
-          console.error(
-            `Error processing AI chunk starting at index ${i}:`,
-            error,
-          );
-          // We don't throw here; we just let it fail gracefully so the rest of the app continues
+        }
+
+        // Add a standard 2-second buffer between successful chunks just to be polite to the API
+        if (i + CHUNK_SIZE < uniqueTitles.length) {
+          await sleep(2000);
         }
       }
 

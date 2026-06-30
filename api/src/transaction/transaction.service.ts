@@ -42,6 +42,20 @@ export class TransactionService {
   //   return transactions;
   // }
 
+  async createBatch(userId: string, dtos: CreateTransactionDto[]) {
+    const data = dtos.map((dto) => ({
+      ...dto,
+      userId,
+    }));
+
+    const res = await this.prisma.transaction.createMany({
+      data,
+      skipDuplicates: true, // Přeskočí duplicitní záznamy
+    });
+
+    return { count: res.count }; // Vrátíme počet vytvořených záznamů
+  }
+
   async update(userId: string, id: string, dto: UpdateTransactionDto) {
     await this.findOne(userId, id);
     return this.prisma.transaction.update({

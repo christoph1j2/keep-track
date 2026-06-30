@@ -1,16 +1,16 @@
 import {
   IsString,
   IsOptional,
-  IsUUID,
   IsNumber,
   IsDateString,
+  IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTransactionDto {
   @ApiPropertyOptional({ description: 'ID kategorie' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   categoryId?: string;
 
   @ApiProperty({
@@ -44,4 +44,11 @@ export class CreateTransactionDto {
   })
   @IsNumber()
   amount: number;
+
+  @ApiProperty({
+    example: 'true',
+    description: 'Indikátor, zda je transakce AI kategorizovaná',
+  })
+  @IsBoolean()
+  isAiCategorized: boolean;
 }

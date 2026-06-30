@@ -270,7 +270,7 @@
     "processing": "Processing file...",
     "helpPrefix": "💡 Don't know how to get CSV?",
     "helpText": "Log in to your internet banking (not the mobile app), go to transaction history and choose Export (select CSV format separated by semicolon or comma). For example, at ČSOB you will find this option in account details.",
-    "summary": "We found {{count}} transactions. Please check the assigned categories before saving.",
+    "summary": "We found {{count}} transactions.",
     "columns": {
       "date": "Date",
       "title": "Item",
@@ -280,7 +280,11 @@
     "selectCategory": "-- Select --",
     "saveButton": "Save {{count}} transactions",
     "uncategorizedWarning": "There are {{count}} transactions left without a selected category.\n\nIf you don't save them with a category now, they will be saved as \"Unassigned\".\n\nDo you want to continue?",
-    "saving": "Saving transactions..."
+    "saving": "Saving transactions...",
+    "saved": "Transactions were successfully saved.",
+    "summaryAi": "✨ Check the automatically suggested categories.",
+    "readingFile": "Reading file...",
+    "aiThinking": "Analyzing and fetching categories..."
   },
   "splitTransaction": {
     "errors": {

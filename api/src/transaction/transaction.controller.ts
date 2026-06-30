@@ -15,6 +15,8 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
+import { SkipThrottle } from '@nestjs/throttler';
+import { CreateBatchDto } from './dto/create-batch.dto';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -25,6 +27,7 @@ interface AuthenticatedRequest extends Request {
 @ApiTags('Transactions')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
+@SkipThrottle()
 @Controller('transactions')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
@@ -36,6 +39,18 @@ export class TransactionController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.transactionService.create(req.user.id, createTransactionDto);
+  }
+
+  @Post('batch')
+  @ApiOperation({ summary: 'Vytvořit více transakcí najednou' })
+  createBatch(
+    @Body() createBatchDto: CreateBatchDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.transactionService.createBatch(
+      req.user.id,
+      createBatchDto.transactions,
+    );
   }
 
   @Get()

@@ -3,11 +3,13 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ limit: '10mb', extended: true }));
 
   const config = new DocumentBuilder()
     .setTitle('Keep Track API')
@@ -24,6 +26,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -30,6 +30,13 @@ interface TransactionState {
     newCategoryId: string,
   ) => Promise<void>;
 
+  addTransactionsBatch: (
+    transactionsData: Omit<
+      Transaction,
+      "id" | "userId" | "createdAt" | "updatedAt" | "category"
+    >[],
+  ) => Promise<void>;
+
   //   clearTransactions: () => void;
   //   loadMockData: (data: Transaction[]) => void;
 }
@@ -99,5 +106,20 @@ export const useTransactionStore = create<TransactionState>()((set, get) => ({
           : t,
       ),
     }));
+  },
+
+  addTransactionsBatch: async (transactionsData) => {
+    try {
+      await api.post("/transactions/batch", {
+        transactions: transactionsData,
+      });
+
+      const freshData = await api.get("/transactions");
+
+      set({ transactions: freshData.data });
+    } catch (error) {
+      console.error("Error adding transactions batch:", error);
+      throw error;
+    }
   },
 }));

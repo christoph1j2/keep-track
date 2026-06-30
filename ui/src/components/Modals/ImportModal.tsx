@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { BaseModal } from "./BaseModal";
 import { parseBankCSV, type ParsedTransaction } from "../../utils/bankImport";
-import { UNCATEGORIZED_ID } from "../../constants/categoryConstants";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useConfirmStore } from "../../store/confirmStore";
@@ -11,6 +10,7 @@ import { useSettingsStore } from "../../store/settingsStore";
 import { toast } from "react-hot-toast";
 import { api } from "../../utils/api";
 import { CircularProgress } from "@mui/material";
+import { AutoAwesome } from "@mui/icons-material";
 
 interface ImportModalProps {
   isOpen: boolean;
@@ -24,7 +24,6 @@ export interface ReviewedTransaction extends ParsedTransaction {
 }
 
 export function ImportModal({ isOpen, onClose }: ImportModalProps) {
-  const { addTransaction } = useTransactionStore();
   const categories = useCategoryStore((state) => state.categories);
 
   const { t } = useTranslation();
@@ -102,25 +101,28 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   };
 
   // Uložení finálních dat
-  const performSave = () => {
-    const normalizedData = parsedData.map((t) =>
-      t.categoryId === null ? { ...t, categoryId: UNCATEGORIZED_ID } : t,
-    );
+  const performSave = async () => {
+    const normalizedData = parsedData.map((t) => ({
+      title: t.title,
+      date: t.date,
+      amount: t.amount,
+      categoryId: t.categoryId === null ? null : t.categoryId,
+      originalAmount: t.originalAmount,
+      originalCurrency: t.originalCurrency,
+      isAiCategorized: t.isAiCategorized,
+    }));
 
-    normalizedData.forEach((t) => {
-      addTransaction({
-        title: t.title,
-        amount: t.amount,
-        date: t.date,
-        categoryId: t.categoryId as string,
-        originalAmount: t.originalAmount,
-        originalCurrency: t.originalCurrency,
-        isAiCategorized: t.isAiCategorized,
-      });
-    });
+    try {
+      //toast.loading(t("import.saving"), { id: "import-saving" });
 
-    setParsedData([]);
-    onClose();
+      await useTransactionStore.getState().addTransactionsBatch(normalizedData);
+
+      toast.success(t("import.saved", "Transakce byly úspěšně uloženy!"));
+      setParsedData([]);
+      onClose();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Validace před uložením
@@ -192,7 +194,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
             <div className="flex justify-between items-center bg-blue-50 text-blue-800 dark:bg-indigo-500/10 dark:text-indigo-200 p-3 rounded-lg text-sm font-medium">
               <span>{t("import.summary", { count: parsedData.length })}</span>
               <span className="text-xs opacity-80">
-                ⭐ Zkontrolujte automaticky navržené položky
+                {t("import.summaryAi")}
               </span>
             </div>
 
@@ -261,10 +263,10 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                         {/* Ikonka pro AI zařazení */}
                         {tItem.isAiCategorized && (
                           <span
-                            title="Kategorie navržena pomocí AI"
+                            title={t("import.summaryAi")}
                             className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none drop-shadow-sm"
                           >
-                            ✨
+                            <AutoAwesome />
                           </span>
                         )}
                       </td>

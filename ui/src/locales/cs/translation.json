@@ -270,7 +270,7 @@
     "processing": "Zpracovávám soubor...",
     "helpPrefix": "💡 Nevíte jak získat CSV?",
     "helpText": "Přihlaste se do internetového bankovnictví (nikoliv v mobilní aplikaci), přejděte do historie transakcí a zvolte Exportovat (vyberte formát CSV oddělený středníkem nebo čárkou). Např. u ČSOB tuto volbu najdete v detailech účtu.",
-    "summary": "Našli jsme {{count}} transakcí. Zkontrolujte prosím přiřazené kategorie před uložením.",
+    "summary": "Našli jsme {{count}} transakcí.",
     "columns": {
       "date": "Datum",
       "title": "Položka",
@@ -280,7 +280,11 @@
     "selectCategory": "-- Vyberte --",
     "saveButton": "Uložit {{count}} transakcí",
     "uncategorizedWarning": "Zbývá {{count}} transakcí bez zvolené kategorie.\n\nPokud je teď neuložíte s kategorií, budou uloženy jako \"Nepřiřazeno\".\n\nChcete pokračovat?",
-    "saving": "Ukládám transakce..."
+    "saving": "Ukládám transakce...",
+    "saved": "Transakce byly úspěšně uloženy.",
+    "summaryAi": "✨ Zkontrolujte automaticky navržené kategorie.",
+    "readingFile": "Čtení souboru...",
+    "aiThinking": "Analýza a dohledávání kategorií..."
   },
   "splitTransaction": {
     "errors": {
