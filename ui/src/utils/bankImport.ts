@@ -10,6 +10,7 @@ export interface ParsedTransaction {
   originalCurrency: string; 
 }
 
+//TODO: add support for more csv formats (different banks = diff delimiters, different column names, etc.)
 /**
  * PARSER: Zpracuje CSV soubor z banky a ignoruje balast nahoře
  */
