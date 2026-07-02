@@ -76,6 +76,9 @@ export class AiService {
 
     // 2. AI CATEGORIZATION (Optimized with Deduplication and Chunking)
     if (unmappedForAi.length > 0) {
+      // const keyInfo = await this.aiClient.apiKeys.getCurrentKeyMetadata();
+      // console.log(keyInfo.data);
+
       // Step A: Deduplicate by title to save tokens and time
       const uniqueTitles = [...new Set(unmappedForAi.map((t) => t.title))];
       const aiTitleToCategoryMap = new Map<string, string | null>();
@@ -118,6 +121,8 @@ export class AiService {
         );
 
         let retries = 3; // Give it 3 chances to succeed
+        let currentSleep = 10000; // Start with 10 seconds for the first retry
+
         while (retries > 0) {
           try {
             const aiResponse = await this.aiClient.chat.send({
@@ -173,9 +178,11 @@ export class AiService {
             // Check if it's a rate limit error
             if (error.statusCode === 429) {
               console.warn(
-                `Rate limit hit on chunk ${i}. Waiting 6.5 seconds before retrying... (${retries} retries left)`,
+                `Rate limit hit on chunk ${i}. Waiting ${currentSleep / 1000} seconds before retrying... (${retries} retries left)`,
               );
-              await sleep(6500); // Wait just over 6 seconds as requested by the API
+              await sleep(currentSleep);
+
+              currentSleep *= 2; // Double the wait time for the next retry
               retries--;
             } else {
               console.error(
@@ -187,9 +194,9 @@ export class AiService {
           }
         }
 
-        // Add a standard 2-second buffer between successful chunks just to be polite to the API
+        // Add a standard 5-second buffer between successful chunks just to be polite to the API
         if (i + CHUNK_SIZE < uniqueTitles.length) {
-          await sleep(2000);
+          await sleep(5000); // 5 seconds
         }
       }
 
