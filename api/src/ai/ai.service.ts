@@ -76,8 +76,8 @@ export class AiService {
 
     // 2. AI CATEGORIZATION (Optimized with Deduplication and Chunking)
     if (unmappedForAi.length > 0) {
-      // const keyInfo = await this.aiClient.apiKeys.getCurrentKeyMetadata();
-      // console.log(keyInfo.data);
+      const keyInfo = await this.aiClient.apiKeys.getCurrentKeyMetadata();
+      console.log(keyInfo.data);
 
       // Step A: Deduplicate by title to save tokens and time
       const uniqueTitles = [...new Set(unmappedForAi.map((t) => t.title))];
@@ -100,6 +100,9 @@ export class AiService {
         - Drugstores/Cosmetics: dm drogerie, Teta, Rossmann, Notino. ...
         - Food/Restaurants: Wolt, Foodora, Bolt Food, McDonald's, KFC, Burger King. ...
         - Tech/Hobby: Alza, CZC, Datart, Hornbach, OBI, Bauhaus. ...
+        - Utilities/Services: E.ON, ČEZ, Pražská plynárenská, Vodafone, O2, T-Mobile. ...
+        - Entertainment/Streaming: Netflix, Spotify, HBO Max, Disney+, Apple TV+. ...
+        - Salary: Vyplata, Payroll, Salary, mzda, výplata. ...
 
         Rules:
         1. Return ONLY clean valid JSON in the format of an array of objects: [{"title": "exact_transaction_title", "categoryId": "category_id"}]

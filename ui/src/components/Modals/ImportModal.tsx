@@ -250,7 +250,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                                 : "border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-blue-500"
                           }`}
                         >
-                          <option value="" disabled>
+                          <option value="">
                             {t("import.selectCategory")}
                           </option>
                           {sortedCategories.map((c) => (

@@ -6,10 +6,9 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class BudgetService {
   constructor(private prisma: PrismaService) {}
-
   async create(userId: string, dto: CreateBudgetDto) {
-    const category = await this.prisma.category.findUnique({
-      where: { id: dto.categoryId },
+    const category = await this.prisma.category.findFirst({
+      where: { id: dto.categoryId, userId },
     });
     if (!category) throw new BadRequestException('Kategorie nenalezena');
 
