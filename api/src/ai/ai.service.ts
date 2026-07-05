@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OpenRouter } from '@openrouter/sdk';
 import type { Transaction } from '@prisma/client';
+import { NotificationsGateway } from '../notifications.gateway';
 
 export interface ProcessedTransaction {
   id: string;
@@ -19,12 +20,36 @@ export interface ProcessedTransaction {
 @Injectable()
 export class AiService {
   private aiClient: OpenRouter;
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private notificationsGateway: NotificationsGateway,
+  ) {
     this.aiClient = new OpenRouter({
       apiKey: `${process.env.OPENROUTER_API_KEY}`,
       appTitle: 'KeepTrack',
       httpReferer: process.env.FRONTEND_URL || 'http://localhost:5173',
     });
+  }
+
+  async processBatchAndNotify(
+    userId: string,
+    incomingTransactions: Transaction[],
+  ) {
+    try {
+      const results = await this.processBatch(userId, incomingTransactions);
+
+      this.notificationsGateway.server.to(userId).emit('import_finished', {
+        status: 'success',
+        data: results,
+      });
+    } catch (error) {
+      console.error('Critical error in the AI pipeline:', error);
+      this.notificationsGateway.server.to(userId).emit('import_finished', {
+        status: 'error',
+        message:
+          'An error occurred during AI processing. Please try again later.',
+      });
+    }
   }
 
   async processBatch(
@@ -76,8 +101,8 @@ export class AiService {
 
     // 2. AI CATEGORIZATION (Optimized with Deduplication and Chunking)
     if (unmappedForAi.length > 0) {
-      const keyInfo = await this.aiClient.apiKeys.getCurrentKeyMetadata();
-      console.log(keyInfo.data);
+      //const keyInfo = await this.aiClient.apiKeys.getCurrentKeyMetadata();
+      //console.log(keyInfo.data);
 
       // Step A: Deduplicate by title to save tokens and time
       const uniqueTitles = [...new Set(unmappedForAi.map((t) => t.title))];
@@ -130,15 +155,15 @@ export class AiService {
           try {
             const aiResponse = await this.aiClient.chat.send({
               chatRequest: {
-                model: 'openrouter/free',
+                model: 'openai/gpt-oss-20b:free',
                 responseFormat: { type: 'json_object' },
                 messages: [
                   { role: 'system', content: systemPrompt },
                   {
                     role: 'user',
-                    content: JSON.stringify(
-                      titleChunk.map((title) => ({ title })),
-                    ),
+                    content: JSON.stringify({
+                      transactions: titleChunk.map((title) => ({ title })),
+                    }),
                   },
                 ],
                 stream: false,

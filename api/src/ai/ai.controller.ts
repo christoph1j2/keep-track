@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AiService } from './ai.service';
 import { CategorizeBatchDto } from './dto/categorize-batch.dto';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -22,8 +30,9 @@ export class AiController {
   ) {}
 
   @Post('categorize-batch')
-  @ApiOperation({ summary: 'Chytrá kategorizace' })
-  async categorizeBatch(
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Chytrá kategorizace (background task)' })
+  categorizeBatch(
     @Req() req: AuthenticatedRequest,
     @Body() categorizeBatchDto: CategorizeBatchDto,
   ) {
@@ -41,6 +50,11 @@ export class AiController {
       createdAt: new Date(),
       updatedAt: new Date(),
     }));
-    return await this.aiService.processBatch(req.user.id, incomingTransactions);
+
+    this.aiService
+      .processBatchAndNotify(req.user.id, incomingTransactions)
+      .catch((error) => console.error('Error processing batch:', error));
+
+    return { message: 'Batch processing started' };
   }
 }

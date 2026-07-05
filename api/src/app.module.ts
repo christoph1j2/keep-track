@@ -13,6 +13,7 @@ import { BudgetModule } from './budget/budget.module';
 import { TemplateModule } from './template/template.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AiModule } from './ai/ai.module';
+import { NotificationsModule } from './notifications.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { AiModule } from './ai/ai.module';
     BudgetModule,
     TemplateModule,
     AiModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

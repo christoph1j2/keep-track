@@ -284,7 +284,11 @@
     "saved": "Transactions were successfully saved.",
     "summaryAi": "✨ Check the automatically suggested categories.",
     "readingFile": "Reading file...",
-    "aiThinking": "Analyzing and fetching categories..."
+    "aiThinking": "Analyzing and fetching categories...",
+    "aiSuccess": "Transactions have been analyzed!",
+    "sentToAi": "Sent to server for analysis. You can continue using the app.",
+    "aiAnalyzing": "Analyzing the transactions...",
+    "uploadError": "Error during upload."
   },
   "splitTransaction": {
     "errors": {

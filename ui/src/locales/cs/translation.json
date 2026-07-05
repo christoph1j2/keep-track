@@ -284,7 +284,11 @@
     "saved": "Transakce byly úspěšně uloženy.",
     "summaryAi": "✨ Zkontrolujte automaticky navržené kategorie.",
     "readingFile": "Čtení souboru...",
-    "aiThinking": "Analýza a dohledávání kategorií..."
+    "aiThinking": "Analýza a dohledávání kategorií...",
+    "aiSuccess": "Transakce byly analyzovány!",
+    "sentToAi": "Odesláno k analýze. Můžete aplikaci dál používat.",
+    "aiAnalyzing": "Analýza transakcí...",
+    "uploadError": "Chyba při nahrávání."
   },
   "splitTransaction": {
     "errors": {
