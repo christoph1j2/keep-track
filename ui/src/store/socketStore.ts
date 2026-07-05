@@ -2,12 +2,15 @@ import { create } from "zustand";
 import { io, Socket } from "socket.io-client";
 import { toast } from "react-hot-toast";
 import i18n from "../i18n";
+import { useNotificationStore } from "./notificationStore";
 
 interface SocketState {
   socket: Socket | null;
   isImportProcessing: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   importedDataReady: any[] | null;
+  importJobId: string | null;
+
   connectSocket: (userId: string) => void;
   disconnectSocket: () => void;
   setImportProcessing: (status: boolean) => void;
@@ -20,6 +23,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   isImportProcessing: false,
   importedDataReady: null,
+  importJobId: null,
 
   connectSocket: (userId: string) => {
     // pokud jsme pripojeni, nedelam nic
@@ -35,10 +39,12 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     newSocket.on("import_finished", (payload) => {
       if (payload.status === "success") {
-        set({ isImportProcessing: false, importedDataReady: payload.data });
+        set({ isImportProcessing: false, importedDataReady: payload.data, importJobId: payload.jobId });
         toast.success(
           i18n.t("import.aiSuccess", "Transakce byly analyzovány!"),
         );
+        // Obnovíme notifikace z backendu (nová IMPORT_READY notifikace)
+        useNotificationStore.getState().fetchNotifications();
       } else {
         set({ isImportProcessing: false });
         toast.error(

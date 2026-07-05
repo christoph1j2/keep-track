@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { OpenRouter } from '@openrouter/sdk';
 import type { Transaction } from '@prisma/client';
 import { NotificationsGateway } from '../notifications.gateway';
+import { NotificationService } from '../notification/notification.service';
 
 export interface ProcessedTransaction {
   id: string;
@@ -23,6 +24,7 @@ export class AiService {
   constructor(
     private prisma: PrismaService,
     private notificationsGateway: NotificationsGateway,
+    private notificationService: NotificationService,
   ) {
     this.aiClient = new OpenRouter({
       apiKey: `${process.env.OPENROUTER_API_KEY}`,
@@ -155,7 +157,7 @@ export class AiService {
           try {
             const aiResponse = await this.aiClient.chat.send({
               chatRequest: {
-                model: 'openai/gpt-oss-20b:free',
+                model: 'nvidia/nemotron-nano-9b-v2:free',
                 responseFormat: { type: 'json_object' },
                 messages: [
                   { role: 'system', content: systemPrompt },
@@ -248,5 +250,89 @@ export class AiService {
           isAiCategorized: false,
         },
     );
+  }
+
+  // Vytvori uvodni zaznam v DB
+  async createImportJob(userId: string, initialData: any[]){
+    return this.prisma.importJob.create({
+      data: {
+        userId,
+        status: 'PROCESSING',
+        data: initialData,
+      }
+    });
+  }
+
+  // Toto bezi odpojene na pozadi
+  async processJobInBackground(jobId: string, userId: string, incomingTransactions: any[]){
+    try {
+      const processedData = await this.processBatch(userId, incomingTransactions);
+
+      await this.prisma.importJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'READY_FOR_REVIEW',
+          data: processedData as any,
+        },
+      });
+
+      // WS
+      this.notificationsGateway.server.to(userId).emit('import_finished', {
+        status: 'success',
+        jobId: jobId,
+        data: processedData,
+      });
+
+      // Persistent DB notification
+      await this.notificationService.create(
+        userId,
+        'IMPORT_READY',
+        `Import dokončen (${processedData.length} transakcí)`,
+        'Transakce byly analyzovány a čekají na vaše schválení.',
+        { jobId },
+      );
+
+    } catch (error) {
+      console.error(`Error processing job ${jobId}:`, error);
+      await this.prisma.importJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'FAILED',
+         },
+      });
+
+      this.notificationsGateway.server.to(userId).emit('import_finished', {
+        status: 'error',
+        jobId: jobId,
+        message: 'An error occurred during processing. Please try again later.',
+      });
+    }
+  }
+
+  // FE se timto zepta, zda na nej po refreshi neco ceka
+  async getPendingJobForUser(userId: string) {
+    const job = await this.prisma.importJob.findFirst({
+      where: {
+        userId,
+        status: 'READY_FOR_REVIEW',
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!job) return null;
+
+    return {
+      jobId: job.id,
+      transactions: job.data,
+    };
+  }
+
+  async deleteJob(userId: string, jobId: string) {
+    await this.prisma.importJob.deleteMany({
+      where: { id: jobId, userId },
+    });
+    return { success: true };
   }
 }

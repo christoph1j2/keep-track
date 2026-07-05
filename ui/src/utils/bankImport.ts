@@ -94,12 +94,12 @@ const DESCRIPTION_FIELD_ALIASES = [
   "message",
   "communication",
   "remark",
+  "doplnujici informace",
 ];
 const TYPE_FIELD_ALIASES = [
   "typ transakce",
   "typ",
   "type",
-  "doplnujici informace",
   "kategorie",
   "transaction type",
   "transaction kind",

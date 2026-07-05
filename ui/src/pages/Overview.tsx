@@ -5,7 +5,7 @@ import { TransactionDataGrid } from "../components/Overview/TransactionDataGrid"
 import { BaseModal } from "../components/Modals/BaseModal";
 import { AddTransactionModal } from "../components/Modals/AddTransactionModal";
 import { SplitTransactionModal } from "../components/Modals/SplitTransactionModal";
-import { ImportModal } from "../components/Modals/ImportModal";
+import { ImportUploader } from "../components/Overview/ImportUploader";
 import { useTransactionStore } from "../store/transactionStore";
 import { useCategoryStore } from "../store/categoryStore";
 import { useTranslation } from "react-i18next";
@@ -26,7 +26,6 @@ export function Overview() {
     useState(false);
   const [isSplitTransactionModalOpen, setIsSplitTransactionModalOpen] =
     useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const [selectedTransaction, setSelectedTransaction] = useState<
     (typeof transactions)[0] | null
@@ -77,12 +76,7 @@ export function Overview() {
           {t("overview.title")}
         </h2>
         <div className="flex gap-4">
-          <button
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium w-full md:w-fit"
-            onClick={() => setIsImportModalOpen(true)}
-          >
-            {t("overview.importBank")}
-          </button>
+          <ImportUploader />
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-fit"
             onClick={() => setIsAddTransactionModalOpen(true)}
@@ -200,10 +194,6 @@ export function Overview() {
         )}
       </BaseModal>
 
-      <ImportModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-      />
     </div>
   );
 }

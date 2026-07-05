@@ -288,7 +288,8 @@
     "aiSuccess": "Transactions have been analyzed!",
     "sentToAi": "Sent to server for analysis. You can continue using the app.",
     "aiAnalyzing": "Analyzing the transactions...",
-    "uploadError": "Error during upload."
+    "uploadError": "Error during upload.",
+    "pendingReview": "Import pending review!"
   },
   "splitTransaction": {
     "errors": {
@@ -380,5 +381,11 @@
       "generic": "An error occurred during the operation. Please try again.",
       "tooManyRequests": "Too many requests. Please try again later."
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No new notifications",
+    "dismiss": "Dismiss",
+    "justNow": "Just now"
   }
 }

@@ -14,6 +14,7 @@ import { TemplateModule } from './template/template.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AiModule } from './ai/ai.module';
 import { NotificationsModule } from './notifications.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { NotificationsModule } from './notifications.module';
     TemplateModule,
     AiModule,
     NotificationsModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

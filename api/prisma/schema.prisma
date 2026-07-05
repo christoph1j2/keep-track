@@ -27,6 +27,9 @@ model User {
   categories   Category[]
   budgets      Budget[]
   templates    Template[]
+
+  importJobs    ImportJob[]
+  notifications Notification[]
 }
 
 enum CategoryType {
@@ -113,4 +116,37 @@ model Template {
   order Int @default(0)
 
   showInHotbar Boolean @default(false)
+}
+
+// State Machine
+model ImportJob {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // States: 'PROCESSING', 'READY_FOR_REVIEW', 'FAILED', 'COMPLETED'
+  status String @default("PROCESSING")
+
+  // .csv
+  data Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Typ notifikace (IMPORT_READY, INSIGHT, INFO, ...)
+  type    String
+  title   String
+  message String?
+
+  // Volitelná metadata pro akci (např. { "jobId": "..." })
+  metadata Json?
+
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

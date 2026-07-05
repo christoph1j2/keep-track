@@ -8,9 +8,10 @@ import { useAuthStore } from "../store/authStore";
 import { useBudgetStore } from "../store/budgetStore";
 import { useTemplateStore } from "../store/quickAddTemplateStore";
 import { useSocketStore } from "../store/socketStore";
-import { ReviewImportModal } from "../components/Modals/ReviewImportModal";
+import { useNotificationStore } from "../store/notificationStore";
 import { CircularProgress } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { api } from "../utils/api";
 
 /**
  * Shared app shell with sidebar navigation, top bar, and page content area.
@@ -34,15 +35,39 @@ export function MainLayout({ children }: { children: ReactNode }) {
   const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
   const isImportProcessing = useSocketStore((state) => state.isImportProcessing);
   const importedDataReady = useSocketStore((state) => state.importedDataReady);
-  const clearImportedData = useSocketStore((state) => state.clearImportedData);
 
   useEffect(() => {
     if (token && user?.id) {
+      // 1. Připojíme WebSockets
       connectSocket(user.id);
+
+      // 2. Zeptáme se backendu, jestli náhodou nevisí v DB hotový import z minula
+      const fetchPendingJob = async () => {
+        try {
+          const response = await api.get("/ai/import/pending");
+          if (response.data) {
+            // Frontend si to natáhne do storu (jakoby to zrovna přišlo ze socketu)
+            useSocketStore.setState({
+              importedDataReady: response.data.transactions,
+              importJobId: response.data.jobId,
+              isImportProcessing: false,
+            });
+          }
+        } catch (error) {
+          console.error("Nepodařilo se načíst čekající import", error);
+        }
+      };
+
+      fetchPendingJob();
     } else {
+      // Odpojíme při odhlášení
       disconnectSocket();
     }
+
+    return () => disconnectSocket();
   }, [token, user, connectSocket, disconnectSocket]);
+
+  const fetchNotifications = useNotificationStore((state) => state.fetchNotifications);
 
   useEffect(() => {
     if (token) {
@@ -50,8 +75,9 @@ export function MainLayout({ children }: { children: ReactNode }) {
       fetchTransactions();
       fetchBudgets();
       fetchTemplates();
+      fetchNotifications();
     }
-  }, [token, fetchCategories, fetchTransactions, fetchBudgets, fetchTemplates]);
+  }, [token, fetchCategories, fetchTransactions, fetchBudgets, fetchTemplates, fetchNotifications]);
 
   return (
     <>
@@ -67,24 +93,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
           <main className="flex-1 p-4 md:p-8">{children}</main>
         </div>
       </div>
-
-      {/* Floating glassmorphic AI processing indicator */}
-      {isImportProcessing && (
-        <div className="fixed bottom-4 left-4 bg-indigo-600/90 dark:bg-indigo-950/90 backdrop-blur-md text-white border border-indigo-500/30 px-4 py-3 rounded-2xl animate-pulse shadow-2xl z-9999 flex items-center gap-3">
-          <CircularProgress size={18} color="inherit" thickness={5} />
-          <span className="text-sm font-medium tracking-wide">
-            {t("import.aiAnalyzing", "AI analyzuje transakce...")}
-          </span>
-        </div>
-      )}
-
-      {/* Review import modal opens automatically when WS delivers results */}
-      <ReviewImportModal
-        key={importedDataReady ? "review-active" : "review-inactive"}
-        isOpen={!!importedDataReady}
-        data={importedDataReady}
-        onClose={() => clearImportedData()}
-      />
     </>
   );
 }
+

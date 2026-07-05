@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -27,7 +30,7 @@ export class AiController {
   constructor(
     private readonly aiService: AiService,
     private readonly transactionService: TransactionService,
-  ) {}
+  ) {}  
 
   @Post('categorize-batch')
   @HttpCode(HttpStatus.ACCEPTED)
@@ -56,5 +59,28 @@ export class AiController {
       .catch((error) => console.error('Error processing batch:', error));
 
     return { message: 'Batch processing started' };
+  }
+
+    @Post('import/start')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async startImport(@Req() req, @Body('transactions') transactions: any[]) {
+    // controller vytvori job a odpovi fe
+    const job = await this.aiService.createImportJob(req.user.id, transactions);
+
+    // zde spoustime bg proces
+    this.aiService.processJobInBackground(job.id, req.user.id, transactions)
+    .catch(err => console.error(`Job ${job.id} failed:`, err));
+
+    return { message: 'Import job started', jobId: job.id };
+  }
+
+  @Get('import/pending')
+  async getPendingJob(@Req() req) {
+    return this.aiService.getPendingJobForUser(req.user.id);
+  }
+
+  @Delete('import/:jobId')
+  async deleteJob(@Req() req, @Param('jobId') jobId: string) {
+    return this.aiService.deleteJob(req.user.id, jobId);
   }
 }

@@ -288,7 +288,8 @@
     "aiSuccess": "Transakce byly analyzovány!",
     "sentToAi": "Odesláno k analýze. Můžete aplikaci dál používat.",
     "aiAnalyzing": "Analýza transakcí...",
-    "uploadError": "Chyba při nahrávání."
+    "uploadError": "Chyba při nahrávání.",
+    "pendingReview": "Import čeká na schválení!"
   },
   "splitTransaction": {
     "errors": {
@@ -380,5 +381,11 @@
       "generic": "Něco se pokazilo během operace. Zkuste to prosím znovu.",
       "tooManyRequests": "Příliš mnoho požadavků. Zkuste to prosím znovu později."
     }
+  },
+  "notifications": {
+    "title": "Notifikace",
+    "empty": "Žádné nové notifikace",
+    "dismiss": "Zavřít",
+    "justNow": "Právě teď"
   }
 }
