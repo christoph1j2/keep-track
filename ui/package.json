@@ -30,6 +30,7 @@
     "react-dom": "^19.2.5",
     "react-hot-toast": "^2.6.0",
     "react-i18next": "^17.0.8",
+    "react-plaid-link": "^4.1.1",
     "react-router-dom": "^7.15.0",
     "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.2.2",

@@ -8,6 +8,8 @@ import { useAuthStore } from "../store/authStore";
 import { api } from "../utils/api";
 import toast from "react-hot-toast";
 
+import { PlaidLinkComponent } from "../components/PlaidLinkComponent";
+
 export function Settings() {
   const { t, i18n } = useTranslation();
 
@@ -327,6 +329,22 @@ export function Settings() {
               {t("settings.changeUsernameBtn", "Změnit uživatelské jméno")}
             </button>
           </form>
+        </div>
+      </section>
+
+      {/* KARTA 2.5: Bankovní připojení */}
+      <section className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+        <h3 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-100">
+          {t("settings.bankConnections", "Bankovní připojení")}
+        </h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+          {t(
+            "settings.bankConnectionsDesc",
+            "Připojte svůj bankovní účet pro automatický import transakcí pomocí služby Plaid."
+          )}
+        </p>
+        <div className="flex gap-4">
+          <PlaidLinkComponent />
         </div>
       </section>
 
