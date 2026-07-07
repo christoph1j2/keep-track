@@ -253,20 +253,27 @@ export class AiService {
   }
 
   // Vytvori uvodni zaznam v DB
-  async createImportJob(userId: string, initialData: any[]){
+  async createImportJob(userId: string, initialData: any[]) {
     return this.prisma.importJob.create({
       data: {
         userId,
         status: 'PROCESSING',
         data: initialData,
-      }
+      },
     });
   }
 
   // Toto bezi odpojene na pozadi
-  async processJobInBackground(jobId: string, userId: string, incomingTransactions: any[]){
+  async processJobInBackground(
+    jobId: string,
+    userId: string,
+    incomingTransactions: any[],
+  ) {
     try {
-      const processedData = await this.processBatch(userId, incomingTransactions);
+      const processedData = await this.processBatch(
+        userId,
+        incomingTransactions,
+      );
 
       await this.prisma.importJob.update({
         where: { id: jobId },
@@ -291,14 +298,13 @@ export class AiService {
         'Transakce byly analyzovány a čekají na vaše schválení.',
         { jobId },
       );
-
     } catch (error) {
       console.error(`Error processing job ${jobId}:`, error);
       await this.prisma.importJob.update({
         where: { id: jobId },
         data: {
           status: 'FAILED',
-         },
+        },
       });
 
       this.notificationsGateway.server.to(userId).emit('import_finished', {
