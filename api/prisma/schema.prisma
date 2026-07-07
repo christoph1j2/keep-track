@@ -31,7 +31,7 @@ model User {
   importJobs    ImportJob[]
   notifications Notification[]
 
-  bankAccountConnections BankAccountConnection[]
+
 }
 
 enum CategoryType {
@@ -151,18 +151,4 @@ model Notification {
 
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
-}
-
-model BankAccountConnection {
-  id  String  @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  accessToken String // sifrovany token pro stahovani dat
-  plaidItemId String // ID itemu z Plaidu
-  institutionName String // Název banky (např. "Česká spořitelna")
-  status  String @default("ACTIVE") // ACTIVE, INACTIVE, REVOKED
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+}

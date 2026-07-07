@@ -8,7 +8,6 @@ import { useAuthStore } from "../store/authStore";
 import { api } from "../utils/api";
 import toast from "react-hot-toast";
 
-import { PlaidLinkComponent } from "../components/PlaidLinkComponent";
 
 export function Settings() {
   const { t, i18n } = useTranslation();
@@ -340,11 +339,16 @@ export function Settings() {
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
           {t(
             "settings.bankConnectionsDesc",
-            "Připojte svůj bankovní účet pro automatický import transakcí pomocí služby Plaid."
+            "Připojte svůj bankovní účet pro automatický import transakcí (v přípravě)."
           )}
         </p>
         <div className="flex gap-4">
-          <PlaidLinkComponent />
+          <button
+            disabled
+            className="py-2.5 px-4 bg-emerald-600/50 text-white font-medium rounded-xl cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {t("settings.connectBankWip", "Připojit bankovní účet (WiP)")}
+          </button>
         </div>
       </section>
 

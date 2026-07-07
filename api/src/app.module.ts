@@ -15,7 +15,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AiModule } from './ai/ai.module';
 import { NotificationsModule } from './notifications.module';
 import { NotificationModule } from './notification/notification.module';
-import { PlaidModule } from './plaid/plaid.module';
 
 @Module({
   imports: [
@@ -50,7 +49,6 @@ import { PlaidModule } from './plaid/plaid.module';
     AiModule,
     NotificationsModule,
     NotificationModule,
-    PlaidModule,
   ],
   controllers: [AppController],
   providers: [
