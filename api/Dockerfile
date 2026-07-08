@@ -2,16 +2,14 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Kopírování balíčků a instalace závislostí
 COPY package*.json ./
-RUN npm install
+COPY prisma ./prisma/
 
-# Zkopírování zdrojových kódů a Prisma schématu
-COPY . .
-
-# Vygenerování Prisma klienta (Nutné před buildem!)
+# Čistá instalace
+RUN npm ci
 RUN npx prisma generate
+
+COPY . .
 
 # Zkompilování NestJS (TypeScript -> JavaScript)
 RUN npm run build

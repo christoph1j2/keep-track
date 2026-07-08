@@ -17,7 +17,7 @@ interface SocketState {
   clearImportedData: () => void;
 }
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+//const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
@@ -29,7 +29,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     // pokud jsme pripojeni, nedelam nic
     if (get().socket?.connected) return;
 
-    const newSocket = io(BACKEND_URL, {
+    const newSocket = io({
       withCredentials: true,
     });
 

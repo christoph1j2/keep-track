@@ -1,45 +1,46 @@
 services:
-  # 1. Databáze
   postgres:
     image: postgres:15-alpine
     container_name: keeptrack-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ...
       POSTGRES_DB: keep-track
     ports:
-      - "5433:5432" # Necháváme tvůj port kvůli kolizím
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # 2. NestJS Backend
-  api:
+  backend:
     build:
       context: ./api
       dockerfile: Dockerfile
     container_name: keeptrack-api
     environment:
-      # URL ukazuje na název kontejneru "postgres" a vnitřní port 5432!
-      DATABASE_URL: "postgresql://postgres:password@postgres:5432/keeptrack?schema=public"
-      JWT_ACCESS_SECRET: "tvuj_access_secret_pro_homelab"
-      JWT_REFRESH_SECRET: "tvuj_refresh_secret_pro_homelab"
+      # URL musí přesně sedět na jméno kontejneru (postgres), port 5432 a heslo výše
+      DATABASE_URL: "postgresql://postgres:...@postgres:5432/keep-track?schema=public"
+      JWT_ACCESS_SECRET: "..."
+      JWT_REFRESH_SECRET: "..."
+      OPENROUTER_API_KEY: "..."
+      BREVO_SMTP_USER: "..."
+      BREVO_SMTP_PASSWORD: "..."
+      FRONTEND_URL: "..." 
     ports:
       - "3000:3000"
     depends_on:
       - postgres
     restart: unless-stopped
 
-  # 3. React Frontend (naservírovaný přes Nginx)
   ui:
     build:
-      context: ./ui # nebo jak se jmenuje tvoje složka s Reactem
+      context: ./ui
       dockerfile: Dockerfile
     container_name: keeptrack-frontend
     ports:
       - "5173:80"
     depends_on:
-      - api
+      - backend
     restart: unless-stopped
 
 volumes:
