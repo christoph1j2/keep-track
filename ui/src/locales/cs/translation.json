@@ -23,7 +23,9 @@
     "noData": "Žádná data",
     "chooseCategory": "Vyberte kategorii",
     "unknownCategory": "Neznámá kategorie",
-    "confirm": "Potvrdit"
+    "confirm": "Potvrdit",
+    "error": "Došlo k chybě.",
+    "type": "Typ"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -58,7 +60,8 @@
     "confirm": {
       "resetTitle": "Factory Reset",
       "resetMessage": "Opravdu chcete vymazat všechna data (Factory reset)?\nTato akce je nevratná!"
-    }
+    },
+    "logoutSuccess": "Úspěšně odhlášeno"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -110,6 +113,9 @@
     "moveBudget": "Přesunout rozpočet",
     "limit": "Limit",
     "placeholder": "Např. 5000",
+    "added": "Rozpočet byl úspěšně přidán.",
+    "updated": "Rozpočet byl úspěšně aktualizován.",
+    "deleted": "Rozpočet byl úspěšně smazán.",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "positiveLimit": "Limit musí být kladné číslo",
@@ -159,9 +165,18 @@
     "placeholder": "Např. Potraviny",
     "parentCategory": "Nadřazená kategorie",
     "noParent": "Žádná",
+    "added": "Kategorie byla úspěšně přidána.",
+    "updated": "Kategorie byla úspěšně aktualizována.",
+    "deleted": "Kategorie byla úspěšně smazána.",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
-      "selfParent": "Kategorie nemůže být sama sobě nadřazenou kategorií"
+      "selfParent": "Kategorie nemůže být sama sobě nadřazenou kategorií",
+      "addFailed": "Nepodařilo se přidat kategorii. Zkontrolujte prosím zadané údaje.",
+      "updateFailed": "Nepodařilo se aktualizovat kategorii. Zkontrolujte prosím zadané údaje."
+    },
+    "types": {
+      "income": "Příjem",
+      "expense": "Výdaj"
     },
     "colors": {
       "blue": "Modrá",
@@ -215,6 +230,9 @@
     "hotbarLimitReached": "Můžete mít maximálně {{limit}} šablon v hotbaru. Odeberte nějakou stávající šablonu z hotbaru, abyste mohli přidat tuto.",
     "moveTemplate": "Přesunout šablonu",
     "hotbarToggle": "Hotbar",
+    "added": "Šablona byla úspěšně přidána.",
+    "updated": "Šablona byla úspěšně aktualizována.",
+    "deleted": "Šablona byla úspěšně smazána.",
     "form": {
       "titleLabel": "Název",
       "titlePlaceholder": "Např. Káva",
@@ -235,10 +253,16 @@
       "amount": "Např. -1500 pro výdaj, 2000 pro příjem"
     },
     "modalAdd": "Uložit transakci",
+    "added": "Transakce byla úspěšně přidána.",
+    "updated": "Transakce byla úspěšně aktualizována.",
+    "deleted": "Transakce byla úspěšně smazána.",
+    "split": "Transakce byla úspěšně rozdělena.",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "zeroAmount": "Částka nemůže být nula",
-      "notANumber": "Částka musí být číslo"
+      "notANumber": "Částka musí být číslo",
+      "addFailed": "Nepodařilo se přidat transakci. Zkontrolujte prosím zadané údaje.",
+      "updateFailed": "Nepodařilo se aktualizovat transakci. Zkontrolujte prosím zadané údaje."
     }
   },
   "import": {
@@ -247,7 +271,7 @@
     "processing": "Zpracovávám soubor...",
     "helpPrefix": "💡 Nevíte jak získat CSV?",
     "helpText": "Přihlaste se do internetového bankovnictví (nikoliv v mobilní aplikaci), přejděte do historie transakcí a zvolte Exportovat (vyberte formát CSV oddělený středníkem nebo čárkou). Např. u ČSOB tuto volbu najdete v detailech účtu.",
-    "summary": "Našli jsme {{count}} transakcí. Zkontrolujte prosím přiřazené kategorie před uložením.",
+    "summary": "Našli jsme {{count}} transakcí.",
     "columns": {
       "date": "Datum",
       "title": "Položka",
@@ -256,7 +280,17 @@
     },
     "selectCategory": "-- Vyberte --",
     "saveButton": "Uložit {{count}} transakcí",
-    "uncategorizedWarning": "Zbývá {{count}} transakcí bez zvolené kategorie.\n\nPokud je teď neuložíte s kategorií, budou uloženy jako \"Nepřiřazeno\".\n\nChcete pokračovat?"
+    "uncategorizedWarning": "Zbývá {{count}} transakcí bez zvolené kategorie.\n\nPokud je teď neuložíte s kategorií, budou uloženy jako \"Nepřiřazeno\".\n\nChcete pokračovat?",
+    "saving": "Ukládám transakce...",
+    "saved": "Transakce byly úspěšně uloženy.",
+    "summaryAi": "✨ Zkontrolujte automaticky navržené kategorie.",
+    "readingFile": "Čtení souboru...",
+    "aiThinking": "Analýza a dohledávání kategorií...",
+    "aiSuccess": "Transakce byly analyzovány!",
+    "sentToAi": "Odesláno k analýze. Můžete aplikaci dál používat.",
+    "aiAnalyzing": "Analýza transakcí...",
+    "uploadError": "Chyba při nahrávání.",
+    "pendingReview": "Import čeká na schválení!"
   },
   "splitTransaction": {
     "errors": {
@@ -292,7 +326,24 @@
     "dangerZone": "Nebezpečná zóna",
     "dangerWarning": "Akce v této sekci jsou nevratné. Prosím, postupujte opatrně.",
     "factoryReset": "Smazat všechna data (Factory Reset)",
-    "factoryResetConfirm": "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení."
+    "factoryResetConfirm": "Opravdu chcete vymazat veškerá data aplikace? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
+    "currencyLocked": "Základní měnu nelze změnit, protože již máte uložené transakce. Pro změnu měny byste museli smazat všechna data.",
+    "currencyChanged": "Základní měna byla úspěšně změněna.",
+    "security": "Upravit Účet",
+    "changePasswordBtn": "Změnit heslo",
+    "oldPassword": "Staré heslo",
+    "newPassword": "Nové heslo",
+    "passwordChanged": "Heslo bylo úspěšně změněno. Znovu se přihlaste.",
+    "passwordError": "Chyba při změně hesla.",
+    "deleteError": "Nepodařilo se smazat účet.",
+    "deleteAccount": "Smazat účet",
+    "deleteAccountConfirm": "Opravdu chcete smazat svůj účet? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
+    "accountDeleted": "Váš účet byl úspěšně smazán.",
+    "deleteAccountTitle": "Smazat účet",
+    "changeUsernameBtn": "Změnit uživatelské jméno",
+    "newUsername": "Nové uživatelské jméno",
+    "usernameChanged": "Uživatelské jméno bylo úspěšně změněno.",
+    "usernameError": "Chyba při změně uživatelského jména. Zkontrolujte prosím zadané údaje."
   },
   "default_categories": {
     "food": "Jídlo a pití",
@@ -307,5 +358,41 @@
     "rent": "Nájem",
     "fuel": "Pohonné hmoty",
     "uncategorized": "Nezařazeno"
+  },
+  "auth": {
+    "login": {
+      "title": "Přihlášení",
+      "subtitle": "Přihlaste se ke svému účtu",
+      "submit": "Přihlásit se",
+      "switchToRegister": "Nemáš účet? Zaregistruj se",
+      "success": "Úspěšně přihlášeno!",
+      "forgotPassword": "Zapomněli jste heslo?"
+    },
+    "register": {
+      "title": "Registrace",
+      "subtitle": "Vytvořte si nový účet",
+      "submit": "Vytvořit účet",
+      "switchToLogin": "Už máš účet? Přihlas se",
+      "success": "Úspěšně zaregistrováno!"
+    },
+    "fields": {
+      "username": "Uživatelské jméno",
+      "email": "E-mail",
+      "password": "Heslo",
+      "baseCurrency": "Výchozí měna"
+    },
+    "errors": {
+      "generic": "Něco se pokazilo během operace. Zkuste to prosím znovu.",
+      "tooManyRequests": "Příliš mnoho požadavků. Zkuste to prosím znovu později."
+    }
+  },
+  "notifications": {
+    "title": "Notifikace",
+    "empty": "Žádné nové notifikace",
+    "dismiss": "Zavřít",
+    "justNow": "Právě teď",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} h",
+    "daysAgo": "{{count}} d"
   }
 }

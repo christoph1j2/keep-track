@@ -1,46 +1,76 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { Budget } from '../types/budget';
+import { create } from "zustand";
+import type { Budget } from "../types/budget";
+import { api } from "../utils/api";
 
 interface BudgetState {
-    budgets: Budget[];
-    setBudget: (categoryId: string, limit: number) => void;
-    removeBudget: (categoryId: string) => void;
-    reorderBudgets: (reorderedBudgets: Budget[]) => void;
+  budgets: Budget[];
+  isLoading: boolean;
+
+  fetchBudgets: () => Promise<void>;
+
+  addBudget: (
+    budgetData: Omit<
+      Budget,
+      "id" | "userId" | "createdAt" | "updatedAt" | "category"
+    >,
+  ) => Promise<void>;
+  updateBudget: (
+    id: string,
+    updateData: Pick<Budget, "categoryId" | "limit">,
+  ) => Promise<void>;
+
+  removeBudget: (id: string) => Promise<void>;
+
+  reorderBudgets: (newBudgets: Budget[]) => Promise<void>;
 }
 
-export const useBudgetStore = create<BudgetState>()(
-    persist(
-        (set) => ({
-            budgets: [],
+export const useBudgetStore = create<BudgetState>()((set) => ({
+  budgets: [],
+  isLoading: false,
 
-            setBudget: (categoryId, limit) =>
-                set((state) => {
-                    const exists = state.budgets.some(b => b.categoryId === categoryId);
+  fetchBudgets: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get("/budgets");
+      set({ budgets: response.data });
+    } catch (err) {
+      console.error("Failed to fetch budgets:", err);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-                    if (exists) {
-                        return {
-                            budgets: state.budgets.map(b =>
-                                b.categoryId === categoryId ? { categoryId, limit } : b
-                            )
-                        };
-                    }
+  addBudget: async (budgetData) => {
+    const response = await api.post("/budgets", budgetData);
+    set((state) => ({ budgets: [...state.budgets, response.data] }));
+  },
 
-                    return { budgets: [...state.budgets, { categoryId, limit }] };
-                }),
-            
-            removeBudget: (categoryId) =>
-                set((state) => ({
-                    budgets: state.budgets.filter(b => b.categoryId !== categoryId)
-                })),
+  updateBudget: async (id, updateData) => {
+    const response = await api.patch(`/budgets/${id}`, updateData);
+    set((state) => ({
+      budgets: state.budgets.map((b) => (b.id === id ? response.data : b)),
+    }));
+  },
 
-            reorderBudgets: (reorderedBudgets) =>
-                set({
-                    budgets: reorderedBudgets
-                }),
-        }),
-        {
-            name: 'keep-track-budgets'
-        }
-    )
-);
+  removeBudget: async (id) => {
+    await api.delete(`/budgets/${id}`);
+    set((state) => ({ budgets: state.budgets.filter((b) => b.id !== id) }));
+  },
+
+  reorderBudgets: async (reorderedBudgets) => {
+    set({ budgets: reorderedBudgets });
+
+    const payload = reorderedBudgets.map((budget, index) => ({
+      id: budget.id,
+      order: index,
+    }));
+
+    try {
+      await api.patch("/budgets/reorder", { budgets: payload });
+    } catch (err) {
+      console.error("Failed to reorder budgets:", err);
+      // Optionally, you might want to refetch the budgets to ensure the state is consistent with the server
+      await useBudgetStore.getState().fetchBudgets();
+    }
+  },
+}));

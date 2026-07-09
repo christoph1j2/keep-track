@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: keeptrack-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ...
+      POSTGRES_DB: keep-track
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: keeptrack-api
+    environment:
+      # URL musí přesně sedět na jméno kontejneru (postgres), port 5432 a heslo výše
+      DATABASE_URL: "postgresql://postgres:...@postgres:5432/keep-track?schema=public"
+      JWT_ACCESS_SECRET: "..."
+      JWT_REFRESH_SECRET: "..."
+      OPENROUTER_API_KEY: "..."
+      BREVO_SMTP_USER: "..."
+      BREVO_SMTP_PASSWORD: "..."
+      FRONTEND_URL: "..." 
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    container_name: keeptrack-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:

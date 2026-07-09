@@ -1,17 +1,29 @@
+import type { Category } from "./category";
+
 /**
  * Transaction record used for storage, filtering, and dashboard summaries.
  * Amount sign convention is stable across the app: negative for expenses, positive for income.
- *
- * @property {string} id Unique transaction identifier.
- * @property {string} title User-facing name shown in lists and cards.
- * @property {number} amount Amount in CZK, where negative is expense and positive is income.
- * @property {string} categoryId Category identifier linked to the category dataset.
- * @property {string} date Date string in ISO format.
  */
 export interface Transaction {
-    id: string;
-    title: string;
-    amount: number;
-    categoryId: string;
-    date: string;
+  id: string;
+  userId: string; // Přidáno z backendu
+
+  // CategoryId může být null, pokud uživatel kategorii smaže (Prisma onDelete: SetNull)
+  categoryId: string | null;
+
+  title: string;
+  date: string; // ISO 8601 string vracený z API
+
+  originalAmount: number;
+  originalCurrency: string;
+  amount: number; // Přepočtená hodnota do baseCurrency
+
+  bankReferenceId?: string | null;
+  isAiCategorized: boolean;
+
+  createdAt: string;
+  updatedAt: string;
+
+  // Relace připojená z backendu (include: { category: true })
+  category?: Category | null;
 }

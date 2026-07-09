@@ -9,6 +9,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import StyleIcon from '@mui/icons-material/Style';
 import { Extension } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { NotificationCenter } from './NotificationCenter';
 
 interface MenuItem {
     translationKey: string,
@@ -38,7 +39,7 @@ export function Sidebar() {
     const { t } = useTranslation();
 
     return (
-        <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors">
+        <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors h-full">
             {/* logo */}
             <div className='mb-10'>
                 <h1 className='text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors'>
@@ -48,7 +49,7 @@ export function Sidebar() {
             </div>
 
             {/* navigation */}
-            <nav className='flex flex-col gap-2'>
+            <nav className='flex flex-col gap-2 w-full'>
                 {MENU_ITEMS.map((item) => (
                     <NavLink
                         key={item.translationKey}
@@ -64,6 +65,9 @@ export function Sidebar() {
                     </NavLink>
                 ))}
             </nav>
+
+            {/* notifications and pending imports */}
+            <NotificationCenter />
         </aside>
     );
 }

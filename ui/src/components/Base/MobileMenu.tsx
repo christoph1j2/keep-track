@@ -9,6 +9,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StyleIcon from '@mui/icons-material/Style';
 import CategoryIcon from '@mui/icons-material/Category';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { NotificationCenter } from './NotificationCenter';
 
 interface MenuItem {
     translationKey: string;
@@ -46,7 +47,7 @@ export function MobileMenu() {
     };
 
     return (
-        <>
+        <aside>
             {/* Drawer */}
             <Drawer 
                 open={isOpen} 
@@ -88,6 +89,9 @@ export function MobileMenu() {
                             );
                         })}
                     </List>
+
+                    {/* Mobile Notification Center */}
+                    <NotificationCenter />
                 </div>
             </Drawer>
 
@@ -111,6 +115,7 @@ export function MobileMenu() {
                     />
                 </svg>
             </button>
-        </>
+        </aside>
     );
 }
+
