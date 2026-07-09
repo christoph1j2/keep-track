@@ -13,7 +13,7 @@ export interface QuickAddTemplate {
   showInHotbar: boolean;
 
   // Relace připojená z backendu (include: { category: true })
-  category?: Category;
+  category?: Category | null;
 
   order: number; // Přidáno z backendu
 }

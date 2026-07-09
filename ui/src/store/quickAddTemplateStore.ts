@@ -90,7 +90,7 @@ export const useTemplateStore = create<TemplateState>()((set) => ({
       order: index,
     }));
     try {
-      await api.patch("/templates/reorder", payload);
+      await api.patch("/templates/reorder", { templates: payload });
     } catch (error) {
       console.error("Error reordering templates:", error);
       // Optionally, you can refetch the templates to ensure the state is consistent

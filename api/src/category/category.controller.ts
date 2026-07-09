@@ -12,6 +12,7 @@ import {
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -50,14 +51,11 @@ export class CategoryController {
 
   @Patch('reorder')
   @ApiOperation({ summary: 'Přeuspořádat kategorie' })
-  async reorder(@Body() reorderedCategories: { id: string; order: number }[]) {
-    const updates = reorderedCategories.map((category) =>
-      this.prisma.category.update({
-        where: { id: category.id },
-        data: { order: category.order },
-      }),
-    );
-    return this.prisma.$transaction(updates);
+  async reorder(
+    @Body() reorderCategoriesDto: ReorderCategoriesDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.categoriesService.reorder(req.user.id, reorderCategoriesDto);
   }
 
   @Get(':id')

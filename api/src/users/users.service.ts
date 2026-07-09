@@ -245,7 +245,7 @@ export class UsersService {
     if (!user) return;
 
     const isPasswordValid = await bcrypt.compare(
-      dto.currentPassword,
+      dto.oldPassword,
       user.passwordHash,
     );
     if (!isPasswordValid) {

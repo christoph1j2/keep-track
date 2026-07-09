@@ -26,8 +26,13 @@ export class AiService {
     private notificationsGateway: NotificationsGateway,
     private notificationService: NotificationService,
   ) {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENROUTER_API_KEY is missing from environment variables.');
+    }
+
     this.aiClient = new OpenRouter({
-      apiKey: `${process.env.OPENROUTER_API_KEY}`,
+      apiKey,
       appTitle: 'KeepTrack',
       httpReferer: process.env.FRONTEND_URL || 'http://localhost:5173',
     });
@@ -87,7 +92,15 @@ export class AiService {
       const lowerTitle = incoming.title.toLowerCase().trim();
       const match = history.find((h) => {
         const pastTitle = h.title.toLowerCase().trim();
-        return lowerTitle.includes(pastTitle) || pastTitle.includes(lowerTitle);
+        
+        // 1. Exact match is always allowed
+        if (lowerTitle === pastTitle) return true;
+        
+        // 2. Prevent fuzzy matching on very short strings to avoid false positives
+        if (pastTitle.length < 5 || lowerTitle.length < 5) return false;
+        
+        // 3. Stricter substring matching (starts-with instead of includes anywhere)
+        return lowerTitle.startsWith(pastTitle) || pastTitle.startsWith(lowerTitle);
       });
 
       if (match && userCategories.some((c) => c.id === match.categoryId)) {

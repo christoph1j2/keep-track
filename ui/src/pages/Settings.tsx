@@ -38,7 +38,7 @@ export function Settings() {
   const handleCurrencyChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    const newCurr = e.target.value as "CZK" | "EUR" | "USD" | "PLN" | "ISK";
+    const newCurr = e.target.value as "CZK" | "EUR" | "USD" | "PLN" | "ISK" | "GBP";
 
     try {
       await setCurrency(newCurr);

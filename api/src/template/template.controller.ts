@@ -12,6 +12,7 @@ import {
 import { TemplateService } from './template.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
+import { ReorderTemplatesDto } from './dto/reorder-templates.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -50,14 +51,11 @@ export class TemplateController {
 
   @Patch('reorder')
   @ApiOperation({ summary: 'Přeuspořádat šablony' })
-  async reorder(@Body() reorderedTemplates: { id: string; order: number }[]) {
-    const updates = reorderedTemplates.map((template) =>
-      this.prisma.template.update({
-        where: { id: template.id },
-        data: { order: template.order },
-      }),
-    );
-    return this.prisma.$transaction(updates);
+  async reorder(
+    @Body() reorderTemplatesDto: ReorderTemplatesDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.templateService.reorder(req.user.id, reorderTemplatesDto);
   }
 
   @Get(':id')

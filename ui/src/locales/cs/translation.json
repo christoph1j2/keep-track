@@ -60,7 +60,8 @@
     "confirm": {
       "resetTitle": "Factory Reset",
       "resetMessage": "Opravdu chcete vymazat všechna data (Factory reset)?\nTato akce je nevratná!"
-    }
+    },
+    "logoutSuccess": "Úspěšně odhlášeno"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -332,6 +333,9 @@
     "changePasswordBtn": "Změnit heslo",
     "oldPassword": "Staré heslo",
     "newPassword": "Nové heslo",
+    "passwordChanged": "Heslo bylo úspěšně změněno. Znovu se přihlaste.",
+    "passwordError": "Chyba při změně hesla.",
+    "deleteError": "Nepodařilo se smazat účet.",
     "deleteAccount": "Smazat účet",
     "deleteAccountConfirm": "Opravdu chcete smazat svůj účet? Tato akce je nevratná a smaže všechny vaše transakce, rozpočty i nastavení.",
     "accountDeleted": "Váš účet byl úspěšně smazán.",
@@ -386,6 +390,9 @@
     "title": "Notifikace",
     "empty": "Žádné nové notifikace",
     "dismiss": "Zavřít",
-    "justNow": "Právě teď"
+    "justNow": "Právě teď",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} h",
+    "daysAgo": "{{count}} d"
   }
 }

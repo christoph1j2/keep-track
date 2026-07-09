@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next";
 import { useConfirmStore } from "../store/confirmStore";
 import { formatCurrency } from "../utils/formatCurrency";
 import { useSettingsStore } from "../store/settingsStore";
+import toast from "react-hot-toast";
 
 /**
  * Dashboard page that summarizes monthly performance and recent activity.
@@ -207,17 +208,23 @@ export function Dashboard() {
                           title: template.title,
                           amount: formatCurrency(template.amount),
                         }),
-                        () => {
-                          addTransaction({
-                            title: template.title,
-                            amount: template.amount,
-                            categoryId: template.categoryId || null,
-                            date: new Date().toISOString(),
+                        async () => {
+                          try {
+                            await addTransaction({
+                              title: template.title,
+                              amount: template.amount,
+                              categoryId: template.categoryId || null,
+                              date: new Date().toISOString(),
 
-                            originalAmount: template.amount,
-                            originalCurrency: currency,
-                            isAiCategorized: false,
-                          });
+                              originalAmount: template.amount,
+                              originalCurrency: currency,
+                              isAiCategorized: false,
+                            });
+                            toast.success(t("transactions.added", "Transakce byla úspěšně přidána."));
+                          } catch (error) {
+                            toast.error(t("common.error", "Došlo k chybě."));
+                            console.error("Error adding transaction from quick add:", error);
+                          }
                         },
                       );
                     }}

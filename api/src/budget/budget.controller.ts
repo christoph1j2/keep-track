@@ -12,6 +12,7 @@ import {
 import { BudgetService } from './budget.service';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
+import { ReorderBudgetsDto } from './dto/reorder-budgets.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -50,14 +51,11 @@ export class BudgetController {
 
   @Patch('reorder')
   @ApiOperation({ summary: 'Přeuspořádat rozpočty' })
-  async reorder(@Body() reorderedBudgets: { id: string; order: number }[]) {
-    const updates = reorderedBudgets.map((budget) =>
-      this.prisma.budget.update({
-        where: { id: budget.id },
-        data: { order: budget.order },
-      }),
-    );
-    return this.prisma.$transaction(updates);
+  async reorder(
+    @Body() reorderBudgetsDto: ReorderBudgetsDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.budgetService.reorder(req.user.id, reorderBudgetsDto);
   }
 
   @Get(':id')

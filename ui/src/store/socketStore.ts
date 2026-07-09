@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { toast } from "react-hot-toast";
 import i18n from "../i18n";
 import { useNotificationStore } from "./notificationStore";
+import { useAuthStore } from "./authStore";
 
 interface SocketState {
   socket: Socket | null;
@@ -29,12 +30,14 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     // pokud jsme pripojeni, nedelam nic
     if (get().socket?.connected) return;
 
+    const token = useAuthStore.getState().accessToken;
     const newSocket = io({
       withCredentials: true,
+      auth: { token },
     });
 
     newSocket.on("connect", () => {
-      newSocket.emit("joinUserRoom", { userId });
+      console.log("WebSocket connected.");
     });
 
     newSocket.on("import_finished", (payload) => {

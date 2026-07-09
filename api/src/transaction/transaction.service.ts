@@ -127,27 +127,38 @@ export class TransactionService {
     return { count: res.count }; // Vrátíme počet vytvořených záznamů
   }
   async update(userId: string, id: string, dto: UpdateTransactionDto) {
-    await this.findOne(userId, id);
-
     let categoryId: string | null | undefined = undefined;
     if (dto.categoryId !== undefined) {
       categoryId = await this.validateAndCleanCategoryId(userId, dto.categoryId);
     }
 
-    return this.prisma.transaction.update({
-      where: { id },
+    const res = await this.prisma.transaction.updateMany({
+      where: { id, userId },
       data: {
         ...dto,
         ...(dto.categoryId !== undefined ? { categoryId } : {}),
       },
+    });
+    
+    if (res.count === 0) {
+      throw new NotFoundException('Transakce nenalezena nebo k ní nemáte přístup');
+    }
+
+    return this.prisma.transaction.findUnique({
+      where: { id },
       include: { category: true },
     });
   }
 
   async remove(userId: string, id: string) {
-    await this.findOne(userId, id);
-    return this.prisma.transaction.delete({
-      where: { id },
+    const res = await this.prisma.transaction.deleteMany({
+      where: { id, userId },
     });
+
+    if (res.count === 0) {
+      throw new NotFoundException('Transakce nenalezena nebo k ní nemáte přístup');
+    }
+
+    return { success: true };
   }
 }

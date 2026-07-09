@@ -65,10 +65,13 @@ export const ResetPassword = () => {
         t("auth.resetPassword.success", "Heslo bylo úspěšně změněno."),
       );
       navigate("/login");
-    } catch (err) {
+    } catch (err: any) {
       // Zobrazení chybové hlášky z backendu (např. 'Invalid or expired reset token')
+      const backendMessage = err.response?.data?.message;
+      const finalMessage = Array.isArray(backendMessage) ? backendMessage[0] : backendMessage;
+      
       setError(
-        t("auth.errors.generic", "Něco se pokazilo. Zkuste to prosím znovu."),
+        finalMessage || t("auth.errors.generic", "Něco se pokazilo. Zkuste to prosím znovu.")
       );
       console.error("Error during reset password request:", err);
     } finally {

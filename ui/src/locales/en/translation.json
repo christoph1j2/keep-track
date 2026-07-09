@@ -60,7 +60,8 @@
     "confirm": {
       "resetTitle": "Factory Reset",
       "resetMessage": "Do you really want to delete all data (Factory reset)?\nThis action is irreversible!"
-    }
+    },
+    "logoutSuccess": "Logged out successfully"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -332,6 +333,9 @@
     "changePasswordBtn": "Change Password",
     "oldPassword": "Old Password",
     "newPassword": "New Password",
+    "passwordChanged": "Password has been successfully changed.",
+    "passwordError": "Error changing password",
+    "deleteError": "Error deleting account",
     "deleteAccount": "Delete Account",
     "deleteAccountConfirm": "Are you sure you want to delete your account? This action is irreversible and will delete all your transactions, budgets, and settings.",
     "accountDeleted": "Your account has been successfully deleted.",
@@ -386,6 +390,9 @@
     "title": "Notifications",
     "empty": "No new notifications",
     "dismiss": "Dismiss",
-    "justNow": "Just now"
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} h",
+    "daysAgo": "{{count}} d"
   }
 }

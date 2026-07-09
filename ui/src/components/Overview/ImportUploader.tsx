@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useSocketStore } from "../../store/socketStore";
 import { api } from "../../utils/api";
 import { parseBankCSV } from "../../utils/bankImport";
@@ -10,6 +10,19 @@ export function ImportUploader() {
   const { t } = useTranslation();
   const { isImportProcessing, setImportProcessing } = useSocketStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!isImportProcessing && timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [isImportProcessing]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -35,6 +48,13 @@ export function ImportUploader() {
       // 2. Odeslání na backend (okamžitá odpověď 202 Accepted)
       await api.post("/ai/import/start", { transactions: rawData });
       toast.success(t("import.sentToAi", "Soubor odeslán! AI ho zpracovává na pozadí."));
+
+      timerRef.current = setTimeout(() => {
+        if (useSocketStore.getState().isImportProcessing) {
+          useSocketStore.getState().setImportProcessing(false);
+          toast.error(t("import.timeout", "Zpracování importu vypršelo. Zkuste to prosím znovu."));
+        }
+      }, 120000);
     } catch (err) {
       setImportProcessing(false);
       toast.error(t("import.parseError", "Při čtení souboru nastala chyba."));

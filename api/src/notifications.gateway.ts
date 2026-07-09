@@ -2,11 +2,9 @@ import {
   WebSocketGateway,
   WebSocketServer,
   OnGatewayConnection,
-  SubscribeMessage,
-  ConnectedSocket,
-  MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 
 // Povolíme CORS, aby se React mohl připojit
 @WebSocketGateway({
@@ -19,16 +17,26 @@ export class NotificationsGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: Socket) {
-    console.log(`Client connected to WS: ${client.id}`);
-  }
+  constructor(private readonly jwtService: JwtService) {}
 
-  @SubscribeMessage('joinUserRoom')
-  async handleJoinRoom(
-    @ConnectedSocket() client: Socket,
-    @MessageBody('userId') userId: string,
-  ) {
-    await client.join(userId);
-    console.log(`Client ${client.id} joined room of user: ${userId}`);
+  async handleConnection(client: Socket) {
+    try {
+      const token = client.handshake.auth?.token;
+      if (!token) {
+        client.disconnect();
+        return;
+      }
+
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      });
+
+      client.data.userId = payload.sub;
+      await client.join(payload.sub);
+      console.log(`Client connected and joined room: ${client.id} -> ${payload.sub}`);
+    } catch (error) {
+      console.log(`Connection rejected for ${client.id}: Invalid token`);
+      client.disconnect();
+    }
   }
 }

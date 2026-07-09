@@ -47,7 +47,7 @@ export const ForgotPassword = () => {
       setIsSuccess(true);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      if (err.response.status === 429) {
+      if (err.response?.status === 429) {
         setError(
           t(
             "auth.errors.tooManyRequests",

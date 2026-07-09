@@ -468,11 +468,7 @@ function parseFlexibleAmount(rawAmount: string): number {
  */
 export function parseBankCSV(file: File): Promise<ParsedTransaction[]> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) return reject("Nepodařilo se přečíst soubor");
+    const processText = (text: string) => {
 
       // 1. KROK: Najdeme reálnou hlavičku tabulky, oddělovač a odřízneme balast.
       const normalizedText = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
@@ -528,9 +524,23 @@ export function parseBankCSV(file: File): Promise<ParsedTransaction[]> {
       });
     };
 
-    reader.onerror = () => reject("Chyba při čtení souboru");
+    const tryRead = (encoding: string, fallbackEncoding?: string) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        if (!text) return reject("Nepodařilo se přečíst soubor");
 
-    // Čteme jako windows-1250 pro podporu CZ kódování z bank
-    reader.readAsText(file, "windows-1250");
+        if (fallbackEncoding && text.includes("\uFFFD")) {
+          tryRead(fallbackEncoding);
+          return;
+        }
+
+        processText(text);
+      };
+      reader.onerror = () => reject("Chyba při čtení souboru");
+      reader.readAsText(file, encoding);
+    };
+
+    tryRead("utf-8", "windows-1250");
   });
 }

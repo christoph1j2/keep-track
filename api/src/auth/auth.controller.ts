@@ -16,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 interface AuthenticatedRequest extends Request {
@@ -61,8 +62,8 @@ export class AuthController {
   @Throttle({ default: { limit: 3, ttl: 86400000 } })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  async forgotPassword(@Body('email') email: string) {
-    await this.authService.forgotPassword(email);
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(forgotPasswordDto.email);
     return { message: 'Password reset email sent if the email exists' };
   }
 

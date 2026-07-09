@@ -53,7 +53,7 @@ export function Topbar() {
     } finally {
       // I kdyby backend neodpověděl, smažeme frontendová data a vykopneme uživatele
       logout();
-      toast.success(t("Z úspěšně odhlášeno", "Logged out successfully")); // Zde můžeš použít svůj i18n klíč
+      toast.success(t("topbar.logoutSuccess", "Logged out successfully")); // Zde můžeš použít svůj i18n klíč
     }
   };
 
@@ -139,7 +139,7 @@ export function Topbar() {
         fullWidth
         classes={{
           paper:
-            "bg-white dark:!bg-slate-900 dark:!text-slate-100 transition-colors",
+            "bg-white dark:bg-slate-900! dark:text-slate-100! transition-colors",
         }}
       >
         <DialogTitle sx={{ fontWeight: "bold" }}>

@@ -73,7 +73,7 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     }));
 
     try {
-      await api.patch("/categories/reorder", payload);
+      await api.patch("/categories/reorder", { categories: payload });
     } catch (error) {
       console.error("Error reordering categories:", error);
       // Optionally, you can refetch the categories to ensure the state is consistent

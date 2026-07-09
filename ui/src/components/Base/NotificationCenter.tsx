@@ -31,18 +31,19 @@ function getNotificationColor(type: string) {
   }
 }
 
-function timeAgo(dateStr: string, t: (key: string, fallback: string) => string): string {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function timeAgo(dateStr: string, t: any): string {
   const now = new Date();
   const date = new Date(dateStr);
   const diffMs = now.getTime() - date.getTime();
   const diffMin = Math.floor(diffMs / 60000);
 
   if (diffMin < 1) return t("notifications.justNow", "Právě teď");
-  if (diffMin < 60) return `${diffMin} min`;
+  if (diffMin < 60) return t("notifications.minutesAgo", "{{count}} min", { count: diffMin });
   const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) return `${diffHours}h`;
+  if (diffHours < 24) return t("notifications.hoursAgo", "{{count}}h", { count: diffHours });
   const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}d`;
+  return t("notifications.daysAgo", "{{count}}d", { count: diffDays });
 }
 
 export function NotificationCenter() {

@@ -66,7 +66,7 @@ export const useBudgetStore = create<BudgetState>()((set) => ({
     }));
 
     try {
-      await api.patch("/budgets/reorder", payload);
+      await api.patch("/budgets/reorder", { budgets: payload });
     } catch (err) {
       console.error("Failed to reorder budgets:", err);
       // Optionally, you might want to refetch the budgets to ensure the state is consistent with the server

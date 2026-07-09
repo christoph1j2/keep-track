@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -45,8 +46,42 @@ export class CategoryService {
 
   async remove(userId: string, id: string) {
     await this.findOne(userId, id); // Ověříme vlastnictví před smazáním
-    return this.prisma.category.delete({
-      where: { id },
+    
+    return this.prisma.$transaction(async (tx) => {
+      await tx.category.updateMany({
+        where: { parentId: id, userId },
+        data: { parentId: null },
+      });
+
+      return tx.category.delete({
+        where: { id },
+      });
     });
+  }
+
+  async reorder(userId: string, dto: ReorderCategoriesDto) {
+    const categoryIds = dto.categories.map((c) => c.id);
+    const existingCategories = await this.prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: { id: true, userId: true },
+    });
+
+    for (const category of existingCategories) {
+      if (category.userId !== userId) {
+        throw new ForbiddenException('Category belongs to another user');
+      }
+    }
+
+    if (existingCategories.length !== categoryIds.length) {
+      throw new NotFoundException('One or more categories not found');
+    }
+
+    const updates = dto.categories.map((category) =>
+      this.prisma.category.update({
+        where: { id: category.id },
+        data: { order: category.order },
+      }),
+    );
+    return this.prisma.$transaction(updates);
   }
 }
