@@ -31,7 +31,6 @@ interface AuthenticatedRequest extends Request {
 export class CategoryController {
   constructor(
     private readonly categoriesService: CategoryService,
-    private readonly prisma: PrismaService,
   ) {}
 
   @Post()

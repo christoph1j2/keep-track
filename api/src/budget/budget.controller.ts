@@ -31,7 +31,6 @@ interface AuthenticatedRequest extends Request {
 export class BudgetController {
   constructor(
     private readonly budgetService: BudgetService,
-    private readonly prisma: PrismaService,
   ) {}
 
   @Post()

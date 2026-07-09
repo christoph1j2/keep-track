@@ -52,7 +52,7 @@ export class TemplateService {
   }
 
   async reorder(userId: string, dto: ReorderTemplatesDto) {
-    const templateIds = dto.templates.map((t) => t.id);
+    const templateIds = Array.from(new Set(dto.templates.map((t) => t.id)));
     const existingTemplates = await this.prisma.template.findMany({
       where: { id: { in: templateIds } },
       select: { id: true, userId: true },

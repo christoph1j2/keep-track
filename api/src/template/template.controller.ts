@@ -31,7 +31,6 @@ interface AuthenticatedRequest extends Request {
 export class TemplateController {
   constructor(
     private readonly templateService: TemplateService,
-    private readonly prisma: PrismaService,
   ) {}
 
   @Post()
