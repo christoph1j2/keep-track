@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
@@ -38,6 +38,36 @@ export class CategoryService {
     updateCategoryDto: UpdateCategoryDto,
   ) {
     await this.findOne(userId, id); // Ověříme, že existuje a patří jemu
+
+    if (updateCategoryDto.parentId) {
+      if (updateCategoryDto.parentId === id) {
+        throw new BadRequestException('Category cannot be its own parent');
+      }
+
+      await this.findOne(userId, updateCategoryDto.parentId); // Ověříme vlastnictví parentId
+
+      let currentParentId: string | null = updateCategoryDto.parentId;
+      const visited = new Set<string>();
+      
+      while (currentParentId) {
+        if (visited.has(currentParentId)) {
+          throw new BadRequestException('Circular category dependency detected in ancestry');
+        }
+        visited.add(currentParentId);
+
+        const parent = await this.prisma.category.findUnique({
+          where: { id: currentParentId },
+          select: { parentId: true },
+        });
+
+        if (!parent) break;
+        if (parent.parentId === id) {
+          throw new BadRequestException('Circular category dependency is not allowed');
+        }
+        currentParentId = parent.parentId;
+      }
+    }
+
     return this.prisma.category.update({
       where: { id },
       data: updateCategoryDto,

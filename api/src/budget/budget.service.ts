@@ -7,9 +7,9 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class BudgetService {
   constructor(private prisma: PrismaService) {}
-  async create(userId: string, dto: CreateBudgetDto) {
+  private async validateExpenseCategory(userId: string, categoryId: string) {
     const category = await this.prisma.category.findFirst({
-      where: { id: dto.categoryId, userId },
+      where: { id: categoryId, userId },
     });
     if (!category) throw new BadRequestException('Kategorie nenalezena');
 
@@ -18,6 +18,10 @@ export class BudgetService {
         'Budget can only be set for categories for expenses.'
       )
     }
+  }
+
+  async create(userId: string, dto: CreateBudgetDto) {
+    await this.validateExpenseCategory(userId, dto.categoryId);
 
     return this.prisma.budget.create({
       data: {
@@ -47,6 +51,11 @@ export class BudgetService {
 
   async update(userId: string, id: string, dto: UpdateBudgetDto) {
     await this.findOne(userId, id); // Ověření vlastnictví
+
+    if (dto.categoryId) {
+      await this.validateExpenseCategory(userId, dto.categoryId);
+    }
+
     return this.prisma.budget.update({
       where: { id },
       data: dto,

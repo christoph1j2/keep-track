@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { io, Socket } from "socket.io-client";
 import { toast } from "react-hot-toast";
 import i18n from "../i18n";
@@ -12,7 +13,7 @@ interface SocketState {
   importedDataReady: any[] | null;
   importJobId: string | null;
 
-  connectSocket: (userId: string) => void;
+  connectSocket: () => void;
   disconnectSocket: () => void;
   setImportProcessing: (status: boolean) => void;
   clearImportedData: () => void;
@@ -20,21 +21,25 @@ interface SocketState {
 
 //const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
-export const useSocketStore = create<SocketState>((set, get) => ({
-  socket: null,
-  isImportProcessing: false,
-  importedDataReady: null,
-  importJobId: null,
+export const useSocketStore = create<SocketState>()(
+  persist(
+    (set, get) => ({
+      socket: null,
+      isImportProcessing: false,
+      importedDataReady: null,
+      importJobId: null,
 
-  connectSocket: (userId: string) => {
-    // pokud jsme pripojeni, nedelam nic
-    if (get().socket?.connected) return;
+      connectSocket: () => {
+        // pokud jsme pripojeni, nedelam nic
+        if (get().socket?.connected) return;
 
-    const token = useAuthStore.getState().accessToken;
-    const newSocket = io({
-      withCredentials: true,
-      auth: { token },
-    });
+        const token = useAuthStore.getState().accessToken;
+        if (!token) return;
+
+        const newSocket = io({
+          withCredentials: true,
+          auth: { token },
+        });
 
     newSocket.on("connect", () => {
       console.log("WebSocket connected.");
@@ -74,4 +79,13 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   setImportProcessing: (status) => set({ isImportProcessing: status }),
 
   clearImportedData: () => set({ importedDataReady: null }),
-}));
+    }),
+    {
+      name: "socket-store",
+      partialize: (state) => ({
+        importedDataReady: state.importedDataReady,
+        importJobId: state.importJobId,
+      }),
+    }
+  )
+);

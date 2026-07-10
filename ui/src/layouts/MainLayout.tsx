@@ -37,9 +37,9 @@ export function MainLayout({ children }: { children: ReactNode }) {
   const importedDataReady = useSocketStore((state) => state.importedDataReady);
 
   useEffect(() => {
-    if (token && user?.id) {
+    if (token && user) {
       // 1. Připojíme WebSockets
-      connectSocket(user.id);
+      connectSocket();
 
       // 2. Zeptáme se backendu, jestli náhodou nevisí v DB hotový import z minula
       const fetchPendingJob = async () => {
