@@ -47,7 +47,14 @@ export class CategoryService {
       await this.findOne(userId, updateCategoryDto.parentId); // Ověříme vlastnictví parentId
 
       let currentParentId: string | null = updateCategoryDto.parentId;
+      const visited = new Set<string>();
+      
       while (currentParentId) {
+        if (visited.has(currentParentId)) {
+          throw new BadRequestException('Circular category dependency detected in ancestry');
+        }
+        visited.add(currentParentId);
+
         const parent = await this.prisma.category.findUnique({
           where: { id: currentParentId },
           select: { parentId: true },
