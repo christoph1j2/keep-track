@@ -38,6 +38,11 @@ export class CategoryService {
     updateCategoryDto: UpdateCategoryDto,
   ) {
     await this.findOne(userId, id); // Ověříme, že existuje a patří jemu
+
+    if (updateCategoryDto.parentId) {
+      await this.findOne(userId, updateCategoryDto.parentId); // Ověříme vlastnictví parentId
+    }
+
     return this.prisma.category.update({
       where: { id },
       data: updateCategoryDto,

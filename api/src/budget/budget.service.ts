@@ -47,6 +47,20 @@ export class BudgetService {
 
   async update(userId: string, id: string, dto: UpdateBudgetDto) {
     await this.findOne(userId, id); // Ověření vlastnictví
+
+    if (dto.categoryId) {
+      const category = await this.prisma.category.findFirst({
+        where: { id: dto.categoryId, userId },
+      });
+      if (!category) throw new BadRequestException('Kategorie nenalezena');
+
+      if (category.type !== 'EXPENSE') {
+        throw new BadRequestException(
+          'Budget can only be set for categories for expenses.'
+        )
+      }
+    }
+
     return this.prisma.budget.update({
       where: { id },
       data: dto,
