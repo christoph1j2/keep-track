@@ -83,7 +83,6 @@ export const useSocketStore = create<SocketState>()(
     {
       name: "socket-store",
       partialize: (state) => ({
-        isImportProcessing: state.isImportProcessing,
         importedDataReady: state.importedDataReady,
         importJobId: state.importJobId,
       }),
