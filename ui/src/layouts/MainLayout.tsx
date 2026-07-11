@@ -9,8 +9,6 @@ import { useBudgetStore } from "../store/budgetStore";
 import { useTemplateStore } from "../store/quickAddTemplateStore";
 import { useSocketStore } from "../store/socketStore";
 import { useNotificationStore } from "../store/notificationStore";
-import { CircularProgress } from "@mui/material";
-import { useTranslation } from "react-i18next";
 import { api } from "../utils/api";
 
 /**
@@ -20,7 +18,6 @@ import { api } from "../utils/api";
  * @param props.children Active page content.
  */
 export function MainLayout({ children }: { children: ReactNode }) {
-  const { t } = useTranslation();
   const token = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
 
@@ -33,8 +30,6 @@ export function MainLayout({ children }: { children: ReactNode }) {
 
   const connectSocket = useSocketStore((state) => state.connectSocket);
   const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
-  const isImportProcessing = useSocketStore((state) => state.isImportProcessing);
-  const importedDataReady = useSocketStore((state) => state.importedDataReady);
 
   useEffect(() => {
     if (token && user) {

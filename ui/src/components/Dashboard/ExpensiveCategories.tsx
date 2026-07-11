@@ -30,10 +30,11 @@ export function ExpensiveCategories() {
     const categorySums = currentMonthTransactions
         .filter(t => t.amount < 0) // pouze výdaje
         .reduce((acc, t) => {
-            if (!acc[t.categoryId]) {
-                acc[t.categoryId] = 0;
+            const catId = t.categoryId || "uncategorized";
+            if (!acc[catId]) {
+                acc[catId] = 0;
             }
-            acc[t.categoryId] += Math.abs(t.amount);
+            acc[catId] += Math.abs(t.amount);
             return acc;
         }, {} as Record<string, number>);
 

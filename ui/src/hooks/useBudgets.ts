@@ -77,13 +77,14 @@ export function useBudgets() {
 
         if (exists) {
             const updated = current.map(b =>
-                b.categoryId === categoryId ? { categoryId, limit } : b
+                b.categoryId === categoryId ? { ...b, categoryId, limit } as unknown as Budget : b
             );
             persistBudgets(updated);
             setBudgets(updated);
         } else {
-            persistBudgets([...current, { categoryId, limit }]);
-            setBudgets([...current, { categoryId, limit }]);
+            const newBudget = { categoryId, limit } as unknown as Budget;
+            persistBudgets([...current, newBudget]);
+            setBudgets([...current, newBudget]);
         }
     };
 

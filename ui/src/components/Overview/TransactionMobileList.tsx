@@ -185,7 +185,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                     <div>
                                         <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t('overview.columns.category')}</label>
                                         <select
-                                            value={current.categoryId}
+                                            value={current.categoryId || ""}
                                             onChange={(e) =>
                                                 setEditingData({ ...editingData, categoryId: e.target.value })
                                             }
