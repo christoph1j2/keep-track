@@ -24,7 +24,7 @@ function App() {
     useConfirmStore();
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/keeptrack">
       <MainLayout>
         <Toaster position="top-center" />
         <Routes>

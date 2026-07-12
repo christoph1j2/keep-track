@@ -152,7 +152,7 @@ npm run preview
 
 ## Configuration
 
-- **Base URL**: Production builds use `/` as base URL
+- **Base URL**: Production builds use `/keeptrack/` as base URL
 - **Theme**: Automatically detects system preference, falls back to localStorage setting
 - **Persistence**: All state stores use localStorage with specific names for isolation
 
