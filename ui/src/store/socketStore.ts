@@ -36,7 +36,8 @@ export const useSocketStore = create<SocketState>()(
         const token = useAuthStore.getState().accessToken;
         if (!token) return;
 
-        const newSocket = io({
+        const newSocket = io(window.location.origin,{
+          path: "/keeptrack/socket.io",
           withCredentials: true,
           auth: { token },
         });
