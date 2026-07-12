@@ -24,7 +24,7 @@ function App() {
     useConfirmStore();
 
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter>
       <MainLayout>
         <Toaster position="top-center" />
         <Routes>

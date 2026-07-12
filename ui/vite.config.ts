@@ -4,8 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
-  base: "/keeptrack/",
+export default defineConfig(() => ({
   plugins: [
     tailwindcss(),
     react(),

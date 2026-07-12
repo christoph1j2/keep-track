@@ -24,8 +24,8 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  app.setGlobalPrefix('keeptrack/api');
-  SwaggerModule.setup('keeptrack/api/docs', app, document);
+  app.setGlobalPrefix('api');
+  SwaggerModule.setup('api/docs', app, document);
 
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));

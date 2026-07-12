@@ -1,5 +1,5 @@
 # --- Fáze 1: Build ---
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 COPY package*.json ./
@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # --- Fáze 2: Produkce ---
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Alpine linux občas potřebuje doinstalovat openssl pro Prismu
 RUN apk add --no-cache openssl
