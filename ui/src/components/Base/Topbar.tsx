@@ -123,7 +123,7 @@ export function Topbar() {
             <button
               onClick={handleLogout}
               className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 transition-colors ml-2"
-              title="Odhlásit se"
+              title={t("topbar.tooltips.logout", "Odhlásit se")}
             >
               <LogoutOutlined />
             </button>
@@ -154,7 +154,7 @@ export function Topbar() {
                     {t("topbar.about.author")}:
                   </span>{" "}
                   <span className="text-slate-600 dark:text-slate-300">
-                    Ernst Christoph Leschka
+                    {t("topbar.about.authorName")}
                   </span>
                 </p>
                 <p>
@@ -162,7 +162,7 @@ export function Topbar() {
                     {t("topbar.about.subject")}:
                   </span>{" "}
                   <span className="text-slate-600 dark:text-slate-300">
-                    KIV/UUR @ ZČU FAV
+                    {t("topbar.about.subjectName")}
                   </span>
                 </p>
                 <p>

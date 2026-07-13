@@ -38,18 +38,21 @@
   "topbar": {
     "tooltips": {
       "info": "Informace o projektu",
-      "theme": "Přepnout vzhled"
+      "theme": "Přepnout vzhled",
+      "logout": "Odhlásit se"
     },
     "about": {
       "title": "O projektu",
       "author": "Autor",
+      "authorName": "Ernst Christoph Leschka",
       "subject": "Předmět",
+      "subjectName": "KIV/UUR @ ZČU FAV",
       "work": "Práce",
       "workName": "Správa Osobních Financí",
       "description1": "Keep Track je moderní webová aplikace navržená pro efektivní správu osobních financí a rozpočtů. Aplikace poskytuje komplexní řešení pro sledování příjmů, výdajů a kontrolu výdajů prostřednictvím flexibilního systému rozpočtů a kategorií. Uživatelé mohou snadno zaznamenávat transakce, organizovat je do vlastních kategorií a analyzovat své výdaje přes interaktivní grafy a statistiky.",
       "description2": "Ústředním prvkem aplikace je funkce Quick Add, která umožňuje uživatelům vytvářet šablony pro často opakované transakce, což zrychluje zaznamenávání a zlepšuje produktivitu. Aplikace také nabízí možnost rozdělovat transakce, což je užitečné při sdílení výdajů nebo detailnější analýze. Všechna data jsou",
-      "currently": "aktuálně",
-      "description3": "spravována lokálně v prohlížeči, čímž se zajišťuje soukromí a bezpečnost uživatele.",
+      "currently": "bezpečně",
+      "description3": "synchronizována a uložena na serveru, což umožňuje snadný přístup ze všech vašich zařízení.",
       "statsIncome": "Věděl jsi, že suma všech tvých kladných transakcí je {{income}}?",
       "statsExpenses": "A suma všech záporných transakcí je {{expenses}}!"
     },

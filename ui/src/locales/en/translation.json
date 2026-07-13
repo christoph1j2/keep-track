@@ -38,18 +38,21 @@
   "topbar": {
     "tooltips": {
       "info": "Project information",
-      "theme": "Switch theme"
+      "theme": "Switch theme",
+      "logout": "Log out"
     },
     "about": {
       "title": "About the project",
       "author": "Author",
+      "authorName": "Ernst Christoph Leschka",
       "subject": "Subject",
+      "subjectName": "KIV/UUR @ ZČU FAV",
       "work": "Work",
       "workName": "Personal Finance Management",
       "description1": "Keep Track is a modern web application designed for efficient management of personal finances and budgets. The application provides a comprehensive solution for tracking income, expenses, and controlling spending through a flexible system of budgets and categories. Users can easily record transactions, organize them into custom categories, and analyze their spending via interactive charts and statistics.",
       "description2": "The central element of the application is the Quick Add feature, which allows users to create templates for frequently repeated transactions, speeding up recording and improving productivity. The application also offers the ability to split transactions, which is useful when sharing expenses or for more detailed analysis. All data is",
-      "currently": "currently",
-      "description3": "managed locally in the browser, ensuring user privacy and security.",
+      "currently": "securely",
+      "description3": "synchronized and stored on the server, allowing easy access from all your devices.",
       "statsIncome": "Did you know that the sum of all your positive transactions is {{income}}?",
       "statsExpenses": "And the sum of all negative transactions is {{expenses}}!"
     },

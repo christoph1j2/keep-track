@@ -1,13 +1,12 @@
 
 # 💸 Keep Track - Frontend
 
-Moderní, rychlá a plně responzivní webová aplikace pro efektivní správu osobních financí a rozpočtů. Aplikace je navržena jako plnohodnotná **PWA (Progressive Web App)**, funguje offline a veškerá uživatelská data momentálně uchovává lokálně v prohlížeči.
+Moderní, rychlá a plně responzivní webová aplikace pro efektivní správu osobních financí a rozpočtů. Funguje offline a veškerá uživatelská data momentálně uchovává lokálně v prohlížeči.
 
 Tento repozitář obsahuje klientskou část (frontend), která je připravena na budoucí napojení na plnohodnotný backend.
 
 ## ✨ Hlavní funkce
 
-- 📱 **PWA (Installable):** Aplikaci lze nainstalovat na plochu mobilu i počítače pro nativní zážitek.
 - 🌙 **Dark/Light Mode:** Plná podpora tmavého režimu napříč celým UI.
 - 🌍 **Lokalizace (i18n):** Přeloženo do češtiny a angličtiny s možností plynulého přepínání.
 - 💱 **Dynamická měna:** Volba hlavní měny (CZK, EUR, USD, GBP) s automatickým formátováním.
@@ -23,7 +22,6 @@ Tento repozitář obsahuje klientskou část (frontend), která je připravena n
 - **Komponenty:** [Material UI (MUI)](https://mui.com/) & MUI X-Charts
 - **State Management:** [Zustand](https://github.com/pmndrs/zustand)
 - **Internacionalizace:** `i18next` & `react-i18next`
-- **PWA:** `vite-plugin-pwa`
 
 ## 🚀 Jak spustit projekt lokálně
 
@@ -51,9 +49,9 @@ npm run dev
 
 4. Aplikace poběží na adrese `http://localhost:5173`.
 
-### 📦 Sestavení pro produkci (včetně PWA Service Workeru)
+### 📦 Sestavení pro produkci
 
-Pro otestování PWA funkcí (instalace, offline chod) je nutné aplikaci sestavit:
+Aplikaci je možné sestavit pro produkci pomocí následujícího příkazu:
 
 ```bash
 npm run build
