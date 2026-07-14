@@ -32,5 +32,5 @@ COPY --from=builder /app/prisma.config.ts ./
 # Otevření portu
 EXPOSE 3000
 
-# Spuštění produkčního serveru
-CMD ["node", "dist/src/main.js"]
+# Spuštění migrací a následně produkčního serveru
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
