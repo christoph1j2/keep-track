@@ -13,7 +13,7 @@ import { NotificationCenter } from './NotificationCenter';
 import { useTranslation } from 'react-i18next';
 
 interface MenuItem {
-    translationKey: string;
+    label: string;
     icon: ReactNode;
     path: string;
 }
@@ -29,12 +29,12 @@ export function MobileMenu() {
     const { t } = useTranslation();
 
     const MENU_ITEMS: MenuItem[] = [
-        { translationKey: t('sidebar.dashboard'), icon: <DashboardIcon />, path: '/' },
-        { translationKey: t('sidebar.overview'), icon: <ShowChartIcon />, path: '/overview' },
-        { translationKey: t('sidebar.categories'), icon: <CategoryIcon />, path: '/categories' },
-        { translationKey: t('sidebar.budgeting'), icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
-        { translationKey: t('sidebar.quickAdd'), icon: <StyleIcon />, path: '/quickadd' },
-        { translationKey: t('sidebar.settings'), icon: <SettingsIcon />, path: '/settings' },
+        { label: t('sidebar.dashboard'), icon: <DashboardIcon />, path: '/' },
+        { label: t('sidebar.overview'), icon: <ShowChartIcon />, path: '/overview' },
+        { label: t('sidebar.categories'), icon: <CategoryIcon />, path: '/categories' },
+        { label: t('sidebar.budgeting'), icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
+        { label: t('sidebar.quickAdd'), icon: <StyleIcon />, path: '/quickadd' },
+        { label: t('sidebar.settings'), icon: <SettingsIcon />, path: '/settings' },
     ];
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -72,7 +72,7 @@ export function MobileMenu() {
                         {MENU_ITEMS.map((item) => {
                             const isActive = location.pathname === item.path;
                             return (
-                                <ListItem key={item.translationKey} disablePadding>
+                                <ListItem key={item.path} disablePadding>
                                     <ListItemButton
                                         component={NavLink}
                                         to={item.path}
@@ -85,7 +85,7 @@ export function MobileMenu() {
                                         <ListItemIcon className={isActive ? 'text-slate-900! dark:text-slate-100!' : 'text-slate-600! dark:text-slate-400!'}>
                                             {item.icon}
                                         </ListItemIcon>
-                                        <ListItemText primary={item.translationKey} />
+                                        <ListItemText primary={item.label} />
                                     </ListItemButton>
                                 </ListItem>
                             );
