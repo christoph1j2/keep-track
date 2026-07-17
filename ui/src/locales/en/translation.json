@@ -25,7 +25,8 @@
     "unknownCategory": "Unknown category",
     "confirm": "Confirm",
     "error": "An error occurred.",
-    "type": "Type"
+    "type": "Type",
+    "unassigned": "Unassigned"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -64,7 +65,8 @@
       "resetTitle": "Factory Reset",
       "resetMessage": "Do you really want to delete all data (Factory reset)?\nThis action is irreversible!"
     },
-    "logoutSuccess": "Logged out successfully"
+    "logoutSuccess": "Logged out successfully",
+    "language": "Language"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -122,7 +124,9 @@
     "errors": {
       "missingFields": "Fill in all fields",
       "positiveLimit": "Limit must be a positive number",
-      "invalidLimit": "Limit must be a valid number"
+      "invalidLimit": "Limit must be a valid number",
+      "addFailed": "Failed to add budget.",
+      "updateFailed": "Failed to update budget."
     }
   },
   "overview": {
@@ -157,7 +161,10 @@
       "saveChanges": "Do you really want to save changes?",
       "invalidNumber": "Amount must be a valid number.",
       "zeroAmount": "Amount cannot be zero."
-    }
+    },
+    "invalidNumber": "Invalid number.",
+    "zeroAmount": "Amount cannot be zero.",
+    "updateConfirm": "Are you sure you want to update this transaction?"
   },
   "categories": {
     "title": "Category management",
@@ -293,7 +300,10 @@
     "sentToAi": "Sent to server for analysis. You can continue using the app.",
     "aiAnalyzing": "Analyzing the transactions...",
     "uploadError": "Error during upload.",
-    "pendingReview": "Import pending review!"
+    "pendingReview": "Import pending review!",
+    "alreadyProcessing": "Import is already processing.",
+    "noData": "No data found to import.",
+    "timeout": "Import is taking longer than expected. Please hang tight!"
   },
   "splitTransaction": {
     "errors": {
@@ -319,7 +329,8 @@
     },
     "buttons": {
       "save": "Save split"
-    }
+    },
+    "split": "Split transaction"
   },
   "settings": {
     "title": "Settings",
@@ -346,7 +357,11 @@
     "changeUsernameBtn": "Change Username",
     "newUsername": "New Username",
     "usernameChanged": "Username has been successfully changed.",
-    "usernameError": "Error occurred while changing username. Please check the entered details."
+    "usernameError": "Error occurred while changing username. Please check the entered details.",
+    "confirmPassword": "Confirm Password",
+    "bankConnections": "Bank Connections",
+    "bankConnectionsDesc": "Manage your connected bank accounts.",
+    "connectBankWip": "Connecting to bank... (WIP)"
   },
   "default_categories": {
     "food": "Food and Drink",
@@ -387,6 +402,20 @@
     "errors": {
       "generic": "An error occurred during the operation. Please try again.",
       "tooManyRequests": "Too many requests. Please try again later."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to receive a password reset link.",
+      "success": "Password reset link has been sent to your email.",
+      "submit": "Send reset link"
+    },
+    "backToLogin": "Back to login",
+    "resetPassword": {
+      "mismatch": "Passwords do not match.",
+      "success": "Password has been reset successfully.",
+      "missingToken": "Invalid or missing reset token.",
+      "title": "Reset Password",
+      "submit": "Reset password"
     }
   },
   "notifications": {

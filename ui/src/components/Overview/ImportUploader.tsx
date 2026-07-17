@@ -51,8 +51,7 @@ export function ImportUploader() {
 
       timerRef.current = setTimeout(() => {
         if (useSocketStore.getState().isImportProcessing) {
-          useSocketStore.getState().setImportProcessing(false);
-          toast.error(t("import.timeout", "Zpracování importu vypršelo. Zkuste to prosím znovu."));
+          toast.error(t("import.timeout"));
         }
       }, 120000);
     } catch (err) {

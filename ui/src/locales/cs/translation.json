@@ -25,7 +25,8 @@
     "unknownCategory": "Neznámá kategorie",
     "confirm": "Potvrdit",
     "error": "Došlo k chybě.",
-    "type": "Typ"
+    "type": "Typ",
+    "unassigned": "Nepřiřazeno"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -64,7 +65,8 @@
       "resetTitle": "Factory Reset",
       "resetMessage": "Opravdu chcete vymazat všechna data (Factory reset)?\nTato akce je nevratná!"
     },
-    "logoutSuccess": "Úspěšně odhlášeno"
+    "logoutSuccess": "Úspěšně odhlášeno",
+    "language": "Jazyk"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -122,7 +124,9 @@
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "positiveLimit": "Limit musí být kladné číslo",
-      "invalidLimit": "Limit musí být platné číslo"
+      "invalidLimit": "Limit musí být platné číslo",
+      "addFailed": "Nepodařilo se přidat rozpočet.",
+      "updateFailed": "Nepodařilo se upravit rozpočet."
     }
   },
   "overview": {
@@ -157,7 +161,10 @@
       "saveChanges": "Opravdu chcete uložit změny?",
       "invalidNumber": "Částka musí být platné číslo.",
       "zeroAmount": "Částka nesmí být nula."
-    }
+    },
+    "invalidNumber": "Neplatné číslo.",
+    "zeroAmount": "Částka nemůže být nula.",
+    "updateConfirm": "Opravdu chcete upravit tuto transakci?"
   },
   "categories": {
     "title": "Správa kategorií",
@@ -293,7 +300,10 @@
     "sentToAi": "Odesláno k analýze. Můžete aplikaci dál používat.",
     "aiAnalyzing": "Analýza transakcí...",
     "uploadError": "Chyba při nahrávání.",
-    "pendingReview": "Import čeká na schválení!"
+    "pendingReview": "Import čeká na schválení!",
+    "alreadyProcessing": "Import již probíhá.",
+    "noData": "Nebyla nalezena žádná data k importu.",
+    "timeout": "Import trvá déle než očekáváno. Prosím, vyčkejte!"
   },
   "splitTransaction": {
     "errors": {
@@ -319,7 +329,8 @@
     },
     "buttons": {
       "save": "Uložit rozdělení"
-    }
+    },
+    "split": "Rozdělit transakci"
   },
   "settings": {
     "title": "Nastavení",
@@ -346,7 +357,11 @@
     "changeUsernameBtn": "Změnit uživatelské jméno",
     "newUsername": "Nové uživatelské jméno",
     "usernameChanged": "Uživatelské jméno bylo úspěšně změněno.",
-    "usernameError": "Chyba při změně uživatelského jména. Zkontrolujte prosím zadané údaje."
+    "usernameError": "Chyba při změně uživatelského jména. Zkontrolujte prosím zadané údaje.",
+    "confirmPassword": "Potvrdit heslo",
+    "bankConnections": "Bankovní spojení",
+    "bankConnectionsDesc": "Spravujte svá připojená bankovní spojení.",
+    "connectBankWip": "Připojování k bance... WIP"
   },
   "default_categories": {
     "food": "Jídlo a pití",
@@ -387,6 +402,20 @@
     "errors": {
       "generic": "Něco se pokazilo během operace. Zkuste to prosím znovu.",
       "tooManyRequests": "Příliš mnoho požadavků. Zkuste to prosím znovu později."
+    },
+    "forgotPassword": {
+      "title": "Zapomenuté heslo",
+      "subtitle": "Zadejte svůj e-mail pro zaslání odkazu na obnovu hesla.",
+      "success": "Odkaz pro obnovu hesla byl odeslán na váš e-mail.",
+      "submit": "Odeslat odkaz"
+    },
+    "backToLogin": "Zpět na přihlášení",
+    "resetPassword": {
+      "mismatch": "Hesla se neshodují.",
+      "success": "Heslo bylo úspěšně obnoveno.",
+      "missingToken": "Neplatný nebo chybějící token pro obnovu.",
+      "title": "Obnovit heslo",
+      "submit": "Obnovit heslo"
     }
   },
   "notifications": {
