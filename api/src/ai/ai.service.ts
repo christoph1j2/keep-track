@@ -27,9 +27,6 @@ export class AiService {
     private notificationService: NotificationService,
   ) {
     const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      throw new Error('OPENROUTER_API_KEY is missing from environment variables.');
-    }
 
     this.aiClient = new OpenRouter({
       apiKey,
@@ -115,9 +112,10 @@ export class AiService {
     }
 
     // 2. AI CATEGORIZATION (Optimized with Deduplication and Chunking)
-    if (unmappedForAi.length > 0) {
+    if (unmappedForAi.length > 0 && process.env.OPENROUTER_API_KEY) {
       //const keyInfo = await this.aiClient.apiKeys.getCurrentKeyMetadata();
       //console.log(keyInfo.data);
+
 
       // Step A: Deduplicate by title to save tokens and time
       const uniqueTitles = [...new Set(unmappedForAi.map((t) => t.title))];
