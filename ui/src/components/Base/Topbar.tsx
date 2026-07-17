@@ -76,10 +76,10 @@ export function Topbar() {
 
         {/* Mobile user info - Dynamické zobrazení */}
         <div className="md:hidden text-right">
-          <p className="font-semibold text-sm text-slate-800 dark:text-slate-100">
+          <p className="font-semibold text-sm max-w-[175px]  sm:max-w-auto truncate text-slate-800 dark:text-slate-100">
             {user?.username || ""}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs max-w-[175px] sm:max-w-auto truncate text-slate-500 dark:text-slate-400">
             {user?.email || ""}
           </p>
         </div>
