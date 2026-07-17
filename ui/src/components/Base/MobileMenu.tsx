@@ -10,21 +10,13 @@ import StyleIcon from '@mui/icons-material/Style';
 import CategoryIcon from '@mui/icons-material/Category';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { NotificationCenter } from './NotificationCenter';
+import { useTranslation } from 'react-i18next';
 
 interface MenuItem {
     translationKey: string;
     icon: ReactNode;
     path: string;
 }
-
-const MENU_ITEMS: MenuItem[] = [
-    { translationKey: 'sidebar.dashboard', icon: <DashboardIcon />, path: '/' },
-    { translationKey: 'sidebar.overview', icon: <ShowChartIcon />, path: '/overview' },
-    { translationKey: 'sidebar.categories', icon: <CategoryIcon />, path: '/categories' },
-    { translationKey: 'sidebar.budgeting', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
-    { translationKey: 'sidebar.quickAdd', icon: <StyleIcon />, path: '/quickadd' },
-    { translationKey: 'sidebar.settings', icon: <SettingsIcon />, path: '/settings' },
-];
 
 /**
  * Mobile navigation drawer that opens from the left side.
@@ -34,6 +26,16 @@ export function MobileMenu() {
     const [openedPath, setOpenedPath] = useState<string | null>(null);
     const location = useLocation();
     const isOpen = openedPath === location.pathname;
+    const { t } = useTranslation();
+
+    const MENU_ITEMS: MenuItem[] = [
+        { translationKey: t('sidebar.dashboard'), icon: <DashboardIcon />, path: '/' },
+        { translationKey: t('sidebar.overview'), icon: <ShowChartIcon />, path: '/overview' },
+        { translationKey: t('sidebar.categories'), icon: <CategoryIcon />, path: '/categories' },
+        { translationKey: t('sidebar.budgeting'), icon: <AccountBalanceWalletIcon />, path: '/budgeting' },
+        { translationKey: t('sidebar.quickAdd'), icon: <StyleIcon />, path: '/quickadd' },
+        { translationKey: t('sidebar.settings'), icon: <SettingsIcon />, path: '/settings' },
+    ];
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
