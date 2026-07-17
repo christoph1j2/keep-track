@@ -151,7 +151,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                       <td className={`p-3 text-right font-semibold whitespace-nowrap ${tItem.amount > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-800 dark:text-slate-200"}`}>
                         {formatCurrency(tItem.amount)}
                       </td>
-                      <td className="p-3 relative min-w-45">
+                      <td className="p-3 relative min-w-35">
                         <select
                           value={tItem.categoryId || ""}
                           onChange={(e) => handleCategoryChange(tItem.id, e.target.value)}
