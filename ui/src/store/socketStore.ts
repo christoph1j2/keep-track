@@ -20,6 +20,7 @@ interface SocketState {
 }
 
 //const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || "/socket.io";
 
 export const useSocketStore = create<SocketState>()(
   persist(
@@ -37,7 +38,7 @@ export const useSocketStore = create<SocketState>()(
         if (!token) return;
 
         const newSocket = io(window.location.origin,{
-          path: "/keeptrack/socket.io",
+          path: SOCKET_PATH,
           withCredentials: true,
           auth: { token },
         });

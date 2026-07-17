@@ -11,6 +11,8 @@ RUN npm ci
 COPY . .
 
 ENV VITE_API_URL=/keeptrack/api
+ENV VITE_SOCKET_PATH=/keeptrack/socket.io
+
 RUN npm run build
 
 # --- Fáze 2: Nginx (Servírování) ---
