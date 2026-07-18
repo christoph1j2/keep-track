@@ -67,13 +67,3 @@ npm run preview
 * `src/pages/` - Hlavní pohledy aplikace (Dashboard, Settings, Overview...).
 * `src/store/` - Zustand definice stavů (Transactions, Budgets, Settings...).
 * `src/utils/` - Pomocné funkce (formátování, generování dat).
-
-## 🚧 Plánovaný vývoj (Roadmap)
-
-Současná verze slouží jako robustní klient. V dalších fázích plánujeme:
-
-* Migraci dat z `localStorage` do PostgreSQL databáze.
-* Napojení na bankovní API (GoCardless/Nordigen) pro automatický import výpisů.
-* Integraci AI analytika (analýza výdajů a generování doporučení).
-* Podporu více uživatelů (sdílené rozpočty pro rodiny).
-
