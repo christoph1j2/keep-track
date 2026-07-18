@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { cleanDatabase } from './db-cleaner';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -39,8 +40,7 @@ describe('Category (e2e)', () => {
 
   beforeEach(async () => {
     // Clean tables
-    await prisma.category.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanDatabase(prisma);
 
     // Create user and get token
     const testUser = {

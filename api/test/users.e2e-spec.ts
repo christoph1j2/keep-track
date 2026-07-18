@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { cleanDatabase } from './db-cleaner';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -38,7 +39,7 @@ describe('Users (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prisma.user.deleteMany();
+    await cleanDatabase(prisma);
 
     const testUser = { email: 'user@example.com', password: 'Password123!', username: 'user1', baseCurrency: 'CZK' };
     const registerRes = await request(app.getHttpServer()).post('/users').send(testUser);

@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { cleanDatabase } from './db-cleaner';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -42,7 +43,7 @@ describe('Auth (e2e)', () => {
 
   beforeEach(async () => {
     // clean db before each test
-    await prisma.user.deleteMany();
+    await cleanDatabase(prisma);
   });
 
   afterAll(async () => {
@@ -94,7 +95,7 @@ describe('Auth (e2e)', () => {
       .send({ email: testUser.email })
       .expect(200);
 
-    expect(response.body.message).toBe('Password reset email sent if the email exists');
+    expect(response.body.message).toBe('If the email exists, a reset link will be sent.');
 
     const dbUser = await prisma.user.findUnique({ where: { email: testUser.email } });
     expect(dbUser?.resetPasswordToken).not.toBeNull();

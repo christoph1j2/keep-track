@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { cleanDatabase } from './db-cleaner';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -64,8 +65,7 @@ describe('AI (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prisma.importJob.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanDatabase(prisma);
 
     const testUser = { email: 'ai@example.com', password: 'Password123!', username: 'aiuser', baseCurrency: 'CZK' };
     await request(app.getHttpServer()).post('/users').send(testUser);
@@ -92,6 +92,32 @@ describe('AI (e2e)', () => {
 
     expect(response.body).toHaveProperty('jobId');
     expect(response.body.message).toBe('Import job started');
+
+    const jobId = response.body.jobId;
+    let finalJobStatus = 'PROCESSING';
+    let jobData;
+
+    for (let i = 0; i < 20; i++) {
+      const job = await prisma.importJob.findUnique({ where: { id: jobId } });
+      if (job) {
+        if (job.status === 'READY_FOR_REVIEW') {
+          finalJobStatus = 'READY_FOR_REVIEW';
+          jobData = job.data;
+          break;
+        } else if (job.status === 'FAILED') {
+          finalJobStatus = 'FAILED';
+          break;
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    if (finalJobStatus === 'FAILED') {
+      throw new Error('Import job reached FAILED status');
+    }
+
+    expect(finalJobStatus).toBe('READY_FOR_REVIEW');
+    expect(jobData).toBeDefined();
   });
 
   it('/ai/import/pending (GET) - Retrieves pending job', async () => {
