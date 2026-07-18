@@ -1,79 +1,70 @@
-
 # 💸 Keep Track - Frontend
 
-Moderní, rychlá a plně responzivní webová aplikace pro efektivní správu osobních financí a rozpočtů. Funguje offline a veškerá uživatelská data momentálně uchovává lokálně v prohlížeči.
+Modern, fast, and fully responsive web application for efficient personal finance and budget management. It works offline and currently stores all user data locally in the browser.
 
-Tento repozitář obsahuje klientskou část (frontend), která je připravena na budoucí napojení na plnohodnotný backend.
+This repository contains the client-side (frontend) code, which is prepared for future connection to a full backend.
 
-## ✨ Hlavní funkce
+## ✨ Key Features
 
-- 🌙 **Dark/Light Mode:** Plná podpora tmavého režimu napříč celým UI.
-- 🌍 **Lokalizace (i18n):** Přeloženo do češtiny a angličtiny s možností plynulého přepínání.
-- 💱 **Dynamická měna:** Volba hlavní měny (CZK, EUR, USD, GBP) s automatickým formátováním.
-- ⚡ **Quick Add Šablony:** Rychlé zadávání opakujících se transakcí na jedno kliknutí.
-- 📊 **Interaktivní grafy:** Vizualizace příjmů a výdajů v čase.
-- 💰 **Rozpočty a Kategorie:** Možnost tvorby vlastních kategorií a hlídání měsíčních rozpočtů.
-- 💾 **Local First:** Veškerá data (stav, nastavení, transakce) jsou bezpečně uchována v `localStorage`.
+- 🌙 **Dark/Light Mode:** Full dark mode support across the entire UI with automatic system preference detection.
+- 🌍 **Localization (i18n):** Translated into Czech and English with seamless switching.
+- 💱 **Dynamic Currency:** Choice of main currency (CZK, EUR, USD, GBP) with automatic formatting.
+- ⚡ **Quick Add Templates:** Quick entry of recurring transactions with one click and drag-and-drop reordering.
+- 📊 **Interactive Charts:** Visualization of income and expenses over time.
+- 💰 **Budgets and Categories:** Ability to create custom categories and monitor monthly budgets.
+- 💾 **Local First:** All data (state, settings, transactions) are safely stored in `localStorage`.
 
-## 🛠️ Použité technologie
+## 🛠️ Tech Stack
 
-- **Framework:** [React 18](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) (CSS-first approach)
-- **Komponenty:** [Material UI (MUI)](https://mui.com/) & MUI X-Charts
+- **Framework:** [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Components:** [Material UI (MUI)](https://mui.com/)
 - **State Management:** [Zustand](https://github.com/pmndrs/zustand)
-- **Internacionalizace:** `i18next` & `react-i18next`
+- **Drag & Drop:** [@dnd-kit](https://dndkit.com/)
+- **Charts:** [D3.js](https://d3js.org/)
 
-## 🚀 Jak spustit projekt lokálně
+## 🚀 How to run locally
 
-### Předpoklady
-- Nainstalovaný [Node.js](https://nodejs.org/) (ideálně verze 18 a novější).
+### Prerequisites
+- [Node.js](https://nodejs.org/) installed (v18 or newer).
 
-### Instalace
+### Installation
 
-1. Otevřete složku frontendu:
+1. Open the frontend directory:
    ```bash
    cd ui
-    ```
+   ```
 
-2. Nainstalujte závislosti:
-  ```bash
-  npm install
-  ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-3. Spusťte vývojový server:
-```bash
-npm run dev
-```
+4. The application will be running at `http://localhost:5173`.
 
+### 📦 Production Build
 
-4. Aplikace poběží na adrese `http://localhost:5173`.
-
-### 📦 Sestavení pro produkci
-
-Aplikaci je možné sestavit pro produkci pomocí následujícího příkazu:
+The application can be built for production using the following commands:
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## 📂 Struktura projektu
+## 📂 Project Structure
 
-* `src/components/` - Znovupoužitelné UI komponenty (Modály, Tlačítka, Grafy).
-* `src/contexts/` - React Contexty (např. ThemeContext pro přepínání vzhledu).
-* `src/hooks/` - Vlastní React hooky (např. detekce mobilního zařízení).
-* `src/locales/` - JSON slovníky pro překlady aplikací (`cs` a `en`).
-* `src/pages/` - Hlavní pohledy aplikace (Dashboard, Settings, Overview...).
-* `src/store/` - Zustand definice stavů (Transactions, Budgets, Settings...).
-* `src/utils/` - Pomocné funkce (formátování, generování dat).
-
-## 🚧 Plánovaný vývoj (Roadmap)
-
-Současná verze slouží jako robustní klient. V dalších fázích plánujeme:
-
-* Migraci dat z `localStorage` do PostgreSQL databáze.
-* Napojení na bankovní API (GoCardless/Nordigen) pro automatický import výpisů.
-* Integraci AI analytika (analýza výdajů a generování doporučení).
-* Podporu více uživatelů (sdílené rozpočty pro rodiny).
+* `src/components/` - Reusable UI components (Modals, Buttons, Charts).
+* `src/contexts/` - React Contexts (e.g., ThemeContext for appearance switching).
+* `src/hooks/` - Custom React hooks.
+* `src/layouts/` - Layout components (MainLayout).
+* `src/locales/` - JSON dictionaries for application translations (`cs` and `en`).
+* `src/pages/` - Main application views (Dashboard, Settings, Overview...).
+* `src/store/` - Zustand state definitions (Transactions, Budgets, Settings...).
+* `src/utils/` - Helper functions (formatting, data generation).
+* `src/types/` - TypeScript type definitions.
 
