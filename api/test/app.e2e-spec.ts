@@ -4,6 +4,10 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 
+jest.mock('@openrouter/sdk', () => ({
+  OpenRouter: jest.fn(),
+}));
+
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
