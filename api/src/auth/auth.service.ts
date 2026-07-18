@@ -159,12 +159,14 @@ export class AuthService {
   }
 
   async resetPassword(token: string, dto: ResetPasswordDto) {
+    console.log('Reset Password called with token:', token);
     const user = await this.prisma.user.findFirst({
       where: {
         resetPasswordToken: token,
         resetPasswordTokenExpiry: { gte: new Date() },
       },
     });
+    console.log('User found:', user);
 
     if (!user) {
       throw new UnauthorizedException('Invalid or expired reset token');
