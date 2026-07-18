@@ -13,7 +13,7 @@ import { BudgetModule } from './budget/budget.module';
 import { TemplateModule } from './template/template.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AiModule } from './ai/ai.module';
-import { NotificationsModule } from './notifications.module';
+import { NotificationsModule } from './notification/notifications.module';
 import { NotificationModule } from './notification/notification.module';
 
 @Module({

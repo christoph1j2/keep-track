@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OpenRouter } from '@openrouter/sdk';
 import type { Transaction } from '@prisma/client';
-import { NotificationsGateway } from '../notifications.gateway';
+import { NotificationsGateway } from '../notification/notifications.gateway';
 import { NotificationService } from '../notification/notification.service';
 
 export interface ProcessedTransaction {
