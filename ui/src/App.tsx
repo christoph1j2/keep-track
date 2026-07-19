@@ -22,6 +22,11 @@ import { ResetPassword } from "./pages/ResetPassword";
 function App() {
   const { isOpen, title, message, onConfirm, onCancel, hideConfirm } =
     useConfirmStore();
+  console.log("BASE_URL: "+import.meta.env.BASE_URL);
+
+  if (window.location.pathname === '/keeptrack') {
+	window.location.replace('/keeptrack/');
+  }
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
