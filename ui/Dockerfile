@@ -16,7 +16,7 @@ ENV VITE_SOCKET_PATH=/keeptrack/socket.io
 RUN npm run build
 
 # --- Fáze 2: Nginx (Servírování) ---
-FROM nginx:alpine
+FROM nginx:alpine AS serve
 
 # Smazání výchozího obsahu Nginxu a zkopírování naší React aplikace
 RUN rm -rf /usr/share/nginx/html/*

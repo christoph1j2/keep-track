@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # --- Fáze 2: Produkce ---
-FROM node:22-alpine
+FROM node:22-alpine AS serve
 
 # Alpine linux občas potřebuje doinstalovat openssl pro Prismu
 RUN apk add --no-cache openssl
