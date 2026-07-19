@@ -4,6 +4,6 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
-  base: (process.env.VITE_BASE ?? command === "build") ? "/keeptrack/" : "/",
+  base: command === "build" ? "/keeptrack/" : "/",
   plugins: [tailwindcss(), react()],
 }));
