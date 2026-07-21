@@ -15,7 +15,7 @@ export const Homepage: React.FC = () => {
   const { language, setLanguage } = useSettingsStore();
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-800 transition-colors">
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between transition-colors shadow-sm">
         <Logo />
         <div className="flex items-center gap-2">
@@ -45,8 +45,7 @@ export const Homepage: React.FC = () => {
           </button>
         </div>
       </header>
-      <main className="h-screen bg-slate-100 dark:bg-slate-800 flex-1 grid place-items-center px-4 py-8 transition-colors"></main>
-    </>
+    </div>
   );
 };
 
