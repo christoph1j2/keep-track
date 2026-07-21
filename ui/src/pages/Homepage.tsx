@@ -45,7 +45,7 @@ export const Homepage: React.FC = () => {
           </button>
         </div>
       </header>
-      <main className="h-screen bg-slate-100 dark:bg-slate-800 flex-1 grid place-items-center px-4 py-8"></main>
+      <main className="h-screen bg-slate-100 dark:bg-slate-800 flex-1 grid place-items-center px-4 py-8 transition-colors"></main>
     </>
   );
 };
