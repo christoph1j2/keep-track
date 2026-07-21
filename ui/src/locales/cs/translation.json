@@ -426,5 +426,71 @@
     "minutesAgo": "{{count}} min",
     "hoursAgo": "{{count}} h",
     "daysAgo": "{{count}} d"
+  },
+  "landing": {
+    "nav": {
+      "about": "O aplikaci",
+      "howItWorks": "Jak to funguje",
+      "betaNotes": "Beta poznámky",
+      "infoLicense": "Info a licence",
+      "loginRegister": "Přihlášení / Registrace"
+    },
+    "hero": {
+      "badge": "Verze: Aktivní Beta stav",
+      "titlePart1": "Mějte přehled o svých financích",
+      "titlePart2": "Bez zbytečných starostí",
+      "subtitle": "Moderní responsivní UI vyvinuté pro rychlou uživatelskou přívětivost a s plně vybaveným API. Řekněte sbohem nepřehledným tabulkám a vezměte svoje finance do vlastních rukou.",
+      "getStarted": "Začít / Přihlásit se",
+      "seeHowItWorks": "Jak to funguje",
+      "mockupTitle": "Přehled nástěnky KeepTrack",
+      "liveDemo": "Ukázka prostředí",
+      "monthlyIncome": "Měsíční příjmy",
+      "totalExpenses": "Celkové výdaje",
+      "netSavings": "Čisté úspory",
+      "quickAddHotbar": "Povolena lišta QuickAdd",
+      "aiCsvCategorization": "AI kategorizace CSV připravena"
+    },
+    "about": {
+      "tag": "Proč KeepTrack?",
+      "title": "Opusťte nepřehledné tabulky v Excelu",
+      "desc1": "Aplikace je určena pro každého, kdo chce k sledování svých financí něco efektivnějšího, vizuálně přitažlivějšího a funkčnějšího než Excel.",
+      "desc2": "Jste člověk, který má pravidelné výdaje a příjmy? Chcete mít jasný přehled o tom, kam vaše peníze tečou a za co utrácíte nejvíce? Pak byl KeepTrack vytvořen přesně pro vás.",
+      "excelFrustrations": "Problémy s Excelem",
+      "excelFrustrationsDesc": "Manuální formátování buněk, rozbité vzorce a krkolomné ovládání na mobilu.",
+      "keepTrackSolution": "Řešení KeepTrack",
+      "keepTrackSolutionDesc": "Automatická kategorizace, okamžité šablony a responsivní analytika."
+    },
+    "howItWorks": {
+      "tag": "Hlavní funkce",
+      "title": "Jak to funguje a k čemu je to dobré",
+      "subtitle": "Navrženo od základu tak, aby vám ušetřilo čas při opakovaném zadávání financí.",
+      "quickAddTitle": "Šablony QuickAdd",
+      "quickAddDesc": "Nikoho nebaví zadávat časté transakce znova a znova. Přiřaďte název, částku a kategorii pro vytvoření rychlé šablony na liště pro zápis jedním kliknutím.",
+      "smartCsvTitle": "Chytrý import .CSV",
+      "smartCsvDesc": "Snadno importujte výpisy z účtu! KeepTrack využívá malý AI model přes OpenRouter k inteligentnímu automatickému přiřazení importovaných transakcí do vašich kategorií.",
+      "selfHostTitle": "Připraveno pro Self-Hosting & Homelab",
+      "selfHostDesc": "Raději hostujete vlastní nástroje? Spusťte celý stack (React + NestJS + PostgreSQL) jediným příkazem Docker Compose a přistupujte vzdáleně přes Tailscale Funnel."
+    },
+    "beta": {
+      "tag": "Aktualizace vývoje",
+      "title": "Stav Bety a Roadmapa",
+      "subtitle": "KeepTrack je v současné době v aktivním vývoji verze Beta s častými vylepishments.",
+      "joinBeta": "Zapojit se do Bety",
+      "roadmapTitle": "Plánované funkce roadmapy",
+      "feedbackSystem": "Systém zpětné vazby",
+      "pwaSupport": "Podpora PWA",
+      "advancedAnalytics": "Pokročilá analytika",
+      "llmInsights": "LLM přehledy a finanční doporučení"
+    },
+    "footer": {
+      "desc": "Mějte přehled o svých financích s moderním responsivním webovým UI, rychlým zapisováním transakcí a chytrými funkcemi.",
+      "techStack": "Technologický stack",
+      "projectContact": "Projekt a kontakt",
+      "githubRepo": "Repozitář GitHub",
+      "license": "Licence MIT",
+      "copyright": "© 2026 Ernst Christoph Leschka. Licencováno pod licencí MIT.",
+      "version": "KeepTrack - Verze Beta"
+    }
   }
 }
+
