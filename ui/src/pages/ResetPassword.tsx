@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { TextField, CircularProgress, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { api } from "../utils/api";
@@ -7,8 +7,8 @@ import { useTheme } from "../contexts/ThemeContext";
 import toast from "react-hot-toast";
 import { useSettingsStore } from "../store/settingsStore";
 import { DarkMode, LightMode } from "@mui/icons-material";
-import StyleIcon from "@mui/icons-material/Style";
 import ReactCountryFlag from "react-country-flag";
+import { Logo } from "../components/Base/Logo";
 
 export const ResetPassword = () => {
   const { t, i18n } = useTranslation();
@@ -70,13 +70,18 @@ export const ResetPassword = () => {
         t("auth.resetPassword.success", "Heslo bylo úspěšně změněno."),
       );
       navigate("/login");
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Zobrazení chybové hlášky z backendu (např. 'Invalid or expired reset token')
-      const backendMessage = err.response?.data?.message;
-      const finalMessage = Array.isArray(backendMessage) ? backendMessage[0] : backendMessage;
-      
+      const backendMessage = (
+        err as { response?: { data?: { message?: string } } }
+      ).response?.data?.message;
+      const finalMessage = Array.isArray(backendMessage)
+        ? backendMessage[0]
+        : backendMessage;
+
       setError(
-        finalMessage || t("auth.errors.generic", "Něco se pokazilo. Zkuste to prosím znovu.")
+        finalMessage ||
+          t("auth.errors.generic", "Něco se pokazilo. Zkuste to prosím znovu."),
       );
       console.error("Error during reset password request:", err);
     } finally {
@@ -85,38 +90,35 @@ export const ResetPassword = () => {
   };
 
   const header = (
-      <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between transition-colors shadow-sm w-full">
-        <Link to="/" className="text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors hover:opacity-80">
-          <StyleIcon className="text-slate-900 mr-1 dark:text-slate-200" />
-          Keep<span className="text-slate-800 dark:text-slate-200">Track</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-            title={t("topbar.tooltips.theme")}
-          >
-            {theme === "light" ? <DarkMode /> : <LightMode />}
-          </button>
-          <button
-            type="button"
-            className="p-2 scale-125 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-            onClick={() => {
-              const newLang = language === "cs" ? "en" : "cs";
-              setLanguage(newLang);
-              i18n.changeLanguage(newLang);
-            }}
-            aria-label={t("topbar.language", "Změnit jazyk")}
-          >
-            {language === "cs" ? (
-              <ReactCountryFlag countryCode="GB" svg />
-            ) : (
-              <ReactCountryFlag countryCode="CZ" svg />
-            )}
-          </button>
-        </div>
-      </header>
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between transition-colors shadow-sm w-full">
+      <Logo />
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+          title={t("topbar.tooltips.theme")}
+        >
+          {theme === "light" ? <DarkMode /> : <LightMode />}
+        </button>
+        <button
+          type="button"
+          className="p-2 scale-125 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+          onClick={() => {
+            const newLang = language === "cs" ? "en" : "cs";
+            setLanguage(newLang);
+            i18n.changeLanguage(newLang);
+          }}
+          aria-label={t("topbar.language", "Změnit jazyk")}
+        >
+          {language === "cs" ? (
+            <ReactCountryFlag countryCode="GB" svg />
+          ) : (
+            <ReactCountryFlag countryCode="CZ" svg />
+          )}
+        </button>
+      </div>
+    </header>
   );
 
   if (!token) {
@@ -140,51 +142,55 @@ export const ResetPassword = () => {
       {header}
       <main className="flex-1 grid place-items-center px-4 py-8">
         <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 transition-colors">
-        <div className="mb-8 text-center">
-          <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-            {t("auth.resetPassword.title", "Nové heslo")}
-          </h2>
-        </div>
+          <div className="mb-8 text-center">
+            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
+              {t("auth.resetPassword.title", "Nové heslo")}
+            </h2>
+          </div>
 
-        {error && (
-          <Alert severity="error" className="mb-4" sx={{ borderRadius: "8px" }}>
-            {error}
-          </Alert>
-        )}
+          {error && (
+            <Alert
+              severity="error"
+              className="mb-4"
+              sx={{ borderRadius: "8px" }}
+            >
+              {error}
+            </Alert>
+          )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <TextField
-            label={t("settings.newPassword", "Nové heslo")}
-            type="password"
-            size="small"
-            fullWidth
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-            sx={inputSx}
-          />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <TextField
+              label={t("settings.newPassword", "Nové heslo")}
+              type="password"
+              size="small"
+              fullWidth
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              sx={inputSx}
+            />
 
-          {/* PŘIDÁNO: Input pro potvrzení hesla */}
-          <TextField
-            label={t("settings.confirmPassword", "Potvrzení hesla")}
-            type="password"
-            size="small"
-            fullWidth
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            sx={inputSx}
-          />
+            {/* PŘIDÁNO: Input pro potvrzení hesla */}
+            <TextField
+              label={t("settings.confirmPassword", "Potvrzení hesla")}
+              type="password"
+              size="small"
+              fullWidth
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              sx={inputSx}
+            />
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-2 w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
-          >
-            {isSubmitting && <CircularProgress size={16} color="inherit" />}
-            {t("auth.resetPassword.submit", "Uložit nové heslo")}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-2 w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              {isSubmitting && <CircularProgress size={16} color="inherit" />}
+              {t("auth.resetPassword.submit", "Uložit nové heslo")}
+            </button>
+          </form>
         </div>
       </main>
     </div>

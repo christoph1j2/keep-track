@@ -1,10 +1,11 @@
 import StyleIcon from "@mui/icons-material/Style";
+import { Link } from "react-router-dom";
 
 export function Logo() {
   return (
     <>
       {/* logo */}
-      <div className="md:mb-10 md:my-0 sm:m-5">
+      <Link to="/" className="md:my-0 sm:m-5">
         <h1 className="text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors">
           <StyleIcon className="text-slate-900 mr-1 dark:text-slate-200" />
           Keep
@@ -15,7 +16,7 @@ export function Logo() {
             </sup>
           </span>
         </h1>
-      </div>
+      </Link>
     </>
   );
 }

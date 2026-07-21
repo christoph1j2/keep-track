@@ -68,7 +68,7 @@ export function Sidebar() {
       <Logo />
 
       {/* navigation */}
-      <nav className="flex flex-col gap-2 w-full">
+      <nav className="flex flex-col gap-2 w-full mt-10">
         {MENU_ITEMS.map((item) => (
           <NavLink
             key={item.translationKey}

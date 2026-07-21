@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { DarkMode, LightMode } from "@mui/icons-material";
-import StyleIcon from "@mui/icons-material/Style";
 import ReactCountryFlag from "react-country-flag";
 import { useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
@@ -19,6 +18,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { toast } from "react-hot-toast";
 import { useSettingsStore } from "../store/settingsStore";
 import { Link } from "react-router-dom";
+import { Logo } from "../components/Base/Logo";
 
 export const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -134,10 +134,7 @@ export const Login = () => {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-800 transition-colors">
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between transition-colors shadow-sm">
-        <Link to="/" className="text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors hover:opacity-80">
-          <StyleIcon className="text-slate-900 mr-1 dark:text-slate-200" />
-          Keep<span className="text-slate-800 dark:text-slate-200">Track</span>
-        </Link>
+        <Logo />
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -168,121 +165,125 @@ export const Login = () => {
 
       <main className="flex-1 grid place-items-center px-4 py-8">
         <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 transition-colors">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-            {isRegister ? t("auth.register.title") : t("auth.login.title")}
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {isRegister
-              ? t("auth.register.subtitle")
-              : t("auth.login.subtitle")}
-          </p>
-        </div>
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
+              {isRegister ? t("auth.register.title") : t("auth.login.title")}
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {isRegister
+                ? t("auth.register.subtitle")
+                : t("auth.login.subtitle")}
+            </p>
+          </div>
 
-        {error && (
-          <Alert severity="error" className="mb-4" sx={{ borderRadius: "8px" }}>
-            {error}
-          </Alert>
-        )}
+          {error && (
+            <Alert
+              severity="error"
+              className="mb-4"
+              sx={{ borderRadius: "8px" }}
+            >
+              {error}
+            </Alert>
+          )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {isRegister && (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {isRegister && (
+              <TextField
+                label={t("auth.fields.username")}
+                type="text"
+                size="small"
+                fullWidth
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                sx={inputSx}
+              />
+            )}
+
             <TextField
-              label={t("auth.fields.username")}
-              type="text"
+              label={t("auth.fields.email")}
+              type="email"
               size="small"
               fullWidth
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               sx={inputSx}
             />
-          )}
 
-          <TextField
-            label={t("auth.fields.email")}
-            type="email"
-            size="small"
-            fullWidth
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            sx={inputSx}
-          />
+            <TextField
+              label={t("auth.fields.password")}
+              type="password"
+              size="small"
+              fullWidth
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              sx={inputSx}
+            />
 
-          <TextField
-            label={t("auth.fields.password")}
-            type="password"
-            size="small"
-            fullWidth
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            sx={inputSx}
-          />
+            {isRegister && (
+              <FormControl size="small" fullWidth>
+                <InputLabel
+                  sx={{
+                    color: isDark ? "#94a3b8" : "#475569",
+                    "&.Mui-focused": { color: "#6366f1" },
+                  }}
+                >
+                  {t("auth.fields.baseCurrency")}
+                </InputLabel>
+                <Select
+                  value={baseCurrency}
+                  label={t("auth.fields.baseCurrency")}
+                  onChange={(e) => setBaseCurrency(e.target.value)}
+                  sx={selectSx}
+                >
+                  <MenuItem value="CZK">CZK</MenuItem>
+                  <MenuItem value="USD">USD</MenuItem>
+                  <MenuItem value="EUR">EUR</MenuItem>
+                  <MenuItem value="PLN">PLN</MenuItem>
+                  <MenuItem value="ISK">ISK</MenuItem>
+                </Select>
+              </FormControl>
+            )}
 
-          {isRegister && (
-            <FormControl size="small" fullWidth>
-              <InputLabel
-                sx={{
-                  color: isDark ? "#94a3b8" : "#475569",
-                  "&.Mui-focused": { color: "#6366f1" },
-                }}
-              >
-                {t("auth.fields.baseCurrency")}
-              </InputLabel>
-              <Select
-                value={baseCurrency}
-                label={t("auth.fields.baseCurrency")}
-                onChange={(e) => setBaseCurrency(e.target.value)}
-                sx={selectSx}
-              >
-                <MenuItem value="CZK">CZK</MenuItem>
-                <MenuItem value="USD">USD</MenuItem>
-                <MenuItem value="EUR">EUR</MenuItem>
-                <MenuItem value="PLN">PLN</MenuItem>
-                <MenuItem value="ISK">ISK</MenuItem>
-              </Select>
-            </FormControl>
-          )}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-2 w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              {isSubmitting && <CircularProgress size={16} color="inherit" />}
+              {isRegister ? t("auth.register.submit") : t("auth.login.submit")}
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-2 w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
-          >
-            {isSubmitting && <CircularProgress size={16} color="inherit" />}
-            {isRegister ? t("auth.register.submit") : t("auth.login.submit")}
-          </button>
-        </form>
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegister(!isRegister);
+                setError("");
+              }}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium transition-colors"
+            >
+              {isRegister
+                ? t("auth.register.switchToLogin")
+                : t("auth.login.switchToRegister")}
+            </button>
 
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError("");
-            }}
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium transition-colors"
-          >
-            {isRegister
-              ? t("auth.register.switchToLogin")
-              : t("auth.login.switchToRegister")}
-          </button>
-
-          {!isRegister && (
-            <div className="mt-2">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium transition-colors"
-              >
-                {t("auth.login.forgotPassword")}
-              </Link>
-            </div>
-          )}
+            {!isRegister && (
+              <div className="mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium transition-colors"
+                >
+                  {t("auth.login.forgotPassword")}
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       </main>
     </div>
   );
