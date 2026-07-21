@@ -23,7 +23,7 @@ interface MenuItem {
  * Each entry maps a title and icon to a route.
  */
 const MENU_ITEMS: MenuItem[] = [
-    { translationKey: 'sidebar.dashboard', icon: <DashboardIcon />, path: '/', isActive: true },
+    { translationKey: 'sidebar.dashboard', icon: <DashboardIcon />, path: '/dashboard', isActive: true },
     { translationKey: 'sidebar.overview', icon: <ShowChartIcon />, path: '/overview' },
     { translationKey: 'sidebar.categories', icon: <CategoryIcon />, path: '/categories' },
     { translationKey: 'sidebar.budgeting', icon: <AccountBalanceWalletIcon />, path: '/budgeting' },

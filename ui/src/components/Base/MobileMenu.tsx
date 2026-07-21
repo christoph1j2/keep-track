@@ -29,7 +29,7 @@ export function MobileMenu() {
     const { t } = useTranslation();
 
     const MENU_ITEMS: MenuItem[] = [
-        { label: t('sidebar.dashboard'), icon: <DashboardIcon />, path: '/' },
+        { label: t('sidebar.dashboard'), icon: <DashboardIcon />, path: '/dashboard' },
         { label: t('sidebar.overview'), icon: <ShowChartIcon />, path: '/overview' },
         { label: t('sidebar.categories'), icon: <CategoryIcon />, path: '/categories' },
         { label: t('sidebar.budgeting'), icon: <AccountBalanceWalletIcon />, path: '/budgeting' },

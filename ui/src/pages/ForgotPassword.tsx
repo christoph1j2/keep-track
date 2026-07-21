@@ -4,10 +4,15 @@ import { TextField, CircularProgress, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { api } from "../utils/api";
 import { useTheme } from "../contexts/ThemeContext";
+import { useSettingsStore } from "../store/settingsStore";
+import { DarkMode, LightMode } from "@mui/icons-material";
+import StyleIcon from "@mui/icons-material/Style";
+import ReactCountryFlag from "react-country-flag";
 
 export const ForgotPassword = () => {
-  const { t } = useTranslation();
-  const { theme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage } = useSettingsStore();
   const isDark = theme === "dark";
 
   const [email, setEmail] = useState("");
@@ -66,12 +71,43 @@ export const ForgotPassword = () => {
   };
 
   return (
-    <div className="grid place-items-center h-full bg-slate-50 dark:bg-slate-800 transition-colors px-4">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 transition-colors">
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-800 transition-colors">
+      <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between transition-colors shadow-sm">
+        <Link to="/" className="text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors hover:opacity-80">
+          <StyleIcon className="text-slate-900 mr-1 dark:text-slate-200" />
+          Keep<span className="text-slate-800 dark:text-slate-200">Track</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+            title={t("topbar.tooltips.theme")}
+          >
+            {theme === "light" ? <DarkMode /> : <LightMode />}
+          </button>
+          <button
+            type="button"
+            className="p-2 scale-125 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+            onClick={() => {
+              const newLang = language === "cs" ? "en" : "cs";
+              setLanguage(newLang);
+              i18n.changeLanguage(newLang);
+            }}
+            aria-label={t("topbar.language", "Změnit jazyk")}
+          >
+            {language === "cs" ? (
+              <ReactCountryFlag countryCode="GB" svg />
+            ) : (
+              <ReactCountryFlag countryCode="CZ" svg />
+            )}
+          </button>
+        </div>
+      </header>
+
+      <main className="flex-1 grid place-items-center px-4 py-8">
+        <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 transition-colors">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-blue-700 dark:text-blue-400 mb-1">
-            KeepTrack
-          </h1>
           <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
             {t("auth.forgotPassword.title", "Obnova hesla")}
           </h2>
@@ -135,7 +171,8 @@ export const ForgotPassword = () => {
             </div>
           </form>
         )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 };
