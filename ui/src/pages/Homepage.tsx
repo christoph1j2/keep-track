@@ -106,84 +106,109 @@ export const Homepage: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 transition-colors duration-200">
         {/* 1. Hero Section */}
-        <section className="relative px-6 py-20 lg:py-28 max-w-6xl mx-auto text-center flex flex-col items-center overflow-hidden transition-colors duration-200">
-          <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 mb-6 border border-emerald-300 dark:border-emerald-800/80 shadow-xs transition-colors duration-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            {t("landing.hero.badge")}
-          </div>
+        <section className="relative px-14 py-20 lg:py-32 max-w-7xl mx-auto overflow-hidden transition-colors duration-200">
+          
+          {/* Animated Background Orbs */}
+          <div className="absolute top-0 left-10 w-72 h-72 bg-blue-400/20 dark:bg-blue-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob"></div>
+          <div className="absolute top-0 right-20 w-72 h-72 bg-teal-400/20 dark:bg-teal-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute -bottom-10 left-1/2 w-72 h-72 bg-indigo-400/20 dark:bg-indigo-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight transition-colors duration-200">
-            {t("landing.hero.titlePart1")} <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-teal-500 bg-clip-text text-transparent">
-              {t("landing.hero.titlePart2")}
-            </span>
-          </h1>
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column: Content */}
+            <div className="text-left flex flex-col items-start">
+              <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 mb-6 border border-emerald-300 dark:border-emerald-800/80 shadow-xs transition-colors duration-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                {t("landing.hero.badge")}
+              </div>
 
-          <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl font-normal leading-relaxed transition-colors duration-200">
-            {t("landing.hero.subtitle")}
-          </p>
-
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 items-center justify-center w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="w-full sm:w-auto px-8 py-3.5 font-bold text-base rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer"
-            >
-              {t("landing.hero.getStarted")} <ArrowForward fontSize="small" />
-            </button>
-            <a
-              href="#how-it-works"
-              className="w-full sm:w-auto px-6 py-3.5 font-semibold text-base rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-all duration-200 text-center"
-            >
-              {t("landing.hero.seeHowItWorks")}
-            </a>
-          </div>
-
-          {/* Hero Dashboard Graphic Mockup */}
-          <div className="mt-14 w-full max-w-4xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 p-3 sm:p-5 shadow-2xl backdrop-blur-sm transition-colors duration-200">
-            <div className="w-full rounded-xl bg-slate-900 text-slate-100 p-6 border border-slate-800 shadow-inner flex flex-col gap-4 text-left transition-colors duration-200">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                  <span className="text-xs text-slate-400 font-mono ml-2">
-                    {t("landing.hero.mockupTitle")}
-                  </span>
-                </div>
-                <span className="text-xs text-blue-400 font-mono">
-                  {t("landing.hero.liveDemo")}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight transition-colors duration-200">
+                {t("landing.hero.titlePart1")} <br className="hidden sm:inline" />
+                <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-teal-500 bg-clip-text text-transparent">
+                  {t("landing.hero.titlePart2")}
                 </span>
+              </h1>
+
+              <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-lg font-normal leading-relaxed transition-colors duration-200">
+                {t("landing.hero.subtitle")}
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-4 items-center justify-start w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => navigate("/login")}
+                  className="w-full sm:w-auto px-8 py-3.5 font-bold text-base rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer"
+                >
+                  {t("landing.hero.getStarted")} <ArrowForward fontSize="small" />
+                </button>
+                <a
+                  href="#how-it-works"
+                  className="w-full sm:w-auto px-6 py-3.5 font-semibold text-base rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-all duration-200 text-center"
+                >
+                  {t("landing.hero.seeHowItWorks")}
+                </a>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-2">
-                <div className="p-4 rounded-lg bg-slate-800/80 border border-slate-700 transition-colors duration-200">
-                  <span className="text-xs text-slate-400 block mb-1">
-                    {t("landing.hero.monthlyIncome")}
-                  </span>
-                  <span className="text-xl font-bold text-emerald-400">
-                    + $4,250.00
-                  </span>
+            </div>
+
+            {/* Right Column: Abstract Art / Visuals */}
+            <div className="relative hidden lg:flex items-center justify-center w-full h-[500px]">
+              {/* Central glowing backdrop specific to right side */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-indigo-500/10 to-teal-500/10 rounded-full blur-3xl opacity-50"></div>
+              
+              {/* Glassmorphic card 1 (Top Left) */}
+              <div className="absolute top-10 left-4 w-64 p-5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl shadow-xl transform -rotate-6 animate-blob">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                    <Analytics className="text-blue-600 dark:text-blue-400" fontSize="small" />
+                  </div>
+                  <div>
+                    <div className="h-2.5 w-20 bg-slate-300 dark:bg-slate-600 rounded-full mb-2"></div>
+                    <div className="h-2 w-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                  </div>
                 </div>
-                <div className="p-4 rounded-lg bg-slate-800/80 border border-slate-700 transition-colors duration-200">
-                  <span className="text-xs text-slate-400 block mb-1">
-                    {t("landing.hero.totalExpenses")}
-                  </span>
-                  <span className="text-xl font-bold text-rose-400">
-                    - $1,840.50
-                  </span>
-                </div>
-                <div className="p-4 rounded-lg bg-slate-800/80 border border-slate-700 transition-colors duration-200">
-                  <span className="text-xs text-slate-400 block mb-1">
-                    {t("landing.hero.netSavings")}
-                  </span>
-                  <span className="text-xl font-bold text-blue-400">
-                    $2,409.50
-                  </span>
+                <div className="space-y-2.5">
+                  <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                  <div className="h-2 w-5/6 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                  <div className="h-2 w-4/6 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs text-slate-400 border-t border-slate-800 pt-3">
-                <span>⚡ {t("landing.hero.quickAddHotbar")}</span>
-                <span>🤖 {t("landing.hero.aiCsvCategorization")}</span>
+
+              {/* Glassmorphic card 2 (Right) */}
+              <div className="absolute top-36 right-0 w-72 p-5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl shadow-2xl transform rotate-3 animate-blob animation-delay-2000 z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                      <CheckCircle className="text-emerald-600 dark:text-emerald-400" fontSize="small" />
+                    </div>
+                    <div>
+                      <div className="h-2.5 w-24 bg-slate-300 dark:bg-slate-600 rounded-full mb-2"></div>
+                      <div className="h-2 w-16 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div className="text-xs font-bold text-emerald-500">+24%</div>
+                </div>
+                <div className="flex gap-2 h-16 items-end mt-4">
+                  <div className="w-1/4 bg-emerald-500/20 dark:bg-emerald-500/40 rounded-t-md h-2/5"></div>
+                  <div className="w-1/4 bg-emerald-500/40 dark:bg-emerald-500/60 rounded-t-md h-3/5"></div>
+                  <div className="w-1/4 bg-emerald-500/60 dark:bg-emerald-500/80 rounded-t-md h-4/5"></div>
+                  <div className="w-1/4 bg-emerald-500/80 dark:bg-emerald-500 rounded-t-md h-full"></div>
+                </div>
+              </div>
+
+              {/* Glassmorphic card 3 (Bottom Left) */}
+              <div className="absolute bottom-16 left-12 w-60 p-5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl shadow-lg transform -rotate-3 animate-blob animation-delay-4000">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                     <AutoAwesome className="text-amber-600 dark:text-amber-400" fontSize="small" />
+                  </div>
+                  <div>
+                    <div className="h-2.5 w-16 bg-slate-300 dark:bg-slate-600 rounded-full mb-2"></div>
+                    <div className="h-2 w-24 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 rounded-lg bg-slate-100/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
+                  <div className="h-2 w-full bg-slate-300 dark:bg-slate-600 rounded-full mb-2"></div>
+                  <div className="h-2 w-2/3 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+                </div>
               </div>
             </div>
           </div>

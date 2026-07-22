@@ -433,14 +433,14 @@
       "howItWorks": "How It Works",
       "betaNotes": "Beta Notes",
       "infoLicense": "Info & License",
-      "loginRegister": "Login / Register"
+      "loginRegister": "Sign Up"
     },
     "hero": {
       "badge": "Version: Beta Status Active",
       "titlePart1": "Keep Track of Your Finances",
       "titlePart2": "Without the Hassle",
       "subtitle": "Fitted with a modern responsive UI, built for swift user experience, and powered by a fully fledged API. Say goodbye to clunky spreadsheets and take control of your cash flow.",
-      "getStarted": "Get Started / Login",
+      "getStarted": "Get Started",
       "seeHowItWorks": "See How It Works",
       "mockupTitle": "KeepTrack Dashboard Overview",
       "liveDemo": "Live Demo Mockup",
