@@ -474,7 +474,7 @@
     "beta": {
       "tag": "Aktualizace vývoje",
       "title": "Stav Bety a Roadmapa",
-      "subtitle": "KeepTrack je v současné době v aktivním vývoji verze Beta s častými vylepishments.",
+      "subtitle": "KeepTrack je v současné době v aktivním vývoji verze Beta s častými vylepšeními.",
       "joinBeta": "Zapojit se do Bety",
       "roadmapTitle": "Plánované funkce roadmapy",
       "feedbackSystem": "Systém zpětné vazby",
@@ -493,4 +493,3 @@
     }
   }
 }
-
