@@ -125,7 +125,8 @@ interface Budget {
 
 ## Routing
 
-- `/` - Dashboard
+- `/` - Homepage
+- `/dashboard` - Dashboard
 - `/overview` - Overview page
 - `/categories` - Category management
 - `/budgeting` - Budget tracking
@@ -163,11 +164,3 @@ npm run preview
 - Drag-and-drop reordering for budgets and templates
 - Persistent state across sessions
 - Type-safe throughout
-
-## Future Roadmap
-
-- Complete backend via NestJS
-- Some sort of OpenBankingAPI to connect to ones bank account (so that the user only needs to track payments with cash, etc.)
-- Modify the transaction model to include a boolean `isIncome` to improve UX creating transactions (no need for negative values)
-- OpenRouter/free to improve smart categorization ... maybe to also check market trends and make suggestions (where the user spends the most money, etc).
-- VPS deployment 
