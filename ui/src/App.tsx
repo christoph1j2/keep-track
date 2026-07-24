@@ -37,14 +37,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route
-          element={
-            <MainLayout>
-              <Outlet />
-            </MainLayout>
-          }
-        >
-          <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedRoute />}>
+          <Route
+            element={
+              <MainLayout>
+                <Outlet />
+              </MainLayout>
+            }
+          >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/overview" element={<Overview />} />
             <Route path="/categories" element={<Categories />} />

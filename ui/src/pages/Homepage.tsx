@@ -1,12 +1,9 @@
 import React from "react";
-import { useSettingsStore } from "../store/settingsStore";
-import { useTheme } from "../contexts/ThemeContext";
+
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "../components/Base/Logo";
 import {
-  DarkMode,
-  LightMode,
   ArrowForward,
   CheckCircle,
   FlashOn,
@@ -21,13 +18,12 @@ import {
   TableChart,
   Launch,
 } from "@mui/icons-material";
-import ReactCountryFlag from "react-country-flag";
+
+import { ThemeLanguageToggles } from "../components/Base/ThemeLanguageToggles";
 
 export const Homepage: React.FC = () => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage } = useSettingsStore();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 selection:bg-blue-500 selection:text-white">
@@ -63,35 +59,7 @@ export const Homepage: React.FC = () => {
         </nav>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors duration-200"
-            title={t("topbar.tooltips.theme", "Toggle theme")}
-          >
-            {theme === "light" ? (
-              <DarkMode fontSize="small" />
-            ) : (
-              <LightMode fontSize="small" />
-            )}
-          </button>
-
-          <button
-            type="button"
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors duration-200"
-            onClick={() => {
-              const newLang = language === "cs" ? "en" : "cs";
-              setLanguage(newLang);
-              i18n.changeLanguage(newLang);
-            }}
-            aria-label={t("topbar.language", "Change language")}
-          >
-            {language === "cs" ? (
-              <ReactCountryFlag countryCode="GB" svg />
-            ) : (
-              <ReactCountryFlag countryCode="CZ" svg />
-            )}
-          </button>
+          <ThemeLanguageToggles />
 
           <button
             type="button"
@@ -123,7 +91,7 @@ export const Homepage: React.FC = () => {
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight transition-colors duration-200">
                 {t("landing.hero.titlePart1")} <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-teal-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-blue-600 via-indigo-500 to-teal-500 bg-clip-text text-transparent">
                   {t("landing.hero.titlePart2")}
                 </span>
               </h1>
@@ -152,7 +120,7 @@ export const Homepage: React.FC = () => {
             {/* Right Column: Abstract Art / Visuals */}
             <div className="relative hidden lg:flex items-center justify-center w-full h-[500px]">
               {/* Central glowing backdrop specific to right side */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-indigo-500/10 to-teal-500/10 rounded-full blur-3xl opacity-50"></div>
+              <div className="absolute inset-0 bg-linear-to-tr from-blue-500/10 via-indigo-500/10 to-teal-500/10 rounded-full blur-3xl opacity-50"></div>
               
               {/* Glassmorphic card 1 (Top Left) */}
               <div className="absolute top-10 left-4 w-64 p-5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl shadow-xl transform -rotate-6 animate-blob">

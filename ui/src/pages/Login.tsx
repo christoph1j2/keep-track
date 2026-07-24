@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/authStore";
-import { DarkMode, LightMode } from "@mui/icons-material";
-import ReactCountryFlag from "react-country-flag";
+
 import { useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
 import {
@@ -19,6 +18,7 @@ import { toast } from "react-hot-toast";
 import { useSettingsStore } from "../store/settingsStore";
 import { Link } from "react-router-dom";
 import { Logo } from "../components/Base/Logo";
+import { ThemeLanguageToggles } from "../components/Base/ThemeLanguageToggles";
 
 export const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -31,9 +31,8 @@ export const Login = () => {
 
   const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage } = useSettingsStore();
+  const { t } = useTranslation();
+  const { theme } = useTheme();
   const isDark = theme === "dark";
 
   const inputSx = {
@@ -97,7 +96,7 @@ export const Login = () => {
           loginRes.data.access_token,
           loginRes.data.refresh_token,
         );
-        navigate("/");
+        navigate("/dashboard");
       } else {
         const loginRes = await api.post("/auth/login", { email, password });
 
@@ -136,30 +135,7 @@ export const Login = () => {
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between transition-colors shadow-sm">
         <Logo />
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-            title={t("topbar.tooltips.theme")}
-          >
-            {theme === "light" ? <DarkMode /> : <LightMode />}
-          </button>
-          <button
-            type="button"
-            className="p-2 scale-125 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-            onClick={() => {
-              const newLang = language === "cs" ? "en" : "cs";
-              setLanguage(newLang);
-              i18n.changeLanguage(newLang);
-            }}
-            aria-label={t("topbar.language", "Změnit jazyk")}
-          >
-            {language === "cs" ? (
-              <ReactCountryFlag countryCode="GB" svg />
-            ) : (
-              <ReactCountryFlag countryCode="CZ" svg />
-            )}
-          </button>
+          <ThemeLanguageToggles />
         </div>
       </header>
 
