@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 
 import { MainLayout } from "./layouts/MainLayout";
 import { Dashboard } from "./pages/Dashboard";
@@ -15,6 +15,7 @@ import { ProtectedRoute } from "./components/Base/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
+import { Homepage } from "./pages/Homepage";
 
 /**
  * Root application component that wires routing into the shared layout shell.
@@ -30,14 +31,21 @@ function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <MainLayout>
-        <Toaster position="top-center" />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Dashboard />} />
+      <Toaster position="top-center" />
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route element={<ProtectedRoute />}>
+          <Route
+            element={
+              <MainLayout>
+                <Outlet />
+              </MainLayout>
+            }
+          >
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/overview" element={<Overview />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/budgeting" element={<Budgeting />} />
@@ -45,8 +53,8 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Route>
-        </Routes>
-      </MainLayout>
+        </Route>
+      </Routes>
 
       <ConfirmDialog
         open={isOpen}

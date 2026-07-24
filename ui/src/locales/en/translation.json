@@ -426,5 +426,71 @@
     "minutesAgo": "{{count}} min",
     "hoursAgo": "{{count}} h",
     "daysAgo": "{{count}} d"
+  },
+  "landing": {
+    "nav": {
+      "about": "About",
+      "howItWorks": "How It Works",
+      "betaNotes": "Beta Notes",
+      "infoLicense": "Info & License",
+      "loginRegister": "Sign Up"
+    },
+    "hero": {
+      "badge": "Version: Beta Status Active",
+      "titlePart1": "Keep Track of Your Finances",
+      "titlePart2": "Without the Hassle",
+      "subtitle": "Fitted with a modern responsive UI, built for swift user experience, and powered by a fully fledged API. Say goodbye to clunky spreadsheets and take control of your cash flow.",
+      "getStarted": "Get Started",
+      "seeHowItWorks": "See How It Works",
+      "mockupTitle": "KeepTrack Dashboard Overview",
+      "liveDemo": "Live Demo Mockup",
+      "monthlyIncome": "Monthly Income",
+      "totalExpenses": "Total Expenses",
+      "netSavings": "Net Savings",
+      "quickAddHotbar": "QuickAdd Hotbar Enabled",
+      "aiCsvCategorization": "AI CSV Categorization Ready"
+    },
+    "about": {
+      "tag": "Why KeepTrack?",
+      "title": "Ditch the Messy Excel Spreadsheets",
+      "desc1": "The application is for anyone who wants something more effective, visually pleasing, and functional to track their finances than Excel.",
+      "desc2": "Are you a person who has recurring expenses and income? Would you like to keep clear track of where your money flows and what you spend the most on? Then KeepTrack was built specifically for you.",
+      "excelFrustrations": "Excel Frustrations",
+      "excelFrustrationsDesc": "Manual cell formatting, broken formulas, and clunky mobile usage.",
+      "keepTrackSolution": "KeepTrack Solution",
+      "keepTrackSolutionDesc": "Automated categorization, instant templates, and responsive analytics."
+    },
+    "howItWorks": {
+      "tag": "Core Capabilities",
+      "title": "How It Works & What It’s Good For",
+      "subtitle": "Designed from the ground up to save time on repetitive financial logging.",
+      "quickAddTitle": "QuickAdd Templates",
+      "quickAddDesc": "Nobody likes manually entering frequent transactions over and over. Assign a name, amount, and category to create hotbar templates for 1-click logging directly from your dashboard.",
+      "smartCsvTitle": "Smart .CSV Import",
+      "smartCsvDesc": "Easily import your bank statements! KeepTrack uses a small model via OpenRouter to automatically assign imported transactions to your custom categories intelligently.",
+      "selfHostTitle": "Self-Host & Homelab Ready",
+      "selfHostDesc": "Prefer hosting your own tools? Spin up the full stack (React + NestJS + PostgreSQL) with a single Docker Compose command, and access remotely via Tailscale Funnel."
+    },
+    "beta": {
+      "tag": "Development Update",
+      "title": "Beta Status & Roadmap",
+      "subtitle": "KeepTrack is currently in active Beta development with frequent enhancements.",
+      "joinBeta": "Join Beta Now",
+      "roadmapTitle": "Upcoming Roadmap Features",
+      "feedbackSystem": "Feedback System",
+      "pwaSupport": "PWA Support",
+      "advancedAnalytics": "Advanced Analytics",
+      "llmInsights": "LLM Insights & Financial Advice"
+    },
+    "footer": {
+      "desc": "Keep Track of your finances with a modern responsive web UI, quick transaction logging, and intelligent features.",
+      "techStack": "Tech Stack",
+      "projectContact": "Project & Contact",
+      "githubRepo": "GitHub Repository",
+      "license": "MIT License",
+      "copyright": "© 2026 Ernst Christoph Leschka. Licensed under the MIT License.",
+      "version": "KeepTrack - Version Beta"
+    }
   }
 }
+

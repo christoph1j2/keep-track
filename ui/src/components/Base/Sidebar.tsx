@@ -6,10 +6,10 @@ import ShowChartIcon from "@mui/icons-material/ShowChart";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CategoryIcon from "@mui/icons-material/Category";
-import StyleIcon from "@mui/icons-material/Style";
 import { Extension } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { NotificationCenter } from "./NotificationCenter";
+import { Logo } from "./Logo";
 
 interface MenuItem {
   translationKey: string;
@@ -26,7 +26,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     translationKey: "sidebar.dashboard",
     icon: <DashboardIcon />,
-    path: "/",
+    path: "/dashboard",
     isActive: true,
   },
   {
@@ -65,22 +65,10 @@ export function Sidebar() {
 
   return (
     <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors h-full">
-      {/* logo */}
-      <div className="mb-10">
-        <h1 className="text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors">
-          <StyleIcon className="text-slate-900 mr-1 dark:text-slate-200" />
-          Keep
-          <span className="text-slate-800 dark:text-slate-200">
-            Track
-            <sup className="text-xs align-top font-mono text-slate-500 dark:text-slate-400">
-              beta
-            </sup>
-          </span>
-        </h1>
-      </div>
+      <Logo />
 
       {/* navigation */}
-      <nav className="flex flex-col gap-2 w-full">
+      <nav className="flex flex-col gap-2 w-full mt-10">
         {MENU_ITEMS.map((item) => (
           <NavLink
             key={item.translationKey}
