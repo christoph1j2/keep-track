@@ -5,6 +5,7 @@ import type { Transaction } from "../../types/transaction";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { useTranslation } from "react-i18next"; // <-- Přidáno
 import toast from "react-hot-toast";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 interface SplitTransactionModalProps {
   transaction: Transaction;
@@ -36,6 +37,7 @@ export function SplitTransactionModal({
   onSubmit,
   onCancel,
 }: SplitTransactionModalProps) {
+  const isMobile = useIsMobile();
   const categories = useCategoryStore((state) => state.categories);
   const { t } = useTranslation(); // <-- Inicializace překladů
 
@@ -185,18 +187,44 @@ export function SplitTransactionModal({
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {t("splitTransaction.form.amountLabel")}
               </label>
-              <TextField
-                size="small"
-                type="number"
-                placeholder={t("splitTransaction.form.amountPlaceholder")}
-                slotProps={{ htmlInput: { step: "0.01" } }}
-                value={split.amount}
-                onChange={(e) => {
-                  const newSplits = [...splits];
-                  newSplits[index].amount = e.target.value;
-                  setSplits(newSplits);
-                }}
-              />
+              <div className="flex gap-2 items-center">
+                {isMobile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newSplits = [...splits];
+                      const currentVal = parseFloat(newSplits[index].amount);
+                      if (!isNaN(currentVal) && currentVal !== 0) {
+                        newSplits[index].amount = String(-currentVal);
+                      } else if (newSplits[index].amount.startsWith("-")) {
+                        newSplits[index].amount = newSplits[index].amount.slice(1);
+                      } else if (newSplits[index].amount !== "") {
+                        newSplits[index].amount = `-${newSplits[index].amount}`;
+                      }
+                      setSplits(newSplits);
+                    }}
+                    className={`px-3 py-1.5 h-10 rounded-lg text-xs font-bold flex items-center justify-center transition-colors border shrink-0 min-w-[64px] cursor-pointer ${
+                      parseFloat(split.amount) < 0
+                        ? "bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-500/20 dark:text-red-400"
+                        : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400"
+                    }`}
+                  >
+                    {parseFloat(split.amount) < 0 ? "− Exp" : "+ Inc"}
+                  </button>
+                )}
+                <TextField
+                  size="small"
+                  type="number"
+                  placeholder={t("splitTransaction.form.amountPlaceholder")}
+                  slotProps={{ htmlInput: { step: "any" } }}
+                  value={split.amount}
+                  onChange={(e) => {
+                    const newSplits = [...splits];
+                    newSplits[index].amount = e.target.value;
+                    setSplits(newSplits);
+                  }}
+                />
+              </div>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">

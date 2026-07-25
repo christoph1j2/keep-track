@@ -169,17 +169,37 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
 
                                     <div>
                                         <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t('overview.columns.amount')}</label>
-                                        <input
-                                            type="number"
-                                            value={current.amount}
-                                            onChange={(e) =>
-                                                setEditingData({
-                                                    ...editingData,
-                                                    amount: parseFloat(e.target.value),
-                                                })
-                                            }
-                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
-                                        />
+                                        <div className="flex gap-2 items-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const currentVal = Number(current.amount) || 0;
+                                                    setEditingData({
+                                                        ...editingData,
+                                                        amount: -currentVal,
+                                                    });
+                                                }}
+                                                className={`px-2.5 py-1 rounded text-xs font-bold transition-colors border shrink-0 min-w-[54px] cursor-pointer ${
+                                                    Number(current.amount) < 0
+                                                        ? "bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-500/20 dark:text-red-400"
+                                                        : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400"
+                                                }`}
+                                            >
+                                                {Number(current.amount) < 0 ? "− Exp" : "+ Inc"}
+                                            </button>
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                value={current.amount ?? ""}
+                                                onChange={(e) =>
+                                                    setEditingData({
+                                                        ...editingData,
+                                                        amount: e.target.value !== "" ? parseFloat(e.target.value) : 0,
+                                                    })
+                                                }
+                                                className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
+                                            />
+                                        </div>
                                     </div>
 
                                     <div>
