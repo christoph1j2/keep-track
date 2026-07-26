@@ -15,7 +15,7 @@ interface CategoryState {
 
 export const useCategoryStore = create<CategoryState>((set) => ({
   categories: [],
-  isLoading: false,
+  isLoading: true,
 
   fetchCategories: async () => {
     set({ isLoading: true });

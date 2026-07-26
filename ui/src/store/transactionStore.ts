@@ -43,7 +43,7 @@ interface TransactionState {
 
 export const useTransactionStore = create<TransactionState>()((set, get) => ({
   transactions: [],
-  isLoading: false,
+  isLoading: true,
 
   fetchTransactions: async () => {
     set({ isLoading: true });

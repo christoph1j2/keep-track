@@ -3,10 +3,15 @@ import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { ReorderBudgetsDto } from './dto/reorder-budgets.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class BudgetService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: EventsGateway,
+  ) {}
+
   private async validateExpenseCategory(userId: string, categoryId: string) {
     const category = await this.prisma.category.findFirst({
       where: { id: categoryId, userId },
@@ -23,13 +28,15 @@ export class BudgetService {
   async create(userId: string, dto: CreateBudgetDto) {
     await this.validateExpenseCategory(userId, dto.categoryId);
 
-    return this.prisma.budget.create({
+    const created = await this.prisma.budget.create({
       data: {
         ...dto,
         userId,
       },
       include: { category: true },
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    return created;
   }
 
   async findAll(userId: string) {
@@ -56,18 +63,22 @@ export class BudgetService {
       await this.validateExpenseCategory(userId, dto.categoryId);
     }
 
-    return this.prisma.budget.update({
+    const updated = await this.prisma.budget.update({
       where: { id },
       data: dto,
       include: { category: true },
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    return updated;
   }
 
   async remove(userId: string, id: string) {
     await this.findOne(userId, id); // Ověření vlastnictví
-    return this.prisma.budget.delete({
+    const res = await this.prisma.budget.delete({
       where: { id },
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    return res;
   }
 
   async reorder(userId: string, dto: ReorderBudgetsDto) {
@@ -93,6 +104,8 @@ export class BudgetService {
         data: { order: budget.order },
       }),
     );
-    return this.prisma.$transaction(updates);
+    const result = await this.prisma.$transaction(updates);
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    return result;
   }
 }

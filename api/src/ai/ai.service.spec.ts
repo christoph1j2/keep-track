@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AiService } from './ai.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationsGateway } from '../notification/notifications.gateway';
+import { EventsGateway } from '../events/events.gateway';
 import { NotificationService } from '../notification/notification.service';
 
 jest.mock('@openrouter/sdk', () => {
@@ -38,11 +38,9 @@ describe('AiService', () => {
     },
   };
 
-  const mockNotificationsGateway = {
-    server: {
-      to: jest.fn().mockReturnThis(),
-      emit: jest.fn(),
-    },
+  const mockEventsGateway = {
+    emitToUser: jest.fn(),
+    broadcast: jest.fn(),
   };
 
   const mockNotificationService = {
@@ -55,7 +53,7 @@ describe('AiService', () => {
       providers: [
         AiService,
         { provide: PrismaService, useValue: mockPrismaService },
-        { provide: NotificationsGateway, useValue: mockNotificationsGateway },
+        { provide: EventsGateway, useValue: mockEventsGateway },
         { provide: NotificationService, useValue: mockNotificationService },
       ],
     }).compile();
@@ -117,15 +115,14 @@ describe('AiService', () => {
       jest.spyOn(service, 'processBatch').mockResolvedValue([]);
       await service.processBatchAndNotify('user-1', []);
 
-      expect(mockNotificationsGateway.server.to).toHaveBeenCalledWith('user-1');
-      expect(mockNotificationsGateway.server.emit).toHaveBeenCalledWith('import_finished', expect.objectContaining({ status: 'success' }));
+      expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith('user-1', 'import_finished', expect.objectContaining({ status: 'success' }));
     });
 
     it('should process and notify error on failure', async () => {
       jest.spyOn(service, 'processBatch').mockRejectedValue(new Error('fail'));
       await service.processBatchAndNotify('user-1', []);
 
-      expect(mockNotificationsGateway.server.emit).toHaveBeenCalledWith('import_finished', expect.objectContaining({ status: 'error' }));
+      expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith('user-1', 'import_finished', expect.objectContaining({ status: 'error' }));
     });
   });
 
@@ -154,7 +151,7 @@ describe('AiService', () => {
 
       await service.processJobInBackground('job-1', 'user-1', []);
       expect(mockPrismaService.importJob.update).toHaveBeenCalled();
-      expect(mockNotificationsGateway.server.emit).toHaveBeenCalledWith('import_finished', expect.objectContaining({ status: 'success' }));
+      expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith('user-1', 'import_finished', expect.objectContaining({ status: 'success' }));
       expect(mockNotificationService.create).toHaveBeenCalled();
     });
 
@@ -163,7 +160,7 @@ describe('AiService', () => {
       
       await service.processJobInBackground('job-1', 'user-1', []);
       expect(mockPrismaService.importJob.update).toHaveBeenCalledWith(expect.objectContaining({ data: { status: 'FAILED' } }));
-      expect(mockNotificationsGateway.server.emit).toHaveBeenCalledWith('import_finished', expect.objectContaining({ status: 'error' }));
+      expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith('user-1', 'import_finished', expect.objectContaining({ status: 'error' }));
     });
   });
 });

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryService } from './category.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 
 describe('CategoryService', () => {
@@ -20,11 +21,17 @@ describe('CategoryService', () => {
     $transaction: jest.fn(),
   };
 
+  const mockEventsGateway = {
+    emitToUser: jest.fn(),
+    broadcast: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CategoryService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EventsGateway, useValue: mockEventsGateway },
       ],
     }).compile();
 

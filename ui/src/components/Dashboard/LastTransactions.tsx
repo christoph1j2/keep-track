@@ -4,6 +4,7 @@ import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../../store/settingsStore";
+import { Skeleton } from "@mui/material";
 
 /**
  * Shows the ten most recent transactions sorted by date.
@@ -19,7 +20,7 @@ export function LastTransactions() {
     const { language, currency } = useSettingsStore(); // Použití tvého nového store
     const locale = language === "cs" ? "cs-CZ" : "en-US";
 
-    const transactions = useTransactionStore((state) => state.transactions);
+    const { transactions, isLoading } = useTransactionStore();
 
     const filteredTransactions = transactions.filter(t => {
         if (activeFilter === 'all') return true;
@@ -60,44 +61,52 @@ export function LastTransactions() {
                 </div>
             </div>
             <div className="flex flex-col gap-1">
-                {[...filteredTransactions]
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .slice(0,10)
-                .map((t) => {
-                    const category = categories.find((c) => c.id === t.categoryId);
-                    return (
-                    <div
-                        key={t.id}
-                        className="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl border border-transparent transition-colors"
-                    >
-                        {/** nazev, ikonka a datum */}
-                        <div className="flex items-center">
-                            <div className={`p-2 rounded-xl flex items-center justify-center ${category !== undefined ? category.colorClass : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
-                                <CategoryIcon name={category !== undefined ? category.iconName : ''} className="w-5 h-5" />
+                {isLoading ? (
+                    Array.from({ length: 5 }).map((_, idx) => (
+                        <Skeleton key={idx} variant="rectangular" height={48} className="rounded-xl my-1 bg-slate-200! dark:bg-slate-800/80!" />
+                    ))
+                ) : (
+                    <>
+                        {[...filteredTransactions]
+                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                        .slice(0,10)
+                        .map((t) => {
+                            const category = categories.find((c) => c.id === t.categoryId);
+                            return (
+                            <div
+                                key={t.id}
+                                className="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl border border-transparent transition-colors"
+                            >
+                                {/** nazev, ikonka a datum */}
+                                <div className="flex items-center">
+                                    <div className={`p-2 rounded-xl flex items-center justify-center ${category !== undefined ? category.colorClass : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                                        <CategoryIcon name={category !== undefined ? category.iconName : ''} className="w-5 h-5" />
+                                    </div>
+                                    <div className="ml-3 flex flex-col">
+                                    <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                                        {t.title}
+                                    </span>
+                                    <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                                        {new Date(t.date).toLocaleDateString(locale)}
+                                    </span>
+                                    </div>
+                                </div>
+                                {/** castka */}
+                                <span className={`font-semibold text-sm ${t.amount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                    {t.amount >= 0 ? '+' : ''}{t.amount.toLocaleString(locale, { style: 'currency', currency: currency })}
+                                </span>
                             </div>
-                            <div className="ml-3 flex flex-col">
-                            <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
-                                {t.title}
-                            </span>
-                            <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                                {new Date(t.date).toLocaleDateString(locale)}
-                            </span>
-                            </div>
-                        </div>
-                        {/** castka */}
-                        <span className={`font-semibold text-sm ${t.amount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                            {t.amount >= 0 ? '+' : ''}{t.amount.toLocaleString(locale, { style: 'currency', currency: currency })}
-                        </span>
-                    </div>
-                    )
-                    }
-                    )
-                }
+                            )
+                            }
+                            )
+                        }
 
-                {filteredTransactions.length === 0 && (
-                    <div className="text-center text-slate-400 dark:text-slate-500 py-8 text-sm italic">
-                        {t('dashboard.lastTransactions.noTransactions')}
-                    </div>
+                        {filteredTransactions.length === 0 && (
+                            <div className="text-center text-slate-400 dark:text-slate-500 py-8 text-sm italic">
+                                {t('dashboard.lastTransactions.noTransactions')}
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </section>

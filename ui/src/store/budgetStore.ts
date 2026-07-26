@@ -26,7 +26,7 @@ interface BudgetState {
 
 export const useBudgetStore = create<BudgetState>()((set) => ({
   budgets: [],
-  isLoading: false,
+  isLoading: true,
 
   fetchBudgets: async () => {
     set({ isLoading: true });

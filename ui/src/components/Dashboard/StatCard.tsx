@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { Skeleton } from "@mui/material";
 
 interface StatCardProps {
     title: string;
@@ -7,6 +8,7 @@ interface StatCardProps {
     budget_status?: 'GOOD' | 'BAD' | 'OK' | 'N/A';
     icon: ReactNode;
     trend?: boolean;
+    isLoading?: boolean;
 }
 
 /**
@@ -18,14 +20,14 @@ interface StatCardProps {
  * @param props.budget_status Optional budget status label.
  * @param props.icon Icon or node shown in the badge.
  * @param props.trend Trend direction that controls badge color.
+ * @param props.isLoading Shows skeleton loader when true.
  */
-export function StatCard({ title, amount, budget_status, icon, trend }: StatCardProps) {
+export function StatCard({ title, amount, budget_status, icon, trend, isLoading }: StatCardProps) {
     const iconColorClass = trend === true
         ? 'bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400'
         : trend === false
             ? 'bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400'
             : 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400';
-
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 dark:bg-slate-900 dark:border-slate-800 transition-colors">
@@ -44,16 +46,19 @@ export function StatCard({ title, amount, budget_status, icon, trend }: StatCard
                 className="text-2xl font-bold text-slate-900 truncate dark:text-slate-300 transition-colors"
                 title={amount !== undefined ? formatCurrency(amount) : ''}
             >
-                { // sikovny formatovni meny :-)
-                    amount !== undefined ? formatCurrency(amount) : ''
-                }
-                {budget_status && (
-                    <span className={`ml-2 text-2xl font-medium ${budget_status === 'GOOD' ? 'text-green-600 dark:text-green-400' : budget_status === 'BAD' ? 'text-red-600 dark:text-red-400' : budget_status === 'N/A' ? 'text-slate-500 dark:text-slate-300' : 'text-yellow-600 dark:text-yellow-400'} transition-colors`}>
-                        {budget_status}
-                    </span>
+                {isLoading ? (
+                    <Skeleton variant="text" width="60%" height={36} className="bg-slate-200! dark:bg-slate-700/50!" />
+                ) : (
+                    <>
+                        {amount !== undefined ? formatCurrency(amount) : ''}
+                        {budget_status && (
+                            <span className={`ml-2 text-2xl font-medium ${budget_status === 'GOOD' ? 'text-green-600 dark:text-green-400' : budget_status === 'BAD' ? 'text-red-600 dark:text-red-400' : budget_status === 'N/A' ? 'text-slate-500 dark:text-slate-300' : 'text-yellow-600 dark:text-yellow-400'} transition-colors`}>
+                                {budget_status}
+                            </span>
+                        )}
+                    </>
                 )}
             </div>
-
         </div>
     );
 }

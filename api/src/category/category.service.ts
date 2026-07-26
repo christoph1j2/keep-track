@@ -3,18 +3,24 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class CategoryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: EventsGateway,
+  ) {}
 
   async create(userId: string, createCategoryDto: CreateCategoryDto) {
-    return this.prisma.category.create({
+    const created = await this.prisma.category.create({
       data: {
         ...createCategoryDto,
         userId, // Automaticky přiřadíme přihlášenému uživateli!
       },
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'categories' });
+    return created;
   }
 
   async findAll(userId: string) {
@@ -68,16 +74,18 @@ export class CategoryService {
       }
     }
 
-    return this.prisma.category.update({
+    const updated = await this.prisma.category.update({
       where: { id },
       data: updateCategoryDto,
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'categories' });
+    return updated;
   }
 
   async remove(userId: string, id: string) {
     await this.findOne(userId, id); // Ověříme vlastnictví před smazáním
     
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       await tx.category.updateMany({
         where: { parentId: id, userId },
         data: { parentId: null },
@@ -87,6 +95,9 @@ export class CategoryService {
         where: { id },
       });
     });
+
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'categories' });
+    return result;
   }
 
   async reorder(userId: string, dto: ReorderCategoriesDto) {
@@ -112,6 +123,8 @@ export class CategoryService {
         data: { order: category.order },
       }),
     );
-    return this.prisma.$transaction(updates);
+    const result = await this.prisma.$transaction(updates);
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'categories' });
+    return result;
   }
 }

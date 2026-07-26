@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OpenRouter } from '@openrouter/sdk';
 import type { Transaction } from '@prisma/client';
-import { NotificationsGateway } from '../notification/notifications.gateway';
+import { EventsGateway } from '../events/events.gateway';
 import { NotificationService } from '../notification/notification.service';
 
 export interface ProcessedTransaction {
@@ -23,7 +23,7 @@ export class AiService {
   private aiClient: OpenRouter;
   constructor(
     private prisma: PrismaService,
-    private notificationsGateway: NotificationsGateway,
+    private eventsGateway: EventsGateway,
     private notificationService: NotificationService,
   ) {
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -42,13 +42,13 @@ export class AiService {
     try {
       const results = await this.processBatch(userId, incomingTransactions);
 
-      this.notificationsGateway.server.to(userId).emit('import_finished', {
+      this.eventsGateway.emitToUser(userId, 'import_finished', {
         status: 'success',
         data: results,
       });
     } catch (error) {
       console.error('Critical error in the AI pipeline:', error);
-      this.notificationsGateway.server.to(userId).emit('import_finished', {
+      this.eventsGateway.emitToUser(userId, 'import_finished', {
         status: 'error',
         message:
           'An error occurred during AI processing. Please try again later.',
@@ -295,7 +295,7 @@ export class AiService {
       });
 
       // WS
-      this.notificationsGateway.server.to(userId).emit('import_finished', {
+      this.eventsGateway.emitToUser(userId, 'import_finished', {
         status: 'success',
         jobId: jobId,
         data: processedData,
@@ -318,7 +318,7 @@ export class AiService {
         },
       });
 
-      this.notificationsGateway.server.to(userId).emit('import_finished', {
+      this.eventsGateway.emitToUser(userId, 'import_finished', {
         status: 'error',
         jobId: jobId,
         message: 'An error occurred during processing. Please try again later.',

@@ -65,13 +65,31 @@ export function MainLayout({ children }: { children: ReactNode }) {
   const fetchNotifications = useNotificationStore((state) => state.fetchNotifications);
 
   useEffect(() => {
-    if (token) {
+    if (!token) return;
+
+    const refetchAll = () => {
       fetchCategories();
       fetchTransactions();
       fetchBudgets();
       fetchTemplates();
       fetchNotifications();
-    }
+    };
+
+    refetchAll();
+
+    const handleFocus = () => {
+      if (document.visibilityState === "visible") {
+        refetchAll();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleFocus);
+    };
   }, [token, fetchCategories, fetchTransactions, fetchBudgets, fetchTemplates, fetchNotifications]);
 
   return (

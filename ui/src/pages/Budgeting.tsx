@@ -15,15 +15,17 @@ import { useCategoryStore } from "../store/categoryStore";
 import { useBudgetStore } from "../store/budgetStore";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
+import { Skeleton } from "@mui/material";
 
 /**
  * Budgeting page for managing monthly spending limits.
  * Displays progress bars for each budget category with drag-and-drop reordering support.
  */
 export function Budgeting() {
-  const transactions = useTransactionStore((state) => state.transactions);
+  const { transactions, isLoading: isTxLoading } = useTransactionStore();
   const categories = useCategoryStore((state) => state.categories);
-  const { budgets, removeBudget, reorderBudgets } = useBudgetStore();
+  const { budgets, removeBudget, reorderBudgets, isLoading: isBudgetLoading } = useBudgetStore();
+  const isLoading = isTxLoading || isBudgetLoading;
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -71,7 +73,13 @@ export function Budgeting() {
           </button>
         </div>
 
-        {budgets.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <Skeleton key={idx} variant="rectangular" height={72} className="rounded-xl bg-slate-200! dark:bg-slate-800/80!" />
+            ))}
+          </div>
+        ) : budgets.length === 0 ? (
           <div className="text-center text-gray-500 mt-20">
             <p className="text-lg">{t("budgeting.emptyMessage")}</p>
             <p className="text-sm">{t("budgeting.emptySubMessage")}</p>

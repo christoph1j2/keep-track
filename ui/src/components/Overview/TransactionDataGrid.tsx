@@ -10,6 +10,7 @@ import { CategoryIcon } from "../Base/CategoryIcon";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { TransactionMobileList } from "./TransactionMobileList";
 import { useCategoryStore } from "../../store/categoryStore";
+import { useTransactionStore } from "../../store/transactionStore";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
 import { useConfirmStore } from "../../store/confirmStore";
@@ -32,6 +33,7 @@ export function TransactionDataGrid({
 }: TransactionDataGridProps) {
   const { theme } = useTheme();
   const categories = useCategoryStore((state) => state.categories);
+  const isLoading = useTransactionStore((state) => state.isLoading);
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -280,6 +282,7 @@ export function TransactionDataGrid({
       onUpdateTransaction={onUpdateTransaction}
       onDeleteTransaction={onDeleteTransaction}
       onSplitTransaction={onSplitTransaction}
+      isLoading={isLoading}
     />
   ) : (
     <div className="flex flex-col gap-4 h-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 rounded-2xl">
@@ -311,6 +314,7 @@ export function TransactionDataGrid({
         <DataGrid
           rows={filteredBySearch}
           columns={colDef}
+          loading={isLoading}
           disableColumnMenu
           disableRowSelectionOnClick
           autoPageSize

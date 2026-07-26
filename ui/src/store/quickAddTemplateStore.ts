@@ -24,7 +24,7 @@ interface TemplateState {
 
 export const useTemplateStore = create<TemplateState>()((set) => ({
   templates: [],
-  isLoading: false,
+  isLoading: true,
 
   fetchTemplates: async () => {
     set({ isLoading: true });

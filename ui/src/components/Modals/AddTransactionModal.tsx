@@ -162,7 +162,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
               <button
                 type="button"
                 onClick={toggleSign}
-                className={`px-3 py-1.5 h-10 rounded-lg text-xs font-bold flex items-center justify-center transition-colors border shrink-0 min-w-[64px] cursor-pointer ${
+                className={`px-3 py-1.5 h-10 rounded-lg text-xs font-bold flex items-center justify-center transition-colors border shrink-0 min-w-16 cursor-pointer ${
                   (typeof amount === "number" ? amount < 0 : isNegative)
                     ? "bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-500/20 dark:text-red-400"
                     : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400"
