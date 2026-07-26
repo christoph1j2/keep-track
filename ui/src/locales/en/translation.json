@@ -433,6 +433,7 @@
     "message": "Message",
     "messagePlaceholder": "Describe your issue or suggestion in detail...",
     "remainingCharacters": "remaining characters",
+    "success": "Feedback sent successfully! Thank you for your message.",
     "errors": {
       "missingFields": "Please fill in all required fields.",
       "invalidEmail": "Please enter a valid email address.",

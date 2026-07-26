@@ -4,17 +4,10 @@ import {
   Body,
   HttpException,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
-import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { EmailService } from './email.service';
-
-interface SendEmailRequest {
-  to?: string;
-  subject: string;
-  text: string;
-  html?: string;
-}
+import { SendEmailDto } from './dto/send-email.dto';
 
 interface SendEmailResponse {
   success: boolean;
@@ -27,11 +20,10 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @Post('send_feedback')
-  @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 10, ttl: 86400000 } })
   async sendFeedbackEmail(
     @Body()
-    body: SendEmailRequest,
+    body: SendEmailDto,
   ): Promise<SendEmailResponse> {
     try {
       const to = process.env.FEEDBACK_EMAIL_ADDRESS;

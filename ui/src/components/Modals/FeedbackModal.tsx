@@ -2,6 +2,7 @@ import { Radio, RadioGroup, TextField } from "@mui/material";
 import { blue, red } from "@mui/material/colors";
 import axios from "axios";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 
 interface FeedbackModalProps {
@@ -39,13 +40,6 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
     const subject = formData.get("subject");
     const message = formData.get("message");
 
-    console.log("Form Data:", {
-      contactEmail,
-      feedbackType,
-      subject,
-      message,
-    });
-
     if (!feedbackType || !subject) {
       setErrors([t("feedback.errors.missingFields")]);
       setIsSubmitting(false);
@@ -71,16 +65,23 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
       const FeedBackType =
         feedbackType === "bug" ? "Bug Report" : "Feature Request";
       const emailSubject = `[${FeedBackType}] ${subject}`;
-      const emailMessage = `Contact Email: ${contactEmail || "Not provided"}<br><br>Message:<br>${message}`;
+      const emailMessage = `Contact Email: ${contactEmail || "Not provided"}\r\n\r\nMessage:\r\n${message}`;
 
       const API_URL =
         import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
       // Axios API call to email service
-      await axios.post(`${API_URL}/email/send_feedback`, {
-        subject: emailSubject,
-        text: emailMessage,
-      });
+      await axios.post(
+        `${API_URL}/email/send_feedback`,
+        {
+          subject: emailSubject,
+          text: emailMessage,
+        },
+        { timeout: 10000 }
+      );
+
+      toast.success(t("feedback.success"));
+      onCancel(); // Close the modal after successful submission
     } catch (error) {
       console.error("Error sending feedback email:", error);
       setErrors([t("feedback.errors.sendFailed")]);

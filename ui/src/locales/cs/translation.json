@@ -433,6 +433,7 @@
     "message": "Zpráva",
     "messagePlaceholder": "Popište váš problém nebo návrh podrobně...",
     "remainingCharacters": "zbývajících znaků",
+    "success": "Zpětná vazba byla úspěšně odeslána! Děkujeme za vaši zprávu.",
     "errors": {
       "missingFields": "Vyplňte prosím všechna povinná pole.",
       "invalidEmail": "Zadejte platný e-mail.",
