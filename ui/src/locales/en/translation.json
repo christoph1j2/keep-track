@@ -26,7 +26,9 @@
     "confirm": "Confirm",
     "error": "An error occurred.",
     "type": "Type",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "submit": "Submit",
+    "submitting": "Submitting..."
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -34,7 +36,8 @@
     "budgeting": "Budgets",
     "quickAdd": "Templates",
     "settings": "Settings",
-    "categories": "Categories"
+    "categories": "Categories",
+    "feedback": "Feedback"
   },
   "topbar": {
     "tooltips": {
@@ -416,6 +419,25 @@
       "missingToken": "Invalid or missing reset token.",
       "title": "Reset Password",
       "submit": "Reset password"
+    }
+  },
+  "feedback": {
+    "title": "Send Feedback",
+    "contactEmail": "Contact Email",
+    "contactEmailPlaceholder": "your@email.com (optional)",
+    "feedbackType": "Feedback Type",
+    "bug": "Bug",
+    "feature": "Feature",
+    "subject": "Subject",
+    "subjectPlaceholder": "Short summary...",
+    "message": "Message",
+    "messagePlaceholder": "Describe your issue or suggestion in detail...",
+    "remainingCharacters": "remaining characters",
+    "success": "Feedback sent successfully! Thank you for your message.",
+    "errors": {
+      "missingFields": "Please fill in all required fields.",
+      "invalidEmail": "Please enter a valid email address.",
+      "messageTooLong": "Message is too long (max 1000 characters)."
     }
   },
   "notifications": {

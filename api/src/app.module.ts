@@ -15,6 +15,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AiModule } from './ai/ai.module';
 import { EventsModule } from './events/events.module';
 import { NotificationModule } from './notification/notification.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { NotificationModule } from './notification/notification.module';
     AiModule,
     EventsModule,
     NotificationModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [

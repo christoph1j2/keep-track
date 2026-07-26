@@ -39,4 +39,32 @@ export class EmailService {
       throw error;
     }
   }
+
+  async sendFeedbackEmail(to: string, subject: string, message: string) {
+    try {
+      const escapeHtml = (str: string) =>
+        str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+
+      const safeSubject = escapeHtml(subject);
+      const safeMessage = escapeHtml(message);
+
+      await this.mailerService.sendMail({
+        to: to,
+        subject: subject,
+        html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #2563eb;">New Feedback Received</h2>
+                <p>${safeSubject}</p>
+                <p>${safeMessage}</p>
+              </div>`,
+      });
+    } catch (error) {
+      console.error('Error sending feedback email:', error);
+      throw error;
+    }
+  }
 }
