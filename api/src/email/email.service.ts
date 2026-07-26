@@ -39,4 +39,21 @@ export class EmailService {
       throw error;
     }
   }
+
+  async sendFeedbackEmail(to: string, subject: string, message: string) {
+    try {
+      await this.mailerService.sendMail({
+        to: to,
+        subject: subject,
+        html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #2563eb;">New Feedback Received</h2>
+                <p>${subject}</p>
+                <p>${message}</p>
+              </div>`,
+      });
+    } catch (error) {
+      console.error('Error sending feedback email:', error);
+      throw error;
+    }
+  }
 }

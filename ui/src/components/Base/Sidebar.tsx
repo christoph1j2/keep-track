@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -6,10 +6,13 @@ import ShowChartIcon from "@mui/icons-material/ShowChart";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CategoryIcon from "@mui/icons-material/Category";
+import FeedbackIcon from "@mui/icons-material/Feedback";
 import { Extension } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { NotificationCenter } from "./NotificationCenter";
 import { Logo } from "./Logo";
+import { FeedbackModal } from "../Modals/FeedbackModal";
+import { BaseModal } from "../Modals/BaseModal";
 
 interface MenuItem {
   translationKey: string;
@@ -63,6 +66,8 @@ const MENU_ITEMS: MenuItem[] = [
 export function Sidebar() {
   const { t } = useTranslation();
 
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+
   return (
     <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors h-full">
       <Logo />
@@ -89,6 +94,22 @@ export function Sidebar() {
 
       {/* notifications and pending imports */}
       <NotificationCenter />
+      {/* feedback form */}
+      <button
+        onClick={() => setIsFeedbackModalOpen(true)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100 transition-colors cursor-pointer rounded-xl font-medium"
+      >
+        <FeedbackIcon sx={{ fontSize: 22 }} />
+        {t("sidebar.feedback")}
+      </button>
+
+      <BaseModal
+        title={t("sidebar.feedback")}
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+      >
+        <FeedbackModal onCancel={() => setIsFeedbackModalOpen(false)} />
+      </BaseModal>
     </aside>
   );
 }

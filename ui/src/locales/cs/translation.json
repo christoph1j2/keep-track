@@ -26,7 +26,9 @@
     "confirm": "Potvrdit",
     "error": "Došlo k chybě.",
     "type": "Typ",
-    "unassigned": "Nepřiřazeno"
+    "unassigned": "Nepřiřazeno",
+    "submit": "Odeslat",
+    "submitting": "Odesílám..."
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -34,7 +36,8 @@
     "budgeting": "Rozpočty",
     "quickAdd": "Šablony",
     "settings": "Nastavení",
-    "categories": "Kategorie"
+    "categories": "Kategorie",
+    "feedback": "Zpětná vazba"
   },
   "topbar": {
     "tooltips": {
@@ -416,6 +419,24 @@
       "missingToken": "Neplatný nebo chybějící token pro obnovu.",
       "title": "Obnovit heslo",
       "submit": "Obnovit heslo"
+    }
+  },
+  "feedback": {
+    "title": "Odeslat zpětnou vazbu",
+    "contactEmail": "Kontaktní e-mail",
+    "contactEmailPlaceholder": "vas@email.cz (volitelné)",
+    "feedbackType": "Typ zpětné vazby",
+    "bug": "Chyba",
+    "feature": "Návrh / Funkce",
+    "subject": "Předmět",
+    "subjectPlaceholder": "Stručný přehled...",
+    "message": "Zpráva",
+    "messagePlaceholder": "Popište váš problém nebo návrh podrobně...",
+    "remainingCharacters": "zbývajících znaků",
+    "errors": {
+      "missingFields": "Vyplňte prosím všechna povinná pole.",
+      "invalidEmail": "Zadejte platný e-mail.",
+      "messageTooLong": "Zpráva je příliš dlouhá (max 1000 znaků)."
     }
   },
   "notifications": {

@@ -136,6 +136,10 @@ export function BaseModal({ isOpen, onClose, title, children }: BaseModalProps) 
                         color: isDark ? "#94a3b8" : "#64748b",
                         opacity: 1,
                     },
+                    // MUI helper text
+                    "& .MuiFormHelperText-root": {
+                        color: isDark ? "#94a3b8" : "#64748b",
+                    },
                     // MUI floating labels, used if a TextField has label= instead of our plain label.
                     "& .MuiInputLabel-root": {
                         color: isDark ? "#94a3b8" : "#475569",
