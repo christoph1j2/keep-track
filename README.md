@@ -101,12 +101,10 @@ If you have tailscale running on your homelab, simply running the command below 
 
 ## Roadmap
 
-- [ ] Landing page
-- [ ] Feedback system
 - [ ] PWA support
 - [ ] Better analytics
 - [ ] LLM Insights
-- [ ] ...
+- [ ] ... see Issues
 
 ## Contributing
 
