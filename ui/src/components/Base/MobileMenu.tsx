@@ -15,10 +15,13 @@ import ShowChartIcon from "@mui/icons-material/ShowChart";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import CategoryIcon from "@mui/icons-material/Category";
 import SettingsIcon from "@mui/icons-material/Settings";
+import FeedbackIcon from "@mui/icons-material/Feedback";
+import { Extension } from "@mui/icons-material";
 import { NotificationCenter } from "./NotificationCenter";
 import { useTranslation } from "react-i18next";
 import { Logo } from "./Logo";
-import { Extension } from "@mui/icons-material";
+import { BaseModal } from "../Modals/BaseModal";
+import { FeedbackModal } from "../Modals/FeedbackModal";
 
 interface MenuItem {
   label: string;
@@ -31,9 +34,9 @@ interface MenuItem {
  * Closes automatically when route changes.
  */
 export function MobileMenu() {
-  const [openedPath, setOpenedPath] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const location = useLocation();
-  const isOpen = openedPath === location.pathname;
   const { t } = useTranslation();
 
   const MENU_ITEMS: MenuItem[] = [
@@ -70,7 +73,7 @@ export function MobileMenu() {
       ) {
         return;
       }
-      setOpenedPath(open ? location.pathname : null);
+      setIsOpen(open);
     };
 
   return (
@@ -80,11 +83,13 @@ export function MobileMenu() {
         open={isOpen}
         onClose={toggleDrawer(false)}
         classes={{
-          paper: "dark:bg-slate-900", // Overrides the default white MUI background in dark mode
+          paper: "dark:bg-slate-900", // Overrides default white MUI background in dark mode
         }}
       >
-        <div className="w-64 flex flex-col h-full bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors">
-          <Logo />
+        <div className="w-64 flex flex-col h-full bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors p-4">
+          <div className="px-6 py-2">
+            <Logo />
+          </div>
 
           {/* Navigation list */}
           <List className="flex-1 px-2 py-4">
@@ -95,6 +100,7 @@ export function MobileMenu() {
                   <ListItemButton
                     component={NavLink}
                     to={item.path}
+                    onClick={() => setIsOpen(false)}
                     className={`rounded-xl mb-2 transition-colors ${
                       isActive
                         ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
@@ -119,14 +125,34 @@ export function MobileMenu() {
 
           {/* Mobile Notification Center */}
           <NotificationCenter />
+
+          {/* feedback form */}
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              setIsFeedbackModalOpen(true);
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100 transition-colors cursor-pointer rounded-xl font-medium"
+          >
+            <FeedbackIcon sx={{ fontSize: 22 }} />
+            {t("sidebar.feedback")}
+          </button>
         </div>
       </Drawer>
+
+      <BaseModal
+        title={t("sidebar.feedback")}
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+      >
+        <FeedbackModal onCancel={() => setIsFeedbackModalOpen(false)} />
+      </BaseModal>
 
       {/* Hamburger button trigger */}
       <button
         onClick={toggleDrawer(true)}
-        className="p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg transition-colors"
-        aria-label="Open menu"
+        className="p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+        aria-label={t("common.openMenu")}
       >
         <svg
           className="w-6 h-6"
