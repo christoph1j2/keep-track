@@ -39,9 +39,14 @@ export function Dashboard() {
   const hotbarTemplates = templates.filter((template) => template.showInHotbar);
   const { budgets, isLoading: isBudgetsLoading } = useBudgetStore();
 
-  const { transactions, addTransaction, isLoading: isTxLoading } = useTransactionStore();
-  const categories = useCategoryStore((state) => state.categories);
-  const isLoading = isTxLoading || isBudgetsLoading || isTemplatesLoading;
+  const {
+    transactions,
+    addTransaction,
+    isLoading: isTxLoading,
+  } = useTransactionStore();
+  const { categories, isLoading: isCategoryLoading } = useCategoryStore();
+  const isLoading =
+    isTxLoading || isBudgetsLoading || isTemplatesLoading || isCategoryLoading;
 
   const { t } = useTranslation();
 
@@ -225,10 +230,18 @@ export function Dashboard() {
                               originalCurrency: currency,
                               isAiCategorized: false,
                             });
-                            toast.success(t("transactions.added", "Transakce byla úspěšně přidána."));
+                            toast.success(
+                              t(
+                                "transactions.added",
+                                "Transakce byla úspěšně přidána.",
+                              ),
+                            );
                           } catch (error) {
                             toast.error(t("common.error", "Došlo k chybě."));
-                            console.error("Error adding transaction from quick add:", error);
+                            console.error(
+                              "Error adding transaction from quick add:",
+                              error,
+                            );
                           }
                         },
                       );

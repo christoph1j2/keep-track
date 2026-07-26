@@ -9,11 +9,11 @@ import { Skeleton } from "@mui/material";
 
 export function BudgetingList() {
   const { budgets, isLoading: isBudgetLoading } = useBudgetStore();
-  const categories = useCategoryStore((state) => state.categories);
+  const { categories, isLoading: isCategoryLoading } = useCategoryStore();
   const { transactions, isLoading: isTxLoading } = useTransactionStore();
   const navigate = useNavigate();
 
-  const isLoading = isBudgetLoading || isTxLoading;
+  const isLoading = isBudgetLoading || isTxLoading || isCategoryLoading;
   const { t } = useTranslation();
 
   const now = new Date();
@@ -43,7 +43,12 @@ export function BudgetingList() {
       {isLoading ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <Skeleton key={idx} variant="rectangular" height={52} className="rounded-lg my-1 bg-slate-200! dark:bg-slate-800/80!" />
+            <Skeleton
+              key={idx}
+              variant="rectangular"
+              height={52}
+              className="rounded-lg my-1 bg-slate-200! dark:bg-slate-800/80!"
+            />
           ))}
         </div>
       ) : budgets.length > 0 ? (
@@ -52,7 +57,9 @@ export function BudgetingList() {
             const category = categories.find((c) => c.id === budget.categoryId);
             if (!category) return null;
 
-            const categoryLabel = category.label.startsWith("default_categories.")
+            const categoryLabel = category.label.startsWith(
+              "default_categories.",
+            )
               ? t(category.label)
               : category.label;
 

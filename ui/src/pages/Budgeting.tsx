@@ -23,9 +23,14 @@ import { Skeleton } from "@mui/material";
  */
 export function Budgeting() {
   const { transactions, isLoading: isTxLoading } = useTransactionStore();
-  const categories = useCategoryStore((state) => state.categories);
-  const { budgets, removeBudget, reorderBudgets, isLoading: isBudgetLoading } = useBudgetStore();
-  const isLoading = isTxLoading || isBudgetLoading;
+  const { categories, isLoading: isCategoryLoading } = useCategoryStore();
+  const {
+    budgets,
+    removeBudget,
+    reorderBudgets,
+    isLoading: isBudgetLoading,
+  } = useBudgetStore();
+  const isLoading = isTxLoading || isBudgetLoading || isCategoryLoading;
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -76,7 +81,12 @@ export function Budgeting() {
         {isLoading ? (
           <div className="flex flex-col gap-3">
             {Array.from({ length: 4 }).map((_, idx) => (
-              <Skeleton key={idx} variant="rectangular" height={72} className="rounded-xl bg-slate-200! dark:bg-slate-800/80!" />
+              <Skeleton
+                key={idx}
+                variant="rectangular"
+                height={72}
+                className="rounded-xl bg-slate-200! dark:bg-slate-800/80!"
+              />
             ))}
           </div>
         ) : budgets.length === 0 ? (

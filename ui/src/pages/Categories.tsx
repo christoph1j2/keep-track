@@ -18,7 +18,8 @@ import { Skeleton } from "@mui/material";
 
 export function Categories() {
   const { t } = useTranslation();
-  const { categories, removeCategory, reorderCategories, isLoading } = useCategoryStore();
+  const { categories, removeCategory, reorderCategories, isLoading } =
+    useCategoryStore();
   const { fetchTransactions } = useTransactionStore(); // Použijeme pro aktualizaci po smazání
 
   const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -74,11 +75,16 @@ export function Categories() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors p-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
         {isLoading ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 5 }).map((_, idx) => (
-              <Skeleton key={idx} variant="rectangular" height={56} className="rounded-xl bg-slate-200! dark:bg-slate-700/60!" />
+              <Skeleton
+                key={idx}
+                variant="rectangular"
+                height={56}
+                className="rounded-xl bg-slate-200! dark:bg-slate-700/60!"
+              />
             ))}
           </div>
         ) : (
