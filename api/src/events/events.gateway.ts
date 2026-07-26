@@ -5,15 +5,16 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
+import { Injectable } from '@nestjs/common';
 
-// Povolíme CORS, aby se React mohl připojit
+@Injectable()
 @WebSocketGateway({
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
   },
 })
-export class NotificationsGateway implements OnGatewayConnection {
+export class EventsGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
@@ -37,6 +38,24 @@ export class NotificationsGateway implements OnGatewayConnection {
     } catch (error) {
       console.log(`Connection rejected for ${client.id}: Invalid token`);
       client.disconnect();
+    }
+  }
+
+  /**
+   * Emits a real-time event to a specific user's connected room.
+   */
+  emitToUser(userId: string, event: string, payload?: any) {
+    if (this.server) {
+      this.server.to(userId).emit(event, payload);
+    }
+  }
+
+  /**
+   * Emits a real-time event to all connected clients.
+   */
+  broadcast(event: string, payload?: any) {
+    if (this.server) {
+      this.server.emit(event, payload);
     }
   }
 }

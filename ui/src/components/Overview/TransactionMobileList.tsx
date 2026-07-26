@@ -5,12 +5,14 @@ import { useCategoryStore } from "../../store/categoryStore";
 import { useConfirmStore } from "../../store/confirmStore";
 import { useTranslation } from "react-i18next";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { Skeleton } from "@mui/material";
 
 interface TransactionMobileListProps {
     transactions: Transaction[];
     onUpdateTransaction: (updated: Transaction) => void;
     onDeleteTransaction: (id: string) => void;
     onSplitTransaction: (transaction: Transaction) => void;
+    isLoading?: boolean;
 }
 
 // pocet polozek na jedne strance
@@ -24,8 +26,9 @@ const ITEMS_PER_PAGE = 5;
  * @param props.onUpdateTransaction Called after a confirmed edit.
  * @param props.onDeleteTransaction Called after delete confirmation.
  * @param props.onSplitTransaction Called when a row is sent to split flow.
+ * @param props.isLoading Shows skeleton loader when true.
  */
-export function TransactionMobileList({ transactions, onUpdateTransaction, onDeleteTransaction, onSplitTransaction }: TransactionMobileListProps) {
+export function TransactionMobileList({ transactions, onUpdateTransaction, onDeleteTransaction, onSplitTransaction, isLoading }: TransactionMobileListProps) {
     // hook pro ziskani kategorii a jejich detailu
     const categories = useCategoryStore((state) => state.categories);
     const lineClass = "border-slate-200/70 dark:border-slate-700/40";
@@ -137,8 +140,12 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                 />
             </div>
             <div className="flex-1 overflow-y-auto space-y-2 px-2 py-2">
-                {/* seznam transakcÃ­ na aktualni strance */}
-                {paginatedTransactions.length === 0 ? (
+                {/* seznam transakcí na aktualni strance */}
+                {isLoading ? (
+                    Array.from({ length: 5 }).map((_, idx) => (
+                        <Skeleton key={idx} variant="rectangular" height={72} className="rounded-lg my-1" />
+                    ))
+                ) : paginatedTransactions.length === 0 ? (
                     <div className={`border ${lineClass} rounded-lg p-4 text-center text-sm text-slate-500 dark:text-slate-400`}>
                         {t('overview.noTransactions')}
                     </div>
@@ -169,17 +176,37 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
 
                                     <div>
                                         <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t('overview.columns.amount')}</label>
-                                        <input
-                                            type="number"
-                                            value={current.amount}
-                                            onChange={(e) =>
-                                                setEditingData({
-                                                    ...editingData,
-                                                    amount: parseFloat(e.target.value),
-                                                })
-                                            }
-                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
-                                        />
+                                        <div className="flex gap-2 items-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const currentVal = Number(current.amount) || 0;
+                                                    setEditingData({
+                                                        ...editingData,
+                                                        amount: -currentVal,
+                                                    });
+                                                }}
+                                                className={`px-2.5 py-1 rounded text-xs font-bold transition-colors border shrink-0 min-w-13.5 cursor-pointer ${
+                                                    Number(current.amount) < 0
+                                                        ? "bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-500/20 dark:text-red-400"
+                                                        : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400"
+                                                }`}
+                                            >
+                                                {Number(current.amount) < 0 ? "− Exp" : "+ Inc"}
+                                            </button>
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                value={current.amount ?? ""}
+                                                onChange={(e) =>
+                                                    setEditingData({
+                                                        ...editingData,
+                                                        amount: e.target.value !== "" ? parseFloat(e.target.value) : 0,
+                                                    })
+                                                }
+                                                className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
+                                            />
+                                        </div>
                                     </div>
 
                                     <div>

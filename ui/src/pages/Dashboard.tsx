@@ -35,12 +35,18 @@ export function Dashboard() {
   const showConfirm = useConfirmStore((state) => state.showConfirm);
   const { currency } = useSettingsStore();
 
-  const templates = useTemplateStore((state) => state.templates);
+  const { templates, isLoading: isTemplatesLoading } = useTemplateStore();
   const hotbarTemplates = templates.filter((template) => template.showInHotbar);
-  const budgets = useBudgetStore((state) => state.budgets);
+  const { budgets, isLoading: isBudgetsLoading } = useBudgetStore();
 
-  const { transactions, addTransaction } = useTransactionStore();
-  const categories = useCategoryStore((state) => state.categories);
+  const {
+    transactions,
+    addTransaction,
+    isLoading: isTxLoading,
+  } = useTransactionStore();
+  const { categories, isLoading: isCategoryLoading } = useCategoryStore();
+  const isLoading =
+    isTxLoading || isBudgetsLoading || isTemplatesLoading || isCategoryLoading;
 
   const { t } = useTranslation();
 
@@ -145,22 +151,26 @@ export function Dashboard() {
           amount={income}
           icon={<TrendingUp />}
           trend={true}
+          isLoading={isLoading}
         />
         <StatCard
           title={t("dashboard.stats.expenses")}
           amount={expenses}
           icon={<TrendingDown />}
           trend={false}
+          isLoading={isLoading}
         />
         <StatCard
           title={t("dashboard.stats.balance")}
           amount={balance}
           icon={<Euro />}
+          isLoading={isLoading}
         />
         <StatCard
           title={t("dashboard.stats.budget")}
           budget_status={budgetStatus}
           icon={<CalendarMonth />}
+          isLoading={isLoading}
         />
 
         {/** second row, left col - quick add and graph */}
@@ -220,10 +230,18 @@ export function Dashboard() {
                               originalCurrency: currency,
                               isAiCategorized: false,
                             });
-                            toast.success(t("transactions.added", "Transakce byla úspěšně přidána."));
+                            toast.success(
+                              t(
+                                "transactions.added",
+                                "Transakce byla úspěšně přidána.",
+                              ),
+                            );
                           } catch (error) {
                             toast.error(t("common.error", "Došlo k chybě."));
-                            console.error("Error adding transaction from quick add:", error);
+                            console.error(
+                              "Error adding transaction from quick add:",
+                              error,
+                            );
                           }
                         },
                       );

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionService } from './transaction.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('TransactionService', () => {
@@ -23,11 +24,17 @@ describe('TransactionService', () => {
     },
   };
 
+  const mockEventsGateway = {
+    emitToUser: jest.fn(),
+    broadcast: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TransactionService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EventsGateway, useValue: mockEventsGateway },
       ],
     }).compile();
 

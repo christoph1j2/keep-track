@@ -5,6 +5,10 @@ import { toast } from "react-hot-toast";
 import i18n from "../i18n";
 import { useNotificationStore } from "./notificationStore";
 import { useAuthStore } from "./authStore";
+import { useTransactionStore } from "./transactionStore";
+import { useCategoryStore } from "./categoryStore";
+import { useBudgetStore } from "./budgetStore";
+import { useTemplateStore } from "./quickAddTemplateStore";
 
 interface SocketState {
   socket: Socket | null;
@@ -45,6 +49,22 @@ export const useSocketStore = create<SocketState>()(
 
     newSocket.on("connect", () => {
       console.log("WebSocket connected.");
+    });
+
+    newSocket.on("data_updated", (payload?: { resource?: string }) => {
+      const resource = payload?.resource;
+      if (!resource || resource === "transactions") {
+        useTransactionStore.getState().fetchTransactions();
+      }
+      if (!resource || resource === "categories") {
+        useCategoryStore.getState().fetchCategories();
+      }
+      if (!resource || resource === "budgets") {
+        useBudgetStore.getState().fetchBudgets();
+      }
+      if (!resource || resource === "templates") {
+        useTemplateStore.getState().fetchTemplates();
+      }
     });
 
     newSocket.on("import_finished", (payload) => {

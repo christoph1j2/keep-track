@@ -1,18 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import type { Budget } from "../../types/budget";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { ProgressBar } from "../Budgeting/ProgressBar";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useBudgetStore } from "../../store/budgetStore";
 import { useTranslation } from "react-i18next";
+import { Skeleton } from "@mui/material";
 
 export function BudgetingList() {
-  const budgets: Budget[] = useBudgetStore((state) => state.budgets);
-  const categories = useCategoryStore((state) => state.categories);
-  const transactions = useTransactionStore((state) => state.transactions);
+  const { budgets, isLoading: isBudgetLoading } = useBudgetStore();
+  const { categories, isLoading: isCategoryLoading } = useCategoryStore();
+  const { transactions, isLoading: isTxLoading } = useTransactionStore();
   const navigate = useNavigate();
 
+  const isLoading = isBudgetLoading || isTxLoading || isCategoryLoading;
   const { t } = useTranslation();
 
   const now = new Date();
@@ -39,13 +40,26 @@ export function BudgetingList() {
         </span>
       </div>
 
-      {budgets.length > 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <Skeleton
+              key={idx}
+              variant="rectangular"
+              height={52}
+              className="rounded-lg my-1 bg-slate-200! dark:bg-slate-800/80!"
+            />
+          ))}
+        </div>
+      ) : budgets.length > 0 ? (
         <div className="flex flex-col gap-2">
           {topBudgets.map((budget) => {
             const category = categories.find((c) => c.id === budget.categoryId);
             if (!category) return null;
 
-            const categoryLabel = category.label.startsWith("default_categories.")
+            const categoryLabel = category.label.startsWith(
+              "default_categories.",
+            )
               ? t(category.label)
               : category.label;
 

@@ -3,19 +3,25 @@ import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { ReorderTemplatesDto } from './dto/reorder-templates.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class TemplateService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: EventsGateway,
+  ) {}
 
   async create(userId: string, dto: CreateTemplateDto) {
-    return this.prisma.template.create({
+    const created = await this.prisma.template.create({
       data: {
         ...dto,
         userId,
       },
       include: { category: true },
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    return created;
   }
 
   async findAll(userId: string) {
@@ -37,18 +43,22 @@ export class TemplateService {
 
   async update(userId: string, id: string, dto: UpdateTemplateDto) {
     await this.findOne(userId, id); // Ověření vlastnictví
-    return this.prisma.template.update({
+    const updated = await this.prisma.template.update({
       where: { id },
       data: dto,
       include: { category: true },
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    return updated;
   }
 
   async remove(userId: string, id: string) {
     await this.findOne(userId, id); // Ověření vlastnictví
-    return this.prisma.template.delete({
+    const res = await this.prisma.template.delete({
       where: { id },
     });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    return res;
   }
 
   async reorder(userId: string, dto: ReorderTemplatesDto) {
@@ -74,6 +84,8 @@ export class TemplateService {
         data: { order: template.order },
       }),
     );
-    return this.prisma.$transaction(updates);
+    const result = await this.prisma.$transaction(updates);
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    return result;
   }
 }

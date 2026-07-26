@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TemplateService } from './template.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { CreateTemplateDto } from './dto/create-template.dto';
 
@@ -19,11 +20,17 @@ describe('TemplateService', () => {
     $transaction: jest.fn(),
   };
 
+  const mockEventsGateway = {
+    emitToUser: jest.fn(),
+    broadcast: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TemplateService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EventsGateway, useValue: mockEventsGateway },
       ],
     }).compile();
 

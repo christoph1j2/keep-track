@@ -5,6 +5,7 @@ import { useCategoryStore } from "../../store/categoryStore";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { useSettingsStore } from "../../store/settingsStore";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 interface AddTransactionModalProps {
   onCancel: () => void;
@@ -26,9 +27,46 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   const addTransaction = useTransactionStore((state) => state.addTransaction);
 
   // stavy pro formular
+  const isMobile = useIsMobile();
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState<number | "">("");
+  const [isNegative, setIsNegative] = useState(true);
   const [categoryId, setCategoryId] = useState("");
+
+  const handleAmountChange = (valStr: string) => {
+    if (!valStr) {
+      setAmount("");
+      return;
+    }
+    const parsed = parseFloat(valStr);
+    if (isNaN(parsed)) {
+      setAmount("");
+      return;
+    }
+    if (isMobile) {
+      if (isNegative && parsed > 0) {
+        setAmount(-parsed);
+      } else if (!isNegative && parsed < 0) {
+        setAmount(Math.abs(parsed));
+      } else {
+        setAmount(parsed);
+        setIsNegative(parsed < 0);
+      }
+    } else {
+      setAmount(parsed);
+      setIsNegative(parsed < 0);
+    }
+  };
+
+  const toggleSign = () => {
+    if (typeof amount === "number" && amount !== 0) {
+      const newAmt = -amount;
+      setAmount(newAmt);
+      setIsNegative(newAmt < 0);
+    } else {
+      setIsNegative((prev) => !prev);
+    }
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[] | null>(null);
@@ -119,16 +157,32 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.amount")}
           </label>
-          <TextField
-            fullWidth
-            size="small"
-            type="number"
-            placeholder={t("transactions.placeholders.amount")}
-            value={amount}
-            onChange={(e) =>
-              setAmount(e.target.value ? parseFloat(e.target.value) : "")
-            }
-          />
+          <div className="flex gap-2 items-center">
+            {isMobile && (
+              <button
+                type="button"
+                onClick={toggleSign}
+                className={`px-3 py-1.5 h-10 rounded-lg text-xs font-bold flex items-center justify-center transition-colors border shrink-0 min-w-16 cursor-pointer ${
+                  (typeof amount === "number" ? amount < 0 : isNegative)
+                    ? "bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-500/20 dark:text-red-400"
+                    : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400"
+                }`}
+              >
+                {(typeof amount === "number" ? amount < 0 : isNegative)
+                  ? "− Exp"
+                  : "+ Inc"}
+              </button>
+            )}
+            <TextField
+              fullWidth
+              size="small"
+              type="number"
+              slotProps={{ htmlInput: { step: "any" } }}
+              placeholder={t("transactions.placeholders.amount")}
+              value={amount}
+              onChange={(e) => handleAmountChange(e.target.value)}
+            />
+          </div>
           <span className="text-xs text-slate-500 mt-1 dark:text-slate-400">
             {t("transactions.tip")}
           </span>

@@ -76,6 +76,7 @@ describe('AuthController', () => {
 
   describe('forgotPassword', () => {
     it('should call forgotPassword', async () => {
+      mockAuthService.forgotPassword.mockResolvedValue({ message: 'Success' });
       const result = await controller.forgotPassword({ email: 'test@test.com' });
       expect(result.message).toBeDefined();
       expect(service.forgotPassword).toHaveBeenCalledWith('test@test.com');
@@ -84,6 +85,7 @@ describe('AuthController', () => {
 
   describe('resetPassword', () => {
     it('should call resetPassword', async () => {
+      mockAuthService.resetPassword.mockResolvedValue({ message: 'Success' });
       const result = await controller.resetPassword({ newPassword: 'pass', confirmPassword: 'pass' }, 'token');
       expect(result.message).toBeDefined();
       expect(service.resetPassword).toHaveBeenCalledWith('token', { newPassword: 'pass', confirmPassword: 'pass' });

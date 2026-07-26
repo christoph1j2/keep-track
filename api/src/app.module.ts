@@ -13,7 +13,7 @@ import { BudgetModule } from './budget/budget.module';
 import { TemplateModule } from './template/template.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AiModule } from './ai/ai.module';
-import { NotificationsModule } from './notification/notifications.module';
+import { EventsModule } from './events/events.module';
 import { NotificationModule } from './notification/notification.module';
 
 @Module({
@@ -47,7 +47,7 @@ import { NotificationModule } from './notification/notification.module';
     BudgetModule,
     TemplateModule,
     AiModule,
-    NotificationsModule,
+    EventsModule,
     NotificationModule,
   ],
   controllers: [AppController],

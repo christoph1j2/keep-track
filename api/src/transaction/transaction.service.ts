@@ -2,10 +2,14 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class TransactionService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: EventsGateway,
+  ) {}
 
   private async validateAndCleanCategoryId(userId: string, categoryId?: string | null): Promise<string | null> {
     if (!categoryId || categoryId === 'null' || categoryId === 'undefined' || categoryId.trim() === '') {
@@ -30,7 +34,7 @@ export class TransactionService {
 
   async create(userId: string, dto: CreateTransactionDto) {
     const categoryId = await this.validateAndCleanCategoryId(userId, dto.categoryId);
-    return this.prisma.transaction.create({
+    const created = await this.prisma.transaction.create({
       data: {
         ...dto,
         categoryId,
@@ -38,6 +42,9 @@ export class TransactionService {
       },
       include: { category: true }, // Rovnou vrátíme i spojenou kategorii pro frontend
     });
+
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
+    return created;
   }
 
   async findAll(userId: string) {
@@ -124,8 +131,10 @@ export class TransactionService {
       skipDuplicates: true, // Přeskočí duplicitní záznamy
     });
 
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
     return { count: res.count }; // Vrátíme počet vytvořených záznamů
   }
+
   async update(userId: string, id: string, dto: UpdateTransactionDto) {
     let categoryId: string | null | undefined = undefined;
     if (dto.categoryId !== undefined) {
@@ -144,6 +153,8 @@ export class TransactionService {
       throw new NotFoundException('Transakce nenalezena nebo k ní nemáte přístup');
     }
 
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
+
     return this.prisma.transaction.findUnique({
       where: { id },
       include: { category: true },
@@ -158,6 +169,8 @@ export class TransactionService {
     if (res.count === 0) {
       throw new NotFoundException('Transakce nenalezena nebo k ní nemáte přístup');
     }
+
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
 
     return { success: true };
   }

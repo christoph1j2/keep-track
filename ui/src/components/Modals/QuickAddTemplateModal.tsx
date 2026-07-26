@@ -5,6 +5,7 @@ import { Select, MenuItem, TextField } from "@mui/material";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTemplateStore } from "../../store/quickAddTemplateStore";
 import { toast } from "react-hot-toast";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 interface QuickAddTemplateModalProps {
   template?: QuickAddTemplate | null;
@@ -25,6 +26,7 @@ export function QuickAddTemplateModal({
   onCancel,
 }: QuickAddTemplateModalProps) {
   const { t } = useTranslation(); // <-- Inicializace překladů
+  const isMobile = useIsMobile();
   const categories = useCategoryStore((state) => state.categories);
   const sortedCategories = useMemo(() => categories, [categories]);
 
@@ -32,6 +34,44 @@ export function QuickAddTemplateModal({
 
   const [title, setTitle] = useState(template?.title ?? "");
   const [amount, setAmount] = useState<number | "">(template?.amount ?? "");
+  const [isNegative, setIsNegative] = useState(
+    template?.amount ? template.amount < 0 : true
+  );
+
+  const handleAmountChange = (valStr: string) => {
+    if (!valStr) {
+      setAmount("");
+      return;
+    }
+    const parsed = parseFloat(valStr);
+    if (isNaN(parsed)) {
+      setAmount("");
+      return;
+    }
+    if (isMobile) {
+      if (isNegative && parsed > 0) {
+        setAmount(-parsed);
+      } else if (!isNegative && parsed < 0) {
+        setAmount(Math.abs(parsed));
+      } else {
+        setAmount(parsed);
+        setIsNegative(parsed < 0);
+      }
+    } else {
+      setAmount(parsed);
+      setIsNegative(parsed < 0);
+    }
+  };
+
+  const toggleSign = () => {
+    if (typeof amount === "number" && amount !== 0) {
+      const newAmt = -amount;
+      setAmount(newAmt);
+      setIsNegative(newAmt < 0);
+    } else {
+      setIsNegative((prev) => !prev);
+    }
+  };
   
   const [categoryId, setCategoryId] = useState(
     template?.categoryId ?? sortedCategories[0]?.id ?? "",
@@ -124,19 +164,32 @@ export function QuickAddTemplateModal({
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("quickAdd.form.amountLabel")}
           </label>
-          <TextField
-            fullWidth
-            size="small"
-            type="number"
-            placeholder={t("quickAdd.form.amountPlaceholder")}
-            slotProps={{ htmlInput: { step: "0.01" } }}
-            value={amount}
-            onChange={(event) =>
-              setAmount(
-                event.target.value ? parseFloat(event.target.value) : "",
-              )
-            }
-          />
+          <div className="flex gap-2 items-center">
+            {isMobile && (
+              <button
+                type="button"
+                onClick={toggleSign}
+                className={`px-3 py-1.5 h-10 rounded-lg text-xs font-bold flex items-center justify-center transition-colors border shrink-0 min-w-[64px] cursor-pointer ${
+                  (typeof amount === "number" ? amount < 0 : isNegative)
+                    ? "bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-500/20 dark:text-red-400"
+                    : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400"
+                }`}
+              >
+                {(typeof amount === "number" ? amount < 0 : isNegative)
+                  ? "− Exp"
+                  : "+ Inc"}
+              </button>
+            )}
+            <TextField
+              fullWidth
+              size="small"
+              type="number"
+              placeholder={t("quickAdd.form.amountPlaceholder")}
+              slotProps={{ htmlInput: { step: "any" } }}
+              value={amount}
+              onChange={(event) => handleAmountChange(event.target.value)}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-1">

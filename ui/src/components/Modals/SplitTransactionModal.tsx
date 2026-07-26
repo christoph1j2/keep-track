@@ -189,7 +189,7 @@ export function SplitTransactionModal({
                 size="small"
                 type="number"
                 placeholder={t("splitTransaction.form.amountPlaceholder")}
-                slotProps={{ htmlInput: { step: "0.01" } }}
+                slotProps={{ htmlInput: { step: "any" } }}
                 value={split.amount}
                 onChange={(e) => {
                   const newSplits = [...splits];

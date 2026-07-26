@@ -14,10 +14,12 @@ import {
 } from "@dnd-kit/sortable";
 import { useConfirmStore } from "../store/confirmStore";
 import toast from "react-hot-toast";
+import { Skeleton } from "@mui/material";
 
 export function Categories() {
   const { t } = useTranslation();
-  const { categories, removeCategory, reorderCategories } = useCategoryStore();
+  const { categories, removeCategory, reorderCategories, isLoading } =
+    useCategoryStore();
   const { fetchTransactions } = useTransactionStore(); // Použijeme pro aktualizaci po smazání
 
   const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -74,36 +76,49 @@ export function Categories() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-800 dark:border-slate-700 transition-colors">
-        <DndContext
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={categories.map((c) => c.id)}
-            strategy={verticalListSortingStrategy}
+        {isLoading ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <Skeleton
+                key={idx}
+                variant="rectangular"
+                height={56}
+                className="rounded-xl bg-slate-200! dark:bg-slate-700/60!"
+              />
+            ))}
+          </div>
+        ) : (
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <div className="flex flex-col">
-              {categories.map((cat) => {
-                const translatedCat = {
-                  ...cat,
-                  label: t(cat.label),
-                };
+            <SortableContext
+              items={categories.map((c) => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="flex flex-col">
+                {categories.map((cat) => {
+                  const translatedCat = {
+                    ...cat,
+                    label: t(cat.label),
+                  };
 
-                return (
-                  <SortableCategoryItem
-                    key={cat.id}
-                    cat={translatedCat}
-                    onEdit={() => {
-                      setSelectedCategory(cat);
-                      setEditModalOpen(true);
-                    }}
-                    onDelete={() => handleDelete(cat.id)}
-                  />
-                );
-              })}
-            </div>
-          </SortableContext>
-        </DndContext>
+                  return (
+                    <SortableCategoryItem
+                      key={cat.id}
+                      cat={translatedCat}
+                      onEdit={() => {
+                        setSelectedCategory(cat);
+                        setEditModalOpen(true);
+                      }}
+                      onDelete={() => handleDelete(cat.id)}
+                    />
+                  );
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
       </div>
 
       <BaseModal
