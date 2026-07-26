@@ -72,6 +72,8 @@ BREVO_SMTP_USER="<your_smtp_brevo_username>@smtp-brevo.com"
 BREVO_SMTP_PASSWORD="<your_smtp_password>"
 
 OPENROUTER_API_KEY="<your_openrouter_api_key>"
+
+FEEDBACK_EMAIL_ADDRESS="<your_admin?_email>"
 ```
 
 #### What's Brevo?
