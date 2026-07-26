@@ -11,7 +11,7 @@
 
 > As the name suggests, the app is used to **Keep Track** of your finances. The app is fitted with a modern responsive UI, *tries* to be good in terms of UX, and also has a fully fledged API. The app is currently in beta and development is still underway.
 
-<screenshot
+![Dashboard Preview](./ui/public/hero.png)
 
 ## Overview
 
@@ -72,6 +72,8 @@ BREVO_SMTP_USER="<your_smtp_brevo_username>@smtp-brevo.com"
 BREVO_SMTP_PASSWORD="<your_smtp_password>"
 
 OPENROUTER_API_KEY="<your_openrouter_api_key>"
+
+FEEDBACK_EMAIL_ADDRESS="<your_admin?_email>"
 ```
 
 #### What's Brevo?
@@ -92,26 +94,28 @@ If you have tailscale running on your homelab, simply running the command below 
 
 ```text
 .
-├── src/
-├── tests/
+├── api/                  # NestJS backend, Prisma schema, and API tests
+├── ui/                   # React frontend, Zustand store, and UI components
+├── docker-compose.yaml   # Full-stack container orchestration
 └── README.md
 ```
 
 ## Roadmap
 
-- [ ] Landing page
-- [ ] Feedback system
 - [ ] PWA support
 - [ ] Better analytics
 - [ ] LLM Insights
-- [ ] ...
+- [ ] ... see Issues
 
 ## Contributing
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Make your changes.
-4. Open a pull request.
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to set up the project locally, run the Docker containers, and submit pull requests.
+
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+
+## Security
+
+If you discover any security-related issues, please do not report them in public issues. Refer to our [Security Policy](SECURITY.md) for detailed reporting instructions.
 
 ## License
 
