@@ -94,7 +94,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <div className="flex h-screen bg-slate-50 flex-col md:flex-row dark:bg-slate-800 transition-colors">
+      <div className="flex h-dvh bg-slate-50 flex-col md:flex-row dark:bg-slate-800 transition-colors">
         {/* side panel */}
         <Sidebar />
 

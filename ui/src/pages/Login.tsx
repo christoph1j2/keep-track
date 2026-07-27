@@ -131,7 +131,7 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-800 transition-colors">
+    <div className="flex flex-col min-h-dvh bg-slate-50 dark:bg-slate-800 transition-colors">
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between transition-colors shadow-sm">
         <Logo />
         <div className="flex items-center gap-2">

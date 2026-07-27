@@ -98,7 +98,7 @@ export const ResetPassword = () => {
 
   if (!token) {
     return (
-      <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-800 transition-colors">
+      <div className="flex flex-col min-h-dvh bg-slate-50 dark:bg-slate-800 transition-colors">
         {header}
         <main className="flex-1 grid place-items-center px-4 py-8">
           <Alert severity="error">
@@ -113,7 +113,7 @@ export const ResetPassword = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-800 transition-colors">
+    <div className="flex flex-col min-h-dvh bg-slate-50 dark:bg-slate-800 transition-colors">
       {header}
       <main className="flex-1 grid place-items-center px-4 py-8">
         <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 transition-colors">
