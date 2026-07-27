@@ -61,7 +61,7 @@ export function Topbar() {
     <>
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-3 pl-6 flex items-center justify-between md:justify-between transition-colors">
         {/* Desktop user info - Dynamické zobrazení */}
-        <div className="hidden md:block">
+        <div className="max-md:hidden block">
           <p className="font-semibold text-slate-800 dark:text-slate-100">
             {user?.username || ""}
           </p>

@@ -69,7 +69,7 @@ export function Sidebar() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   return (
-    <aside className="hidden md:flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors h-full">
+    <aside className="max-md:hidden flex md:w-64 flex-col items-start p-6 bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors h-full">
       <Logo />
 
       {/* navigation */}
