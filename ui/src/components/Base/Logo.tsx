@@ -1,11 +1,14 @@
 import StyleIcon from "@mui/icons-material/Style";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
 
 export function Logo() {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <>
       {/* logo */}
-      <Link to="/" className="md:my-0 sm:m-5">
+      <Link to={user ? "/dashboard" : "/"} className="md:my-0 sm:m-5">
         <h1 className="text-2xl font-bold text-blue-700 flex items-center dark:text-blue-500 transition-colors">
           <StyleIcon className="text-slate-900 mr-1 dark:text-slate-200 transition-colors" />
           Keep

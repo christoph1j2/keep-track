@@ -17,13 +17,17 @@ import {
   Shield,
   TableChart,
   Launch,
+  Check,
 } from "@mui/icons-material";
 
 import { ThemeLanguageToggles } from "../components/Base/ThemeLanguageToggles";
+import { useAuthStore } from "../store/authStore";
 
 export const Homepage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const user = useAuthStore((state) => state.user);
 
   return (
     <div className="min-h-dvh flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 selection:bg-blue-500 selection:text-white">
@@ -63,10 +67,10 @@ export const Homepage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate(user ? "/dashboard" : "/login")}
             className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-500/20 transition-all duration-200 cursor-pointer"
           >
-            {t("landing.nav.loginRegister")}
+            {user ? t("sidebar.dashboard") : t("landing.nav.loginRegister")}
           </button>
         </div>
       </header>
@@ -75,7 +79,6 @@ export const Homepage: React.FC = () => {
       <main className="flex-1 transition-colors duration-200">
         {/* 1. Hero Section */}
         <section className="relative px-14 py-20 lg:py-32 max-w-7xl mx-auto overflow-hidden transition-colors duration-200">
-          
           {/* Animated Background Orbs */}
           <div className="absolute top-0 left-10 w-72 h-72 bg-blue-400/20 dark:bg-blue-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob"></div>
           <div className="absolute top-0 right-20 w-72 h-72 bg-teal-400/20 dark:bg-teal-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -90,7 +93,8 @@ export const Homepage: React.FC = () => {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight transition-colors duration-200">
-                {t("landing.hero.titlePart1")} <br className="hidden sm:inline" />
+                {t("landing.hero.titlePart1")}{" "}
+                <br className="hidden sm:inline" />
                 <span className="bg-linear-to-r from-blue-600 via-indigo-500 to-teal-500 bg-clip-text text-transparent">
                   {t("landing.hero.titlePart2")}
                 </span>
@@ -103,10 +107,11 @@ export const Homepage: React.FC = () => {
               <div className="mt-8 flex flex-col sm:flex-row gap-4 items-center justify-start w-full sm:w-auto">
                 <button
                   type="button"
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate(user ? "/dashboard" : "/login")}
                   className="w-full sm:w-auto px-8 py-3.5 font-bold text-base rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer"
                 >
-                  {t("landing.hero.getStarted")} <ArrowForward fontSize="small" />
+                  {t("landing.hero.getStarted")}{" "}
+                  <ArrowForward fontSize="small" />
                 </button>
                 <a
                   href="#how-it-works"
@@ -121,12 +126,15 @@ export const Homepage: React.FC = () => {
             <div className="relative hidden lg:flex items-center justify-center w-full h-[500px]">
               {/* Central glowing backdrop specific to right side */}
               <div className="absolute inset-0 bg-linear-to-tr from-blue-500/10 via-indigo-500/10 to-teal-500/10 rounded-full blur-3xl opacity-50"></div>
-              
+
               {/* Glassmorphic card 1 (Top Left) */}
               <div className="absolute top-10 left-4 w-64 p-5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl shadow-xl transform -rotate-6 animate-blob">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                    <Analytics className="text-blue-600 dark:text-blue-400" fontSize="small" />
+                    <Analytics
+                      className="text-blue-600 dark:text-blue-400"
+                      fontSize="small"
+                    />
                   </div>
                   <div>
                     <div className="h-2.5 w-20 bg-slate-300 dark:bg-slate-600 rounded-full mb-2"></div>
@@ -145,7 +153,10 @@ export const Homepage: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                      <CheckCircle className="text-emerald-600 dark:text-emerald-400" fontSize="small" />
+                      <CheckCircle
+                        className="text-emerald-600 dark:text-emerald-400"
+                        fontSize="small"
+                      />
                     </div>
                     <div>
                       <div className="h-2.5 w-24 bg-slate-300 dark:bg-slate-600 rounded-full mb-2"></div>
@@ -166,7 +177,10 @@ export const Homepage: React.FC = () => {
               <div className="absolute bottom-16 left-12 w-60 p-5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl shadow-lg transform -rotate-3 animate-blob animation-delay-4000">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
-                     <AutoAwesome className="text-amber-600 dark:text-amber-400" fontSize="small" />
+                    <AutoAwesome
+                      className="text-amber-600 dark:text-amber-400"
+                      fontSize="small"
+                    />
                   </div>
                   <div>
                     <div className="h-2.5 w-16 bg-slate-300 dark:bg-slate-600 rounded-full mb-2"></div>
@@ -322,9 +336,10 @@ export const Homepage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-colors duration-200">
                   <BugReport className="text-blue-500" fontSize="small" />
-                  <span className="text-sm font-medium transition-colors duration-200">
-                    {t("landing.beta.feedbackSystem")}
+                  <span className="text-sm text-slate-500 font-medium transition-colors duration-200">
+                    <s>{t("landing.beta.feedbackSystem")}</s>
                   </span>
+                  <Check className="text-emerald-500" fontSize="small" />
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-colors duration-200">
                   <Smartphone className="text-indigo-500" fontSize="small" />
