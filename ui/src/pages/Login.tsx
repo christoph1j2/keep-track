@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
 import {
   Select,
@@ -34,6 +34,12 @@ export const Login = () => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  const user = useAuthStore((state) => state.user);
+
+  if (user) {
+    return <Navigate to="/dashboard" replace/>;
+  }
 
   const inputSx = {
     "& .MuiOutlinedInput-root": {
