@@ -28,10 +28,12 @@ export class EmailController {
     try {
       const to = process.env.FEEDBACK_EMAIL_ADDRESS;
       if (!to) {
-        throw new HttpException(
-          'Feedback email address not configured',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        console.warn('FEEDBACK_EMAIL_ADDRESS is not configured, skipping sending email.');
+        return {
+          success: true,
+          message: 'Feedback received (email not sent due to missing config)',
+          data: null,
+        };
       }
       const result = await this.emailService.sendFeedbackEmail(
         to,

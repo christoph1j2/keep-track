@@ -1,9 +1,9 @@
 import { Radio, RadioGroup, TextField } from "@mui/material";
 import { blue, red } from "@mui/material/colors";
-import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { api } from "../../utils/api";
 
 interface FeedbackModalProps {
   onCancel: () => void;
@@ -67,12 +67,10 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
       const emailSubject = `[${FeedBackType}] ${subject}`;
       const emailMessage = `Contact Email: ${contactEmail || "Not provided"}\r\n\r\nMessage:\r\n${message}`;
 
-      const API_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
       // Axios API call to email service
-      await axios.post(
-        `${API_URL}/email/send_feedback`,
+      await api.post(
+        `/email/send_feedback`,
         {
           subject: emailSubject,
           text: emailMessage,
