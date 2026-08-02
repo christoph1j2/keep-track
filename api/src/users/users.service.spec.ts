@@ -42,7 +42,7 @@ describe('UsersService', () => {
   describe('create', () => {
     it('should throw ConflictException if email exists', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue({ id: '1' });
-      await expect(service.create({ email: 'test@test.com', username: 'test', password: 'password' })).rejects.toThrow(ConflictException);
+      await expect(service.create({ email: 'test@test.com', username: 'test', password: 'password', baseCurrency: 'CZK' })).rejects.toThrow(ConflictException);
     });
 
     it('should create a user', async () => {
@@ -53,7 +53,7 @@ describe('UsersService', () => {
       const createdUser = { id: '1', email: 'test@test.com', username: 'test', baseCurrency: 'CZK' };
       mockPrismaService.user.create.mockResolvedValue(createdUser);
 
-      const result = await service.create({ email: 'test@test.com', username: 'test', password: 'password' });
+      const result = await service.create({ email: 'test@test.com', username: 'test', password: 'password', baseCurrency: 'CZK' });
       expect(result).toEqual({ id: '1', email: 'test@test.com', username: 'test', baseCurrency: 'CZK', createdAt: undefined, updatedAt: undefined });
     });
   });
