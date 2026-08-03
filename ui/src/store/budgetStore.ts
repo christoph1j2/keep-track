@@ -1,12 +1,14 @@
 import { create } from "zustand";
-import type { Budget } from "../types/budget";
+import type { Budget, ComplexBudget } from "../types/budget";
 import { api } from "../utils/api";
 
 interface BudgetState {
   budgets: Budget[];
+  complexBudget: ComplexBudget | null;
   isLoading: boolean;
 
   fetchBudgets: () => Promise<void>;
+  fetchComplexBudget: () => Promise<void>;
 
   addBudget: (
     budgetData: Omit<
@@ -20,12 +22,16 @@ interface BudgetState {
   ) => Promise<void>;
 
   removeBudget: (id: string) => Promise<void>;
+  
+  setComplexBudget: (income: number, necessaryExpenses: number) => Promise<void>;
+  removeComplexBudget: () => Promise<void>;
 
   reorderBudgets: (newBudgets: Budget[]) => Promise<void>;
 }
 
 export const useBudgetStore = create<BudgetState>()((set) => ({
   budgets: [],
+  complexBudget: null,
   isLoading: true,
 
   fetchBudgets: async () => {
@@ -37,6 +43,15 @@ export const useBudgetStore = create<BudgetState>()((set) => ({
       console.error("Failed to fetch budgets:", err);
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  fetchComplexBudget: async () => {
+    try {
+      const response = await api.get("/budgets/complex");
+      set({ complexBudget: response.data });
+    } catch (err) {
+      console.error("Failed to fetch complex budget:", err);
     }
   },
 
@@ -55,6 +70,16 @@ export const useBudgetStore = create<BudgetState>()((set) => ({
   removeBudget: async (id) => {
     await api.delete(`/budgets/${id}`);
     set((state) => ({ budgets: state.budgets.filter((b) => b.id !== id) }));
+  },
+
+  setComplexBudget: async (income, necessaryExpenses) => {
+    const response = await api.post("/budgets/complex", { income, necessaryExpenses });
+    set({ complexBudget: response.data });
+  },
+
+  removeComplexBudget: async () => {
+    await api.delete("/budgets/complex");
+    set({ complexBudget: null });
   },
 
   reorderBudgets: async (reorderedBudgets) => {

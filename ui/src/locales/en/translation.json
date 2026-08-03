@@ -130,6 +130,24 @@
       "invalidLimit": "Limit must be a valid number",
       "addFailed": "Failed to add budget.",
       "updateFailed": "Failed to update budget."
+    },
+    "wizard": {
+      "typeSelect": "Select budget type:",
+      "simpleLabel": "Simple budget (for a specific category)",
+      "complexLabel": "Complex budget (overall spending budget)",
+      "next": "Next",
+      "back": "Back",
+      "stepType": "Type",
+      "stepDetails": "Details",
+      "stepIncome": "Income",
+      "stepCategories": "Categories",
+      "stepResult": "Result",
+      "incomeLabel": "Enter your total monthly income:",
+      "categoriesLabel": "Select categories that you consider necessary expenses (e.g., rent, utilities):",
+      "expenseLabel": "How much do you spend on average per month on {{category}}?",
+      "resultTitle": "Your overall spending budget",
+      "resultDesc": "This amount represents your available funds after deducting necessary expenses (total {{sum}}).",
+      "saveComplex": "Save complex budget"
     }
   },
   "overview": {

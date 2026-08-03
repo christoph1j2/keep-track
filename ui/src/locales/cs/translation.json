@@ -130,6 +130,24 @@
       "invalidLimit": "Limit musí být platné číslo",
       "addFailed": "Nepodařilo se přidat rozpočet.",
       "updateFailed": "Nepodařilo se upravit rozpočet."
+    },
+    "wizard": {
+      "typeSelect": "Vyberte typ rozpočtu:",
+      "simpleLabel": "Jednoduchý rozpočet (pro specifickou kategorii)",
+      "complexLabel": "Komplexní rozpočet (celkový rozpočet pro útratu)",
+      "next": "Další",
+      "back": "Zpět",
+      "stepType": "Typ",
+      "stepDetails": "Detaily",
+      "stepIncome": "Příjem",
+      "stepCategories": "Kategorie",
+      "stepResult": "Výsledek",
+      "incomeLabel": "Zadejte váš celkový měsíční příjem:",
+      "categoriesLabel": "Vyberte kategorie, které považujete za nutné výdaje (např. nájem, poplatky):",
+      "expenseLabel": "Kolik průměrně utratíte měsíčně za {{category}}?",
+      "resultTitle": "Váš celkový rozpočet pro útratu",
+      "resultDesc": "Tato částka představuje vaše dostupné prostředky po odečtení nutných výdajů (celkem {{sum}}).",
+      "saveComplex": "Uložit komplexní rozpočet"
     }
   },
   "overview": {

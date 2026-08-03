@@ -1,4 +1,5 @@
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
+import { ProgressBar } from "../components/Budgeting/ProgressBar";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -7,8 +8,9 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BaseModal } from "../components/Modals/BaseModal";
-import { AddBudgetModal } from "../components/Modals/AddBudgetModal";
+import { AddBudgetWizardModal } from "../components/Modals/AddBudgetWizardModal";
 import { EditBudgetModal } from "../components/Modals/EditBudgetModal";
+import { EditComplexBudgetModal } from "../components/Modals/EditComplexBudgetModal";
 import { SortableBudgetItem } from "../components/Budgeting/SortableBudgetItem";
 import { useTransactionStore } from "../store/transactionStore";
 import { useCategoryStore } from "../store/categoryStore";
@@ -26,7 +28,9 @@ export function Budgeting() {
   const { categories, isLoading: isCategoryLoading } = useCategoryStore();
   const {
     budgets,
+    complexBudget,
     removeBudget,
+    removeComplexBudget,
     reorderBudgets,
     isLoading: isBudgetLoading,
   } = useBudgetStore();
@@ -37,6 +41,7 @@ export function Budgeting() {
   const [selectedBudget, setSelectedBudget] = useState<(typeof budgets)[0]>();
   const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
   const [isEditBudgetModalOpen, setEditBudgetModalOpen] = useState(false);
+  const [isEditComplexModalOpen, setEditComplexModalOpen] = useState(false);
 
   const handleProgressBarClick = (categoryId: string) => {
     navigate("/overview", { state: { selectedCategoryId: categoryId } });
@@ -62,6 +67,10 @@ export function Budgeting() {
       d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
     );
   });
+
+  const totalSpentAll = currentMonthTransactions
+    .filter((t) => t.amount < 0)
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
   return (
     <>
@@ -89,16 +98,45 @@ export function Budgeting() {
               />
             ))}
           </div>
-        ) : budgets.length === 0 ? (
+        ) : budgets.length === 0 && !complexBudget ? (
           <div className="text-center text-gray-500 mt-20">
             <p className="text-lg">{t("budgeting.emptyMessage")}</p>
             <p className="text-sm">{t("budgeting.emptySubMessage")}</p>
           </div>
         ) : (
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
+          <div className="flex flex-col gap-8">
+            {complexBudget && (
+              <div className="bg-blue-50 dark:bg-slate-800/50 p-4 rounded-xl border border-blue-100 dark:border-slate-700 relative">
+                <div className="absolute top-2 right-2 flex items-center gap-2">
+                  <button
+                    className="text-slate-400 hover:text-blue-500 text-sm"
+                    onClick={() => setEditComplexModalOpen(true)}
+                  >
+                    {t("common.edit")}
+                  </button>
+                  <button
+                    className="text-slate-400 hover:text-red-500 font-bold"
+                    onClick={() => removeComplexBudget()}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="mb-2">
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">Komplexní rozpočet</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Příjem: {complexBudget.income} | Nutné výdaje: {complexBudget.necessaryExpenses}</p>
+                </div>
+                <ProgressBar
+                  categoryName="Celková útrata (mimo nutných výdajů)"
+                  progress={totalSpentAll}
+                  limit={complexBudget.limit}
+                />
+              </div>
+            )}
+            
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
             <SortableContext
               items={budgets.map((b) => b.categoryId)}
               strategy={verticalListSortingStrategy}
@@ -154,6 +192,7 @@ export function Budgeting() {
               </div>
             </SortableContext>
           </DndContext>
+          </div>
         )}
       </div>
 
@@ -162,7 +201,7 @@ export function Budgeting() {
         isOpen={isAddBudgetModalOpen}
         onClose={() => setAddBudgetModalOpen(false)}
       >
-        <AddBudgetModal onCancel={() => setAddBudgetModalOpen(false)} />
+        <AddBudgetWizardModal onCancel={() => setAddBudgetModalOpen(false)} />
       </BaseModal>
 
       <BaseModal
@@ -177,6 +216,14 @@ export function Budgeting() {
             onCancel={() => setEditBudgetModalOpen(false)}
           />
         )}
+      </BaseModal>
+
+      <BaseModal
+        title="Upravit komplexní rozpočet"
+        isOpen={isEditComplexModalOpen}
+        onClose={() => setEditComplexModalOpen(false)}
+      >
+        <EditComplexBudgetModal onCancel={() => setEditComplexModalOpen(false)} />
       </BaseModal>
     </>
   );

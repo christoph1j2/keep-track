@@ -18,3 +18,14 @@ export interface Budget {
 
   order: number; // Přidáno z backendu
 }
+
+export interface ComplexBudget {
+  id: string;
+  userId: string;
+  income: number;
+  necessaryExpenses: number;
+  limit: number;
+  createdAt: string;
+  updatedAt: string;
+}
+

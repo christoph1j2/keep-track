@@ -13,6 +13,7 @@ import { BudgetService } from './budget.service';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { ReorderBudgetsDto } from './dto/reorder-budgets.dto';
+import { SetComplexBudgetDto } from './dto/set-complex-budget.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -55,6 +56,27 @@ export class BudgetController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.budgetService.reorder(req.user.id, reorderBudgetsDto);
+  }
+
+  @Get('complex')
+  @ApiOperation({ summary: 'Získat komplexní rozpočet uživatele' })
+  getComplexBudget(@Req() req: AuthenticatedRequest) {
+    return this.budgetService.getComplexBudget(req.user.id);
+  }
+
+  @Post('complex')
+  @ApiOperation({ summary: 'Nastavit komplexní rozpočet uživatele' })
+  setComplexBudget(
+    @Body() setComplexBudgetDto: SetComplexBudgetDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.budgetService.setComplexBudget(req.user.id, setComplexBudgetDto);
+  }
+
+  @Delete('complex')
+  @ApiOperation({ summary: 'Smazat komplexní rozpočet uživatele' })
+  deleteComplexBudget(@Req() req: AuthenticatedRequest) {
+    return this.budgetService.deleteComplexBudget(req.user.id);
   }
 
   @Get(':id')
