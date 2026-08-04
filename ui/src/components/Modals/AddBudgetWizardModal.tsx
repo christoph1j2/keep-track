@@ -84,7 +84,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={step} alternativeLabel className="mb-8">
         {steps.map((label, idx) => (
-          <Step key={`${label}-${idx}`}>
+          <Step key={`${label}-${idx}`} className="mt-5">
             <StepLabel sx={{ '& .MuiStepLabel-label': { color: 'inherit' } }}>
               <span className="dark:text-slate-300">{label}</span>
             </StepLabel>
