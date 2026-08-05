@@ -8,7 +8,11 @@ import { useTranslation } from "react-i18next";
 import { Skeleton } from "@mui/material";
 
 export function BudgetingList() {
-  const { budgets, complexBudget, isLoading: isBudgetLoading } = useBudgetStore();
+  const {
+    budgets,
+    complexBudget,
+    isLoading: isBudgetLoading,
+  } = useBudgetStore();
   const { categories, isLoading: isCategoryLoading } = useCategoryStore();
   const { transactions, isLoading: isTxLoading } = useTransactionStore();
   const navigate = useNavigate();
@@ -58,7 +62,7 @@ export function BudgetingList() {
       ) : budgets.length > 0 || complexBudget ? (
         <div className="flex flex-col gap-2">
           {complexBudget && (
-            <div className="flex flex-col items-center justify-between py-2 px-4 bg-blue-50 rounded-lg border border-blue-100 transition-colors dark:bg-slate-800 dark:border-slate-700 w-full mb-2">
+            <div className="flex flex-col items-center justify-between py-2 px-4 bg-sky-50 rounded-lg border border-sky-100 transition-colors dark:bg-sky-900 dark:border-sky-700 w-full mb-2">
               <ProgressBar
                 categoryName="Celkový útrata"
                 progress={totalSpentAll}

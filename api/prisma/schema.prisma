@@ -31,8 +31,6 @@ model User {
   importJobs    ImportJob[]
   notifications Notification[]
   complexBudget ComplexBudget?
-
-
 }
 
 enum CategoryType {
@@ -74,7 +72,7 @@ model Transaction {
   // 1. Reálná útrata (např. platil jsi na dovolené 10 EUR)
   originalAmount   Float
   originalCurrency String
-  exchangeRate      Float? // Přepočet z originalCurrency do baseCurrency uživatele k danému dni
+  exchangeRate     Float? // Přepočet z originalCurrency do baseCurrency uživatele k danému dni
 
   // 2. Přepočtená hodnota do baseCurrency uživatele k danému dni (např. 250 CZK)
   // Tuto hodnotu bude posílat API do grafů na frontend!

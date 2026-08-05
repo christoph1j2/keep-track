@@ -118,6 +118,7 @@
     "modalTitleEdit": "Edit budget",
     "limitReached": "Budget exceeded by {{amount}}",
     "deleteConfirm": "Do you really want to delete the budget for category \"{{category}}\"?",
+    "deleteConfirmComplex": "Do you really want to delete the complex budget?",
     "moveBudget": "Move budget",
     "limit": "Limit",
     "placeholder": "E.g. 5000",
@@ -147,7 +148,8 @@
       "expenseLabel": "How much do you spend on average per month on {{category}}?",
       "resultTitle": "Your overall spending budget",
       "resultDesc": "This amount represents your available funds after deducting necessary expenses (total {{sum}}).",
-      "saveComplex": "Save complex budget"
+      "saveComplex": "Save complex budget",
+      "resultWarning": "Warning: Your necessary expenses exceed your income."
     }
   },
   "overview": {
@@ -533,4 +535,3 @@
     }
   }
 }
-

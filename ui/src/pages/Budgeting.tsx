@@ -18,6 +18,8 @@ import { useBudgetStore } from "../store/budgetStore";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
 import { Skeleton } from "@mui/material";
+import { useConfirmStore } from "../store/confirmStore";
+import { Delete, Edit } from "@mui/icons-material";
 
 /**
  * Budgeting page for managing monthly spending limits.
@@ -37,6 +39,7 @@ export function Budgeting() {
   const isLoading = isTxLoading || isBudgetLoading || isCategoryLoading;
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const showConfirm = useConfirmStore((state) => state.showConfirm);
 
   const [selectedBudget, setSelectedBudget] = useState<(typeof budgets)[0]>();
   const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
@@ -106,24 +109,35 @@ export function Budgeting() {
         ) : (
           <div className="flex flex-col gap-8">
             {complexBudget && (
-              <div className="bg-blue-50 dark:bg-slate-800/50 p-4 rounded-xl border border-blue-100 dark:border-slate-700 relative">
+              <div className="bg-sky-50 dark:bg-sky-900 p-4 rounded-xl border border-sky-100 dark:border-sky-700 relative">
                 <div className="absolute top-2 right-2 flex items-center gap-2">
                   <button
                     className="text-slate-400 hover:text-blue-500 text-sm"
                     onClick={() => setEditComplexModalOpen(true)}
                   >
-                    {t("common.edit")}
+                    <Edit fontSize="small" />
                   </button>
                   <button
-                    className="text-slate-400 hover:text-red-500 font-bold"
-                    onClick={() => removeComplexBudget()}
+                    onClick={() => {
+                      showConfirm(
+                        t("common.warning"),
+                        t("budgeting.deleteConfirmComplex"),
+                        () => removeComplexBudget(),
+                      );
+                    }}
+                    className="shrink-0 rounded-md px-1 font-semibold text-red-500 dark:text-red-700 dark:hover:bg-slate-600 transition-colors hover:bg-red-50 inline-flex items-center gap-1"
                   >
-                    ✕
+                    <Delete fontSize="medium" />
                   </button>
                 </div>
                 <div className="mb-2">
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">Komplexní rozpočet</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Příjem: {complexBudget.income} | Nutné výdaje: {complexBudget.necessaryExpenses}</p>
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">
+                    Komplexní rozpočet
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Příjem: {complexBudget.income} | Nutné výdaje:{" "}
+                    {complexBudget.necessaryExpenses}
+                  </p>
                 </div>
                 <ProgressBar
                   categoryName="Celková útrata (mimo nutných výdajů)"
@@ -132,66 +146,67 @@ export function Budgeting() {
                 />
               </div>
             )}
-            
+
             <DndContext
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-            <SortableContext
-              items={budgets.map((b) => b.categoryId)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="flex flex-col gap-3">
-                {budgets.map((budget) => {
-                  const category = categories.find(
-                    (c) => c.id === budget.categoryId,
-                  );
-                  if (!category) return null;
+              <SortableContext
+                items={budgets.map((b) => b.categoryId)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex flex-col gap-3">
+                  {budgets.map((budget) => {
+                    const category = categories.find(
+                      (c) => c.id === budget.categoryId,
+                    );
+                    if (!category) return null;
 
-                  //! zahrneme i transakce z podkategorií (logicky by měly být zahrnuty, protože rozpočet se vztahuje na celou kategorii včetně podkategorií)
-                  const subcatIds = categories
-                    .filter((c) => c.parentId === budget.categoryId)
-                    .map((c) => c.id);
+                    //! zahrneme i transakce z podkategorií (logicky by měly být zahrnuty, protože rozpočet se vztahuje na celou kategorii včetně podkategorií)
+                    const subcatIds = categories
+                      .filter((c) => c.parentId === budget.categoryId)
+                      .map((c) => c.id);
 
-                  const categoryTransactions = currentMonthTransactions.filter(
-                    (t) =>
-                      t.categoryId === budget.categoryId ||
-                      subcatIds.includes(t.categoryId || ""),
-                  );
+                    const categoryTransactions =
+                      currentMonthTransactions.filter(
+                        (t) =>
+                          t.categoryId === budget.categoryId ||
+                          subcatIds.includes(t.categoryId || ""),
+                      );
 
-                  /** NOTE:
-                   * Rozpočty slouží k hlídání a omezování útrat/výdajů
-                   * => do vyčerpaného limitu se počítají tedy pouze záporné transakce, ze kterých se počítá abs pro progress bar
-                   *
-                   * Příklad:
-                   * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo.
-                   *
-                   * Myslím, že jsem to jen špatně pojmenoval, tzn. že místo "Budgeting" by se tato stránka měla jmenovat spíše "Spending Limits" nebo "Expense Tracking", protože se jedná o sledování a hlídání útrat vůči nastaveným limitům.
-                   */
-                  const totalSpent = categoryTransactions
-                    .filter((t) => t.amount < 0)
-                    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                    /** NOTE:
+                     * Rozpočty slouží k hlídání a omezování útrat/výdajů
+                     * => do vyčerpaného limitu se počítají tedy pouze záporné transakce, ze kterých se počítá abs pro progress bar
+                     *
+                     * Příklad:
+                     * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo.
+                     *
+                     * Myslím, že jsem to jen špatně pojmenoval, tzn. že místo "Budgeting" by se tato stránka měla jmenovat spíše "Spending Limits" nebo "Expense Tracking", protože se jedná o sledování a hlídání útrat vůči nastaveným limitům.
+                     */
+                    const totalSpent = categoryTransactions
+                      .filter((t) => t.amount < 0)
+                      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
-                  return (
-                    <SortableBudgetItem
-                      key={budget.categoryId}
-                      budget={budget}
-                      spent={totalSpent}
-                      onProgressBarClick={handleProgressBarClick}
-                      onEdit={() => {
-                        setSelectedBudget(budget);
-                        setEditBudgetModalOpen(true);
-                      }}
-                      onDelete={() => {
-                        removeBudget(budget.id);
-                        toast.success(t("budgeting.deleted"));
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </SortableContext>
-          </DndContext>
+                    return (
+                      <SortableBudgetItem
+                        key={budget.categoryId}
+                        budget={budget}
+                        spent={totalSpent}
+                        onProgressBarClick={handleProgressBarClick}
+                        onEdit={() => {
+                          setSelectedBudget(budget);
+                          setEditBudgetModalOpen(true);
+                        }}
+                        onDelete={() => {
+                          removeBudget(budget.id);
+                          toast.success(t("budgeting.deleted"));
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
           </div>
         )}
       </div>
@@ -223,7 +238,9 @@ export function Budgeting() {
         isOpen={isEditComplexModalOpen}
         onClose={() => setEditComplexModalOpen(false)}
       >
-        <EditComplexBudgetModal onCancel={() => setEditComplexModalOpen(false)} />
+        <EditComplexBudgetModal
+          onCancel={() => setEditComplexModalOpen(false)}
+        />
       </BaseModal>
     </>
   );

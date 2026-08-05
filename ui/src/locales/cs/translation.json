@@ -118,6 +118,7 @@
     "modalTitleEdit": "Upravit rozpočet",
     "limitReached": "Rozpočet překročen o {{amount}}",
     "deleteConfirm": "Opravdu chcete smazat rozpočet pro kategorii \"{{category}}\"?",
+    "deleteConfirmComplex": "Opravdu chcete smazat komplexní rozpočet?",
     "moveBudget": "Přesunout rozpočet",
     "limit": "Limit",
     "placeholder": "Např. 5000",
@@ -147,7 +148,8 @@
       "expenseLabel": "Kolik průměrně utratíte měsíčně za {{category}}?",
       "resultTitle": "Váš celkový rozpočet pro útratu",
       "resultDesc": "Tato částka představuje vaše dostupné prostředky po odečtení nutných výdajů (celkem {{sum}}).",
-      "saveComplex": "Uložit komplexní rozpočet"
+      "saveComplex": "Uložit komplexní rozpočet",
+      "resultWarning": "Varování: Vaše nutné výdaje převyšují váš příjem."
     }
   },
   "overview": {
