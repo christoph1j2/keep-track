@@ -126,7 +126,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
         )}
 
         {step === 1 && budgetType === "complex" && (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 mt-10 w-1/1">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {t("budgeting.wizard.incomeLabel")}
             </label>
@@ -141,7 +141,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
         )}
         
         {step === 2 && budgetType === "complex" && (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 mt-10 w-1/1">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               {t("budgeting.wizard.categoriesLabel")}
             </label>
@@ -179,7 +179,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
         )}
 
         {budgetType === "complex" && currentCategory && (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 mt-10 w-1/1">
              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {t("budgeting.wizard.expenseLabel", { category: currentCategory.label.startsWith("default_categories.") ? t(currentCategory.label) : currentCategory.label })}
             </label>
@@ -194,7 +194,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
         )}
 
         {budgetType === "complex" && step === steps.length - 1 && (
-          <div className="flex flex-col gap-2 items-center justify-center p-4 bg-slate-50 dark:bg-slate-800/80 rounded-xl h-full border border-slate-100 dark:border-slate-700">
+          <div className="flex flex-col gap-2 items-center justify-center p-4 bg-slate-50 dark:bg-slate-800/80 rounded-xl h-full border border-slate-100 dark:border-slate-700 mt-5">
             <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
               {t("budgeting.wizard.resultTitle")}
             </h3>
