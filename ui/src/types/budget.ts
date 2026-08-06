@@ -27,5 +27,7 @@ export interface ComplexBudget {
   limit: number;
   createdAt: string;
   updatedAt: string;
+
+  categories: Category[];
 }
 

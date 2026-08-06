@@ -144,6 +144,7 @@ export function Budgeting() {
                   progress={totalSpentAll}
                   limit={complexBudget.limit}
                 />
+                {}
               </div>
             )}
 

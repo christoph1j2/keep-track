@@ -113,6 +113,14 @@ export class BudgetService {
   async getComplexBudget(userId: string) {
     return this.prisma.complexBudget.findUnique({
       where: { userId },
+      // deep nesting to include categories and their details
+      include: {
+        categories: {
+          include: {
+            category: true,
+          },
+        }
+      }
     });
   }
 
