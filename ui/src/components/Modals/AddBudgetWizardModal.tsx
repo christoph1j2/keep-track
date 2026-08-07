@@ -76,7 +76,12 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
 
   const handleSubmit = async () => {
     try {
-      await setComplexBudget(Number(income), necessaryExpensesSum);
+      const formattedCategories = selectedCategories.map((categoryId) => ({
+        categoryId,
+        limit: Number(categoryExpenses[categoryId]) || 0,
+      }));
+
+      await setComplexBudget(Number(income), necessaryExpensesSum, formattedCategories);
       toast.success(t("budgeting.added", "Rozpočet přidán"));
       onCancel();
     } catch (e) {

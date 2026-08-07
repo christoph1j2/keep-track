@@ -23,7 +23,7 @@ interface BudgetState {
 
   removeBudget: (id: string) => Promise<void>;
   
-  setComplexBudget: (income: number, necessaryExpenses: number) => Promise<void>;
+  setComplexBudget: (income: number, necessaryExpenses: number, categories?: { categoryId: string; limit: number }[]) => Promise<void>;
   removeComplexBudget: () => Promise<void>;
 
   reorderBudgets: (newBudgets: Budget[]) => Promise<void>;
@@ -72,8 +72,8 @@ export const useBudgetStore = create<BudgetState>()((set) => ({
     set((state) => ({ budgets: state.budgets.filter((b) => b.id !== id) }));
   },
 
-  setComplexBudget: async (income, necessaryExpenses) => {
-    const response = await api.post("/budgets/complex", { income, necessaryExpenses });
+  setComplexBudget: async (income, necessaryExpenses, categories) => {
+    const response = await api.post("/budgets/complex", { income, necessaryExpenses, categories });
     set({ complexBudget: response.data });
   },
 

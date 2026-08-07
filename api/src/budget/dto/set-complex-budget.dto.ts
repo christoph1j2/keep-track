@@ -1,4 +1,5 @@
-import { IsNumber, Min } from 'class-validator';
+import { IsNumber, Min, IsOptional, IsArray, ValidateNested, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SetComplexBudgetDto {
@@ -11,4 +12,20 @@ export class SetComplexBudgetDto {
   @IsNumber()
   @Min(0)
   necessaryExpenses: number;
+
+  @ApiProperty({ description: 'Categories for the complex budget' })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ComplexBudgetCategoryDto)
+  categories?: ComplexBudgetCategoryDto[];
+}
+
+class ComplexBudgetCategoryDto {
+  @IsString()
+  categoryId: string;
+
+  @IsNumber()
+  @Min(0)
+  limit: number;
 }

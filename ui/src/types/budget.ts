@@ -19,6 +19,16 @@ export interface Budget {
   order: number; // Přidáno z backendu
 }
 
+export interface ComplexBudgetCategoryItem {
+  id: string;
+  budgetId: string;
+  categoryId: string;
+  limit: number;
+  createdAt: string;
+  updatedAt: string;
+  category?: Category;
+}
+
 export interface ComplexBudget {
   id: string;
   userId: string;
@@ -28,6 +38,6 @@ export interface ComplexBudget {
   createdAt: string;
   updatedAt: string;
 
-  categories: Category[];
+  categories: ComplexBudgetCategoryItem[];
 }
 

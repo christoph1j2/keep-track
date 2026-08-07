@@ -125,12 +125,21 @@
     "added": "Rozpočet byl úspěšně přidán.",
     "updated": "Rozpočet byl úspěšně aktualizován.",
     "deleted": "Rozpočet byl úspěšně smazán.",
+    "complexTitle": "Komplexní rozpočet",
+    "complexDetails": "Příjem: {{income}} | Nutné výdaje: {{necessaryExpenses}}",
+    "otherExpenses": "Ostatní útrata (mimo nutných výdajů)",
+    "necessaryExpensesTitle": "Nutné výdaje",
+    "editComplexTitle": "Upravit komplexní rozpočet",
+    "stepNecessary": "Nutné výdaje (celkem)",
+    "specificCategories": "Specifické nutné kategorie",
+    "selectCategory": "Vyberte kategorii...",
     "errors": {
       "missingFields": "Vyplňte všechna pole",
       "positiveLimit": "Limit musí být kladné číslo",
       "invalidLimit": "Limit musí být platné číslo",
       "addFailed": "Nepodařilo se přidat rozpočet.",
-      "updateFailed": "Nepodařilo se upravit rozpočet."
+      "updateFailed": "Nepodařilo se upravit rozpočet.",
+      "categoryAlreadyAdded": "Tato kategorie již je v seznamu."
     },
     "wizard": {
       "typeSelect": "Vyberte typ rozpočtu:",

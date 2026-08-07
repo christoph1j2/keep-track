@@ -125,12 +125,21 @@
     "added": "Budget was successfully added.",
     "updated": "Budget was successfully updated.",
     "deleted": "Budget was successfully deleted.",
+    "complexTitle": "Complex Budget",
+    "complexDetails": "Income: {{income}} | Necessary Expenses: {{necessaryExpenses}}",
+    "otherExpenses": "Other spending (outside necessary)",
+    "necessaryExpensesTitle": "Necessary Expenses",
+    "editComplexTitle": "Edit complex budget",
+    "stepNecessary": "Necessary expenses (total)",
+    "specificCategories": "Specific necessary categories",
+    "selectCategory": "Select a category...",
     "errors": {
       "missingFields": "Fill in all fields",
       "positiveLimit": "Limit must be a positive number",
       "invalidLimit": "Limit must be a valid number",
       "addFailed": "Failed to add budget.",
-      "updateFailed": "Failed to update budget."
+      "updateFailed": "Failed to update budget.",
+      "categoryAlreadyAdded": "This category is already in the list."
     },
     "wizard": {
       "typeSelect": "Select budget type:",

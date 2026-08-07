@@ -113,12 +113,9 @@ export class BudgetService {
   async getComplexBudget(userId: string) {
     return this.prisma.complexBudget.findUnique({
       where: { userId },
-      // deep nesting to include categories and their details
       include: {
         categories: {
-          include: {
-            category: true,
-          },
+          include: { category: true }
         }
       }
     });
@@ -132,13 +129,25 @@ export class BudgetService {
         income: dto.income,
         necessaryExpenses: dto.necessaryExpenses,
         limit,
+        categories: dto.categories ? {
+          deleteMany: {},
+          create: dto.categories,
+        } : undefined,
       },
       create: {
         userId,
         income: dto.income,
         necessaryExpenses: dto.necessaryExpenses,
         limit,
+        categories: dto.categories ? {
+          create: dto.categories,
+        } : undefined,
       },
+      include: {
+        categories: {
+          include: { category: true }
+        }
+      }
     });
     this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
     return updated;

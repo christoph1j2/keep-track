@@ -71,9 +71,34 @@ export function Budgeting() {
     );
   });
 
-  const totalSpentAll = currentMonthTransactions
-    .filter((t) => t.amount < 0)
+  const complexCategoryIds = complexBudget?.categories?.map(c => c.categoryId) || [];
+
+  const totalSpentOther = currentMonthTransactions
+    .filter((t) => t.amount < 0 && !complexCategoryIds.includes(t.categoryId || ""))
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+  const spentByCategory: Record<string, number> = {};
+
+  for (const tx of currentMonthTransactions) {
+    if (!tx.categoryId) continue;
+
+    if (!spentByCategory[tx.categoryId]) {
+      spentByCategory[tx.categoryId] = 0;
+    }
+
+    spentByCategory[tx.categoryId] += tx.amount < 0 ? Math.abs(tx.amount) : 0;
+  }
+
+  const enrichedCategories = complexBudget?.categories
+    ?.map((budgetCat) => {
+      const spent = spentByCategory[budgetCat.categoryId] || 0;
+      const surplusOrDeficit = budgetCat.limit - spent;
+      return {
+        ...budgetCat,
+        spent,
+        surplusOrDeficit,
+      };
+    }) ?? [];
 
   return (
     <>
@@ -132,19 +157,40 @@ export function Budgeting() {
                 </div>
                 <div className="mb-2">
                   <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">
-                    Komplexní rozpočet
+                    {t("budgeting.complexTitle")}
                   </h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Příjem: {complexBudget.income} | Nutné výdaje:{" "}
-                    {complexBudget.necessaryExpenses}
+                    {t("budgeting.complexDetails", {
+                      income: complexBudget.income,
+                      necessaryExpenses: complexBudget.necessaryExpenses
+                    })}
                   </p>
                 </div>
                 <ProgressBar
-                  categoryName="Celková útrata (mimo nutných výdajů)"
-                  progress={totalSpentAll}
+                  categoryName={t("budgeting.otherExpenses")}
+                  progress={totalSpentOther}
                   limit={complexBudget.limit}
                 />
-                {}
+                
+                {enrichedCategories.length > 0 && (
+                  <div className="mt-6 pt-4 border-t border-sky-200 dark:border-sky-800 flex flex-col gap-4">
+                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                      {t("budgeting.necessaryExpensesTitle")}
+                    </h4>
+                    {enrichedCategories.map((cat) => (
+                      <ProgressBar
+                        key={cat.id}
+                        categoryName={
+                          cat.category?.label?.startsWith("default_categories.")
+                            ? t(cat.category.label)
+                            : cat.category?.label || t("common.unknownCategory")
+                        }
+                        progress={cat.spent}
+                        limit={cat.limit}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -235,7 +281,7 @@ export function Budgeting() {
       </BaseModal>
 
       <BaseModal
-        title="Upravit komplexní rozpočet"
+        title={t("budgeting.editComplexTitle")}
         isOpen={isEditComplexModalOpen}
         onClose={() => setEditComplexModalOpen(false)}
       >
