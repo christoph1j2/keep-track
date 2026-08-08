@@ -24,7 +24,7 @@ interface ProgressBarProps {
  * @param props.onClick Optional callback fired when the progress bar is clicked.
  */
 export function ProgressBar({ categoryName, categoryIcon, progress, limit, onClick }: ProgressBarProps) {
-    const percentage = limit > 0 ? (progress / limit) * 100 : 0;
+    const percentage = limit > 0 ? (progress / limit) * 100 : (progress > 0 ? 101 : 0);
     const isExceeded = percentage > 100;
 
     const { t } = useTranslation();

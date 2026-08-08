@@ -30,8 +30,7 @@ model User {
 
   importJobs    ImportJob[]
   notifications Notification[]
-
-
+  complexBudget ComplexBudget?
 }
 
 enum CategoryType {
@@ -57,6 +56,7 @@ model Category {
   transactions Transaction[]
   budgets      Budget[]
   templates    Template[]
+  complexBudgetCategories ComplexBudgetCategory[]
 }
 
 model Transaction {
@@ -73,6 +73,7 @@ model Transaction {
   // 1. Reálná útrata (např. platil jsi na dovolené 10 EUR)
   originalAmount   Float
   originalCurrency String
+  exchangeRate     Float? // Přepočet z originalCurrency do baseCurrency uživatele k danému dni
 
   // 2. Přepočtená hodnota do baseCurrency uživatele k danému dni (např. 250 CZK)
   // Tuto hodnotu bude posílat API do grafů na frontend!
@@ -101,6 +102,37 @@ model Budget {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ComplexBudget {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categories        ComplexBudgetCategory[]
+
+  income            Float
+  necessaryExpenses Float
+  limit             Float // Calculated as income - necessaryExpenses
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ComplexBudgetCategory {
+  id     String @id @default(uuid())
+
+  budgetId   String
+  categoryId String
+  budget   ComplexBudget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  limit Float // Vždy uloženo v baseCurrency uživatele
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([budgetId, categoryId])
 }
 
 model Template {
@@ -151,4 +183,4 @@ model Notification {
 
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
-}
+}

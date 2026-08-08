@@ -49,6 +49,7 @@ export class AiController {
       userId: req.user.id,
       categoryId: null,
       isAiCategorized: false,
+      exchangeRate: null,
       bankReferenceId: null, // Bank ID doesn't exist yet for CSV imports
       createdAt: new Date(),
       updatedAt: new Date(),

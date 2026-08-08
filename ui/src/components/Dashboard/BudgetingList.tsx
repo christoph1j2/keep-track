@@ -8,7 +8,11 @@ import { useTranslation } from "react-i18next";
 import { Skeleton } from "@mui/material";
 
 export function BudgetingList() {
-  const { budgets, isLoading: isBudgetLoading } = useBudgetStore();
+  const {
+    budgets,
+    complexBudget,
+    isLoading: isBudgetLoading,
+  } = useBudgetStore();
   const { categories, isLoading: isCategoryLoading } = useCategoryStore();
   const { transactions, isLoading: isTxLoading } = useTransactionStore();
   const navigate = useNavigate();
@@ -25,6 +29,12 @@ export function BudgetingList() {
   });
 
   const topBudgets = budgets.slice(0, 4);
+
+  const complexCategoryIds = complexBudget?.categories?.map(c => c.categoryId) || [];
+
+  const totalSpentOther = currentMonthTransactions
+    .filter((t) => t.amount < 0 && !complexCategoryIds.includes(t.categoryId || ""))
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
   return (
     <section className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm">
@@ -51,8 +61,17 @@ export function BudgetingList() {
             />
           ))}
         </div>
-      ) : budgets.length > 0 ? (
+      ) : budgets.length > 0 || complexBudget ? (
         <div className="flex flex-col gap-2">
+          {complexBudget && (
+            <div className="flex flex-col items-center justify-between py-2 px-4 bg-sky-50 rounded-lg border border-sky-100 transition-colors dark:bg-sky-900 dark:border-sky-700 w-full mb-2">
+              <ProgressBar
+                categoryName={t("budgeting.complexBudget")}
+                progress={totalSpentOther}
+                limit={complexBudget.limit}
+              />
+            </div>
+          )}
           {topBudgets.map((budget) => {
             const category = categories.find((c) => c.id === budget.categoryId);
             if (!category) return null;

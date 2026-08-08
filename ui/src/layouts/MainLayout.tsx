@@ -26,6 +26,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
     (state) => state.fetchTransactions,
   );
   const fetchBudgets = useBudgetStore((state) => state.fetchBudgets);
+  const fetchComplexBudget = useBudgetStore((state) => state.fetchComplexBudget);
   const fetchTemplates = useTemplateStore((state) => state.fetchTemplates);
 
   const connectSocket = useSocketStore((state) => state.connectSocket);
@@ -71,6 +72,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
       fetchCategories();
       fetchTransactions();
       fetchBudgets();
+      fetchComplexBudget();
       fetchTemplates();
       fetchNotifications();
     };
@@ -90,7 +92,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleFocus);
     };
-  }, [token, fetchCategories, fetchTransactions, fetchBudgets, fetchTemplates, fetchNotifications]);
+  }, [token, fetchCategories, fetchTransactions, fetchBudgets, fetchComplexBudget, fetchTemplates, fetchNotifications]);
 
   return (
     <>
