@@ -98,18 +98,18 @@ async function main() {
         categoryId: catFood.id,
         title: 'Lidl Groceries',
         date: new Date(),
-        originalAmount: 1500,
+        originalAmount: -1500,
         originalCurrency: 'CZK',
-        amount: 1500,
+        amount: -1500,
       },
       {
         userId: user.id,
         categoryId: catTransport.id,
         title: 'Uber to work',
         date: new Date(new Date().setDate(new Date().getDate() - 1)), // yesterday
-        originalAmount: 350,
+        originalAmount: -350,
         originalCurrency: 'CZK',
-        amount: 350,
+        amount: -350,
       }
     ]
   });

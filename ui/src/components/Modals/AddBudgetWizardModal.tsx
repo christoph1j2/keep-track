@@ -184,9 +184,10 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
               fullWidth
               size="small"
               type="number"
+              inputProps={{ min: 0 }}
               value={income}
               onChange={(e) =>
-                setIncome(e.target.value === "" ? "" : Number(e.target.value))
+                setIncome(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))
               }
               sx={{ "& .MuiInputBase-input": { color: "inherit" } }}
               className="text-slate-900 dark:text-slate-200"
@@ -258,6 +259,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
               fullWidth
               size="small"
               type="number"
+              inputProps={{ min: 0 }}
               value={
                 categoryExpenses[currentCategory.id] === undefined
                   ? ""
@@ -266,7 +268,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
               onChange={(e) =>
                 setCatExpense(
                   currentCategory.id,
-                  e.target.value === "" ? "" : Number(e.target.value),
+                  e.target.value === "" ? "" : Math.max(0, Number(e.target.value)),
                 )
               }
               sx={{ "& .MuiInputBase-input": { color: "inherit" } }}

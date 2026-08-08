@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { BaseModal } from "../components/Modals/BaseModal";
 import { AddBudgetWizardModal } from "../components/Modals/AddBudgetWizardModal";
 import { EditBudgetModal } from "../components/Modals/EditBudgetModal";
-import { EditComplexBudgetModal } from "../components/Modals/EditComplexBudgetModal";
 import { SortableBudgetItem } from "../components/Budgeting/SortableBudgetItem";
 import { useTransactionStore } from "../store/transactionStore";
 import { useCategoryStore } from "../store/categoryStore";
@@ -20,6 +19,7 @@ import { toast } from "react-hot-toast";
 import { Skeleton } from "@mui/material";
 import { useConfirmStore } from "../store/confirmStore";
 import { Delete, Edit } from "@mui/icons-material";
+import { ComplexBudget } from "../components/Budgeting/ComplexBudget";
 
 /**
  * Budgeting page for managing monthly spending limits.
@@ -44,7 +44,6 @@ export function Budgeting() {
   const [selectedBudget, setSelectedBudget] = useState<(typeof budgets)[0]>();
   const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
   const [isEditBudgetModalOpen, setEditBudgetModalOpen] = useState(false);
-  const [isEditComplexModalOpen, setEditComplexModalOpen] = useState(false);
 
   const handleProgressBarClick = (categoryId: string) => {
     navigate("/overview", { state: { selectedCategoryId: categoryId } });
@@ -133,66 +132,7 @@ export function Budgeting() {
           </div>
         ) : (
           <div className="flex flex-col gap-8">
-            {complexBudget && (
-              <div className="bg-sky-50 dark:bg-sky-900 p-4 rounded-xl border border-sky-100 dark:border-sky-700 relative">
-                <div className="absolute top-2 right-2 flex items-center gap-2">
-                  <button
-                    className="text-slate-400 hover:text-blue-500 text-sm"
-                    onClick={() => setEditComplexModalOpen(true)}
-                  >
-                    <Edit fontSize="small" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      showConfirm(
-                        t("common.warning"),
-                        t("budgeting.deleteConfirmComplex"),
-                        () => removeComplexBudget(),
-                      );
-                    }}
-                    className="shrink-0 rounded-md px-1 font-semibold text-red-500 dark:text-red-700 dark:hover:bg-slate-600 transition-colors hover:bg-red-50 inline-flex items-center gap-1"
-                  >
-                    <Delete fontSize="medium" />
-                  </button>
-                </div>
-                <div className="mb-2">
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">
-                    {t("budgeting.complexTitle")}
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {t("budgeting.complexDetails", {
-                      income: complexBudget.income,
-                      necessaryExpenses: complexBudget.necessaryExpenses
-                    })}
-                  </p>
-                </div>
-                <ProgressBar
-                  categoryName={t("budgeting.otherExpenses")}
-                  progress={totalSpentOther}
-                  limit={complexBudget.limit}
-                />
-                
-                {enrichedCategories.length > 0 && (
-                  <div className="mt-6 pt-4 border-t border-sky-200 dark:border-sky-800 flex flex-col gap-4">
-                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
-                      {t("budgeting.necessaryExpensesTitle")}
-                    </h4>
-                    {enrichedCategories.map((cat) => (
-                      <ProgressBar
-                        key={cat.id}
-                        categoryName={
-                          cat.category?.label?.startsWith("default_categories.")
-                            ? t(cat.category.label)
-                            : cat.category?.label || t("common.unknownCategory")
-                        }
-                        progress={cat.spent}
-                        limit={cat.limit}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+            {complexBudget && <ComplexBudget />}
 
             <DndContext
               collisionDetection={closestCenter}
@@ -280,15 +220,6 @@ export function Budgeting() {
         )}
       </BaseModal>
 
-      <BaseModal
-        title={t("budgeting.editComplexTitle")}
-        isOpen={isEditComplexModalOpen}
-        onClose={() => setEditComplexModalOpen(false)}
-      >
-        <EditComplexBudgetModal
-          onCancel={() => setEditComplexModalOpen(false)}
-        />
-      </BaseModal>
     </>
   );
 }

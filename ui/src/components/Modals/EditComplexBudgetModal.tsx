@@ -66,8 +66,9 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
           fullWidth
           size="small"
           type="number"
+          inputProps={{ min: 0 }}
           value={income}
-          onChange={(e) => setIncome(e.target.value === "" ? "" : Number(e.target.value))}
+          onChange={(e) => setIncome(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))}
           sx={{ "& .MuiInputBase-input": { color: "inherit" } }}
           className="text-slate-900 dark:text-slate-200"
           required
@@ -82,9 +83,10 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
           fullWidth
           size="small"
           type="number"
+          inputProps={{ min: 0 }}
           value={necessaryExpenses}
           onChange={(e) =>
-            setNecessaryExpenses(e.target.value === "" ? "" : Number(e.target.value))
+            setNecessaryExpenses(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))
           }
           sx={{ "& .MuiInputBase-input": { color: "inherit" } }}
           className="text-slate-900 dark:text-slate-200"
@@ -143,9 +145,10 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
           <TextField
             size="small"
             type="number"
+            inputProps={{ min: 0 }}
             placeholder="Limit"
             value={newCatLimit}
-            onChange={(e) => setNewCatLimit(e.target.value === "" ? "" : Number(e.target.value))}
+            onChange={(e) => setNewCatLimit(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))}
             className="w-24 text-slate-900 dark:text-slate-200"
             sx={{ "& .MuiInputBase-input": { color: "inherit" } }}
           />
