@@ -126,6 +126,7 @@
     "updated": "Rozpočet byl úspěšně aktualizován.",
     "deleted": "Rozpočet byl úspěšně smazán.",
     "complexTitle": "Komplexní rozpočet",
+    "complexBudget": "Komplexní rozpočet",
     "complexDetails": "Příjem: {{income}} | Nutné výdaje: {{necessaryExpenses}}",
     "otherExpenses": "Ostatní útrata (mimo nutných výdajů)",
     "necessaryExpensesTitle": "Nutné výdaje",

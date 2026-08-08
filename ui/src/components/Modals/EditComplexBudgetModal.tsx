@@ -15,8 +15,8 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
   const { complexBudget, setComplexBudget } = useBudgetStore();
   const { categories: allCategories } = useCategoryStore();
 
-  const [income, setIncome] = useState<number | "">(complexBudget?.income || "");
-  const [necessaryExpenses, setNecessaryExpenses] = useState<number | "">(complexBudget?.necessaryExpenses || "");
+  const [income, setIncome] = useState<number | "">(complexBudget?.income ?? "");
+  const [necessaryExpenses, setNecessaryExpenses] = useState<number | "">(complexBudget?.necessaryExpenses ?? "");
 
   const [selectedCategories, setSelectedCategories] = useState<{ categoryId: string; limit: number }[]>(
     complexBudget?.categories?.map((c) => ({ categoryId: c.categoryId, limit: c.limit })) || []
@@ -43,7 +43,7 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
     setSelectedCategories(selectedCategories.filter((c) => c.categoryId !== id));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (income === "" || necessaryExpenses === "") return;
 
@@ -66,7 +66,7 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
           fullWidth
           size="small"
           type="number"
-          inputProps={{ min: 0 }}
+          slotProps={{ htmlInput: { min: 0 } }}
           value={income}
           onChange={(e) => setIncome(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))}
           sx={{ "& .MuiInputBase-input": { color: "inherit" } }}
@@ -83,7 +83,7 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
           fullWidth
           size="small"
           type="number"
-          inputProps={{ min: 0 }}
+          slotProps={{ htmlInput: { min: 0 } }}
           value={necessaryExpenses}
           onChange={(e) =>
             setNecessaryExpenses(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))
@@ -134,7 +134,10 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
           >
             <MenuItem value="" disabled>{t("budgeting.selectCategory")}</MenuItem>
             {allCategories
-              .filter((c) => !selectedCategories.some((sc) => sc.categoryId === c.id))
+              .filter(
+                (c) =>
+                  c.type === "EXPENSE" &&
+                  !selectedCategories.some((sc) => sc.categoryId === c.id))
               .map((c) => (
                 <MenuItem key={c.id} value={c.id}>
                   {c.label.startsWith("default_categories.") ? t(c.label) : c.label}
@@ -145,7 +148,7 @@ export function EditComplexBudgetModal({ onCancel }: EditComplexBudgetModalProps
           <TextField
             size="small"
             type="number"
-            inputProps={{ min: 0 }}
+            slotProps={{ htmlInput: { min: 0 } }}
             placeholder="Limit"
             value={newCatLimit}
             onChange={(e) => setNewCatLimit(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))}

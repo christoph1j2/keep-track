@@ -131,6 +131,8 @@ model ComplexBudgetCategory {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([budgetId, categoryId])
 }
 
 model Template {

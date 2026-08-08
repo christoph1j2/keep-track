@@ -49,9 +49,10 @@ export const useBudgetStore = create<BudgetState>()((set) => ({
   fetchComplexBudget: async () => {
     try {
       const response = await api.get("/budgets/complex");
-      set({ complexBudget: response.data });
+      set({ complexBudget: response.data ?? null });
     } catch (err) {
       console.error("Failed to fetch complex budget:", err);
+      set({ complexBudget: null });
     }
   },
 

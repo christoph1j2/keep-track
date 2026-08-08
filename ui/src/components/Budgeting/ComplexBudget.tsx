@@ -16,6 +16,8 @@ export function ComplexBudget() {
     const { t } = useTranslation();
     const showConfirm = useConfirmStore((state) => state.showConfirm);
 
+    if (!complexBudget) return null;
+
     const spentByCategory: Record<string, number> = {};
 
     const now = new Date();
@@ -83,15 +85,15 @@ export function ComplexBudget() {
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               {t("budgeting.complexDetails", {
-                income: complexBudget!.income,
-                necessaryExpenses: complexBudget!.necessaryExpenses
+                income: complexBudget.income,
+                necessaryExpenses: complexBudget.necessaryExpenses
               })}
             </p>
           </div>
           <ProgressBar
             categoryName={t("budgeting.otherExpenses")}
             progress={totalSpentOther}
-            limit={complexBudget!.limit}
+            limit={complexBudget.limit}
           />
           
           {enrichedCategories.length > 0 && (

@@ -15,3 +15,6 @@ ALTER TABLE "ComplexBudgetCategory" ADD CONSTRAINT "ComplexBudgetCategory_budget
 
 -- AddForeignKey
 ALTER TABLE "ComplexBudgetCategory" ADD CONSTRAINT "ComplexBudgetCategory_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ComplexBudgetCategory_budgetId_categoryId_key" ON "ComplexBudgetCategory"("budgetId", "categoryId");

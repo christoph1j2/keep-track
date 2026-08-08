@@ -122,6 +122,12 @@ export class BudgetService {
   }
 
   async setComplexBudget(userId: string, dto: SetComplexBudgetDto) {
+    await Promise.all(
+      (dto.categories ?? []).map(({ categoryId }) =>
+        this.validateExpenseCategory(userId, categoryId)
+      ),
+    );
+
     const limit = dto.income - dto.necessaryExpenses;
     const updated = await this.prisma.complexBudget.upsert({
       where: { userId },

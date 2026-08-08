@@ -184,7 +184,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
               fullWidth
               size="small"
               type="number"
-              inputProps={{ min: 0 }}
+              slotProps={{ htmlInput: { min: 0 } }}
               value={income}
               onChange={(e) =>
                 setIncome(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))
@@ -259,7 +259,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
               fullWidth
               size="small"
               type="number"
-              inputProps={{ min: 0 }}
+              slotProps={{ htmlInput: { min: 0 } }}
               value={
                 categoryExpenses[currentCategory.id] === undefined
                   ? ""

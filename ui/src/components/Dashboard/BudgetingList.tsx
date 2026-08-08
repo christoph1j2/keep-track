@@ -30,8 +30,10 @@ export function BudgetingList() {
 
   const topBudgets = budgets.slice(0, 4);
 
-  const totalSpentAll = currentMonthTransactions
-    .filter((t) => t.amount < 0)
+  const complexCategoryIds = complexBudget?.categories?.map(c => c.categoryId) || [];
+
+  const totalSpentOther = currentMonthTransactions
+    .filter((t) => t.amount < 0 && !complexCategoryIds.includes(t.categoryId || ""))
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
   return (
@@ -64,8 +66,8 @@ export function BudgetingList() {
           {complexBudget && (
             <div className="flex flex-col items-center justify-between py-2 px-4 bg-sky-50 rounded-lg border border-sky-100 transition-colors dark:bg-sky-900 dark:border-sky-700 w-full mb-2">
               <ProgressBar
-                categoryName="Celkový útrata"
-                progress={totalSpentAll}
+                categoryName={t("budgeting.complexBudget")}
+                progress={totalSpentOther}
                 limit={complexBudget.limit}
               />
             </div>

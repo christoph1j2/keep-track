@@ -147,7 +147,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
             fullWidth
             size="small"
             type="number"
-            inputProps={{ min: 0 }}
+            slotProps={{ htmlInput: { min: 0 } }}
             placeholder={t("budgeting.placeholder")}
             value={limit}
             onChange={(e) => {

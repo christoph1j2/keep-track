@@ -1,5 +1,5 @@
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
-import { ProgressBar } from "../components/Budgeting/ProgressBar";
+
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -17,8 +17,7 @@ import { useBudgetStore } from "../store/budgetStore";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
 import { Skeleton } from "@mui/material";
-import { useConfirmStore } from "../store/confirmStore";
-import { Delete, Edit } from "@mui/icons-material";
+
 import { ComplexBudget } from "../components/Budgeting/ComplexBudget";
 
 /**
@@ -32,14 +31,12 @@ export function Budgeting() {
     budgets,
     complexBudget,
     removeBudget,
-    removeComplexBudget,
     reorderBudgets,
     isLoading: isBudgetLoading,
   } = useBudgetStore();
   const isLoading = isTxLoading || isBudgetLoading || isCategoryLoading;
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const showConfirm = useConfirmStore((state) => state.showConfirm);
 
   const [selectedBudget, setSelectedBudget] = useState<(typeof budgets)[0]>();
   const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
@@ -69,35 +66,6 @@ export function Budgeting() {
       d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
     );
   });
-
-  const complexCategoryIds = complexBudget?.categories?.map(c => c.categoryId) || [];
-
-  const totalSpentOther = currentMonthTransactions
-    .filter((t) => t.amount < 0 && !complexCategoryIds.includes(t.categoryId || ""))
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-  const spentByCategory: Record<string, number> = {};
-
-  for (const tx of currentMonthTransactions) {
-    if (!tx.categoryId) continue;
-
-    if (!spentByCategory[tx.categoryId]) {
-      spentByCategory[tx.categoryId] = 0;
-    }
-
-    spentByCategory[tx.categoryId] += tx.amount < 0 ? Math.abs(tx.amount) : 0;
-  }
-
-  const enrichedCategories = complexBudget?.categories
-    ?.map((budgetCat) => {
-      const spent = spentByCategory[budgetCat.categoryId] || 0;
-      const surplusOrDeficit = budgetCat.limit - spent;
-      return {
-        ...budgetCat,
-        spent,
-        surplusOrDeficit,
-      };
-    }) ?? [];
 
   return (
     <>

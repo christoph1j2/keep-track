@@ -126,6 +126,7 @@
     "updated": "Budget was successfully updated.",
     "deleted": "Budget was successfully deleted.",
     "complexTitle": "Complex Budget",
+    "complexBudget": "Complex Budget",
     "complexDetails": "Income: {{income}} | Necessary Expenses: {{necessaryExpenses}}",
     "otherExpenses": "Other spending (outside necessary)",
     "necessaryExpensesTitle": "Necessary Expenses",
