@@ -30,6 +30,7 @@ model User {
 
   importJobs    ImportJob[]
   notifications Notification[]
+  complexBudget ComplexBudget?
 }
 
 enum CategoryType {
@@ -52,9 +53,10 @@ model Category {
   type CategoryType @default(EXPENSE)
 
   // Prisma vyžaduje, abychom sem přidali i "opačný směr" relací
-  transactions Transaction[]
-  budgets      Budget[]
-  templates    Template[]
+  transactions            Transaction[]
+  budgets                 Budget[]
+  templates               Template[]
+  complexBudgetCategories ComplexBudgetCategory[]
 }
 
 model Transaction {
@@ -100,6 +102,37 @@ model Budget {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ComplexBudget {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categories ComplexBudgetCategory[]
+
+  income            Float
+  necessaryExpenses Float
+  limit             Float // Calculated as income - necessaryExpenses
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ComplexBudgetCategory {
+  id String @id @default(uuid())
+
+  budgetId   String
+  categoryId String
+  budget     ComplexBudget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category   Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  limit Float // Vždy uloženo v baseCurrency uživatele
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([budgetId, categoryId])
 }
 
 model Template {

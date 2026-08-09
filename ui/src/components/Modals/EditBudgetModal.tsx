@@ -133,10 +133,11 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
             fullWidth
             size="small"
             type="number"
+            slotProps={{ htmlInput: { min: 0 } }}
             placeholder={t("budgeting.placeholder")}
             value={limit}
             onChange={(e) =>
-              setLimit(e.target.value === "" ? "" : Number(e.target.value))
+              setLimit(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))
             }
           />
         </div>

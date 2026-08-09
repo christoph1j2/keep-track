@@ -61,6 +61,7 @@ export const useSocketStore = create<SocketState>()(
       }
       if (!resource || resource === "budgets") {
         useBudgetStore.getState().fetchBudgets();
+        useBudgetStore.getState().fetchComplexBudget();
       }
       if (!resource || resource === "templates") {
         useTemplateStore.getState().fetchTemplates();

@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException, ForbiddenException 
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { ReorderBudgetsDto } from './dto/reorder-budgets.dto';
+import { SetComplexBudgetDto } from './dto/set-complex-budget.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 
@@ -107,5 +108,68 @@ export class BudgetService {
     const result = await this.prisma.$transaction(updates);
     this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
     return result;
+  }
+
+  async getComplexBudget(userId: string) {
+    return this.prisma.complexBudget.findUnique({
+      where: { userId },
+      include: {
+        categories: {
+          include: { category: true }
+        }
+      }
+    });
+  }
+
+  async setComplexBudget(userId: string, dto: SetComplexBudgetDto) {
+    await Promise.all(
+      (dto.categories ?? []).map(({ categoryId }) =>
+        this.validateExpenseCategory(userId, categoryId)
+      ),
+    );
+
+    const limit = dto.income - dto.necessaryExpenses;
+    const updated = await this.prisma.complexBudget.upsert({
+      where: { userId },
+      update: {
+        income: dto.income,
+        necessaryExpenses: dto.necessaryExpenses,
+        limit,
+        categories: dto.categories ? {
+          deleteMany: {},
+          create: dto.categories,
+        } : undefined,
+      },
+      create: {
+        userId,
+        income: dto.income,
+        necessaryExpenses: dto.necessaryExpenses,
+        limit,
+        categories: dto.categories ? {
+          create: dto.categories,
+        } : undefined,
+      },
+      include: {
+        categories: {
+          include: { category: true }
+        }
+      }
+    });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    return updated;
+  }
+
+  async deleteComplexBudget(userId: string) {
+    const budget = await this.prisma.complexBudget.findUnique({
+      where: { userId },
+    });
+    if (!budget) {
+      throw new NotFoundException('Complex budget not found');
+    }
+    const res = await this.prisma.complexBudget.delete({
+      where: { userId },
+    });
+    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    return res;
   }
 }

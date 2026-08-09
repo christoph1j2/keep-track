@@ -147,6 +147,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
             fullWidth
             size="small"
             type="number"
+            slotProps={{ htmlInput: { min: 0 } }}
             placeholder={t("budgeting.placeholder")}
             value={limit}
             onChange={(e) => {
@@ -154,7 +155,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
                 setLimit("");
                 return;
               }
-              const parsed = Number(e.target.value);
+              const parsed = Math.max(0, Number(e.target.value));
               setLimit(Number.isFinite(parsed) ? parsed : "");
             }}
           />
