@@ -45,6 +45,14 @@ export class CreateTransactionDto {
   @IsNumber()
   amount: number;
 
+  @ApiPropertyOptional({
+    example: 25.0,
+    description: 'Přepočet z originalCurrency do baseCurrency uživatele k danému dni',
+  })
+  @IsOptional()
+  @IsNumber()
+  exchangeRate?: number;
+
   @ApiProperty({
     example: 'true',
     description: 'Indikátor, zda je transakce AI kategorizovaná',

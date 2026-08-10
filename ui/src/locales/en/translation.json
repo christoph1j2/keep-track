@@ -37,7 +37,8 @@
     "quickAdd": "Templates",
     "settings": "Settings",
     "categories": "Categories",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "exchangeRates": "Exchange Rates"
   },
   "topbar": {
     "tooltips": {

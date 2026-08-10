@@ -16,6 +16,7 @@ export interface Transaction {
 
   originalAmount: number;
   originalCurrency: string;
+  exchangeRate?: number | null; // Přepočet z originalCurrency do baseCurrency
   amount: number; // Přepočtená hodnota do baseCurrency
 
   bankReferenceId?: string | null;
