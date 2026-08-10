@@ -170,8 +170,27 @@ export class AiService {
 
 
       // Step A: Deduplicate by title to save tokens and time
-      const uniqueTitles = [...new Set(unmappedForAi.map((t) => t.title))];
-      const aiTitleToCategoryMap = new Map<string, string | null>();
+      const titleToNormalizedMap = new Map<string, string>();
+      const normalizedToCategoryMap = new Map<string, string | null>();
+
+      for (const t of unmappedForAi) {
+        let normalized = t.title
+          .toLowerCase()
+          .replace(/s\.r\.o\.?|a\.s\.?|z\.s\.?|spol\. s r\.o\.?/gi, '')
+          .replace(/[0-9]+/g, '') // remove all numbers
+          .replace(/[^\w\sěščřžýáíéůúťďň]/gi, ' ') // remove special chars
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        // Fallback if we accidentally stripped the entire string (e.g. if the title was just numbers)
+        if (normalized.length < 3) {
+          normalized = t.title.trim();
+        }
+        
+        titleToNormalizedMap.set(t.title, normalized);
+      }
+
+      const uniqueNormalizedTitles = [...new Set(titleToNormalizedMap.values())];
 
       const categoryContext = userCategories
         .map((c) => `- ID: "${c.id}", Label: "${c.label}"`)
@@ -201,16 +220,16 @@ export class AiService {
         4. CRITICAL: Output absolutely nothing but the JSON array. Do not include markdown backticks or explanations.
       `;
 
-      // Step B: Process in chunks of 40 to avoid free-tier token limits/timeouts
+      // Step B: Process in chunks of 80 to avoid free-tier token limits/timeouts
       // Quick and dirty sleep helper
       const sleep = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms));
-      const CHUNK_SIZE = 40;
+      const CHUNK_SIZE = 80;
 
-      for (let i = 0; i < uniqueTitles.length; i += CHUNK_SIZE) {
-        const titleChunk = uniqueTitles.slice(i, i + CHUNK_SIZE);
+      for (let i = 0; i < uniqueNormalizedTitles.length; i += CHUNK_SIZE) {
+        const titleChunk = uniqueNormalizedTitles.slice(i, i + CHUNK_SIZE);
         console.log(
-          `Processing AI chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(uniqueTitles.length / CHUNK_SIZE)}`,
+          `Processing AI chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(uniqueNormalizedTitles.length / CHUNK_SIZE)}`,
         );
 
         let retries = 3; // Give it 3 chances to succeed
@@ -220,7 +239,7 @@ export class AiService {
           try {
             const aiResponse = await this.aiClient.chat.send({
               chatRequest: {
-                model: 'nvidia/nemotron-nano-9b-v2:free',
+                model: 'google/gemma-4-26b-a4b-it:free',
                 responseFormat: { type: 'json_object' },
                 messages: [
                   { role: 'system', content: systemPrompt },
@@ -261,7 +280,7 @@ export class AiService {
             if (Array.isArray(parsedData)) {
               for (const item of parsedData) {
                 if (item.title) {
-                  aiTitleToCategoryMap.set(item.title, item.categoryId || null);
+                  normalizedToCategoryMap.set(item.title, item.categoryId || null);
                 }
               }
             }
@@ -288,14 +307,15 @@ export class AiService {
         }
 
         // Add a standard 5-second buffer between successful chunks just to be polite to the API
-        if (i + CHUNK_SIZE < uniqueTitles.length) {
+        if (i + CHUNK_SIZE < uniqueNormalizedTitles.length) {
           await sleep(5000); // 5 seconds
         }
       }
 
       // Step D: Apply the deduplicated AI mappings back to the actual transactions
       for (const incoming of unmappedForAi) {
-        const mappedCategoryId = aiTitleToCategoryMap.get(incoming.title);
+        const normalized = titleToNormalizedMap.get(incoming.title);
+        const mappedCategoryId = normalizedToCategoryMap.get(normalized || incoming.title);
         results.push({
           ...incoming,
           categoryId: mappedCategoryId || null,
