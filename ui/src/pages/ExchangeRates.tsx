@@ -14,11 +14,12 @@ export function ExchangeRates() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchRates = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/exchange-rate?base=${currency}`);
+        const response = await api.get(`/exchange-rate?base=${currency}`, { signal: controller.signal });
         setRates(response.data);
 
         // Fetch inverse rates
@@ -28,24 +29,31 @@ export function ExchangeRates() {
         await Promise.all(
           supportedCurrencies.map(async (c) => {
              try {
-               const res = await api.get(`/exchange-rate?base=${c}`);
+               const res = await api.get(`/exchange-rate?base=${c}`, { signal: controller.signal });
                invRates[c] = res.data[currency];
-             } catch (e) {
-               console.error(`Failed to fetch inverse rate for ${c}`, e);
+             } catch (e: any) {
+               if (e.name !== "CanceledError") {
+                 console.error(`Failed to fetch inverse rate for ${c}`, e);
+               }
              }
           })
         );
         
         setInverseRates(invRates);
-      } catch (err) {
-        console.error("Failed to fetch exchange rates", err);
-        setError("Failed to fetch exchange rates");
+      } catch (err: any) {
+        if (err.name !== "CanceledError") {
+          console.error("Failed to fetch exchange rates", err);
+          setError(t("exchangeRates.fetchError"));
+        }
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
     fetchRates();
-  }, [currency]);
+    return () => controller.abort();
+  }, [currency, t]);
 
   const getCountryCode = (currencyCode: string) => {
     if (currencyCode === "EUR") return "EU";
@@ -61,10 +69,10 @@ export function ExchangeRates() {
     <div className="p-2 h-full flex flex-col">
       <div className="mb-6 flex flex-col items-center text-center md:flex-row md:justify-between md:items-center gap-4">
         <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">
-          Exchange Rates
+          {t("exchangeRates.title")}
         </h2>
         <div className="text-slate-500 dark:text-slate-400 font-medium">
-          Base Currency: <strong className="text-slate-800 dark:text-slate-200">{currency}</strong>
+          {t("exchangeRates.baseCurrency")} <strong className="text-slate-800 dark:text-slate-200">{currency}</strong>
         </div>
       </div>
 
@@ -106,7 +114,7 @@ export function ExchangeRates() {
                       {curr}
                     </span>
                     <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                      Exchange Rate
+                      {t("exchangeRates.exchangeRateLabel")}
                     </span>
                   </div>
                 </div>

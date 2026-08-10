@@ -109,7 +109,7 @@ export class AiService {
           t.amount = origAmt / rate;
           t.exchangeRate = 1 / rate;
         } else {
-          t.exchangeRate = 1;
+          t.exchangeRate = null;
         }
       }
     }

@@ -39,9 +39,15 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
 
   useEffect(() => {
     setSelectedCurrency(currency);
-    api.get(`/exchange-rate?base=${currency}`)
+    const controller = new AbortController();
+    api.get(`/exchange-rate?base=${currency}`, { signal: controller.signal })
        .then(res => setRates(res.data))
-       .catch(err => console.error("Failed to fetch exchange rates", err));
+       .catch(err => {
+         if (err.name !== "CanceledError") {
+           console.error("Failed to fetch exchange rates", err);
+         }
+       });
+    return () => controller.abort();
   }, [currency]);
 
   const handleAmountChange = (valStr: string) => {
@@ -114,7 +120,12 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
       let baseAmount = numAmount;
       let exRate = 1;
       
-      if (selectedCurrency !== currency && rates[selectedCurrency]) {
+      if (selectedCurrency !== currency) {
+        if (!rates[selectedCurrency]) {
+          setErrors([t("transactions.errors.missingExchangeRate")]);
+          setIsSubmitting(false);
+          return;
+        }
         baseAmount = numAmount / rates[selectedCurrency];
         exRate = 1 / rates[selectedCurrency];
       }

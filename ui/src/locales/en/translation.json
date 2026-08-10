@@ -306,8 +306,15 @@
       "zeroAmount": "Amount cannot be zero",
       "notANumber": "Amount must be a number",
       "addFailed": "Failed to add transaction. Please check the entered data.",
-      "updateFailed": "Failed to update transaction. Please check the entered data."
+      "updateFailed": "Failed to update transaction. Please check the entered data.",
+      "missingExchangeRate": "Exchange rate not available for selected currency."
     }
+  },
+  "exchangeRates": {
+    "title": "Exchange Rates",
+    "baseCurrency": "Base Currency:",
+    "fetchError": "Failed to fetch exchange rates.",
+    "exchangeRateLabel": "Exchange Rate"
   },
   "import": {
     "title": "Import transactions from bank",
