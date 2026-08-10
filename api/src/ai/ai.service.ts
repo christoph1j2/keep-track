@@ -8,12 +8,16 @@ import { OpenRouter } from '@openrouter/sdk';
 import type { Transaction } from '@prisma/client';
 import { EventsGateway } from '../events/events.gateway';
 import { NotificationService } from '../notification/notification.service';
+import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 
 export interface ProcessedTransaction {
   id: string;
   date: Date;
   title: string;
   amount: number;
+  originalAmount: number;
+  originalCurrency: string;
+  exchangeRate?: number | null;
   categoryId: string | null;
   isAiCategorized: boolean;
 }
@@ -25,6 +29,7 @@ export class AiService {
     private prisma: PrismaService,
     private eventsGateway: EventsGateway,
     private notificationService: NotificationService,
+    private exchangeRateService: ExchangeRateService,
   ) {
     const apiKey = process.env.OPENROUTER_API_KEY;
 
@@ -61,6 +66,53 @@ export class AiService {
     incomingTransactions: Transaction[],
   ): Promise<ProcessedTransaction[]> {
     if (incomingTransactions.length === 0) return [];
+
+    // 0. CURRENCY CONVERSION (Historical Rates)
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { baseCurrency: true },
+    });
+    const baseCurrency = user?.baseCurrency || 'CZK';
+
+    const foreignTxns = incomingTransactions.filter(
+      (t) => t.originalCurrency && t.originalCurrency !== baseCurrency,
+    );
+
+    if (foreignTxns.length > 0) {
+      const uniqueDates = [
+        ...new Set(
+          foreignTxns.map((t) => {
+            const d = new Date(t.date);
+            return d.toISOString().split('T')[0];
+          }),
+        ),
+      ];
+
+      const historicalRates = new Map<string, Record<string, number>>();
+
+      await Promise.all(
+        uniqueDates.map(async (dateStr) => {
+          const rates = await this.exchangeRateService.getHistoricalRates(dateStr, baseCurrency);
+          historicalRates.set(dateStr, rates);
+        }),
+      );
+
+      for (const t of foreignTxns) {
+        const d = new Date(t.date);
+        const dateStr = d.toISOString().split('T')[0];
+        const rates = historicalRates.get(dateStr);
+        const origCurr = t.originalCurrency;
+
+        if (rates && rates[origCurr]) {
+          const rate = rates[origCurr];
+          const origAmt = t.originalAmount;
+          t.amount = origAmt / rate;
+          t.exchangeRate = 1 / rate;
+        } else {
+          t.exchangeRate = 1;
+        }
+      }
+    }
 
     // 1. LOCAL HEURISTICS
     const history = await this.prisma.transaction.findMany({

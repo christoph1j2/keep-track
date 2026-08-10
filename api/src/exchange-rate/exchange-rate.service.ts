@@ -30,4 +30,24 @@ export class ExchangeRateService {
       );
     }
   }
+
+  async getHistoricalRates(
+    date: string,
+    baseCurrency: string = 'CZK',
+  ): Promise<Record<string, number>> {
+    try {
+      const res = await fetch(
+        `https://api.frankfurter.app/${date}?from=${baseCurrency}`,
+      );
+
+      if (!res.ok) throw new Error('Failed to fetch from external API.');
+
+      const data = (await res.json()) as ExchangeRatesResponse;
+      return data.rates || {};
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error fetching historical rates for ${date}: ${message}`);
+      return {}; // Returning empty object gracefully for AI import logic
+    }
+  }
 }
