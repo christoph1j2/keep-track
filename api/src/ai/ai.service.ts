@@ -8,12 +8,16 @@ import { OpenRouter } from '@openrouter/sdk';
 import type { Transaction } from '@prisma/client';
 import { EventsGateway } from '../events/events.gateway';
 import { NotificationService } from '../notification/notification.service';
+import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 
 export interface ProcessedTransaction {
   id: string;
   date: Date;
   title: string;
   amount: number;
+  originalAmount: number;
+  originalCurrency: string;
+  exchangeRate?: number | null;
   categoryId: string | null;
   isAiCategorized: boolean;
 }
@@ -25,6 +29,7 @@ export class AiService {
     private prisma: PrismaService,
     private eventsGateway: EventsGateway,
     private notificationService: NotificationService,
+    private exchangeRateService: ExchangeRateService,
   ) {
     const apiKey = process.env.OPENROUTER_API_KEY;
 
@@ -61,6 +66,53 @@ export class AiService {
     incomingTransactions: Transaction[],
   ): Promise<ProcessedTransaction[]> {
     if (incomingTransactions.length === 0) return [];
+
+    // 0. CURRENCY CONVERSION (Historical Rates)
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { baseCurrency: true },
+    });
+    const baseCurrency = user?.baseCurrency || 'CZK';
+
+    const foreignTxns = incomingTransactions.filter(
+      (t) => t.originalCurrency && t.originalCurrency !== baseCurrency,
+    );
+
+    if (foreignTxns.length > 0) {
+      const uniqueDates = [
+        ...new Set(
+          foreignTxns.map((t) => {
+            const d = new Date(t.date);
+            return d.toISOString().split('T')[0];
+          }),
+        ),
+      ];
+
+      const historicalRates = new Map<string, Record<string, number>>();
+
+      await Promise.all(
+        uniqueDates.map(async (dateStr) => {
+          const rates = await this.exchangeRateService.getHistoricalRates(dateStr, baseCurrency);
+          historicalRates.set(dateStr, rates);
+        }),
+      );
+
+      for (const t of foreignTxns) {
+        const d = new Date(t.date);
+        const dateStr = d.toISOString().split('T')[0];
+        const rates = historicalRates.get(dateStr);
+        const origCurr = t.originalCurrency;
+
+        if (rates && rates[origCurr]) {
+          const rate = rates[origCurr];
+          const origAmt = t.originalAmount;
+          t.amount = origAmt / rate;
+          t.exchangeRate = 1 / rate;
+        } else {
+          t.exchangeRate = null;
+        }
+      }
+    }
 
     // 1. LOCAL HEURISTICS
     const history = await this.prisma.transaction.findMany({
@@ -118,8 +170,27 @@ export class AiService {
 
 
       // Step A: Deduplicate by title to save tokens and time
-      const uniqueTitles = [...new Set(unmappedForAi.map((t) => t.title))];
-      const aiTitleToCategoryMap = new Map<string, string | null>();
+      const titleToNormalizedMap = new Map<string, string>();
+      const normalizedToCategoryMap = new Map<string, string | null>();
+
+      for (const t of unmappedForAi) {
+        let normalized = t.title
+          .toLowerCase()
+          .replace(/s\.r\.o\.?|a\.s\.?|z\.s\.?|spol\. s r\.o\.?/gi, '')
+          .replace(/[0-9]+/g, '') // remove all numbers
+          .replace(/[^\w\sěščřžýáíéůúťďň]/gi, ' ') // remove special chars
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        // Fallback if we accidentally stripped the entire string (e.g. if the title was just numbers)
+        if (normalized.length < 3) {
+          normalized = t.title.trim();
+        }
+        
+        titleToNormalizedMap.set(t.title, normalized);
+      }
+
+      const uniqueNormalizedTitles = [...new Set(titleToNormalizedMap.values())];
 
       const categoryContext = userCategories
         .map((c) => `- ID: "${c.id}", Label: "${c.label}"`)
@@ -149,16 +220,16 @@ export class AiService {
         4. CRITICAL: Output absolutely nothing but the JSON array. Do not include markdown backticks or explanations.
       `;
 
-      // Step B: Process in chunks of 40 to avoid free-tier token limits/timeouts
+      // Step B: Process in chunks of 80 to avoid free-tier token limits/timeouts
       // Quick and dirty sleep helper
       const sleep = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms));
-      const CHUNK_SIZE = 40;
+      const CHUNK_SIZE = 80;
 
-      for (let i = 0; i < uniqueTitles.length; i += CHUNK_SIZE) {
-        const titleChunk = uniqueTitles.slice(i, i + CHUNK_SIZE);
+      for (let i = 0; i < uniqueNormalizedTitles.length; i += CHUNK_SIZE) {
+        const titleChunk = uniqueNormalizedTitles.slice(i, i + CHUNK_SIZE);
         console.log(
-          `Processing AI chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(uniqueTitles.length / CHUNK_SIZE)}`,
+          `Processing AI chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(uniqueNormalizedTitles.length / CHUNK_SIZE)}`,
         );
 
         let retries = 3; // Give it 3 chances to succeed
@@ -168,7 +239,7 @@ export class AiService {
           try {
             const aiResponse = await this.aiClient.chat.send({
               chatRequest: {
-                model: 'nvidia/nemotron-nano-9b-v2:free',
+                model: 'google/gemma-4-26b-a4b-it:free',
                 responseFormat: { type: 'json_object' },
                 messages: [
                   { role: 'system', content: systemPrompt },
@@ -209,7 +280,7 @@ export class AiService {
             if (Array.isArray(parsedData)) {
               for (const item of parsedData) {
                 if (item.title) {
-                  aiTitleToCategoryMap.set(item.title, item.categoryId || null);
+                  normalizedToCategoryMap.set(item.title, item.categoryId || null);
                 }
               }
             }
@@ -236,14 +307,15 @@ export class AiService {
         }
 
         // Add a standard 5-second buffer between successful chunks just to be polite to the API
-        if (i + CHUNK_SIZE < uniqueTitles.length) {
+        if (i + CHUNK_SIZE < uniqueNormalizedTitles.length) {
           await sleep(5000); // 5 seconds
         }
       }
 
       // Step D: Apply the deduplicated AI mappings back to the actual transactions
       for (const incoming of unmappedForAi) {
-        const mappedCategoryId = aiTitleToCategoryMap.get(incoming.title);
+        const normalized = titleToNormalizedMap.get(incoming.title);
+        const mappedCategoryId = normalizedToCategoryMap.get(normalized || incoming.title);
         results.push({
           ...incoming,
           categoryId: mappedCategoryId || null,

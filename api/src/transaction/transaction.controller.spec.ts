@@ -38,7 +38,14 @@ describe('TransactionController', () => {
 
   describe('create', () => {
     it('should call service.create', () => {
-      const dto: CreateTransactionDto = { amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' };
+      const dto: CreateTransactionDto = {
+        title: 'Test',
+        date: new Date().toISOString(),
+        originalAmount: 100,
+        originalCurrency: 'CZK',
+        amount: 100,
+        isAiCategorized: false,
+      };
       const req = { user: { id: 'user-1' } } as any;
       controller.create(dto, req);
       expect(service.create).toHaveBeenCalledWith('user-1', dto);
@@ -47,7 +54,18 @@ describe('TransactionController', () => {
 
   describe('createBatch', () => {
     it('should call service.createBatch', () => {
-      const dto = { transactions: [{ amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' as const }] };
+      const dto = {
+        transactions: [
+          {
+            title: 'Test',
+            date: new Date().toISOString(),
+            originalAmount: 100,
+            originalCurrency: 'CZK',
+            amount: 100,
+            isAiCategorized: false,
+          },
+        ],
+      };
       const req = { user: { id: 'user-1' } } as any;
       controller.createBatch(dto, req);
       expect(service.createBatch).toHaveBeenCalledWith('user-1', dto.transactions);

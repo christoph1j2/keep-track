@@ -4,11 +4,12 @@ import { AiController } from './ai.controller';
 import { TransactionModule } from '../transaction/transaction.module';
 import { EventsModule } from '../events/events.module';
 import { NotificationModule } from '../notification/notification.module';
+import { ExchangeRateModule } from '../exchange-rate/exchange-rate.module';
 
 @Module({
   controllers: [AiController],
   providers: [AiService],
-  imports: [TransactionModule, EventsModule, NotificationModule],
+  imports: [TransactionModule, EventsModule, NotificationModule, ExchangeRateModule],
 })
 export class AiModule {}
 

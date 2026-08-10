@@ -7,7 +7,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CategoryIcon from "@mui/icons-material/Category";
 import FeedbackIcon from "@mui/icons-material/Feedback";
-import { Extension } from "@mui/icons-material";
+import { Extension, CurrencyExchange } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { NotificationCenter } from "./NotificationCenter";
 import { Logo } from "./Logo";
@@ -51,6 +51,11 @@ const MENU_ITEMS: MenuItem[] = [
     translationKey: "sidebar.quickAdd",
     icon: <Extension />,
     path: "/quickadd",
+  },
+  {
+    translationKey: "sidebar.exchangeRates",
+    icon: <CurrencyExchange />,
+    path: "/exchange-rates",
   },
   {
     translationKey: "sidebar.settings",

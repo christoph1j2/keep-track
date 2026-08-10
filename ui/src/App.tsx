@@ -10,6 +10,7 @@ import { Categories } from "./pages/Categories";
 import { useConfirmStore } from "./store/confirmStore";
 import { ConfirmDialog } from "./components/Modals/ConfirmDialog";
 import { Settings } from "./pages/Settings";
+import { ExchangeRates } from "./pages/ExchangeRates";
 import { Login } from "./pages/Login";
 import { ProtectedRoute } from "./components/Base/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
@@ -50,6 +51,7 @@ function App() {
             <Route path="/categories" element={<Categories />} />
             <Route path="/budgeting" element={<Budgeting />} />
             <Route path="/quickadd" element={<QuickAdd />} />
+            <Route path="/exchange-rates" element={<ExchangeRates />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Route>

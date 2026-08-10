@@ -37,7 +37,8 @@
     "quickAdd": "Šablony",
     "settings": "Nastavení",
     "categories": "Kategorie",
-    "feedback": "Zpětná vazba"
+    "feedback": "Zpětná vazba",
+    "exchangeRates": "Směnné kurzy"
   },
   "topbar": {
     "tooltips": {
@@ -305,8 +306,15 @@
       "zeroAmount": "Částka nemůže být nula",
       "notANumber": "Částka musí být číslo",
       "addFailed": "Nepodařilo se přidat transakci. Zkontrolujte prosím zadané údaje.",
-      "updateFailed": "Nepodařilo se aktualizovat transakci. Zkontrolujte prosím zadané údaje."
+      "updateFailed": "Nepodařilo se aktualizovat transakci. Zkontrolujte prosím zadané údaje.",
+      "missingExchangeRate": "Směnný kurz pro vybranou měnu není dostupný."
     }
+  },
+  "exchangeRates": {
+    "title": "Směnné kurzy",
+    "baseCurrency": "Základní měna:",
+    "fetchError": "Nepodařilo se načíst směnné kurzy.",
+    "exchangeRateLabel": "Směnný kurz"
   },
   "import": {
     "title": "Import transakcí z banky",

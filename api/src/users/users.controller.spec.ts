@@ -36,7 +36,7 @@ describe('UsersController', () => {
 
   describe('create', () => {
     it('should call service.create', () => {
-      const dto = { email: 'test@test.com', username: 'test', password: 'password' };
+      const dto = { email: 'test@test.com', username: 'test', password: 'password', baseCurrency: 'CZK' };
       controller.create(dto);
       expect(service.create).toHaveBeenCalledWith(dto);
     });

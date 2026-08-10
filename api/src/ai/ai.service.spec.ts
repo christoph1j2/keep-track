@@ -3,6 +3,7 @@ import { AiService } from './ai.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 import { NotificationService } from '../notification/notification.service';
+import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 
 jest.mock('@openrouter/sdk', () => {
   return {
@@ -24,6 +25,9 @@ describe('AiService', () => {
   let service: AiService;
 
   const mockPrismaService = {
+    user: {
+      findUnique: jest.fn().mockResolvedValue({ baseCurrency: 'CZK' }),
+    },
     transaction: {
       findMany: jest.fn(),
     },
@@ -47,6 +51,10 @@ describe('AiService', () => {
     create: jest.fn(),
   };
 
+  const mockExchangeRateService = {
+    getHistoricalRates: jest.fn(),
+  };
+
   beforeEach(async () => {
     process.env.OPENROUTER_API_KEY = 'test-key';
     const module: TestingModule = await Test.createTestingModule({
@@ -55,6 +63,7 @@ describe('AiService', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: EventsGateway, useValue: mockEventsGateway },
         { provide: NotificationService, useValue: mockNotificationService },
+        { provide: ExchangeRateService, useValue: mockExchangeRateService },
       ],
     }).compile();
 

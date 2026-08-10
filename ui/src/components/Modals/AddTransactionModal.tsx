@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Select, MenuItem, TextField } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Select, MenuItem, TextField, InputAdornment } from "@mui/material";
 import { useTransactionStore } from "../../store/transactionStore";
 import { useCategoryStore } from "../../store/categoryStore";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { useSettingsStore } from "../../store/settingsStore";
 import { useIsMobile } from "../../hooks/useIsMobile";
+import { api } from "../../utils/api";
 
 interface AddTransactionModalProps {
   onCancel: () => void;
@@ -32,6 +33,22 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   const [amount, setAmount] = useState<number | "">("");
   const [isNegative, setIsNegative] = useState(true);
   const [categoryId, setCategoryId] = useState("");
+
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(currency);
+  const [rates, setRates] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setSelectedCurrency(currency);
+    const controller = new AbortController();
+    api.get(`/exchange-rate?base=${currency}`, { signal: controller.signal })
+       .then(res => setRates(res.data))
+       .catch(err => {
+         if (err.name !== "CanceledError") {
+           console.error("Failed to fetch exchange rates", err);
+         }
+       });
+    return () => controller.abort();
+  }, [currency]);
 
   const handleAmountChange = (valStr: string) => {
     if (!valStr) {
@@ -100,14 +117,28 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
 
     try {
       const numAmount = Number(amount);
+      let baseAmount = numAmount;
+      let exRate = 1;
+      
+      if (selectedCurrency !== currency) {
+        if (!rates[selectedCurrency]) {
+          setErrors([t("transactions.errors.missingExchangeRate")]);
+          setIsSubmitting(false);
+          return;
+        }
+        baseAmount = numAmount / rates[selectedCurrency];
+        exRate = 1 / rates[selectedCurrency];
+      }
+
       await addTransaction({
         title: title.trim(),
-        amount: numAmount,
+        amount: baseAmount,
         categoryId: categoryId === "" ? null : categoryId,
         date: new Date().toISOString(),
 
         originalAmount: numAmount,
-        originalCurrency: currency, // napojeni na settings store
+        originalCurrency: selectedCurrency, // napojeni na settings store
+        exchangeRate: exRate,
         isAiCategorized: false,
       });
 
@@ -177,7 +208,27 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
               fullWidth
               size="small"
               type="number"
-              slotProps={{ htmlInput: { step: "any" } }}
+              slotProps={{ 
+                htmlInput: { step: "any" },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Select
+                        variant="standard"
+                        disableUnderline
+                        value={selectedCurrency}
+                        onChange={(e) => setSelectedCurrency(e.target.value as string)}
+                        sx={{ ml: 1, minWidth: 60, '& .MuiSelect-select': { py: 0 } }}
+                      >
+                        <MenuItem value={currency}>{currency}</MenuItem>
+                        {["CZK", "EUR", "ISK", "PLN", "USD", "GBP"].filter(c => c !== currency).map(c => (
+                          <MenuItem key={c} value={c}>{c}</MenuItem>
+                        ))}
+                      </Select>
+                    </InputAdornment>
+                  )
+                } 
+              }}
               placeholder={t("transactions.placeholders.amount")}
               value={amount}
               onChange={(e) => handleAmountChange(e.target.value)}

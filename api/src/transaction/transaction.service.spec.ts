@@ -52,7 +52,15 @@ describe('TransactionService', () => {
 
   describe('create', () => {
     it('should create a transaction with category', async () => {
-      const dto = { amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' as const, categoryId: '12345678-1234-1234-1234-123456789012' };
+      const dto = {
+        title: 'Test',
+        date: new Date().toISOString(),
+        originalAmount: 100,
+        originalCurrency: 'CZK',
+        amount: 100,
+        isAiCategorized: false,
+        categoryId: '12345678-1234-1234-1234-123456789012',
+      };
       mockPrismaService.category.findFirst.mockResolvedValue({ id: dto.categoryId });
       mockPrismaService.transaction.create.mockResolvedValue({ id: '1', ...dto, userId: 'user-1' });
 
@@ -61,7 +69,14 @@ describe('TransactionService', () => {
     });
 
     it('should create a transaction without category', async () => {
-      const dto = { amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' as const };
+      const dto = {
+        title: 'Test',
+        date: new Date().toISOString(),
+        originalAmount: 100,
+        originalCurrency: 'CZK',
+        amount: 100,
+        isAiCategorized: false,
+      };
       mockPrismaService.transaction.create.mockResolvedValue({ id: '1', ...dto, userId: 'user-1' });
 
       const result = await service.create('user-1', dto);
@@ -69,12 +84,28 @@ describe('TransactionService', () => {
     });
 
     it('should throw BadRequestException if categoryId is invalid format', async () => {
-      const dto = { amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' as const, categoryId: 'invalid' };
+      const dto = {
+        title: 'Test',
+        date: new Date().toISOString(),
+        originalAmount: 100,
+        originalCurrency: 'CZK',
+        amount: 100,
+        isAiCategorized: false,
+        categoryId: 'invalid',
+      };
       await expect(service.create('user-1', dto)).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException if category not found', async () => {
-      const dto = { amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' as const, categoryId: '12345678-1234-1234-1234-123456789012' };
+      const dto = {
+        title: 'Test',
+        date: new Date().toISOString(),
+        originalAmount: 100,
+        originalCurrency: 'CZK',
+        amount: 100,
+        isAiCategorized: false,
+        categoryId: '12345678-1234-1234-1234-123456789012',
+      };
       mockPrismaService.category.findFirst.mockResolvedValue(null);
       await expect(service.create('user-1', dto)).rejects.toThrow(BadRequestException);
     });
@@ -104,8 +135,23 @@ describe('TransactionService', () => {
   describe('createBatch', () => {
     it('should create multiple transactions', async () => {
       const dtos = [
-        { amount: 100, name: 'Test 1', date: new Date(), type: 'EXPENSE' as const },
-        { amount: 200, name: 'Test 2', date: new Date(), type: 'EXPENSE' as const, categoryId: '12345678-1234-1234-1234-123456789012' }
+        {
+          title: 'Test 1',
+          date: new Date().toISOString(),
+          originalAmount: 100,
+          originalCurrency: 'CZK',
+          amount: 100,
+          isAiCategorized: false,
+        },
+        {
+          title: 'Test 2',
+          date: new Date().toISOString(),
+          originalAmount: 200,
+          originalCurrency: 'CZK',
+          amount: 200,
+          isAiCategorized: false,
+          categoryId: '12345678-1234-1234-1234-123456789012',
+        },
       ];
       mockPrismaService.category.findMany.mockResolvedValue([{ id: '12345678-1234-1234-1234-123456789012' }]);
       mockPrismaService.transaction.createMany.mockResolvedValue({ count: 2 });
@@ -115,12 +161,32 @@ describe('TransactionService', () => {
     });
 
     it('should throw BadRequestException for invalid category format in batch', async () => {
-      const dtos = [{ amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' as const, categoryId: 'invalid' }];
+      const dtos = [
+        {
+          title: 'Test',
+          date: new Date().toISOString(),
+          originalAmount: 100,
+          originalCurrency: 'CZK',
+          amount: 100,
+          isAiCategorized: false,
+          categoryId: 'invalid',
+        },
+      ];
       await expect(service.createBatch('user-1', dtos)).rejects.toThrow(BadRequestException);
     });
-    
+
     it('should throw BadRequestException if category missing in batch', async () => {
-      const dtos = [{ amount: 100, name: 'Test', date: new Date(), type: 'EXPENSE' as const, categoryId: '12345678-1234-1234-1234-123456789012' }];
+      const dtos = [
+        {
+          title: 'Test',
+          date: new Date().toISOString(),
+          originalAmount: 100,
+          originalCurrency: 'CZK',
+          amount: 100,
+          isAiCategorized: false,
+          categoryId: '12345678-1234-1234-1234-123456789012',
+        },
+      ];
       mockPrismaService.category.findMany.mockResolvedValue([]);
       await expect(service.createBatch('user-1', dtos)).rejects.toThrow(BadRequestException);
     });
@@ -132,7 +198,7 @@ describe('TransactionService', () => {
       mockPrismaService.transaction.findUnique.mockResolvedValue({ id: '1', amount: 200 });
 
       const result = await service.update('user-1', '1', { amount: 200 });
-      expect(result.amount).toBe(200);
+      expect(result?.amount).toBe(200);
     });
 
     it('should throw NotFoundException if no records updated', async () => {
