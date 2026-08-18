@@ -51,7 +51,7 @@ export function ImportUploader() {
 
       timerRef.current = setTimeout(() => {
         if (useSocketStore.getState().isImportProcessing) {
-          toast.error(t("import.timeout"));
+          toast(t("import.timeout"), { icon: "⏳" });
         }
       }, 120000);
     } catch (err) {
