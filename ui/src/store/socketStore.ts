@@ -24,7 +24,7 @@ interface SocketState {
 }
 
 const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || "/socket.io";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
 
 export const useSocketStore = create<SocketState>()(
   persist(
@@ -47,61 +47,65 @@ export const useSocketStore = create<SocketState>()(
           auth: { token },
         });
 
-    newSocket.on("connect", () => {
-      console.log("WebSocket connected.");
-    });
+        newSocket.on("connect", () => {
+          console.log("WebSocket connected.");
+        });
 
-    newSocket.on("data_updated", (payload?: { resource?: string }) => {
-      const resource = payload?.resource;
-      if (!resource || resource === "transactions") {
-        useTransactionStore.getState().fetchTransactions();
-      }
-      if (!resource || resource === "categories") {
-        useCategoryStore.getState().fetchCategories();
-      }
-      if (!resource || resource === "budgets") {
-        useBudgetStore.getState().fetchBudgets();
-        useBudgetStore.getState().fetchComplexBudget();
-      }
-      if (!resource || resource === "templates") {
-        useTemplateStore.getState().fetchTemplates();
-      }
-    });
+        newSocket.on("data_updated", (payload?: { resource?: string }) => {
+          const resource = payload?.resource;
+          if (!resource || resource === "transactions") {
+            useTransactionStore.getState().fetchTransactions();
+          }
+          if (!resource || resource === "categories") {
+            useCategoryStore.getState().fetchCategories();
+          }
+          if (!resource || resource === "budgets") {
+            useBudgetStore.getState().fetchBudgets();
+            useBudgetStore.getState().fetchComplexBudget();
+          }
+          if (!resource || resource === "templates") {
+            useTemplateStore.getState().fetchTemplates();
+          }
+        });
 
-    newSocket.on("import_finished", (payload) => {
-      if (payload.status === "success") {
-        set({ isImportProcessing: false, importedDataReady: payload.data, importJobId: payload.jobId });
-        toast.success(
-          i18n.t("import.aiSuccess", "Transakce byly analyzovány!"),
-        );
-        // Obnovíme notifikace z backendu (nová IMPORT_READY notifikace)
-        useNotificationStore.getState().fetchNotifications();
-      } else {
-        set({ isImportProcessing: false });
-        toast.error(
-          payload.message ||
-            i18n.t(
-              "import.parseError",
-              "Při zpracování souboru nastala chyba.",
-            ),
-        );
-      }
-    });
+        newSocket.on("import_finished", (payload) => {
+          if (payload.status === "success") {
+            set({
+              isImportProcessing: false,
+              importedDataReady: payload.data,
+              importJobId: payload.jobId,
+            });
+            toast.success(
+              i18n.t("import.aiSuccess", "Transakce byly analyzovány!"),
+            );
+            // Obnovíme notifikace z backendu (nová IMPORT_READY notifikace)
+            useNotificationStore.getState().fetchNotifications();
+          } else {
+            set({ isImportProcessing: false });
+            toast.error(
+              payload.message ||
+                i18n.t(
+                  "import.parseError",
+                  "Při zpracování souboru nastala chyba.",
+                ),
+            );
+          }
+        });
 
-    set({ socket: newSocket });
-  },
+        set({ socket: newSocket });
+      },
 
-  disconnectSocket: () => {
-    const { socket } = get();
-    if (socket) {
-      socket.disconnect();
-      set({ socket: null });
-    }
-  },
+      disconnectSocket: () => {
+        const { socket } = get();
+        if (socket) {
+          socket.disconnect();
+          set({ socket: null });
+        }
+      },
 
-  setImportProcessing: (status) => set({ isImportProcessing: status }),
+      setImportProcessing: (status) => set({ isImportProcessing: status }),
 
-  clearImportedData: () => set({ importedDataReady: null }),
+      clearImportedData: () => set({ importedDataReady: null }),
     }),
     {
       name: "socket-store",
@@ -109,6 +113,6 @@ export const useSocketStore = create<SocketState>()(
         importedDataReady: state.importedDataReady,
         importJobId: state.importJobId,
       }),
-    }
-  )
+    },
+  ),
 );

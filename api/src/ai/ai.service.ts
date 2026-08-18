@@ -426,9 +426,6 @@ export class AiService {
         jobId: jobId,
         data: processedData,
       });
-
-      // Also notify the frontend to refresh general data (e.g. notifications)
-      this.eventsGateway.emitToUser(userId, 'data_updated');
       console.log(`[Import ${jobId}] ✅ Import completed successfully`);
     } catch (error) {
       console.error(`[Import ${jobId}] ❌ Error processing job:`, error);
