@@ -66,7 +66,9 @@ export class AiService {
     incomingTransactions: Transaction[],
   ): Promise<ProcessedTransaction[]> {
     if (incomingTransactions.length === 0) return [];
-
+    console.log(
+      `[Import] 📊 processBatch started: ${incomingTransactions.length} transactions for user ${userId}`,
+    );
     // 0. CURRENCY CONVERSION (Historical Rates)
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -79,6 +81,9 @@ export class AiService {
     );
 
     if (foreignTxns.length > 0) {
+      console.log(
+        `[Import] 💱 Currency conversion: ${foreignTxns.length} foreign transactions (base: ${baseCurrency})`,
+      );
       const uniqueDates = [
         ...new Set(
           foreignTxns.map((t) => {
@@ -92,7 +97,10 @@ export class AiService {
 
       await Promise.all(
         uniqueDates.map(async (dateStr) => {
-          const rates = await this.exchangeRateService.getHistoricalRates(dateStr, baseCurrency);
+          const rates = await this.exchangeRateService.getHistoricalRates(
+            dateStr,
+            baseCurrency,
+          );
           historicalRates.set(dateStr, rates);
         }),
       );
@@ -122,7 +130,7 @@ export class AiService {
     });
 
     const userCategories = await this.prisma.category.findMany({
-      where: { userId, type: 'EXPENSE' },
+      where: { userId },
       select: { id: true, label: true },
     });
 
@@ -141,15 +149,17 @@ export class AiService {
       const lowerTitle = incoming.title.toLowerCase().trim();
       const match = history.find((h) => {
         const pastTitle = h.title.toLowerCase().trim();
-        
+
         // 1. Exact match is always allowed
         if (lowerTitle === pastTitle) return true;
-        
+
         // 2. Prevent fuzzy matching on very short strings to avoid false positives
         if (pastTitle.length < 5 || lowerTitle.length < 5) return false;
-        
+
         // 3. Stricter substring matching (starts-with instead of includes anywhere)
-        return lowerTitle.startsWith(pastTitle) || pastTitle.startsWith(lowerTitle);
+        return (
+          lowerTitle.startsWith(pastTitle) || pastTitle.startsWith(lowerTitle)
+        );
       });
 
       if (match && userCategories.some((c) => c.id === match.categoryId)) {
@@ -164,10 +174,12 @@ export class AiService {
     }
 
     // 2. AI CATEGORIZATION (Optimized with Deduplication and Chunking)
+    console.log(
+      `[Import] 🔍 Local heuristics: ${results.length} matched locally, ${unmappedForAi.length} sent to AI (${userCategories.length} user categories available)`,
+    );
     if (unmappedForAi.length > 0 && process.env.OPENROUTER_API_KEY) {
       //const keyInfo = await this.aiClient.apiKeys.getCurrentKeyMetadata();
       //console.log(keyInfo.data);
-
 
       // Step A: Deduplicate by title to save tokens and time
       const titleToNormalizedMap = new Map<string, string>();
@@ -181,16 +193,21 @@ export class AiService {
           .replace(/[^\w\sěščřžýáíéůúťďň]/gi, ' ') // remove special chars
           .replace(/\s+/g, ' ')
           .trim();
-        
+
         // Fallback if we accidentally stripped the entire string (e.g. if the title was just numbers)
         if (normalized.length < 3) {
           normalized = t.title.trim();
         }
-        
+
         titleToNormalizedMap.set(t.title, normalized);
       }
 
-      const uniqueNormalizedTitles = [...new Set(titleToNormalizedMap.values())];
+      const uniqueNormalizedTitles = [
+        ...new Set(titleToNormalizedMap.values()),
+      ];
+      console.log(
+        `[Import] 🧹 Deduplication: ${unmappedForAi.length} transactions → ${uniqueNormalizedTitles.length} unique titles (${Math.ceil(uniqueNormalizedTitles.length / 80)} AI chunks needed)`,
+      );
 
       const categoryContext = userCategories
         .map((c) => `- ID: "${c.id}", Label: "${c.label}"`)
@@ -278,11 +295,19 @@ export class AiService {
             }
 
             if (Array.isArray(parsedData)) {
+              let chunkCategorized = 0;
               for (const item of parsedData) {
                 if (item.title) {
-                  normalizedToCategoryMap.set(item.title, item.categoryId || null);
+                  normalizedToCategoryMap.set(
+                    item.title,
+                    item.categoryId || null,
+                  );
+                  if (item.categoryId) chunkCategorized++;
                 }
               }
+              console.log(
+                `[Import] 🤖 AI chunk ${i / CHUNK_SIZE + 1}: ${chunkCategorized}/${parsedData.length} titles categorized`,
+              );
             }
 
             break; // Success! Break the retry loop and move to the next chunk
@@ -315,7 +340,9 @@ export class AiService {
       // Step D: Apply the deduplicated AI mappings back to the actual transactions
       for (const incoming of unmappedForAi) {
         const normalized = titleToNormalizedMap.get(incoming.title);
-        const mappedCategoryId = normalizedToCategoryMap.get(normalized || incoming.title);
+        const mappedCategoryId = normalizedToCategoryMap.get(
+          normalized || incoming.title,
+        );
         results.push({
           ...incoming,
           categoryId: mappedCategoryId || null,
@@ -325,6 +352,14 @@ export class AiService {
     }
 
     // 3. RETURN RESULTS maintaining original order
+    const aiCategorized = results.filter((r) => r.isAiCategorized).length;
+    const localMatched = results.filter(
+      (r) => r.categoryId && !r.isAiCategorized,
+    ).length;
+    const uncategorized = results.filter((r) => !r.categoryId).length;
+    console.log(
+      `[Import] 📋 Final results: ${localMatched} local matches, ${aiCategorized} AI categorized, ${uncategorized} uncategorized (${results.length} total)`,
+    );
     return incomingTransactions.map(
       (inc) =>
         results.find((r) => r.id === inc.id) || {
@@ -352,12 +387,18 @@ export class AiService {
     userId: string,
     incomingTransactions: any[],
   ) {
+    console.log(
+      `[Import ${jobId}] 🚀 Starting background processing for user ${userId} with ${incomingTransactions.length} transactions`,
+    );
     try {
       const processedData = await this.processBatch(
         userId,
         incomingTransactions,
       );
 
+      console.log(
+        `[Import ${jobId}] 💾 Saving ${processedData.length} processed transactions to DB (status: READY_FOR_REVIEW)`,
+      );
       await this.prisma.importJob.update({
         where: { id: jobId },
         data: {
@@ -377,13 +418,17 @@ export class AiService {
       );
 
       // WS
+      console.log(
+        `[Import ${jobId}] 📡 Emitting import_finished (success) via WebSocket`,
+      );
       this.eventsGateway.emitToUser(userId, 'import_finished', {
         status: 'success',
         jobId: jobId,
         data: processedData,
       });
+      console.log(`[Import ${jobId}] ✅ Import completed successfully`);
     } catch (error) {
-      console.error(`Error processing job ${jobId}:`, error);
+      console.error(`[Import ${jobId}] ❌ Error processing job:`, error);
       await this.prisma.importJob.update({
         where: { id: jobId },
         data: {
@@ -399,13 +444,18 @@ export class AiService {
     }
   }
 
-  // FE se timto zepta, zda na nej po refreshi neco ceka
-  async getPendingJobForUser(userId: string) {
+  // FE se timto zepta, zda na nej po refreshi nebo během pollingu neco ceka
+  async getPendingJobForUser(userId: string, jobId?: string) {
+    const whereClause: any = {
+      userId,
+      status: 'READY_FOR_REVIEW',
+    };
+    if (jobId) {
+      whereClause.id = jobId;
+    }
+
     const job = await this.prisma.importJob.findFirst({
-      where: {
-        userId,
-        status: 'READY_FOR_REVIEW',
-      },
+      where: whereClause,
       orderBy: {
         createdAt: 'desc',
       },

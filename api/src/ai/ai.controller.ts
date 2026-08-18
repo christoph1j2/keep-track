@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,6 +8,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -30,7 +32,7 @@ export class AiController {
   constructor(
     private readonly aiService: AiService,
     private readonly transactionService: TransactionService,
-  ) {}  
+  ) {}
 
   @Post('categorize-batch')
   @HttpCode(HttpStatus.ACCEPTED)
@@ -62,26 +64,48 @@ export class AiController {
     return { message: 'Batch processing started' };
   }
 
-    @Post('import/start')
+  @Post('import/start')
   @HttpCode(HttpStatus.ACCEPTED)
-  async startImport(@Req() req, @Body('transactions') transactions: any[]) {
-    // controller vytvori job a odpovi fe
-    const job = await this.aiService.createImportJob(req.user.id, transactions);
+  async startImport(
+    @Req() req: AuthenticatedRequest,
+    @Body('transactions') transactions: unknown,
+  ) {
+    if (!Array.isArray(transactions)) {
+      throw new BadRequestException('`transactions` must be an array.');
+    }
+    if (transactions.some((t) => typeof t !== 'object' || t === null)) {
+      throw new BadRequestException(
+        '`transactions` must contain only objects.',
+      );
+    }
 
+    const safeTransactions = transactions;
+    // controller vytvori job a odpovi fe
+    const job = await this.aiService.createImportJob(
+      req.user.id,
+      safeTransactions,
+    );
     // zde spoustime bg proces
-    this.aiService.processJobInBackground(job.id, req.user.id, transactions)
-    .catch(err => console.error(`Job ${job.id} failed:`, err));
+    this.aiService
+      .processJobInBackground(job.id, req.user.id, safeTransactions)
+      .catch((err) => console.error(`Job ${job.id} failed:`, err));
 
     return { message: 'Import job started', jobId: job.id };
   }
 
   @Get('import/pending')
-  async getPendingJob(@Req() req) {
-    return this.aiService.getPendingJobForUser(req.user.id);
+  async getPendingJob(
+    @Req() req: AuthenticatedRequest,
+    @Query('jobId') jobId?: string,
+  ) {
+    return this.aiService.getPendingJobForUser(req.user.id, jobId);
   }
 
   @Delete('import/:jobId')
-  async deleteJob(@Req() req, @Param('jobId') jobId: string) {
+  async deleteJob(
+    @Req() req: AuthenticatedRequest,
+    @Param('jobId') jobId: string,
+  ) {
     return this.aiService.deleteJob(req.user.id, jobId);
   }
 }

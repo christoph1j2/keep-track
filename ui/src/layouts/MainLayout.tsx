@@ -9,7 +9,6 @@ import { useBudgetStore } from "../store/budgetStore";
 import { useTemplateStore } from "../store/quickAddTemplateStore";
 import { useSocketStore } from "../store/socketStore";
 import { useNotificationStore } from "../store/notificationStore";
-import { api } from "../utils/api";
 
 /**
  * Shared app shell with sidebar navigation, top bar, and page content area.
@@ -38,23 +37,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
       connectSocket();
 
       // 2. Zeptáme se backendu, jestli náhodou nevisí v DB hotový import z minula
-      const fetchPendingJob = async () => {
-        try {
-          const response = await api.get("/ai/import/pending");
-          if (response.data) {
-            // Frontend si to natáhne do storu (jakoby to zrovna přišlo ze socketu)
-            useSocketStore.setState({
-              importedDataReady: response.data.transactions,
-              importJobId: response.data.jobId,
-              isImportProcessing: false,
-            });
-          }
-        } catch (error) {
-          console.error("Nepodařilo se načíst čekající import", error);
-        }
-      };
-
-      fetchPendingJob();
+      useSocketStore.getState().fetchPendingJob();
     } else {
       // Odpojíme při odhlášení
       disconnectSocket();
@@ -82,6 +65,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
     const handleFocus = () => {
       if (document.visibilityState === "visible") {
         refetchAll();
+        useSocketStore.getState().fetchPendingJob();
       }
     };
 

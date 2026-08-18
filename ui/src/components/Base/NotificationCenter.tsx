@@ -39,9 +39,11 @@ function timeAgo(dateStr: string, t: any): string {
   const diffMin = Math.floor(diffMs / 60000);
 
   if (diffMin < 1) return t("notifications.justNow", "Právě teď");
-  if (diffMin < 60) return t("notifications.minutesAgo", "{{count}} min", { count: diffMin });
+  if (diffMin < 60)
+    return t("notifications.minutesAgo", "{{count}} min", { count: diffMin });
   const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) return t("notifications.hoursAgo", "{{count}}h", { count: diffHours });
+  if (diffHours < 24)
+    return t("notifications.hoursAgo", "{{count}}h", { count: diffHours });
   const diffDays = Math.floor(diffHours / 24);
   return t("notifications.daysAgo", "{{count}}d", { count: diffDays });
 }
@@ -77,10 +79,17 @@ export function NotificationCenter() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  const handleNotificationAction = (type: string) => {
-    if (type === "IMPORT_READY" && importedDataReady) {
-      setIsImportModalOpen(true);
-      setIsOpen(false);
+  const handleNotificationAction = async (type: string) => {
+    if (type === "IMPORT_READY") {
+      let dataReady = importedDataReady;
+      if (!dataReady) {
+        await useSocketStore.getState().fetchPendingJob();
+        dataReady = useSocketStore.getState().importedDataReady;
+      }
+      if (dataReady) {
+        setIsImportModalOpen(true);
+        setIsOpen(false);
+      }
     }
   };
 
@@ -125,7 +134,7 @@ export function NotificationCenter() {
           {/* Panel */}
           <div
             ref={panelRef}
-            className="absolute bottom-full left-0 mb-2 w-80 max-h-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+            className="fixed bottom-24 left-4 w-80 max-h-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden md:absolute md:bottom-full md:left-0 md:mb-2"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
@@ -154,7 +163,9 @@ export function NotificationCenter() {
                       className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
                     >
                       {/* Ikona */}
-                      <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 ${getNotificationColor(n.type)}`}>
+                      <div
+                        className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 ${getNotificationColor(n.type)}`}
+                      >
                         {getNotificationIcon(n.type)}
                       </div>
 
