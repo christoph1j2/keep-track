@@ -366,14 +366,8 @@ export class AiService {
         },
       });
 
-      // WS
-      this.eventsGateway.emitToUser(userId, 'import_finished', {
-        status: 'success',
-        jobId: jobId,
-        data: processedData,
-      });
-
-      // Persistent DB notification
+      // Persistent DB notification (must be created BEFORE the WS event,
+      // because the frontend fetches notifications when it receives the event)
       await this.notificationService.create(
         userId,
         'IMPORT_READY',
@@ -381,6 +375,13 @@ export class AiService {
         'Transakce byly analyzovány a čekají na vaše schválení.',
         { jobId },
       );
+
+      // WS
+      this.eventsGateway.emitToUser(userId, 'import_finished', {
+        status: 'success',
+        jobId: jobId,
+        data: processedData,
+      });
     } catch (error) {
       console.error(`Error processing job ${jobId}:`, error);
       await this.prisma.importJob.update({
