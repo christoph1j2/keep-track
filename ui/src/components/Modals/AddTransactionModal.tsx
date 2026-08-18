@@ -5,6 +5,7 @@ import { useCategoryStore } from "../../store/categoryStore";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { useSettingsStore } from "../../store/settingsStore";
+import { useTheme } from "../../contexts/ThemeContext";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { api } from "../../utils/api";
 
@@ -22,6 +23,8 @@ interface AddTransactionModalProps {
 export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   // <-- Přesunuto nahoru, abychom t() mohli používat i uvnitř handleSubmit
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { currency } = useSettingsStore();
 
   const categories = useCategoryStore((state) => state.categories);
@@ -218,7 +221,18 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
                         disableUnderline
                         value={selectedCurrency}
                         onChange={(e) => setSelectedCurrency(e.target.value as string)}
-                        sx={{ ml: 1, minWidth: 60, '& .MuiSelect-select': { py: 0 } }}
+                        sx={{
+                          ml: 1,
+                          minWidth: 60,
+                          color: isDark ? "#e2e8f0" : "#0f172a",
+                          "& .MuiSelect-select": {
+                            py: 0,
+                            color: isDark ? "#e2e8f0" : "#0f172a",
+                          },
+                          "& .MuiSelect-icon": {
+                            color: isDark ? "#94a3b8" : "#64748b",
+                          },
+                        }}
                       >
                         <MenuItem value={currency}>{currency}</MenuItem>
                         {["CZK", "EUR", "ISK", "PLN", "USD", "GBP"].filter(c => c !== currency).map(c => (

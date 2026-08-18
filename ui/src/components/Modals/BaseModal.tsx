@@ -148,6 +148,14 @@ export function BaseModal({ isOpen, onClose, title, children }: BaseModalProps) 
                     "& .MuiSelect-icon": {
                         color: isDark ? "#94a3b8" : "#64748b",
                     },
+                    // MUI Select display value text.
+                    "& .MuiSelect-select": {
+                        color: isDark ? "#e2e8f0" : "#0f172a",
+                    },
+                    // MUI InputAdornment text color.
+                    "& .MuiInputAdornment-root, & .MuiInputAdornment-root .MuiTypography-root": {
+                        color: isDark ? "#94a3b8" : "#64748b",
+                    },
                     // Plain HTML inputs/selects used in a few modals, e.g. ImportModal.
                     "& input:not([type='file']), & select": {
                         backgroundColor: isDark ? "#111827" : "#ffffff",
