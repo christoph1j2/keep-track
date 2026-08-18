@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -93,8 +94,11 @@ export class AiController {
   }
 
   @Get('import/pending')
-  async getPendingJob(@Req() req: AuthenticatedRequest) {
-    return this.aiService.getPendingJobForUser(req.user.id);
+  async getPendingJob(
+    @Req() req: AuthenticatedRequest,
+    @Query('jobId') jobId?: string,
+  ) {
+    return this.aiService.getPendingJobForUser(req.user.id, jobId);
   }
 
   @Delete('import/:jobId')

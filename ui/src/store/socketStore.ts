@@ -9,6 +9,7 @@ import { useTransactionStore } from "./transactionStore";
 import { useCategoryStore } from "./categoryStore";
 import { useBudgetStore } from "./budgetStore";
 import { useTemplateStore } from "./quickAddTemplateStore";
+import { api } from "../utils/api";
 
 interface SocketState {
   socket: Socket | null;
@@ -19,12 +20,22 @@ interface SocketState {
 
   connectSocket: () => void;
   disconnectSocket: () => void;
-  setImportProcessing: (status: boolean) => void;
+  setImportProcessing: (status: boolean, jobId?: string) => void;
   clearImportedData: () => void;
+  fetchPendingJob: (targetJobId?: string) => Promise<boolean>;
 }
 
 const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || "/socket.io";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+
+let importPollTimer: ReturnType<typeof setInterval> | null = null;
+
+const stopImportPolling = () => {
+  if (importPollTimer) {
+    clearInterval(importPollTimer);
+    importPollTimer = null;
+  }
+};
 
 export const useSocketStore = create<SocketState>()(
   persist(
@@ -49,6 +60,7 @@ export const useSocketStore = create<SocketState>()(
 
         newSocket.on("connect", () => {
           console.log("WebSocket connected.");
+          get().fetchPendingJob();
         });
 
         newSocket.on("data_updated", (payload?: { resource?: string }) => {
@@ -69,6 +81,7 @@ export const useSocketStore = create<SocketState>()(
         });
 
         newSocket.on("import_finished", (payload) => {
+          stopImportPolling();
           if (payload.status === "success") {
             set({
               isImportProcessing: false,
@@ -96,6 +109,7 @@ export const useSocketStore = create<SocketState>()(
       },
 
       disconnectSocket: () => {
+        stopImportPolling();
         const { socket } = get();
         if (socket) {
           socket.disconnect();
@@ -103,9 +117,56 @@ export const useSocketStore = create<SocketState>()(
         }
       },
 
-      setImportProcessing: (status) => set({ isImportProcessing: status }),
+      setImportProcessing: (status, jobId) => {
+        if (status) {
+          set({
+            isImportProcessing: true,
+            importedDataReady: null,
+            ...(jobId ? { importJobId: jobId } : {}),
+          });
+          stopImportPolling();
+          importPollTimer = setInterval(async () => {
+            const currentJobId = get().importJobId;
+            const found = await get().fetchPendingJob(currentJobId || undefined);
+            if (found) {
+              stopImportPolling();
+              toast.success(
+                i18n.t("import.aiSuccess", "Transakce byly analyzovány!"),
+              );
+              useNotificationStore.getState().fetchNotifications();
+            }
+          }, 3000);
+        } else {
+          stopImportPolling();
+          set({ isImportProcessing: false });
+        }
+      },
 
       clearImportedData: () => set({ importedDataReady: null }),
+
+      fetchPendingJob: async (targetJobId) => {
+        try {
+          const idToUse = targetJobId || get().importJobId || undefined;
+          const response = await api.get("/ai/import/pending", {
+            params: idToUse ? { jobId: idToUse } : {},
+          });
+          if (response.data) {
+            if (idToUse && response.data.jobId !== idToUse) {
+              return false;
+            }
+            stopImportPolling();
+            set({
+              importedDataReady: response.data.transactions,
+              importJobId: response.data.jobId,
+              isImportProcessing: false,
+            });
+            return true;
+          }
+        } catch (error) {
+          console.error("Nepodařilo se načíst čekající import", error);
+        }
+        return false;
+      },
     }),
     {
       name: "socket-store",
@@ -116,3 +177,4 @@ export const useSocketStore = create<SocketState>()(
     },
   ),
 );
+

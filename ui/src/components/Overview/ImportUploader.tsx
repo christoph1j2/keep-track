@@ -46,7 +46,9 @@ export function ImportUploader() {
       }
 
       // 2. Odeslání na backend (okamžitá odpověď 202 Accepted)
-      await api.post("/ai/import/start", { transactions: rawData });
+      const res = await api.post("/ai/import/start", { transactions: rawData });
+      const jobId = res.data?.jobId;
+      setImportProcessing(true, jobId);
       toast.success(t("import.sentToAi", "Soubor odeslán! AI ho zpracovává na pozadí."));
 
       timerRef.current = setTimeout(() => {

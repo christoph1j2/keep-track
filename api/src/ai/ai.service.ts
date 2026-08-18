@@ -444,13 +444,18 @@ export class AiService {
     }
   }
 
-  // FE se timto zepta, zda na nej po refreshi neco ceka
-  async getPendingJobForUser(userId: string) {
+  // FE se timto zepta, zda na nej po refreshi nebo během pollingu neco ceka
+  async getPendingJobForUser(userId: string, jobId?: string) {
+    const whereClause: any = {
+      userId,
+      status: 'READY_FOR_REVIEW',
+    };
+    if (jobId) {
+      whereClause.id = jobId;
+    }
+
     const job = await this.prisma.importJob.findFirst({
-      where: {
-        userId,
-        status: 'READY_FOR_REVIEW',
-      },
+      where: whereClause,
       orderBy: {
         createdAt: 'desc',
       },

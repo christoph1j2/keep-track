@@ -79,10 +79,17 @@ export function NotificationCenter() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  const handleNotificationAction = (type: string) => {
-    if (type === "IMPORT_READY" && importedDataReady) {
-      setIsImportModalOpen(true);
-      setIsOpen(false);
+  const handleNotificationAction = async (type: string) => {
+    if (type === "IMPORT_READY") {
+      let dataReady = importedDataReady;
+      if (!dataReady) {
+        await useSocketStore.getState().fetchPendingJob();
+        dataReady = useSocketStore.getState().importedDataReady;
+      }
+      if (dataReady) {
+        setIsImportModalOpen(true);
+        setIsOpen(false);
+      }
     }
   };
 
