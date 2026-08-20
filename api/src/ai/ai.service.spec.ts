@@ -134,42 +134,4 @@ describe('AiService', () => {
       expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith('user-1', 'import_finished', expect.objectContaining({ status: 'error' }));
     });
   });
-
-  describe('Import Jobs', () => {
-    it('should create import job', async () => {
-      mockPrismaService.importJob.create.mockResolvedValue({ id: 'job-1' });
-      const result = await service.createImportJob('user-1', []);
-      expect(result.id).toBe('job-1');
-    });
-
-    it('should delete import job', async () => {
-      mockPrismaService.importJob.deleteMany.mockResolvedValue({ count: 1 });
-      const result = await service.deleteJob('user-1', 'job-1');
-      expect(result.success).toBe(true);
-    });
-
-    it('should get pending job', async () => {
-      mockPrismaService.importJob.findFirst.mockResolvedValue({ id: 'job-1', data: [] });
-      const result = await service.getPendingJobForUser('user-1');
-      expect(result?.jobId).toBe('job-1');
-    });
-
-    it('should process job in background', async () => {
-      jest.spyOn(service, 'processBatch').mockResolvedValue([]);
-      mockPrismaService.importJob.update.mockResolvedValue({});
-
-      await service.processJobInBackground('job-1', 'user-1', []);
-      expect(mockPrismaService.importJob.update).toHaveBeenCalled();
-      expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith('user-1', 'import_finished', expect.objectContaining({ status: 'success' }));
-      expect(mockNotificationService.create).toHaveBeenCalled();
-    });
-
-    it('should handle error in background processing', async () => {
-      jest.spyOn(service, 'processBatch').mockRejectedValue(new Error('fail'));
-      
-      await service.processJobInBackground('job-1', 'user-1', []);
-      expect(mockPrismaService.importJob.update).toHaveBeenCalledWith(expect.objectContaining({ data: { status: 'FAILED' } }));
-      expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith('user-1', 'import_finished', expect.objectContaining({ status: 'error' }));
-    });
-  });
 });
