@@ -55,7 +55,7 @@ export class HeuristicMatcherService {
               if (match && userCategories.some((c) => c.id === match.categoryId)) {
                 results.push({
                   ...incoming,
-                  categoryId: match.categoryId ?? '',
+                  categoryId: match.categoryId!,
                   isAiCategorized: false,
                 });
               } else {
