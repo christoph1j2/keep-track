@@ -12,11 +12,11 @@ import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
 import { TemplateModule } from './template/template.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { AiModule } from './ai/ai.module';
 import { EventsModule } from './events/events.module';
 import { NotificationModule } from './notification/notification.module';
 import { EmailModule } from './email/email.module';
 import { ExchangeRateModule } from './exchange-rate/exchange-rate.module';
+import { ImportModule } from './import/import.module';
 
 @Module({
   imports: [
@@ -48,11 +48,11 @@ import { ExchangeRateModule } from './exchange-rate/exchange-rate.module';
     TransactionModule,
     BudgetModule,
     TemplateModule,
-    AiModule,
     EventsModule,
     NotificationModule,
     EmailModule,
     ExchangeRateModule,
+    ImportModule,
   ],
   controllers: [AppController],
   providers: [

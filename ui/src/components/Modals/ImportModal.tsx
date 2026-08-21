@@ -79,7 +79,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
       // Vyčištění DB na backendu
       if (importJobId) {
         try {
-          await api.delete(`/ai/import/${importJobId}`);
+          await api.delete(`/import/${importJobId}`);
           
           // Vymazání notifikace po úspěšném uložení
           const { notifications, removeNotification } = useNotificationStore.getState();

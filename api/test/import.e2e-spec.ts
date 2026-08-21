@@ -3,7 +3,7 @@ import { cleanDatabase } from './db-cleaner';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 jest.mock('@openrouter/sdk', () => ({
@@ -79,13 +79,13 @@ describe('AI (e2e)', () => {
     await app.close();
   });
 
-  it('/ai/import/start (POST) - Starts import job', async () => {
+  it('/import/start (POST) - Starts import job', async () => {
     const transactions = [
       { date: '2026-06-22', title: 'Tesco', amount: -50 }
     ];
 
     const response = await request(app.getHttpServer())
-      .post('/ai/import/start')
+      .post('/import/start')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ transactions })
       .expect(202);
@@ -120,7 +120,7 @@ describe('AI (e2e)', () => {
     expect(jobData).toBeDefined();
   });
 
-  it('/ai/import/pending (GET) - Retrieves pending job', async () => {
+  it('/import/pending (GET) - Retrieves pending job', async () => {
     // create job manually in DB that is READY_FOR_REVIEW
     const job = await prisma.importJob.create({
       data: {
@@ -131,7 +131,7 @@ describe('AI (e2e)', () => {
     });
 
     const response = await request(app.getHttpServer())
-      .get('/ai/import/pending')
+      .get('/import/pending')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
 
