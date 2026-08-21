@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useSocketStore } from "../../store/socketStore";
 import { api } from "../../utils/api";
 import { parseBankCSV } from "../../utils/bankImport";
@@ -11,6 +11,7 @@ export function ImportUploader() {
   const { isImportProcessing, setImportProcessing } = useSocketStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [useAi, setUseAi] = useState(true);
 
   useEffect(() => {
     if (!isImportProcessing && timerRef.current) {
@@ -46,7 +47,7 @@ export function ImportUploader() {
       }
 
       // 2. Odeslání na backend (okamžitá odpověď 202 Accepted)
-      const res = await api.post("/import/start", { transactions: rawData });
+      const res = await api.post("/import/start", { transactions: rawData, useAi });
       const jobId = res.data?.jobId;
       setImportProcessing(true, jobId);
       toast.success(t("import.sentToAi", "Soubor odeslán! AI ho zpracovává na pozadí."));
@@ -68,7 +69,7 @@ export function ImportUploader() {
   };
 
   return (
-    <div className="w-full md:w-fit">
+    <div className="w-full md:w-fit flex flex-col items-center md:items-start gap-2">
       <input
         type="file"
         accept=".csv"
@@ -91,6 +92,16 @@ export function ImportUploader() {
           t("overview.importBank")
         )}
       </button>
+      <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
+        <input 
+          type="checkbox" 
+          checked={useAi} 
+          onChange={(e) => setUseAi(e.target.checked)}
+          disabled={isImportProcessing}
+          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+        />
+        {t("import.useAiToggle", "Použít AI pro kategorizaci")}
+      </label>
     </div>
   );
 }

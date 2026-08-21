@@ -27,6 +27,9 @@ export class OpenRouterProvider implements LlmProvider {
         // Loop through titles in chunks of CHUNK_SIZE
         for (let i = 0; i < titles.length; i += this.CHUNK_SIZE) {
             const chunk = titles.slice(i, i + this.CHUNK_SIZE);
+            const chunkNum = Math.floor(i / this.CHUNK_SIZE) + 1;
+            const totalChunks = Math.ceil(titles.length / this.CHUNK_SIZE);
+            console.log(`[LLM] 🤖 Processing AI chunk ${chunkNum} of ${totalChunks} (${chunk.length} titles)`);
             // For each chunk: call OpenRouter with retry logic
             let attempts = 0;
             const maxAttempts = 3;
@@ -35,7 +38,10 @@ export class OpenRouterProvider implements LlmProvider {
                 try {
                     const aiResponse = await this.client.chat.send({
                         chatRequest: {
+                            // Primary
                             model: "google/gemma-4-26b-a4b-it:free",
+                            // Fallback
+                            models: ["openrouter/free"],
                             responseFormat: { type: "json_object"},
                             messages: [
                                 { role: "system", content: systemPropt },
@@ -70,15 +76,19 @@ export class OpenRouterProvider implements LlmProvider {
                                     title: item.title,
                                     categoryId: item.categoryId || null,
                                 });
+                                console.log(`[LLM Reasoning] ${item.title} -> ${item.categoryId || 'null'}: ${item.reasoning || 'No reasoning provided'}`);
                             }
                         }
                     }
+                    console.log(
+                        `[LLM] ✅ AI chunk ${chunkNum} finished using model: ${aiResponse.model || 'unknown'}. ${res.filter(r => r.categoryId).length} categorised so far`,
+                    );
                     break; // Success
                 } catch (error: any) {
                     if (error.statusCode === 429) {
                         attempts++;
-                        console.warn(`Rate limit hit. Retrying in ${1000*attempts} seconds... (Attempt ${attempts}/${maxAttempts})`);
-                        await this.sleep(1000*attempts); // Exponential backoff
+                        console.warn(`Rate limit hit. Retrying in ${10*attempts} seconds... (Attempt ${attempts}/${maxAttempts})`);
+                        await this.sleep(10000*attempts); // Exponential backoff
                     } else {
                         console.error('LLM error:', error);
                         break; // Break on non-rate limit errors
@@ -113,10 +123,10 @@ export class OpenRouterProvider implements LlmProvider {
         - Salary: Vyplata, Payroll, Salary, mzda, výplata. ...
 
         Rules:
-        1. Return ONLY clean valid JSON in the format of an array of objects: [{"title": "exact_transaction_title", "categoryId": "category_id"}]
-        2. If *ABSOLUTELY* unsure, set "categoryId": null.
+        1. Return ONLY clean valid JSON in the format of an array of objects: [{"title": "exact_transaction_title", "categoryId": "category_id", "reasoning": "brief explanation of your choice"}]
+        2. If *ABSOLUTELY* unsure, set "categoryId": null and explain why in "reasoning".
         3. Ignore corporate filler words like "a.s.", "s.r.o.", "z.s.", city names, or phrases like "platba kartou". Focus on the core merchant name to make your decision.
-        4. CRITICAL: Output absolutely nothing but the JSON array. Do not include markdown backticks or explanations.
+        4. CRITICAL: Output absolutely nothing but the JSON array. Do not include markdown backticks outside the JSON.
       `;
 
       return systemPrompt;

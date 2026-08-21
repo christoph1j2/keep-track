@@ -28,11 +28,26 @@ export class CategorisationService {
         transactions: Transaction[],
         useAi: boolean = true,
     ): Promise<ProcessedTransaction[]> {
+        console.log(
+            `[Categorisation] 📊 Started: ${transactions.length} transactions for user ${userId} (useAi: ${useAi})`,
+        );
+
         // Step 1: Heuristic matching
         const { matched, unmatched, categories } = await this.heuristicMatcher.match(userId, transactions);
+        console.log(
+            `[Categorisation] 🔍 Local heuristics: ${matched.length} matched locally, ${unmatched.length} unmatched (${categories.length} user categories available)`,
+        );
 
         // Step 2: if useAi is false, no categories or nothing unmatched, return early
         if (!useAi || categories.length === 0 || unmatched.length === 0) {
+            const reason = !useAi
+                ? 'AI disabled'
+                : categories.length === 0
+                    ? 'no user categories'
+                    : 'all matched locally';
+            console.log(
+                `[Categorisation] ⏭️ Skipping AI categorisation (${reason}). Returning ${matched.length} matched + ${unmatched.length} uncategorised.`,
+            );
             return [
                 ...matched,
                 ...unmatched.map(t => ({ ...t, categoryId: null, isAiCategorized: false })),
@@ -50,6 +65,9 @@ export class CategorisationService {
         const uniqueNormalizedTitles = [
             ...new Set(originalToNormalizedMap.values()),
         ];
+        console.log(
+            `[Categorisation] 🧹 Deduplication: ${unmatched.length} transactions → ${uniqueNormalizedTitles.length} unique titles to send to AI`,
+        );
 
         // 3c. Call LLM
         const llmResults = await this.llmProvider.categorise(uniqueNormalizedTitles, categories);
@@ -71,7 +89,14 @@ export class CategorisationService {
             };
         });
 
-        // Step 5: Combine results and return
-        return [...matched, ...llmProcessed];
+        // Step 5: Combine and log final results
+        const allResults = [...matched, ...llmProcessed];
+        const aiCategorized = llmProcessed.filter(r => r.isAiCategorized).length;
+        const uncategorized = llmProcessed.filter(r => !r.categoryId).length;
+        console.log(
+            `[Categorisation] 📋 Final results: ${matched.length} local matches, ${aiCategorized} AI categorised, ${uncategorized} uncategorised (${allResults.length} total)`,
+        );
+
+        return allResults;
     }
 }

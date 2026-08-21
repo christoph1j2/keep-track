@@ -31,9 +31,10 @@ export class ImportService {
     jobId: string,
     userId: string,
     incomingTransactions: any[],
+    useAi: boolean = true,
   ) {
     console.log(
-      `[Import ${jobId}] 🚀 Starting background processing for user ${userId} with ${incomingTransactions.length} transactions`,
+      `[Import ${jobId}] 🚀 Starting background processing for user ${userId} with ${incomingTransactions.length} transactions (useAi: ${useAi})`,
     );
     try {
         const user = await this.prisma.user.findUnique({
@@ -90,7 +91,7 @@ export class ImportService {
       const processedData = await this.categorizationService.categorise(
         userId,
         incomingTransactions,
-        true, // useAi - TODO: make this come from rq dto / settings
+        useAi,
       );
 
       console.log(

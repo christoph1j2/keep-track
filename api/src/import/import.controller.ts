@@ -22,6 +22,7 @@ export class ImportController {
   async startImport(
     @Req() req: AuthenticatedRequest,
     @Body('transactions') transactions: unknown,
+    @Body('useAi') useAi?: boolean,
   ) {
     if (!Array.isArray(transactions)) {
       throw new BadRequestException('`transactions` must be an array.');
@@ -33,6 +34,8 @@ export class ImportController {
     }
 
     const safeTransactions = transactions;
+    const shouldUseAi = useAi ?? true;
+
     // controller vytvori job a odpovi fe
     const job = await this.importService.createImportJob(
       req.user.id,
@@ -40,7 +43,7 @@ export class ImportController {
     );
     // zde spoustime bg proces
     this.importService
-      .processJobInBackground(job.id, req.user.id, safeTransactions)
+      .processJobInBackground(job.id, req.user.id, safeTransactions, shouldUseAi)
       .catch((err) => console.error(`Job ${job.id} failed:`, err));
 
     return { message: 'Import job started', jobId: job.id };
