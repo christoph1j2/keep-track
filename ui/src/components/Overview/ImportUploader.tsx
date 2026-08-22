@@ -5,13 +5,17 @@ import { parseBankCSV } from "../../utils/bankImport";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { CircularProgress } from "@mui/material";
+import { ImportOptionsModal } from "../Modals/ImportOptionsModal";
 
 export function ImportUploader() {
   const { t } = useTranslation();
   const { isImportProcessing, setImportProcessing } = useSocketStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [useAi, setUseAi] = useState(true);
+
+  const [pendingTransactions, setPendingTransactions] = useState<any[] | null>(null);
+  const [pendingFileName, setPendingFileName] = useState<string>("");
+  const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isImportProcessing && timerRef.current) {
@@ -35,22 +39,46 @@ export function ImportUploader() {
     }
 
     try {
-      setImportProcessing(true);
-
       // 1. Lokální vyčištění CSV
       const rawData = await parseBankCSV(file);
       
       if (rawData.length === 0) {
         toast.error(t("import.noData", "V souboru nebyly nalezeny žádné transakce."));
-        setImportProcessing(false);
         return;
       }
 
+      setPendingTransactions(rawData);
+      setPendingFileName(file.name);
+      setIsOptionsModalOpen(true);
+    } catch (err) {
+      toast.error(t("import.parseError", "Při čtení souboru nastala chyba."));
+      console.error(err);
+    } finally {
+      if (event.target) {
+        event.target.value = ""; // Vyčištění inputu
+      }
+    }
+  };
+
+  const handleConfirmImport = async (useAi: boolean) => {
+    if (!pendingTransactions || pendingTransactions.length === 0) return;
+
+    setIsOptionsModalOpen(false);
+    try {
+      setImportProcessing(true);
+
       // 2. Odeslání na backend (okamžitá odpověď 202 Accepted)
-      const res = await api.post("/import/start", { transactions: rawData, useAi });
+      const res = await api.post("/import/start", {
+        transactions: pendingTransactions,
+        useAi,
+      });
       const jobId = res.data?.jobId;
       setImportProcessing(true, jobId);
-      toast.success(t("import.sentToAi", "Soubor odeslán! AI ho zpracovává na pozadí."));
+      toast.success(
+        useAi
+          ? t("import.sentToAi", "Soubor odeslán! AI ho zpracovává na pozadí.")
+          : t("import.processing", "Zpracovávám import..."),
+      );
 
       timerRef.current = setTimeout(() => {
         if (useSocketStore.getState().isImportProcessing) {
@@ -62,9 +90,8 @@ export function ImportUploader() {
       toast.error(t("import.parseError", "Při čtení souboru nastala chyba."));
       console.error(err);
     } finally {
-      if (event.target) {
-        event.target.value = ""; // Vyčištění inputu
-      }
+      setPendingTransactions(null);
+      setPendingFileName("");
     }
   };
 
@@ -92,16 +119,20 @@ export function ImportUploader() {
           t("overview.importBank")
         )}
       </button>
-      <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
-        <input 
-          type="checkbox" 
-          checked={useAi} 
-          onChange={(e) => setUseAi(e.target.checked)}
-          disabled={isImportProcessing}
-          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+
+      {isOptionsModalOpen && (
+        <ImportOptionsModal
+          isOpen={isOptionsModalOpen}
+          onClose={() => {
+            setIsOptionsModalOpen(false);
+            setPendingTransactions(null);
+            setPendingFileName("");
+          }}
+          onConfirm={handleConfirmImport}
+          transactionCount={pendingTransactions?.length || 0}
+          fileName={pendingFileName}
         />
-        {t("import.useAiToggle", "Použít AI pro kategorizaci")}
-      </label>
+      )}
     </div>
   );
 }

@@ -84,6 +84,7 @@ describe('ImportController', () => {
         'job-123',
         'user-1',
         transactions,
+        true,
       );
     });
 
