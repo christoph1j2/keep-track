@@ -82,10 +82,15 @@ describe('EmailController', () => {
       const originalEnv = process.env.FEEDBACK_EMAIL_ADDRESS;
       process.env.FEEDBACK_EMAIL_ADDRESS = 'test@example.com';
 
-      mockEmailService.sendFeedbackEmail.mockRejectedValue(new Error('SMTP Error'));
+      mockEmailService.sendFeedbackEmail.mockRejectedValue(
+        new Error('SMTP Error'),
+      );
 
       await expect(controller.sendFeedbackEmail(mockBody)).rejects.toThrow(
-        new HttpException('Failed to send email', HttpStatus.INTERNAL_SERVER_ERROR),
+        new HttpException(
+          'Failed to send email',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
       );
 
       process.env.FEEDBACK_EMAIL_ADDRESS = originalEnv;

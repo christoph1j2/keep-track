@@ -3,7 +3,7 @@ import { cleanDatabase } from './db-cleaner';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 jest.mock('@openrouter/sdk', () => ({
@@ -16,26 +16,26 @@ jest.mock('@openrouter/sdk', () => ({
               message: {
                 content: JSON.stringify([
                   {
-                    title: "Mocked Category",
-                    categoryId: "mocked-cat-id",
-                    categoryLabel: "Food",
-                    categoryColorClass: "bg-red-500",
-                    categoryIconName: "Food",
-                    categoryType: "EXPENSE",
+                    title: 'Mocked Category',
+                    categoryId: 'mocked-cat-id',
+                    categoryLabel: 'Food',
+                    categoryColorClass: 'bg-red-500',
+                    categoryIconName: 'Food',
+                    categoryType: 'EXPENSE',
                     amount: 50,
-                    date: "2026-06-22T10:00:00.000Z",
+                    date: '2026-06-22T10:00:00.000Z',
                     originalAmount: 50,
-                    originalCurrency: "CZK",
-                    bankReferenceId: null
-                  }
-                ])
-              }
-            }
-          ]
-        })
-      }
-    }
-  }))
+                    originalCurrency: 'CZK',
+                    bankReferenceId: null,
+                  },
+                ]),
+              },
+            },
+          ],
+        }),
+      },
+    },
+  })),
 }));
 
 describe('AI (e2e)', () => {
@@ -44,7 +44,8 @@ describe('AI (e2e)', () => {
   let accessToken: string;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
+    process.env.DATABASE_URL =
+      'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -58,19 +59,28 @@ describe('AI (e2e)', () => {
       }),
     );
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
     const { execSync } = require('child_process');
-    execSync('npx prisma db push --accept-data-loss', { env: { ...process.env } });
+    execSync('npx prisma db push --accept-data-loss', {
+      env: { ...process.env },
+    });
   });
 
   beforeEach(async () => {
     await cleanDatabase(prisma);
 
-    const testUser = { email: 'ai@example.com', password: 'Password123!', username: 'aiuser', baseCurrency: 'CZK' };
+    const testUser = {
+      email: 'ai@example.com',
+      password: 'Password123!',
+      username: 'aiuser',
+      baseCurrency: 'CZK',
+    };
     await request(app.getHttpServer()).post('/users').send(testUser);
 
-    const loginRes = await request(app.getHttpServer()).post('/auth/login').send({ email: testUser.email, password: testUser.password });
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
     accessToken = loginRes.body.access_token;
   });
 
@@ -79,13 +89,11 @@ describe('AI (e2e)', () => {
     await app.close();
   });
 
-  it('/ai/import/start (POST) - Starts import job', async () => {
-    const transactions = [
-      { date: '2026-06-22', title: 'Tesco', amount: -50 }
-    ];
+  it('/import/start (POST) - Starts import job', async () => {
+    const transactions = [{ date: '2026-06-22', title: 'Tesco', amount: -50 }];
 
     const response = await request(app.getHttpServer())
-      .post('/ai/import/start')
+      .post('/import/start')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ transactions })
       .expect(202);
@@ -109,7 +117,7 @@ describe('AI (e2e)', () => {
           break;
         }
       }
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     if (finalJobStatus === 'FAILED') {
@@ -118,20 +126,62 @@ describe('AI (e2e)', () => {
 
     expect(finalJobStatus).toBe('READY_FOR_REVIEW');
     expect(jobData).toBeDefined();
+
+    // Second request: import with useAi: false
+    const responseNoAi = await request(app.getHttpServer())
+      .post('/import/start')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ transactions, useAi: false })
+      .expect(202);
+
+    expect(responseNoAi.body).toHaveProperty('jobId');
+    expect(responseNoAi.body.message).toBe('Import job started');
+
+    const jobIdNoAi = responseNoAi.body.jobId;
+    let finalJobStatusNoAi = 'PROCESSING';
+    let jobDataNoAi;
+
+    for (let i = 0; i < 20; i++) {
+      const job = await prisma.importJob.findUnique({
+        where: { id: jobIdNoAi },
+      });
+      if (job) {
+        if (job.status === 'READY_FOR_REVIEW') {
+          finalJobStatusNoAi = 'READY_FOR_REVIEW';
+          jobDataNoAi = job.data;
+          break;
+        } else if (job.status === 'FAILED') {
+          finalJobStatusNoAi = 'FAILED';
+          break;
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    if (finalJobStatusNoAi === 'FAILED') {
+      throw new Error('Import job with useAi: false reached FAILED status');
+    }
+
+    expect(finalJobStatusNoAi).toBe('READY_FOR_REVIEW');
+    expect(jobDataNoAi).toBeDefined();
   });
 
-  it('/ai/import/pending (GET) - Retrieves pending job', async () => {
+  it('/import/pending (GET) - Retrieves pending job', async () => {
     // create job manually in DB that is READY_FOR_REVIEW
     const job = await prisma.importJob.create({
       data: {
-        userId: accessToken ? (await prisma.user.findFirst({ where: { email: 'ai@example.com' } }))!.id : '',
+        userId: accessToken
+          ? (await prisma.user.findFirst({
+              where: { email: 'ai@example.com' },
+            }))!.id
+          : '',
         status: 'READY_FOR_REVIEW',
-        data: [{ date: '2026-06-22', title: 'Tesco', amount: -50 }]
-      }
+        data: [{ date: '2026-06-22', title: 'Tesco', amount: -50 }],
+      },
     });
 
     const response = await request(app.getHttpServer())
-      .get('/ai/import/pending')
+      .get('/import/pending')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
 

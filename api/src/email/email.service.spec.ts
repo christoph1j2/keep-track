@@ -33,42 +33,62 @@ describe('EmailService', () => {
   describe('sendPasswordResetEmail', () => {
     it('should send email successfully', async () => {
       mockMailerService.sendMail.mockResolvedValue(true);
-      await service.sendPasswordResetEmail('test@example.com', 'http://localhost/reset');
-      
-      expect(mockMailerService.sendMail).toHaveBeenCalledWith(expect.objectContaining({
-        to: 'test@example.com',
-        subject: '🔒 Password reset for KeepTrack application',
-      }));
+      await service.sendPasswordResetEmail(
+        'test@example.com',
+        'http://localhost/reset',
+      );
+
+      expect(mockMailerService.sendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'test@example.com',
+          subject: '🔒 Password reset for KeepTrack application',
+        }),
+      );
     });
 
     it('should throw error if email sending fails', async () => {
       const error = new Error('Failed to send');
       mockMailerService.sendMail.mockRejectedValue(error);
-      
-      await expect(service.sendPasswordResetEmail('test@example.com', 'http://localhost/reset')).rejects.toThrow(error);
+
+      await expect(
+        service.sendPasswordResetEmail(
+          'test@example.com',
+          'http://localhost/reset',
+        ),
+      ).rejects.toThrow(error);
     });
   });
 
   describe('sendFeedbackEmail', () => {
     it('should send email successfully with escaped HTML', async () => {
       mockMailerService.sendMail.mockResolvedValue(true);
-      await service.sendFeedbackEmail('test@example.com', 'Test <Subject>', 'Test "Message" & more');
-      
-      expect(mockMailerService.sendMail).toHaveBeenCalledWith(expect.objectContaining({
-        to: 'test@example.com',
-        subject: 'Test <Subject>',
-        html: expect.stringContaining('Test &lt;Subject&gt;'),
-      }));
-      expect(mockMailerService.sendMail).toHaveBeenCalledWith(expect.objectContaining({
-        html: expect.stringContaining('Test &quot;Message&quot; &amp; more'),
-      }));
+      await service.sendFeedbackEmail(
+        'test@example.com',
+        'Test <Subject>',
+        'Test "Message" & more',
+      );
+
+      expect(mockMailerService.sendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'test@example.com',
+          subject: 'Test <Subject>',
+          html: expect.stringContaining('Test &lt;Subject&gt;'),
+        }),
+      );
+      expect(mockMailerService.sendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining('Test &quot;Message&quot; &amp; more'),
+        }),
+      );
     });
 
     it('should throw error if email sending fails', async () => {
       const error = new Error('Failed to send');
       mockMailerService.sendMail.mockRejectedValue(error);
-      
-      await expect(service.sendFeedbackEmail('test@example.com', 'subject', 'message')).rejects.toThrow(error);
+
+      await expect(
+        service.sendFeedbackEmail('test@example.com', 'subject', 'message'),
+      ).rejects.toThrow(error);
     });
   });
 });

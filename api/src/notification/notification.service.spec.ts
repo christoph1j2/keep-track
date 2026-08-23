@@ -38,7 +38,13 @@ describe('NotificationService', () => {
   describe('create', () => {
     it('should create notification', async () => {
       mockPrismaService.notification.create.mockResolvedValue({ id: '1' });
-      const result = await service.create('user-1', 'TEST', 'Test Title', 'Test Msg', { some: 'data' });
+      const result = await service.create(
+        'user-1',
+        'TEST',
+        'Test Title',
+        'Test Msg',
+        { some: 'data' },
+      );
       expect(result.id).toBe('1');
       expect(mockPrismaService.notification.create).toHaveBeenCalledWith({
         data: {

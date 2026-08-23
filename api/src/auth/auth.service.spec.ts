@@ -59,7 +59,15 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return user if validation successful', async () => {
-      mockUsersService.findByEmail.mockResolvedValue({ id: '1', email: 'test@test.com', passwordHash: 'hash', username: 'test', baseCurrency: 'CZK', createdAt: new Date(), updatedAt: new Date() });
+      mockUsersService.findByEmail.mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+        passwordHash: 'hash',
+        username: 'test',
+        baseCurrency: 'CZK',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validateUser('test@test.com', 'password');
@@ -68,7 +76,11 @@ describe('AuthService', () => {
     });
 
     it('should return null if validation fails', async () => {
-      mockUsersService.findByEmail.mockResolvedValue({ id: '1', email: 'test@test.com', passwordHash: 'hash' });
+      mockUsersService.findByEmail.mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+        passwordHash: 'hash',
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       const result = await service.validateUser('test@test.com', 'password');
@@ -84,8 +96,17 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return tokens and user', async () => {
-      const user = { id: '1', email: 'test@test.com', username: 'test', baseCurrency: 'CZK', createdAt: new Date(), updatedAt: new Date() };
-      mockJwtService.sign.mockReturnValueOnce('access_token').mockReturnValueOnce('refresh_token');
+      const user = {
+        id: '1',
+        email: 'test@test.com',
+        username: 'test',
+        baseCurrency: 'CZK',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockJwtService.sign
+        .mockReturnValueOnce('access_token')
+        .mockReturnValueOnce('refresh_token');
       (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedRefreshToken');
 
@@ -99,25 +120,43 @@ describe('AuthService', () => {
   describe('refreshTokens', () => {
     it('should throw UnauthorizedException if token invalid', async () => {
       mockJwtService.verifyAsync.mockRejectedValue(new Error('invalid'));
-      await expect(service.refreshTokens('token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens('token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should return new tokens if successful', async () => {
-      mockJwtService.verifyAsync.mockResolvedValue({ sub: '1', email: 'test@test.com' });
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', hashedRefreshToken: 'hash' });
+      mockJwtService.verifyAsync.mockResolvedValue({
+        sub: '1',
+        email: 'test@test.com',
+      });
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: '1',
+        hashedRefreshToken: 'hash',
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-      mockJwtService.sign.mockReturnValueOnce('access_token').mockReturnValueOnce('refresh_token');
+      mockJwtService.sign
+        .mockReturnValueOnce('access_token')
+        .mockReturnValueOnce('refresh_token');
 
       const result = await service.refreshTokens('token');
       expect(result.access_token).toBe('access_token');
     });
-    
+
     it('should throw UnauthorizedException if compare returns false', async () => {
-      mockJwtService.verifyAsync.mockResolvedValue({ sub: '1', email: 'test@test.com' });
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', hashedRefreshToken: 'hash' });
+      mockJwtService.verifyAsync.mockResolvedValue({
+        sub: '1',
+        email: 'test@test.com',
+      });
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: '1',
+        hashedRefreshToken: 'hash',
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(service.refreshTokens('token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens('token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -133,9 +172,14 @@ describe('AuthService', () => {
 
   describe('forgotPassword', () => {
     it('should send email if user exists', async () => {
-      mockUsersService.findByEmail.mockResolvedValue({ id: '1', email: 'test@test.com' });
-      (crypto.randomBytes as jest.Mock).mockReturnValue({ toString: () => 'token' });
-      
+      mockUsersService.findByEmail.mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+      });
+      (crypto.randomBytes as jest.Mock).mockReturnValue({
+        toString: () => 'token',
+      });
+
       const result = await service.forgotPassword('test@test.com');
       expect(result.message).toBeDefined();
       expect(mockEmailService.sendPasswordResetEmail).toHaveBeenCalled();
@@ -152,12 +196,22 @@ describe('AuthService', () => {
   describe('resetPassword', () => {
     it('should throw if user not found or token expired', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue(null);
-      await expect(service.resetPassword('token', { newPassword: 'pass', confirmPassword: 'pass' })).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.resetPassword('token', {
+          newPassword: 'pass',
+          confirmPassword: 'pass',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should throw if passwords do not match', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue({ id: '1' });
-      await expect(service.resetPassword('token', { newPassword: 'pass', confirmPassword: 'diff' })).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.resetPassword('token', {
+          newPassword: 'pass',
+          confirmPassword: 'diff',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should reset password', async () => {
@@ -165,7 +219,10 @@ describe('AuthService', () => {
       (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
       (bcrypt.hash as jest.Mock).mockResolvedValue('hash');
 
-      const result = await service.resetPassword('token', { newPassword: 'pass', confirmPassword: 'pass' });
+      const result = await service.resetPassword('token', {
+        newPassword: 'pass',
+        confirmPassword: 'pass',
+      });
       expect(result.message).toBeDefined();
     });
   });

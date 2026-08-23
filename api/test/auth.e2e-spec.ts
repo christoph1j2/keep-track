@@ -16,14 +16,15 @@ describe('Auth (e2e)', () => {
 
   beforeAll(async () => {
     // override DB URL for testing
-    process.env.DATABASE_URL = 'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
+    process.env.DATABASE_URL =
+      'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Add validation pipe just like main.ts
     app.useGlobalPipes(
       new ValidationPipe({
@@ -31,14 +32,16 @@ describe('Auth (e2e)', () => {
         transform: true,
       }),
     );
-    
+
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
-    
+
     // push db schema to the test db before tests
     const { execSync } = require('child_process');
-    execSync('npx prisma db push --accept-data-loss', { env: { ...process.env } });
+    execSync('npx prisma db push --accept-data-loss', {
+      env: { ...process.env },
+    });
   });
 
   beforeEach(async () => {
@@ -55,7 +58,7 @@ describe('Auth (e2e)', () => {
     email: 'test@example.com',
     password: 'Password123!',
     username: 'testuser',
-    baseCurrency: 'CZK'
+    baseCurrency: 'CZK',
   };
 
   it('/users (POST) - Register', async () => {
@@ -95,15 +98,22 @@ describe('Auth (e2e)', () => {
       .send({ email: testUser.email })
       .expect(200);
 
-    expect(response.body.message).toBe('If the email exists, a reset link will be sent.');
+    expect(response.body.message).toBe(
+      'If the email exists, a reset link will be sent.',
+    );
 
-    const dbUser = await prisma.user.findUnique({ where: { email: testUser.email } });
+    const dbUser = await prisma.user.findUnique({
+      where: { email: testUser.email },
+    });
     expect(dbUser?.resetPasswordToken).not.toBeNull();
   });
 
   it('/auth/reset-password/:token (PATCH)', async () => {
-    await request(app.getHttpServer()).post('/users').send(testUser).expect(201);
-    
+    await request(app.getHttpServer())
+      .post('/users')
+      .send(testUser)
+      .expect(201);
+
     const token = 'test-reset-token-123';
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
@@ -112,18 +122,21 @@ describe('Auth (e2e)', () => {
       where: { email: testUser.email },
       data: {
         resetPasswordToken: token,
-        resetPasswordTokenExpiry: expires
-      }
+        resetPasswordTokenExpiry: expires,
+      },
     });
 
     const response = await request(app.getHttpServer())
       .patch(`/auth/reset-password/${token}`)
-      .send({ newPassword: 'BrandNewPassword123!', confirmPassword: 'BrandNewPassword123!' });
-      
+      .send({
+        newPassword: 'BrandNewPassword123!',
+        confirmPassword: 'BrandNewPassword123!',
+      });
+
     if (response.status !== 200) {
       console.log('Reset Password Error:', response.body);
     }
-    
+
     expect(response.status).toBe(200);
 
     expect(response.body.message).toBe('Password has been reset successfully');

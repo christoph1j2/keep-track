@@ -9,13 +9,13 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
 
-> As the name suggests, the app is used to **Keep Track** of your finances. The app is fitted with a modern responsive UI, *tries* to be good in terms of UX, and also has a fully fledged API. The app is currently in beta and development is still underway.
+> As the name suggests, the app is used to **Keep Track** of your finances. The app is fitted with a modern responsive UI, _tries_ to be good in terms of UX, and also has a fully fledged API. The app is currently in beta and development is still underway.
 
-![Dashboard Preview](./ui/public/hero.png)
+![Dashboard Preview](/public/Dashboard.png)
 
 ## Overview
 
-The application is for anyone, who wants something more effective, visually pleasing and functional to track their finances than Excel. Are you a person who has expenses and income? Are you someone who would like to keep track, where that money flows and what you are spending the most on? Then **Keep Track** might be for you. 
+The application is for anyone, who wants something more effective, visually pleasing and functional to track their finances than Excel. Are you a person who has expenses and income? Are you someone who would like to keep track, where that money flows and what you are spending the most on? Then **Keep Track** might be for you.
 
 Nobody likes to manually enter transactions you make often again and again - that's what KeepTrack's QuickAdd templates are for! You assign a name, amount and a category, creating a new template you can then put in your hotbar displayed on your dashboard.
 
@@ -88,7 +88,6 @@ You technically don't need it, although it is a cool feature of the app. Up to y
 
 If you have tailscale running on your homelab, simply running the command below does the job:
 `sudo tailscale funnel --bg --set-path=/keeptrack http://127.0.0.1:8080`
-
 
 ## Project Structure
 

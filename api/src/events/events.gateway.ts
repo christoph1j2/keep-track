@@ -34,7 +34,9 @@ export class EventsGateway implements OnGatewayConnection {
 
       client.data.userId = payload.sub;
       await client.join(payload.sub);
-      console.log(`Client connected and joined room: ${client.id} -> ${payload.sub}`);
+      console.log(
+        `Client connected and joined room: ${client.id} -> ${payload.sub}`,
+      );
     } catch (error) {
       console.log(`Connection rejected for ${client.id}: Invalid token`);
       client.disconnect();

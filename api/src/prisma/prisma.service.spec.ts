@@ -8,8 +8,9 @@ describe('PrismaService', () => {
   beforeEach(async () => {
     // We need to mock process.env.DATABASE_URL to avoid errors
     originalDbUrl = process.env.DATABASE_URL;
-    process.env.DATABASE_URL = 'postgresql://user:password@localhost:5432/mydb?schema=public';
-    
+    process.env.DATABASE_URL =
+      'postgresql://user:password@localhost:5432/mydb?schema=public';
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [PrismaService],
     }).compile();

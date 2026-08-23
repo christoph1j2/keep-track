@@ -61,8 +61,14 @@ describe('TransactionService', () => {
         isAiCategorized: false,
         categoryId: '12345678-1234-1234-1234-123456789012',
       };
-      mockPrismaService.category.findFirst.mockResolvedValue({ id: dto.categoryId });
-      mockPrismaService.transaction.create.mockResolvedValue({ id: '1', ...dto, userId: 'user-1' });
+      mockPrismaService.category.findFirst.mockResolvedValue({
+        id: dto.categoryId,
+      });
+      mockPrismaService.transaction.create.mockResolvedValue({
+        id: '1',
+        ...dto,
+        userId: 'user-1',
+      });
 
       const result = await service.create('user-1', dto);
       expect(result.id).toBe('1');
@@ -77,7 +83,11 @@ describe('TransactionService', () => {
         amount: 100,
         isAiCategorized: false,
       };
-      mockPrismaService.transaction.create.mockResolvedValue({ id: '1', ...dto, userId: 'user-1' });
+      mockPrismaService.transaction.create.mockResolvedValue({
+        id: '1',
+        ...dto,
+        userId: 'user-1',
+      });
 
       const result = await service.create('user-1', dto);
       expect(result.id).toBe('1');
@@ -93,7 +103,9 @@ describe('TransactionService', () => {
         isAiCategorized: false,
         categoryId: 'invalid',
       };
-      await expect(service.create('user-1', dto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-1', dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException if category not found', async () => {
@@ -107,7 +119,9 @@ describe('TransactionService', () => {
         categoryId: '12345678-1234-1234-1234-123456789012',
       };
       mockPrismaService.category.findFirst.mockResolvedValue(null);
-      await expect(service.create('user-1', dto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-1', dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -128,7 +142,9 @@ describe('TransactionService', () => {
 
     it('should throw NotFoundException if not found', async () => {
       mockPrismaService.transaction.findFirst.mockResolvedValue(null);
-      await expect(service.findOne('user-1', '1')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('user-1', '1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -153,7 +169,9 @@ describe('TransactionService', () => {
           categoryId: '12345678-1234-1234-1234-123456789012',
         },
       ];
-      mockPrismaService.category.findMany.mockResolvedValue([{ id: '12345678-1234-1234-1234-123456789012' }]);
+      mockPrismaService.category.findMany.mockResolvedValue([
+        { id: '12345678-1234-1234-1234-123456789012' },
+      ]);
       mockPrismaService.transaction.createMany.mockResolvedValue({ count: 2 });
 
       const result = await service.createBatch('user-1', dtos);
@@ -172,7 +190,9 @@ describe('TransactionService', () => {
           categoryId: 'invalid',
         },
       ];
-      await expect(service.createBatch('user-1', dtos)).rejects.toThrow(BadRequestException);
+      await expect(service.createBatch('user-1', dtos)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException if category missing in batch', async () => {
@@ -188,14 +208,19 @@ describe('TransactionService', () => {
         },
       ];
       mockPrismaService.category.findMany.mockResolvedValue([]);
-      await expect(service.createBatch('user-1', dtos)).rejects.toThrow(BadRequestException);
+      await expect(service.createBatch('user-1', dtos)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('update', () => {
     it('should update a transaction', async () => {
       mockPrismaService.transaction.updateMany.mockResolvedValue({ count: 1 });
-      mockPrismaService.transaction.findUnique.mockResolvedValue({ id: '1', amount: 200 });
+      mockPrismaService.transaction.findUnique.mockResolvedValue({
+        id: '1',
+        amount: 200,
+      });
 
       const result = await service.update('user-1', '1', { amount: 200 });
       expect(result?.amount).toBe(200);
@@ -203,7 +228,9 @@ describe('TransactionService', () => {
 
     it('should throw NotFoundException if no records updated', async () => {
       mockPrismaService.transaction.updateMany.mockResolvedValue({ count: 0 });
-      await expect(service.update('user-1', '1', { amount: 200 })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update('user-1', '1', { amount: 200 }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -216,7 +243,9 @@ describe('TransactionService', () => {
 
     it('should throw NotFoundException if no records deleted', async () => {
       mockPrismaService.transaction.deleteMany.mockResolvedValue({ count: 0 });
-      await expect(service.remove('user-1', '1')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('user-1', '1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

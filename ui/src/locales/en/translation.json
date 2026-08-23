@@ -322,7 +322,8 @@
     "processing": "Processing file...",
     "helpPrefix": "💡 Don't know how to get CSV?",
     "helpText": "Log in to your internet banking (not the mobile app), go to transaction history and choose Export (select CSV format separated by semicolon or comma). For example, at ČSOB you will find this option in account details.",
-    "summary": "We found {{count}} transactions.",
+    "summary_one": "We found {{count}} unique transaction.",
+    "summary": "We found {{count}} unique transactions.",
     "columns": {
       "date": "Date",
       "title": "Item",
@@ -332,6 +333,19 @@
     "selectCategory": "-- Select --",
     "saveButton": "Save {{count}} transactions",
     "uncategorizedWarning": "There are {{count}} transactions left without a selected category.\n\nIf you don't save them with a category now, they will be saved as \"Unassigned\".\n\nDo you want to continue?",
+    "optionsTitle": "Transaction Import Options",
+    "optionsFound_one": "Found {{count}} unique transaction in {{fileName}}.",
+    "optionsFound": "Found {{count}} unique transactions in {{fileName}}.",
+    "optionsSubtitle": "Choose how you want to categorize your transactions:",
+    "heuristicsOnlyTitle": "Local Heuristics Only (Fast)",
+    "heuristicsOnlyDesc": "Categorizes transactions based on your previously saved rules and existing matches.",
+    "heuristicsOnlyBadge": "Instant (0s)",
+    "aiTitle": "AI Categorization + Heuristics",
+    "aiDesc": "Uses artificial intelligence to analyze unassigned transactions.",
+    "aiNotice": "AI processing runs in the background and will take significantly longer.",
+    "aiBadge": "AI Powered",
+    "startImportBtn_one": "Start Import ({{count}} transaction)",
+    "startImportBtn": "Start Import ({{count}} transactions)",
     "saving": "Saving transactions...",
     "saved": "Transactions were successfully saved.",
     "summaryAi": "✨ Check the automatically suggested categories.",
@@ -344,7 +358,8 @@
     "pendingReview": "Import pending review!",
     "alreadyProcessing": "Import is already processing.",
     "noData": "No data found to import.",
-    "timeout": "Import is taking longer than expected. Please hang tight!"
+    "timeout": "Import is taking longer than expected. Please hang tight!",
+    "startFailed": "Failed to start import."
   },
   "splitTransaction": {
     "errors": {

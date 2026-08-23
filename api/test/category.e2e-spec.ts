@@ -17,7 +17,8 @@ describe('Category (e2e)', () => {
   let userId: string;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
+    process.env.DATABASE_URL =
+      'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -31,11 +32,13 @@ describe('Category (e2e)', () => {
       }),
     );
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
-    
+
     const { execSync } = require('child_process');
-    execSync('npx prisma db push --accept-data-loss', { env: { ...process.env } });
+    execSync('npx prisma db push --accept-data-loss', {
+      env: { ...process.env },
+    });
   });
 
   beforeEach(async () => {
@@ -47,13 +50,13 @@ describe('Category (e2e)', () => {
       email: 'categorytest@example.com',
       password: 'Password123!',
       username: 'cattest',
-      baseCurrency: 'CZK'
+      baseCurrency: 'CZK',
     };
 
     const registerRes = await request(app.getHttpServer())
       .post('/users')
       .send(testUser);
-      
+
     userId = registerRes.body.id;
 
     const loginRes = await request(app.getHttpServer())
@@ -73,7 +76,7 @@ describe('Category (e2e)', () => {
       label: 'Groceries',
       colorClass: 'bg-green-500',
       iconName: 'ShoppingCart',
-      type: 'EXPENSE'
+      type: 'EXPENSE',
     };
 
     const response = await request(app.getHttpServer())
@@ -96,7 +99,7 @@ describe('Category (e2e)', () => {
         iconName: 'Banknote',
         type: 'INCOME',
         userId: userId,
-      }
+      },
     });
 
     const response = await request(app.getHttpServer())
@@ -118,7 +121,7 @@ describe('Category (e2e)', () => {
         iconName: 'Icon',
         type: 'EXPENSE',
         userId: userId,
-      }
+      },
     });
 
     const updateDto = { label: 'New Label' };
@@ -140,7 +143,7 @@ describe('Category (e2e)', () => {
         iconName: 'Icon',
         type: 'EXPENSE',
         userId: userId,
-      }
+      },
     });
 
     await request(app.getHttpServer())
@@ -149,7 +152,9 @@ describe('Category (e2e)', () => {
       .expect(200);
 
     // Verify it's gone
-    const checkCat = await prisma.category.findUnique({ where: { id: cat.id } });
+    const checkCat = await prisma.category.findUnique({
+      where: { id: cat.id },
+    });
     expect(checkCat).toBeNull();
   });
 });

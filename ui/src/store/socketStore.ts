@@ -147,7 +147,7 @@ export const useSocketStore = create<SocketState>()(
       fetchPendingJob: async (targetJobId) => {
         try {
           const idToUse = targetJobId || get().importJobId || undefined;
-          const response = await api.get("/ai/import/pending", {
+          const response = await api.get("/import/pending", {
             params: idToUse ? { jobId: idToUse } : {},
           });
           if (response.data) {

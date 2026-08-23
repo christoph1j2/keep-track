@@ -29,9 +29,7 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('templates')
 export class TemplateController {
-  constructor(
-    private readonly templateService: TemplateService,
-  ) {}
+  constructor(private readonly templateService: TemplateService) {}
 
   @Post()
   @ApiOperation({ summary: 'Vytvořit novou šablonu' })

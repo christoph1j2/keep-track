@@ -68,7 +68,10 @@ describe('TransactionController', () => {
       };
       const req = { user: { id: 'user-1' } } as any;
       controller.createBatch(dto, req);
-      expect(service.createBatch).toHaveBeenCalledWith('user-1', dto.transactions);
+      expect(service.createBatch).toHaveBeenCalledWith(
+        'user-1',
+        dto.transactions,
+      );
     });
   });
 

@@ -19,9 +19,7 @@ describe('TemplateController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TemplateController],
-      providers: [
-        { provide: TemplateService, useValue: mockTemplateService },
-      ],
+      providers: [{ provide: TemplateService, useValue: mockTemplateService }],
     }).compile();
 
     controller = module.get<TemplateController>(TemplateController);
@@ -38,7 +36,12 @@ describe('TemplateController', () => {
 
   describe('create', () => {
     it('should call service.create', () => {
-      const dto = { title: 'Test', amount: -45, categoryId: '1', showInHotbar: false } as CreateTemplateDto;
+      const dto = {
+        title: 'Test',
+        amount: -45,
+        categoryId: '1',
+        showInHotbar: false,
+      } as CreateTemplateDto;
       const req = { user: { id: 'user-1' } } as any;
       controller.create(dto, req);
       expect(service.create).toHaveBeenCalledWith('user-1', dto);

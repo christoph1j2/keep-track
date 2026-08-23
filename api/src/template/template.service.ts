@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { ReorderTemplatesDto } from './dto/reorder-templates.dto';
@@ -20,7 +24,9 @@ export class TemplateService {
       },
       include: { category: true },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'templates',
+    });
     return created;
   }
 
@@ -48,7 +54,9 @@ export class TemplateService {
       data: dto,
       include: { category: true },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'templates',
+    });
     return updated;
   }
 
@@ -57,7 +65,9 @@ export class TemplateService {
     const res = await this.prisma.template.delete({
       where: { id },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'templates',
+    });
     return res;
   }
 
@@ -85,7 +95,9 @@ export class TemplateService {
       }),
     );
     const result = await this.prisma.$transaction(updates);
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'templates' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'templates',
+    });
     return result;
   }
 }

@@ -47,7 +47,8 @@ export class CreateTransactionDto {
 
   @ApiPropertyOptional({
     example: 25.0,
-    description: 'Přepočet z originalCurrency do baseCurrency uživatele k danému dni',
+    description:
+      'Přepočet z originalCurrency do baseCurrency uživatele k danému dni',
   })
   @IsOptional()
   @IsNumber()
