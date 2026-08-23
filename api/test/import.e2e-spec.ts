@@ -118,6 +118,42 @@ describe('AI (e2e)', () => {
 
     expect(finalJobStatus).toBe('READY_FOR_REVIEW');
     expect(jobData).toBeDefined();
+
+    // Second request: import with useAi: false
+    const responseNoAi = await request(app.getHttpServer())
+      .post('/import/start')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ transactions, useAi: false })
+      .expect(202);
+
+    expect(responseNoAi.body).toHaveProperty('jobId');
+    expect(responseNoAi.body.message).toBe('Import job started');
+
+    const jobIdNoAi = responseNoAi.body.jobId;
+    let finalJobStatusNoAi = 'PROCESSING';
+    let jobDataNoAi;
+
+    for (let i = 0; i < 20; i++) {
+      const job = await prisma.importJob.findUnique({ where: { id: jobIdNoAi } });
+      if (job) {
+        if (job.status === 'READY_FOR_REVIEW') {
+          finalJobStatusNoAi = 'READY_FOR_REVIEW';
+          jobDataNoAi = job.data;
+          break;
+        } else if (job.status === 'FAILED') {
+          finalJobStatusNoAi = 'FAILED';
+          break;
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    if (finalJobStatusNoAi === 'FAILED') {
+      throw new Error('Import job with useAi: false reached FAILED status');
+    }
+
+    expect(finalJobStatusNoAi).toBe('READY_FOR_REVIEW');
+    expect(jobDataNoAi).toBeDefined();
   });
 
   it('/import/pending (GET) - Retrieves pending job', async () => {
