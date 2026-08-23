@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -17,6 +16,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ImportService } from './import.service';
 import { Transaction } from '@prisma/client/index-browser';
 
+import { StartImportDto } from './dto/start-import.dto';
+
 interface AuthenticatedRequest extends Request {
   user: {
     id: string;
@@ -33,34 +34,19 @@ export class ImportController {
   @HttpCode(HttpStatus.ACCEPTED)
   async startImport(
     @Req() req: AuthenticatedRequest,
-    @Body('transactions') transactions: Transaction[],
-    @Body('useAi') useAi?: boolean,
+    @Body() dto: StartImportDto,
   ) {
-    if (!Array.isArray(transactions)) {
-      throw new BadRequestException('`transactions` must be an array.');
-    }
-    if (transactions.some((t) => typeof t !== 'object' || t === null)) {
-      throw new BadRequestException(
-        '`transactions` must contain only objects.',
-      );
-    }
-
-    const safeTransactions = transactions;
-    const shouldUseAi = useAi ?? true;
+    const transactions = (dto?.transactions || []) as unknown as Transaction[];
+    const shouldUseAi = dto?.useAi ?? true;
 
     // controller vytvori job a odpovi fe
     const job = await this.importService.createImportJob(
       req.user.id,
-      safeTransactions,
+      transactions,
     );
     // zde spoustime bg proces
     this.importService
-      .processJobInBackground(
-        job.id,
-        req.user.id,
-        safeTransactions,
-        shouldUseAi,
-      )
+      .processJobInBackground(job.id, req.user.id, transactions, shouldUseAi)
       .catch((err) => console.error(`Job ${job.id} failed:`, err));
 
     return { message: 'Import job started', jobId: job.id };
