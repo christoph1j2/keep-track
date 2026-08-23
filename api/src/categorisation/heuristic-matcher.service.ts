@@ -14,7 +14,7 @@ export class HeuristicMatcherService {
 
     async match(userId: string, transactions: Transaction[]): Promise<MatchResult> {
         const history = await this.prisma.transaction.findMany({
-              where: { userId },
+              where: { userId, categoryId: { not: null } },
               select: { title: true, categoryId: true },
               distinct: ['title', 'categoryId'],
             });
@@ -32,13 +32,18 @@ export class HeuristicMatcherService {
               };
             }
         
+            const precomputedHistory = history.map((h) => ({
+              ...h,
+              pastTitle: h.title.toLowerCase().trim(),
+            }));
+
             const results: MatchResult['matched'] = [];
             const unmappedForAi: Transaction[] = [];
         
             for (const incoming of transactions) {
               const lowerTitle = incoming.title.toLowerCase().trim();
-              const match = history.find((h) => {
-                const pastTitle = h.title.toLowerCase().trim();
+              const match = precomputedHistory.find((h) => {
+                const pastTitle = h.pastTitle;
         
                 // 1. Exact match is always allowed
                 if (lowerTitle === pastTitle) return true;

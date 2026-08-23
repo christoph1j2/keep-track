@@ -74,7 +74,7 @@ describe('HeuristicMatcherService', () => {
         categories: [],
       });
       expect(mockPrismaService.transaction.findMany).toHaveBeenCalledWith({
-        where: { userId: 'user-1' },
+        where: { userId: 'user-1', categoryId: { not: null } },
         select: { title: true, categoryId: true },
         distinct: ['title', 'categoryId'],
       });
@@ -199,6 +199,35 @@ describe('HeuristicMatcherService', () => {
       const result = await service.match('user-1', [tx]);
 
       expect(result.categories).toEqual(categories);
+    });
+
+    it('should match a title that has both null and valid categoryId history', async () => {
+      mockPrismaService.transaction.findMany.mockImplementation(async (args: any) => {
+        const data = [
+          { title: 'Tesco', categoryId: null },
+          { title: 'Tesco', categoryId: 'cat-groceries' },
+        ];
+        if (args.where?.categoryId?.not === null) {
+          return data.filter(d => d.categoryId !== null);
+        }
+        return data;
+      });
+      mockPrismaService.category.findMany.mockResolvedValue([
+        { id: 'cat-groceries', label: 'Groceries' },
+      ]);
+
+      const tx = makeTx({ id: 'tx-1', title: 'Tesco' });
+
+      const result = await service.match('user-1', [tx]);
+
+      expect(result.matched).toEqual([
+        {
+          ...tx,
+          categoryId: 'cat-groceries',
+          isAiCategorized: false,
+        },
+      ]);
+      expect(result.unmatched).toEqual([]);
     });
   });
 });
