@@ -26,8 +26,11 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   const locale = language === "cs" ? "cs-CZ" : "en-US";
 
   // Načteme data a job ID ze storu
-  const { importedDataReady, importJobId, clearImportedData } = useSocketStore();
-  const [parsedData, setParsedData] = useState<any[]>(() => importedDataReady || []);
+  const { importedDataReady, importJobId, clearImportedData } =
+    useSocketStore();
+  const [parsedData, setParsedData] = useState<any[]>(
+    () => importedDataReady || [],
+  );
 
   useEffect(() => {
     if (importedDataReady) {
@@ -80,11 +83,13 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
       if (importJobId) {
         try {
           await api.delete(`/import/${importJobId}`);
-          
+
           // Vymazání notifikace po úspěšném uložení
-          const { notifications, removeNotification } = useNotificationStore.getState();
+          const { notifications, removeNotification } =
+            useNotificationStore.getState();
           const targetNotification = notifications.find(
-            (n) => n.type === "IMPORT_READY" && n.metadata?.jobId === importJobId
+            (n) =>
+              n.type === "IMPORT_READY" && n.metadata?.jobId === importJobId,
           );
           if (targetNotification) {
             await removeNotification(targetNotification.id);
@@ -119,6 +124,30 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
     }
   };
 
+  const onCloseAndResolve = async () => {
+    // Clear imported data in the store when closing the modal without saving and resolve the notification
+    if (importJobId) {
+      try {
+        await api.delete(`/import/${importJobId}`);
+
+        // Delete the notification related to this import job
+        const { notifications, removeNotification } =
+          useNotificationStore.getState();
+        const targetNotification = notifications.find(
+          (n) => n.type === "IMPORT_READY" && n.metadata?.jobId === importJobId,
+        );
+        if (targetNotification) {
+          await removeNotification(targetNotification.id);
+        }
+      } catch (err) {
+        console.error("Nepodařilo se smazat import job", err);
+      }
+    }
+
+    clearImportedData();
+    onClose();
+  };
+
   return (
     <BaseModal title={t("import.title")} isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col gap-4">
@@ -126,35 +155,55 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center bg-blue-50 text-blue-800 dark:bg-indigo-500/10 dark:text-indigo-200 p-3 rounded-lg text-sm font-medium">
               <span>{t("import.summary", { count: parsedData.length })}</span>
-              <span className="text-xs opacity-80">{t("import.summaryAi")}</span>
+              <span className="text-xs opacity-80">
+                {t("import.summaryAi")}
+              </span>
             </div>
 
             <div className="max-h-100 overflow-y-auto border border-slate-200 dark:border-slate-700/50 rounded-lg">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 dark:bg-slate-900 sticky top-0 shadow-sm z-10">
                   <tr>
-                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">{t("import.columns.date")}</th>
-                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">{t("import.columns.title")}</th>
-                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-right">{t("import.columns.amount")}</th>
-                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">{t("import.columns.category")}</th>
+                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">
+                      {t("import.columns.date")}
+                    </th>
+                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">
+                      {t("import.columns.title")}
+                    </th>
+                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-right">
+                      {t("import.columns.amount")}
+                    </th>
+                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300">
+                      {t("import.columns.category")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {parsedData.map((tItem) => (
-                    <tr key={tItem.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/70">
+                    <tr
+                      key={tItem.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-900/70"
+                    >
                       <td className="p-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
                         {new Date(tItem.date).toLocaleDateString(locale)}
                       </td>
-                      <td className="p-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-37.5" title={tItem.title}>
+                      <td
+                        className="p-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-37.5"
+                        title={tItem.title}
+                      >
                         {tItem.title}
                       </td>
-                      <td className={`p-3 text-right font-semibold whitespace-nowrap ${tItem.amount > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-800 dark:text-slate-200"}`}>
+                      <td
+                        className={`p-3 text-right font-semibold whitespace-nowrap ${tItem.amount > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-800 dark:text-slate-200"}`}
+                      >
                         {formatCurrency(tItem.amount)}
                       </td>
                       <td className="p-3 relative min-w-35">
                         <select
                           value={tItem.categoryId || ""}
-                          onChange={(e) => handleCategoryChange(tItem.id, e.target.value)}
+                          onChange={(e) =>
+                            handleCategoryChange(tItem.id, e.target.value)
+                          }
                           className={`w-full p-2 pr-8 border rounded text-sm transition-colors ${
                             !tItem.categoryId
                               ? "border-red-400 bg-red-50 dark:bg-red-500/10 dark:text-red-200 focus:border-red-500"
@@ -165,11 +214,16 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                         >
                           <option value="">{t("import.selectCategory")}</option>
                           {sortedCategories.map((c) => (
-                            <option key={c.id} value={c.id}>{c.label}</option>
+                            <option key={c.id} value={c.id}>
+                              {c.label}
+                            </option>
                           ))}
                         </select>
                         {tItem.isAiCategorized && (
-                          <span title={t("import.summaryAi")} className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none drop-shadow-sm text-purple-600 dark:text-purple-400">
+                          <span
+                            title={t("import.summaryAi")}
+                            className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none drop-shadow-sm text-purple-600 dark:text-purple-400"
+                          >
                             <AutoAwesome sx={{ fontSize: 16 }} />
                           </span>
                         )}
@@ -181,13 +235,30 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <button onClick={onClose} className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors cursor-pointer">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors cursor-pointer"
+              >
                 {t("common.cancel")}
               </button>
-              <button onClick={handleSaveAll} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors cursor-pointer">
+              <button
+                onClick={handleSaveAll}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors cursor-pointer"
+              >
                 {t("import.saveButton", { count: parsedData.length })}
               </button>
             </div>
+          </div>
+        )}
+        {parsedData.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-2 py-10 text-slate-500 dark:text-slate-400">
+            <span>{t("import.noData")}</span>
+            <button
+              onClick={onCloseAndResolve}
+              className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors cursor-pointer"
+            >
+              {t("common.cancel")}
+            </button>
           </div>
         )}
       </div>

@@ -3,8 +3,12 @@ import { ImportService } from './import.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 import { NotificationService } from '../notification/notification.service';
-import { CategorisationService } from '../categorisation/categorisation.service';
+import {
+  CategorisationService,
+  ProcessedTransaction,
+} from '../categorisation/categorisation.service';
 import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
+import { Transaction } from '@prisma/client/index-browser';
 
 describe('ImportService', () => {
   let service: ImportService;
@@ -18,6 +22,9 @@ describe('ImportService', () => {
     },
     user: {
       findUnique: jest.fn(),
+    },
+    transaction: {
+      findMany: jest.fn(),
     },
   };
 
@@ -50,6 +57,7 @@ describe('ImportService', () => {
     }).compile();
 
     service = module.get<ImportService>(ImportService);
+    mockPrismaService.transaction.findMany.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -147,20 +155,32 @@ describe('ImportService', () => {
       const jobId = 'job-1';
       const userId = 'user-1';
       const txns = [
-        { title: 'Grocery', amount: 250, originalAmount: 250, originalCurrency: 'CZK', date: '2026-01-15T12:00:00Z' },
-      ];
+        {
+          title: 'Grocery',
+          amount: 250,
+          originalAmount: 250,
+          originalCurrency: 'CZK',
+          date: '2026-01-15T12:00:00Z',
+        },
+      ] as unknown as Transaction[];
       const categorisedData = [
         { ...txns[0], categoryId: 'cat-1', isAiCategorized: true },
       ];
 
-      mockPrismaService.user.findUnique.mockResolvedValue({ baseCurrency: 'CZK' });
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        baseCurrency: 'CZK',
+      });
       mockCategorisationService.categorise.mockResolvedValue(categorisedData);
       mockPrismaService.importJob.update.mockResolvedValue({});
       mockNotificationService.create.mockResolvedValue({});
 
       await service.processJobInBackground(jobId, userId, txns);
 
-      expect(mockCategorisationService.categorise).toHaveBeenCalledWith(userId, txns, true);
+      expect(mockCategorisationService.categorise).toHaveBeenCalledWith(
+        userId,
+        txns,
+        true,
+      );
       expect(mockPrismaService.importJob.update).toHaveBeenCalledWith({
         where: { id: jobId },
         data: { status: 'READY_FOR_REVIEW', data: categorisedData },
@@ -183,7 +203,9 @@ describe('ImportService', () => {
       const jobId = 'job-1';
       const userId = 'user-1';
 
-      mockPrismaService.user.findUnique.mockRejectedValue(new Error('DB error'));
+      mockPrismaService.user.findUnique.mockRejectedValue(
+        new Error('DB error'),
+      );
       mockPrismaService.importJob.update.mockResolvedValue({});
 
       await service.processJobInBackground(jobId, userId, []);
@@ -195,7 +217,12 @@ describe('ImportService', () => {
       expect(mockEventsGateway.emitToUser).toHaveBeenCalledWith(
         userId,
         'import_finished',
-        { status: 'error', jobId, message: 'An error occurred during processing. Please try again later.' },
+        {
+          status: 'error',
+          jobId,
+          message:
+            'An error occurred during processing. Please try again later.',
+        },
       );
     });
 
@@ -203,13 +230,29 @@ describe('ImportService', () => {
       const jobId = 'job-1';
       const userId = 'user-1';
       const txns = [
-        { date: '2026-01-15T10:00:00.000Z', originalAmount: 10, originalCurrency: 'EUR', amount: 0, exchangeRate: null as number | null },
-        { date: '2026-01-15T12:00:00.000Z', originalAmount: 100, originalCurrency: 'CZK' },
-      ];
+        {
+          date: '2026-01-15T10:00:00.000Z',
+          originalAmount: 10,
+          originalCurrency: 'EUR',
+          amount: 0,
+          exchangeRate: null as number | null,
+        },
+        {
+          date: '2026-01-15T12:00:00.000Z',
+          originalAmount: 100,
+          originalCurrency: 'CZK',
+        },
+      ] as unknown as Transaction[];
 
-      mockPrismaService.user.findUnique.mockResolvedValue({ baseCurrency: 'CZK' });
-      mockExchangeRateService.getHistoricalRates.mockResolvedValue({ EUR: 0.04 });
-      mockCategorisationService.categorise.mockImplementation(async (_userId, t) => t);
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        baseCurrency: 'CZK',
+      });
+      mockExchangeRateService.getHistoricalRates.mockResolvedValue({
+        EUR: 0.04,
+      });
+      mockCategorisationService.categorise.mockImplementation(
+        async (_userId, t) => (await t) as ProcessedTransaction[],
+      );
       mockPrismaService.importJob.update.mockResolvedValue({});
       mockNotificationService.create.mockResolvedValue({});
 
@@ -219,7 +262,107 @@ describe('ImportService', () => {
       expect(txns[0].amount).toBe(250); // 10 / 0.04
       expect(txns[0].exchangeRate).toBe(25); // 1 / 0.04
 
-      expect(mockExchangeRateService.getHistoricalRates).toHaveBeenCalledWith('2026-01-15', 'CZK');
+      expect(mockExchangeRateService.getHistoricalRates).toHaveBeenCalledWith(
+        '2026-01-15',
+        'CZK',
+      );
+    });
+  });
+
+  describe('filterDuplicates', () => {
+    it('should return empty array when transactions is empty', async () => {
+      const result = await service.filterDuplicates('user-1', []);
+      expect(result).toEqual([]);
+    });
+
+    it('should correctly consume matches from existing DB transactions using frequency counter', async () => {
+      const userId = 'user-1';
+      const existingInDb = [
+        {
+          id: 'tx-1',
+          userId,
+          title: 'eshop.cd',
+          amount: 150,
+          date: new Date('2026-01-15T08:00:00.000Z'),
+        },
+      ] as Transaction[];
+
+      mockPrismaService.transaction.findMany.mockResolvedValue(existingInDb);
+
+      const incoming = [
+        {
+          title: 'eshop.cd',
+          amount: 150,
+          date: '2026-01-15T09:00:00.000Z',
+        },
+        {
+          title: 'eshop.cd',
+          amount: 150,
+          date: '2026-01-15T17:00:00.000Z',
+        },
+      ] as unknown as Transaction[];
+
+      const result = await service.filterDuplicates(userId, incoming);
+
+      // 1 existing in DB matching key -> 1st incoming skipped, 2nd incoming kept
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(incoming[1]);
+    });
+
+    it('should keep all identical incoming transactions if DB has none of them', async () => {
+      const userId = 'user-1';
+      mockPrismaService.transaction.findMany.mockResolvedValue([]);
+
+      const incoming = [
+        {
+          title: 'eshop.cd',
+          amount: 150,
+          date: '2026-01-15T09:00:00.000Z',
+        },
+        {
+          title: 'eshop.cd',
+          amount: 150,
+          date: '2026-01-15T17:00:00.000Z',
+        },
+      ] as unknown as Transaction[];
+
+      const result = await service.filterDuplicates(userId, incoming);
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should correctly filter foreign currency duplicates using originalAmount and originalCurrency before currency conversion', async () => {
+      const userId = 'user-1';
+      // In DB: existing transaction has converted amount (250 CZK) but originalAmount (10) & originalCurrency ('EUR')
+      const existingInDb = [
+        {
+          id: 'tx-1',
+          userId,
+          title: 'Hotel Paris',
+          amount: 250, // Converted to baseCurrency CZK in DB
+          originalAmount: 10,
+          originalCurrency: 'EUR',
+          date: new Date('2026-01-15T08:00:00.000Z'),
+        },
+      ] as Transaction[];
+
+      mockPrismaService.transaction.findMany.mockResolvedValue(existingInDb);
+
+      // Incoming: before currency conversion, amount is not yet converted (e.g. 0 or 10)
+      const incoming = [
+        {
+          title: 'Hotel Paris',
+          amount: 0, // Unconverted before currency conversion step
+          originalAmount: 10,
+          originalCurrency: 'EUR',
+          date: '2026-01-15T08:00:00.000Z',
+        },
+      ] as unknown as Transaction[];
+
+      const result = await service.filterDuplicates(userId, incoming);
+
+      // Should be filtered out as duplicate because originalAmount (10) and originalCurrency ('EUR') match
+      expect(result).toHaveLength(0);
     });
   });
 });

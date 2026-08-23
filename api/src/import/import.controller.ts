@@ -1,7 +1,21 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
-import { ImportService } from "./import.service";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ImportService } from './import.service';
+import { Transaction } from '@prisma/client/index-browser';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -13,15 +27,13 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ImportController {
-  constructor(
-    private readonly importService: ImportService,
-  ) {}
+  constructor(private readonly importService: ImportService) {}
 
   @Post('start')
   @HttpCode(HttpStatus.ACCEPTED)
   async startImport(
     @Req() req: AuthenticatedRequest,
-    @Body('transactions') transactions: unknown,
+    @Body('transactions') transactions: Transaction[],
     @Body('useAi') useAi?: boolean,
   ) {
     if (!Array.isArray(transactions)) {
@@ -43,7 +55,12 @@ export class ImportController {
     );
     // zde spoustime bg proces
     this.importService
-      .processJobInBackground(job.id, req.user.id, safeTransactions, shouldUseAi)
+      .processJobInBackground(
+        job.id,
+        req.user.id,
+        safeTransactions,
+        shouldUseAi,
+      )
       .catch((err) => console.error(`Job ${job.id} failed:`, err));
 
     return { message: 'Import job started', jobId: job.id };
