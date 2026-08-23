@@ -92,6 +92,8 @@ export class ImportService {
             t.amount = origAmt / rate;
             t.exchangeRate = 1 / rate;
           } else {
+            console.warn(`[Import] Missing exchange rate for ${origCurr} on ${dateStr}. Skipping conversion.`);
+            t.amount = t.originalAmount;
             t.exchangeRate = null;
           }
         }
