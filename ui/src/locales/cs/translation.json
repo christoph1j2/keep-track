@@ -355,7 +355,8 @@
     "pendingReview": "Import čeká na schválení!",
     "alreadyProcessing": "Import již probíhá.",
     "noData": "Nebyla nalezena žádná data k importu.",
-    "timeout": "Import trvá déle než očekáváno. Prosím, vyčkejte!"
+    "timeout": "Import trvá déle než očekáváno. Prosím, vyčkejte!",
+    "startFailed": "Nepodařilo se spustit import."
   },
   "splitTransaction": {
     "errors": {

@@ -5,14 +5,28 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { OpenRouter } from '@openrouter/sdk';
 import { LlmProvider } from './llm-provider.interface';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
+
+export interface OpenRouterConfig {
+  primaryModel: string;
+  fallbackModels: string[];
+}
+
+export const DEFAULT_OPENROUTER_CONFIG: OpenRouterConfig = {
+  primaryModel: 'nvidia/nemotron-3-super-120b-a12b:free',
+  fallbackModels: ['nvidia/nemotron-3.5-lightning:free', 'openrouter/free'],
+};
 
 @Injectable()
 export class OpenRouterProvider implements LlmProvider {
   private client: OpenRouter;
   private readonly CHUNK_SIZE = 30;
+  private readonly config: OpenRouterConfig;
 
-  constructor() {
+  constructor(
+    @Optional() config: OpenRouterConfig = DEFAULT_OPENROUTER_CONFIG,
+  ) {
+    this.config = config || DEFAULT_OPENROUTER_CONFIG;
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     this.client = new OpenRouter({
@@ -26,6 +40,11 @@ export class OpenRouterProvider implements LlmProvider {
     titles: string[],
     categories: { id: string; label: string }[],
   ): Promise<{ title: string; categoryId: string | null }[]> {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENROUTER_API_KEY is not configured');
+    }
+
     const res: { title: string; categoryId: string | null }[] = [];
     const systemPrompt = this.buildSystemPrompt(categories);
 
@@ -40,15 +59,17 @@ export class OpenRouterProvider implements LlmProvider {
       // For each chunk: call OpenRouter with retry logic
       let attempts = 0;
       const maxAttempts = 3;
+      let chunkSuccess = false;
+      let lastError: any = null;
 
       while (attempts < maxAttempts) {
         try {
           const aiResponse = await this.client.chat.send({
             chatRequest: {
               // Primary model
-              model: 'nvidia/nemotron-3-super-120b-a12b:free',
+              model: this.config.primaryModel,
               // Fallback models
-              models: ['nvidia/nemotron-3.5-lightning:free', 'openrouter/free'],
+              models: this.config.fallbackModels,
               responseFormat: { type: 'json_object' },
               messages: [
                 { role: 'system', content: systemPrompt },
@@ -126,8 +147,10 @@ export class OpenRouterProvider implements LlmProvider {
           console.log(
             `[LLM] ✅ AI chunk ${chunkNum} finished using model: ${aiResponse.model || 'unknown'}. ${res.filter((r) => r.categoryId).length} categorised so far`,
           );
+          chunkSuccess = true;
           break; // Success
         } catch (error: any) {
+          lastError = error;
           if (error?.statusCode === 429 || error?.status === 429) {
             attempts++;
             console.warn(
@@ -142,6 +165,12 @@ export class OpenRouterProvider implements LlmProvider {
             }
           }
         }
+      }
+
+      if (!chunkSuccess) {
+        const errorMsg = `OpenRouter categorisation failed for chunk ${chunkNum} of ${totalChunks} (${chunk.length} titles unclassified) after ${maxAttempts} attempts.`;
+        console.error(`[LLM] ❌ ${errorMsg}`, lastError);
+        throw new Error(errorMsg);
       }
 
       if (i + this.CHUNK_SIZE < titles.length) {

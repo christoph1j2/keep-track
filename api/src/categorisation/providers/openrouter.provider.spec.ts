@@ -13,8 +13,11 @@ jest.mock('@openrouter/sdk', () => {
 
 describe('OpenRouterProvider', () => {
   let provider: OpenRouterProvider;
+  const originalApiKey = process.env.OPENROUTER_API_KEY;
 
   beforeEach(async () => {
+    process.env.OPENROUTER_API_KEY = 'test-api-key';
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [OpenRouterProvider],
     }).compile();
@@ -22,8 +25,63 @@ describe('OpenRouterProvider', () => {
     provider = module.get<OpenRouterProvider>(OpenRouterProvider);
   });
 
+  afterEach(() => {
+    process.env.OPENROUTER_API_KEY = originalApiKey;
+  });
+
   it('should be defined', () => {
     expect(provider).toBeDefined();
+  });
+
+  it('should throw an error if OPENROUTER_API_KEY is not configured', async () => {
+    delete process.env.OPENROUTER_API_KEY;
+    await expect(
+      provider.categorise(['lidl'], [{ id: 'cat-1', label: 'Food' }]),
+    ).rejects.toThrow('OPENROUTER_API_KEY is not configured');
+  });
+
+  it('should use custom OpenRouterConfig models when provided', async () => {
+    const customConfig = {
+      primaryModel: 'custom/primary-model',
+      fallbackModels: ['custom/fallback-1', 'custom/fallback-2'],
+    };
+    const customProvider = new OpenRouterProvider(customConfig);
+    const mockChatSend = jest.fn().mockResolvedValue({
+      model: 'custom/primary-model',
+      choices: [
+        {
+          message: {
+            content: JSON.stringify([{ title: 'lidl', categoryId: 'cat-1' }]),
+          },
+        },
+      ],
+    });
+    (customProvider as any).client = { chat: { send: mockChatSend } };
+
+    await customProvider.categorise(['lidl'], [{ id: 'cat-1', label: 'Food' }]);
+
+    expect(mockChatSend).toHaveBeenCalledWith({
+      chatRequest: expect.objectContaining({
+        model: 'custom/primary-model',
+        models: ['custom/fallback-1', 'custom/fallback-2'],
+      }),
+    });
+  });
+
+  it('should propagate failure when a chunk exhausts all retry attempts', async () => {
+    const mockChatSend = jest.fn().mockRejectedValue(new Error('API error'));
+    (provider as any).client = { chat: { send: mockChatSend } };
+
+    // Mock sleep to avoid waiting during test execution
+    (provider as any).sleep = jest.fn().mockResolvedValue(undefined);
+
+    await expect(
+      provider.categorise(['lidl'], [{ id: 'cat-1', label: 'Food' }]),
+    ).rejects.toThrow(
+      'OpenRouter categorisation failed for chunk 1 of 1 (1 titles unclassified) after 3 attempts.',
+    );
+
+    expect(mockChatSend).toHaveBeenCalledTimes(3);
   });
 
   describe('categorise response parsing logic', () => {

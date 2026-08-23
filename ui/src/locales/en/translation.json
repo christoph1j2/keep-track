@@ -355,7 +355,8 @@
     "pendingReview": "Import pending review!",
     "alreadyProcessing": "Import is already processing.",
     "noData": "No data found to import.",
-    "timeout": "Import is taking longer than expected. Please hang tight!"
+    "timeout": "Import is taking longer than expected. Please hang tight!",
+    "startFailed": "Failed to start import."
   },
   "splitTransaction": {
     "errors": {

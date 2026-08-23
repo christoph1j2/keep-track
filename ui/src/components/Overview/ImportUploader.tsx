@@ -87,7 +87,7 @@ export function ImportUploader() {
       }, 120000);
     } catch (err) {
       setImportProcessing(false);
-      toast.error(t("import.parseError", "Při čtení souboru nastala chyba."));
+      toast.error(t("import.startFailed", "Nepodařilo se spustit import."));
       console.error(err);
     } finally {
       setPendingTransactions(null);
