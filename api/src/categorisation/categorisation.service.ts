@@ -75,13 +75,22 @@ export class CategorisationService {
         // 3d. Create a mapping of normalized titles to category IDs for easy lookup
         const normalizedToCategoryMap = new Map<string, string | null>();
         for (const res of llmResults) {
-            normalizedToCategoryMap.set(res.title, res.categoryId);
+            if (res && res.title) {
+                const normKey = normaliseTitle(res.title);
+                normalizedToCategoryMap.set(normKey, res.categoryId);
+            }
         }
 
         // Step 4: Map back to original transactions
         const llmProcessed = unmatched.map(t => {
-            const normalized = originalToNormalizedMap.get(t.title);
-            const categoryId = normalizedToCategoryMap.get(normalized!) ?? null;
+            const normalized = originalToNormalizedMap.get(t.title) ?? normaliseTitle(t.title);
+            const hasMatch = normalizedToCategoryMap.has(normalized);
+            if (!hasMatch) {
+                console.warn(
+                    `[Categorisation] ⚠️ LLM result lookup miss for title: "${t.title}" (normalized: "${normalized}")`,
+                );
+            }
+            const categoryId = hasMatch ? (normalizedToCategoryMap.get(normalized) ?? null) : null;
             return {
                 ...t,
                 categoryId,

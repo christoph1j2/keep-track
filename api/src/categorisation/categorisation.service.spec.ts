@@ -239,5 +239,52 @@ describe('CategorisationService', () => {
         { ...tx2, categoryId: null, isAiCategorized: false },
       ]);
     });
+
+    it('should match LLM results even when LLM returns unnormalized title casing/formatting', async () => {
+      const tx = makeTx({ id: 'tx-1', title: 'LIDL DEKUJE ZA NAKUP' });
+      const categories = [{ id: 'cat-1', label: 'Groceries' }];
+
+      mockHeuristicMatcherService.match.mockResolvedValue({
+        matched: [],
+        unmatched: [tx],
+        categories,
+      });
+
+      // LLM returns raw title with uppercase/casing
+      mockLlmProvider.categorise.mockResolvedValue([
+        { title: 'LIDL DEKUJE ZA NAKUP', categoryId: 'cat-1' },
+      ]);
+
+      const result = await service.categorise('user-1', [tx], true);
+
+      expect(result).toEqual([
+        { ...tx, categoryId: 'cat-1', isAiCategorized: true },
+      ]);
+    });
+
+    it('should log a warning and set categoryId=null when LLM result lookup misses', async () => {
+      const tx = makeTx({ id: 'tx-1', title: 'Missing Merchant' });
+      const categories = [{ id: 'cat-1', label: 'Groceries' }];
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      mockHeuristicMatcherService.match.mockResolvedValue({
+        matched: [],
+        unmatched: [tx],
+        categories,
+      });
+
+      // LLM returns empty array or different title
+      mockLlmProvider.categorise.mockResolvedValue([]);
+
+      const result = await service.categorise('user-1', [tx], true);
+
+      expect(result).toEqual([
+        { ...tx, categoryId: null, isAiCategorized: false },
+      ]);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[Categorisation] ⚠️ LLM result lookup miss for title: "Missing Merchant"'),
+      );
+      warnSpy.mockRestore();
+    });
   });
 });
