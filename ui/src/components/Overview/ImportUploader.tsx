@@ -13,7 +13,9 @@ export function ImportUploader() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [pendingTransactions, setPendingTransactions] = useState<any[] | null>(null);
+  const [pendingTransactions, setPendingTransactions] = useState<
+    Awaited<ReturnType<typeof parseBankCSV>> | null
+    >(null);
   const [pendingFileName, setPendingFileName] = useState<string>("");
   const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
 
