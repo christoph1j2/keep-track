@@ -34,16 +34,16 @@ export class ImportService {
     incomingTransactions: Transaction[],
     useAi: boolean = true,
   ) {
-    // Deduplication: remove transactions based on a composite key (date + amount + title)
-    incomingTransactions = await this.filterDuplicates(
-      userId,
-      incomingTransactions,
-    );
-
-    console.log(
-      `[Import ${jobId}] 🚀 Starting background processing for user ${userId} with ${incomingTransactions.length} transactions (useAi: ${useAi})`,
-    );
     try {
+      // Deduplication: remove transactions based on a composite key (date + amount + title)
+      incomingTransactions = await this.filterDuplicates(
+        userId,
+        incomingTransactions,
+      );
+
+      console.log(
+        `[Import ${jobId}] 🚀 Starting background processing for user ${userId} with ${incomingTransactions.length} transactions (useAi: ${useAi})`,
+      );
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         select: { baseCurrency: true },
@@ -190,7 +190,7 @@ export class ImportService {
     transactions: Transaction[],
   ): Promise<Transaction[]> {
     if (!transactions || transactions.length === 0) return [];
-
+    
     // To avoid loading all transactions into memory for heavy users,
     // we extract the min and max dates from the incoming transactions and
     // only fetch transactions within that range for deduplication.
