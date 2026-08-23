@@ -271,6 +271,7 @@ describe('ImportService', () => {
 
   describe('filterDuplicates', () => {
     it('should return empty array when transactions is empty', async () => {
+      mockPrismaService.transaction.findMany.mockClear();
       const result = await service.filterDuplicates('user-1', []);
       expect(result).toEqual([]);
       expect(mockPrismaService.transaction.findMany).not.toHaveBeenCalled();

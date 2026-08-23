@@ -189,6 +189,8 @@ export class ImportService {
     userId: string,
     transactions: Transaction[],
   ): Promise<Transaction[]> {
+    if (!transactions || transactions.length === 0) return [];
+
     // To avoid loading all transactions into memory for heavy users,
     // we extract the min and max dates from the incoming transactions and
     // only fetch transactions within that range for deduplication.

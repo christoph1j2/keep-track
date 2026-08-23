@@ -88,6 +88,28 @@ describe('ImportController', () => {
       );
     });
 
+    it('should pass explicit useAi=false to processJobInBackground', async () => {
+      const req = { user: { id: 'user-1' } } as any;
+      const transactions = [{ title: 'Salary', amount: 50000 }];
+      const job = { id: 'job-123', status: 'PROCESSING', data: transactions };
+
+      mockImportService.createImportJob.mockResolvedValue(job);
+      mockImportService.processJobInBackground.mockResolvedValue(undefined);
+
+      await controller.startImport(req, transactions, false);
+
+      expect(service.createImportJob).toHaveBeenCalledWith(
+        'user-1',
+        transactions,
+      );
+      expect(service.processJobInBackground).toHaveBeenCalledWith(
+        'job-123',
+        'user-1',
+        transactions,
+        false,
+      );
+    });
+
     it('should return jobId in response', async () => {
       const req = { user: { id: 'user-1' } } as any;
       const transactions = [{ title: 'Salary', amount: 50000 }];
