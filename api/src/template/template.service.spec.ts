@@ -48,8 +48,17 @@ describe('TemplateService', () => {
 
   describe('create', () => {
     it('should create a template', async () => {
-      const dto = { title: 'Test', amount: -45, categoryId: '1', showInHotbar: false } as CreateTemplateDto;
-      mockPrismaService.template.create.mockResolvedValue({ id: '1', ...dto, userId: 'user-1' });
+      const dto = {
+        title: 'Test',
+        amount: -45,
+        categoryId: '1',
+        showInHotbar: false,
+      } as CreateTemplateDto;
+      mockPrismaService.template.create.mockResolvedValue({
+        id: '1',
+        ...dto,
+        userId: 'user-1',
+      });
 
       const result = await service.create('user-1', dto);
       expect(result.id).toBe('1');
@@ -73,14 +82,19 @@ describe('TemplateService', () => {
 
     it('should throw NotFoundException if not found', async () => {
       mockPrismaService.template.findFirst.mockResolvedValue(null);
-      await expect(service.findOne('user-1', '1')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('user-1', '1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('update', () => {
     it('should update a template', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValue({ id: '1' } as any);
-      mockPrismaService.template.update.mockResolvedValue({ id: '1', amount: 200 });
+      mockPrismaService.template.update.mockResolvedValue({
+        id: '1',
+        amount: 200,
+      });
 
       const result = await service.update('user-1', '1', { amount: 200 });
       expect(result.amount).toBe(200);
@@ -100,19 +114,29 @@ describe('TemplateService', () => {
   describe('reorder', () => {
     it('should throw NotFoundException if template not found', async () => {
       mockPrismaService.template.findMany.mockResolvedValue([]);
-      await expect(service.reorder('user-1', { templates: [{ id: '1', order: 1 }] })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.reorder('user-1', { templates: [{ id: '1', order: 1 }] }),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException if template belongs to another user', async () => {
-      mockPrismaService.template.findMany.mockResolvedValue([{ id: '1', userId: 'other-user' }]);
-      await expect(service.reorder('user-1', { templates: [{ id: '1', order: 1 }] })).rejects.toThrow(ForbiddenException);
+      mockPrismaService.template.findMany.mockResolvedValue([
+        { id: '1', userId: 'other-user' },
+      ]);
+      await expect(
+        service.reorder('user-1', { templates: [{ id: '1', order: 1 }] }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('should reorder templates', async () => {
-      mockPrismaService.template.findMany.mockResolvedValue([{ id: '1', userId: 'user-1', order: 1 }]);
+      mockPrismaService.template.findMany.mockResolvedValue([
+        { id: '1', userId: 'user-1', order: 1 },
+      ]);
       mockPrismaService.$transaction.mockResolvedValue([{ id: '1', order: 2 }]);
 
-      const result = await service.reorder('user-1', { templates: [{ id: '1', order: 2 }] });
+      const result = await service.reorder('user-1', {
+        templates: [{ id: '1', order: 2 }],
+      });
       expect(result).toEqual([{ id: '1', order: 2 }]);
     });
   });

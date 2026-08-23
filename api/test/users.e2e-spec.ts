@@ -18,7 +18,8 @@ describe('Users (e2e)', () => {
   let userId: string;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
+    process.env.DATABASE_URL =
+      'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -32,20 +33,31 @@ describe('Users (e2e)', () => {
       }),
     );
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
     const { execSync } = require('child_process');
-    execSync('npx prisma db push --accept-data-loss', { env: { ...process.env } });
+    execSync('npx prisma db push --accept-data-loss', {
+      env: { ...process.env },
+    });
   });
 
   beforeEach(async () => {
     await cleanDatabase(prisma);
 
-    const testUser = { email: 'user@example.com', password: 'Password123!', username: 'user1', baseCurrency: 'CZK' };
-    const registerRes = await request(app.getHttpServer()).post('/users').send(testUser);
+    const testUser = {
+      email: 'user@example.com',
+      password: 'Password123!',
+      username: 'user1',
+      baseCurrency: 'CZK',
+    };
+    const registerRes = await request(app.getHttpServer())
+      .post('/users')
+      .send(testUser);
     userId = registerRes.body.id;
 
-    const loginRes = await request(app.getHttpServer()).post('/auth/login').send({ email: testUser.email, password: testUser.password });
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
     accessToken = loginRes.body.access_token;
   });
 
@@ -81,13 +93,16 @@ describe('Users (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         oldPassword: 'Password123!',
-        newPassword: 'NewPassword123!'
+        newPassword: 'NewPassword123!',
       })
       .expect(200);
 
     // Verify password was changed
     const dbUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isPasswordChanged = await bcrypt.compare('NewPassword123!', dbUser!.passwordHash);
+    const isPasswordChanged = await bcrypt.compare(
+      'NewPassword123!',
+      dbUser!.passwordHash,
+    );
     expect(isPasswordChanged).toBe(true);
   });
 

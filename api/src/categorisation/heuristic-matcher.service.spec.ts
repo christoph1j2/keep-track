@@ -202,16 +202,18 @@ describe('HeuristicMatcherService', () => {
     });
 
     it('should match a title that has both null and valid categoryId history', async () => {
-      mockPrismaService.transaction.findMany.mockImplementation(async (args: any) => {
-        const data = [
-          { title: 'Tesco', categoryId: null },
-          { title: 'Tesco', categoryId: 'cat-groceries' },
-        ];
-        if (args.where?.categoryId?.not === null) {
-          return data.filter(d => d.categoryId !== null);
-        }
-        return data;
-      });
+      mockPrismaService.transaction.findMany.mockImplementation(
+        async (args: any) => {
+          const data = [
+            { title: 'Tesco', categoryId: null },
+            { title: 'Tesco', categoryId: 'cat-groceries' },
+          ];
+          if (args.where?.categoryId?.not === null) {
+            return data.filter((d) => d.categoryId !== null);
+          }
+          return data;
+        },
+      );
       mockPrismaService.category.findMany.mockResolvedValue([
         { id: 'cat-groceries', label: 'Groceries' },
       ]);

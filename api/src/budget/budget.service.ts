@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { ReorderBudgetsDto } from './dto/reorder-budgets.dto';
@@ -21,8 +26,8 @@ export class BudgetService {
 
     if (category.type !== 'EXPENSE') {
       throw new BadRequestException(
-        'Budget can only be set for categories for expenses.'
-      )
+        'Budget can only be set for categories for expenses.',
+      );
     }
   }
 
@@ -36,7 +41,9 @@ export class BudgetService {
       },
       include: { category: true },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'budgets',
+    });
     return created;
   }
 
@@ -69,7 +76,9 @@ export class BudgetService {
       data: dto,
       include: { category: true },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'budgets',
+    });
     return updated;
   }
 
@@ -78,7 +87,9 @@ export class BudgetService {
     const res = await this.prisma.budget.delete({
       where: { id },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'budgets',
+    });
     return res;
   }
 
@@ -106,7 +117,9 @@ export class BudgetService {
       }),
     );
     const result = await this.prisma.$transaction(updates);
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'budgets',
+    });
     return result;
   }
 
@@ -115,16 +128,16 @@ export class BudgetService {
       where: { userId },
       include: {
         categories: {
-          include: { category: true }
-        }
-      }
+          include: { category: true },
+        },
+      },
     });
   }
 
   async setComplexBudget(userId: string, dto: SetComplexBudgetDto) {
     await Promise.all(
       (dto.categories ?? []).map(({ categoryId }) =>
-        this.validateExpenseCategory(userId, categoryId)
+        this.validateExpenseCategory(userId, categoryId),
       ),
     );
 
@@ -135,27 +148,33 @@ export class BudgetService {
         income: dto.income,
         necessaryExpenses: dto.necessaryExpenses,
         limit,
-        categories: dto.categories ? {
-          deleteMany: {},
-          create: dto.categories,
-        } : undefined,
+        categories: dto.categories
+          ? {
+              deleteMany: {},
+              create: dto.categories,
+            }
+          : undefined,
       },
       create: {
         userId,
         income: dto.income,
         necessaryExpenses: dto.necessaryExpenses,
         limit,
-        categories: dto.categories ? {
-          create: dto.categories,
-        } : undefined,
+        categories: dto.categories
+          ? {
+              create: dto.categories,
+            }
+          : undefined,
       },
       include: {
         categories: {
-          include: { category: true }
-        }
-      }
+          include: { category: true },
+        },
+      },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'budgets',
+    });
     return updated;
   }
 
@@ -169,7 +188,9 @@ export class BudgetService {
     const res = await this.prisma.complexBudget.delete({
       where: { userId },
     });
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'budgets' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'budgets',
+    });
     return res;
   }
 }

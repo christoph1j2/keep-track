@@ -17,9 +17,7 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [
-        { provide: UsersService, useValue: mockUsersService },
-      ],
+      providers: [{ provide: UsersService, useValue: mockUsersService }],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
@@ -36,7 +34,12 @@ describe('UsersController', () => {
 
   describe('create', () => {
     it('should call service.create', () => {
-      const dto = { email: 'test@test.com', username: 'test', password: 'password', baseCurrency: 'CZK' };
+      const dto = {
+        email: 'test@test.com',
+        username: 'test',
+        password: 'password',
+        baseCurrency: 'CZK',
+      };
       controller.create(dto);
       expect(service.create).toHaveBeenCalledWith(dto);
     });

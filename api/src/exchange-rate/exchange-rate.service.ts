@@ -9,7 +9,10 @@ export interface ExchangeRatesResponse {
 export class ExchangeRateService {
   private readonly logger = new Logger(ExchangeRateService.name);
 
-  private async fetchWithTimeout(url: string, timeoutMs: number = 5000): Promise<Response> {
+  private async fetchWithTimeout(
+    url: string,
+    timeoutMs: number = 5000,
+  ): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -57,7 +60,9 @@ export class ExchangeRateService {
       return data.rates || {};
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.error(`Error fetching historical rates for ${date}: ${message}`);
+      this.logger.error(
+        `Error fetching historical rates for ${date}: ${message}`,
+      );
       throw new HttpException(
         'Exchange rates unavailable',
         HttpStatus.SERVICE_UNAVAILABLE,

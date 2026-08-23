@@ -19,9 +19,7 @@ describe('CategoryController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CategoryController],
-      providers: [
-        { provide: CategoryService, useValue: mockCategoryService },
-      ],
+      providers: [{ provide: CategoryService, useValue: mockCategoryService }],
     }).compile();
 
     controller = module.get<CategoryController>(CategoryController);
@@ -38,7 +36,12 @@ describe('CategoryController', () => {
 
   describe('create', () => {
     it('should call service.create', () => {
-      const dto: CreateCategoryDto = { label: 'Test', colorClass: 'bg', iconName: 'icon', type: 'EXPENSE' };
+      const dto: CreateCategoryDto = {
+        label: 'Test',
+        colorClass: 'bg',
+        iconName: 'icon',
+        type: 'EXPENSE',
+      };
       const req = { user: { id: 'user-1' } } as any;
       controller.create(dto, req);
       expect(service.create).toHaveBeenCalledWith('user-1', dto);

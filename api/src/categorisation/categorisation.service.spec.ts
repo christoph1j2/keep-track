@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Logger } from '@nestjs/common';
 import { CategorisationService } from './categorisation.service';
 import { HeuristicMatcherService } from './heuristic-matcher.service';
-import { LLM_PROVIDER, type LlmProvider } from './providers/llm-provider.interface';
+import {
+  LLM_PROVIDER,
+  type LlmProvider,
+} from './providers/llm-provider.interface';
 import { Transaction } from '@prisma/client';
 
 const makeTx = (overrides: Partial<Transaction> = {}): Transaction => ({
@@ -38,13 +42,18 @@ describe('CategorisationService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CategorisationService,
-        { provide: HeuristicMatcherService, useValue: mockHeuristicMatcherService },
+        {
+          provide: HeuristicMatcherService,
+          useValue: mockHeuristicMatcherService,
+        },
         { provide: LLM_PROVIDER, useValue: mockLlmProvider },
       ],
     }).compile();
 
     service = module.get<CategorisationService>(CategorisationService);
-    heuristicMatcher = module.get<HeuristicMatcherService>(HeuristicMatcherService);
+    heuristicMatcher = module.get<HeuristicMatcherService>(
+      HeuristicMatcherService,
+    );
     llmProvider = module.get<LlmProvider>(LLM_PROVIDER);
   });
 
@@ -77,7 +86,11 @@ describe('CategorisationService', () => {
         categories: [{ id: 'cat-1', label: 'Groceries' }],
       });
 
-      const result = await service.categorise('user-1', [matchedTx, unmatchedTx], false);
+      const result = await service.categorise(
+        'user-1',
+        [matchedTx, unmatchedTx],
+        false,
+      );
 
       expect(result).toEqual([
         matchedTx,
@@ -108,7 +121,11 @@ describe('CategorisationService', () => {
         categories: [],
       });
 
-      const result = await service.categorise('user-1', [matchedTx, unmatchedTx], true);
+      const result = await service.categorise(
+        'user-1',
+        [matchedTx, unmatchedTx],
+        true,
+      );
 
       expect(result).toEqual([
         matchedTx,
@@ -155,7 +172,10 @@ describe('CategorisationService', () => {
       await service.categorise('user-1', [tx1, tx2], true);
 
       expect(mockLlmProvider.categorise).toHaveBeenCalledTimes(1);
-      expect(mockLlmProvider.categorise).toHaveBeenCalledWith(['albert'], categories);
+      expect(mockLlmProvider.categorise).toHaveBeenCalledWith(
+        ['albert'],
+        categories,
+      );
     });
 
     it('should map LLM results back to original transactions correctly', async () => {
@@ -184,7 +204,11 @@ describe('CategorisationService', () => {
         { title: 'shell', categoryId: 'cat-fuel' },
       ]);
 
-      const result = await service.categorise('user-1', [matchedTx, tx1, tx2, tx3], true);
+      const result = await service.categorise(
+        'user-1',
+        [matchedTx, tx1, tx2, tx3],
+        true,
+      );
 
       expect(result).toEqual([
         matchedTx,
@@ -265,7 +289,7 @@ describe('CategorisationService', () => {
     it('should log a warning and set categoryId=null when LLM result lookup misses', async () => {
       const tx = makeTx({ id: 'tx-1', title: 'Missing Merchant' });
       const categories = [{ id: 'cat-1', label: 'Groceries' }];
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
 
       mockHeuristicMatcherService.match.mockResolvedValue({
         matched: [],
@@ -282,7 +306,9 @@ describe('CategorisationService', () => {
         { ...tx, categoryId: null, isAiCategorized: false },
       ]);
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[Categorisation] ⚠️ LLM result lookup miss for title: "Missing Merchant"'),
+        expect.stringContaining(
+          '[Categorisation] ⚠️ LLM result lookup miss for title: "Missing Merchant"',
+        ),
       );
       warnSpy.mockRestore();
     });

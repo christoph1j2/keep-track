@@ -29,9 +29,7 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('categories')
 export class CategoryController {
-  constructor(
-    private readonly categoriesService: CategoryService,
-  ) {}
+  constructor(private readonly categoriesService: CategoryService) {}
 
   @Post()
   @ApiOperation({ summary: 'Vytvořit novou kategorii' })

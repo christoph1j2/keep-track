@@ -19,13 +19,11 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [
-        { provide: AuthService, useValue: mockAuthService },
-      ],
+      providers: [{ provide: AuthService, useValue: mockAuthService }],
     })
-    .overrideGuard(ThrottlerGuard)
-    .useValue({ canActivate: () => true })
-    .compile();
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
     service = module.get<AuthService>(AuthService);
@@ -59,7 +57,9 @@ describe('AuthController', () => {
 
   describe('refresh', () => {
     it('should return new tokens', async () => {
-      mockAuthService.refreshTokens.mockResolvedValue({ access_token: 'token' });
+      mockAuthService.refreshTokens.mockResolvedValue({
+        access_token: 'token',
+      });
       const result = await controller.refresh({ refreshToken: 'oldToken' });
       expect(result.access_token).toBe('token');
     });
@@ -77,7 +77,9 @@ describe('AuthController', () => {
   describe('forgotPassword', () => {
     it('should call forgotPassword', async () => {
       mockAuthService.forgotPassword.mockResolvedValue({ message: 'Success' });
-      const result = await controller.forgotPassword({ email: 'test@test.com' });
+      const result = await controller.forgotPassword({
+        email: 'test@test.com',
+      });
       expect(result.message).toBeDefined();
       expect(service.forgotPassword).toHaveBeenCalledWith('test@test.com');
     });
@@ -86,9 +88,15 @@ describe('AuthController', () => {
   describe('resetPassword', () => {
     it('should call resetPassword', async () => {
       mockAuthService.resetPassword.mockResolvedValue({ message: 'Success' });
-      const result = await controller.resetPassword({ newPassword: 'pass', confirmPassword: 'pass' }, 'token');
+      const result = await controller.resetPassword(
+        { newPassword: 'pass', confirmPassword: 'pass' },
+        'token',
+      );
       expect(result.message).toBeDefined();
-      expect(service.resetPassword).toHaveBeenCalledWith('token', { newPassword: 'pass', confirmPassword: 'pass' });
+      expect(service.resetPassword).toHaveBeenCalledWith('token', {
+        newPassword: 'pass',
+        confirmPassword: 'pass',
+      });
     });
   });
 });

@@ -18,7 +18,8 @@ describe('Template (e2e)', () => {
   let categoryId: string;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
+    process.env.DATABASE_URL =
+      'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -32,21 +33,32 @@ describe('Template (e2e)', () => {
       }),
     );
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
     const { execSync } = require('child_process');
-    execSync('npx prisma db push --accept-data-loss', { env: { ...process.env } });
+    execSync('npx prisma db push --accept-data-loss', {
+      env: { ...process.env },
+    });
   });
 
   beforeEach(async () => {
     await cleanDatabase(prisma);
 
     // Setup User & Token
-    const testUser = { email: 'template@example.com', password: 'Password123!', username: 'tpluser', baseCurrency: 'CZK' };
-    const registerRes = await request(app.getHttpServer()).post('/users').send(testUser);
+    const testUser = {
+      email: 'template@example.com',
+      password: 'Password123!',
+      username: 'tpluser',
+      baseCurrency: 'CZK',
+    };
+    const registerRes = await request(app.getHttpServer())
+      .post('/users')
+      .send(testUser);
     userId = registerRes.body.id;
 
-    const loginRes = await request(app.getHttpServer()).post('/auth/login').send({ email: testUser.email, password: testUser.password });
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
     accessToken = loginRes.body.access_token;
 
     // Create a base category for template
@@ -57,7 +69,7 @@ describe('Template (e2e)', () => {
         iconName: 'Coffee',
         type: 'EXPENSE',
         userId: userId,
-      }
+      },
     });
     categoryId = cat.id;
   });
@@ -72,7 +84,7 @@ describe('Template (e2e)', () => {
       title: 'Morning Coffee',
       amount: 60,
       categoryId: categoryId,
-      showInHotbar: true
+      showInHotbar: true,
     };
 
     const response = await request(app.getHttpServer())
@@ -94,8 +106,8 @@ describe('Template (e2e)', () => {
         amount: 150,
         categoryId: categoryId,
         userId: userId,
-        showInHotbar: false
-      }
+        showInHotbar: false,
+      },
     });
 
     const response = await request(app.getHttpServer())
@@ -116,7 +128,7 @@ describe('Template (e2e)', () => {
         amount: 50,
         categoryId: categoryId,
         userId: userId,
-      }
+      },
     });
 
     const response = await request(app.getHttpServer())
@@ -136,7 +148,7 @@ describe('Template (e2e)', () => {
         amount: 100,
         categoryId: categoryId,
         userId: userId,
-      }
+      },
     });
 
     await request(app.getHttpServer())
@@ -144,7 +156,9 @@ describe('Template (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
 
-    const checkTpl = await prisma.template.findUnique({ where: { id: tpl.id } });
+    const checkTpl = await prisma.template.findUnique({
+      where: { id: tpl.id },
+    });
     expect(checkTpl).toBeNull();
   });
 });

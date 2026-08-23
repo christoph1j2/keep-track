@@ -42,25 +42,52 @@ describe('UsersService', () => {
   describe('create', () => {
     it('should throw ConflictException if email exists', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue({ id: '1' });
-      await expect(service.create({ email: 'test@test.com', username: 'test', password: 'password', baseCurrency: 'CZK' })).rejects.toThrow(ConflictException);
+      await expect(
+        service.create({
+          email: 'test@test.com',
+          username: 'test',
+          password: 'password',
+          baseCurrency: 'CZK',
+        }),
+      ).rejects.toThrow(ConflictException);
     });
 
     it('should create a user', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
       (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
       (bcrypt.hash as jest.Mock).mockResolvedValue('hash');
-      
-      const createdUser = { id: '1', email: 'test@test.com', username: 'test', baseCurrency: 'CZK' };
+
+      const createdUser = {
+        id: '1',
+        email: 'test@test.com',
+        username: 'test',
+        baseCurrency: 'CZK',
+      };
       mockPrismaService.user.create.mockResolvedValue(createdUser);
 
-      const result = await service.create({ email: 'test@test.com', username: 'test', password: 'password', baseCurrency: 'CZK' });
-      expect(result).toEqual({ id: '1', email: 'test@test.com', username: 'test', baseCurrency: 'CZK', createdAt: undefined, updatedAt: undefined });
+      const result = await service.create({
+        email: 'test@test.com',
+        username: 'test',
+        password: 'password',
+        baseCurrency: 'CZK',
+      });
+      expect(result).toEqual({
+        id: '1',
+        email: 'test@test.com',
+        username: 'test',
+        baseCurrency: 'CZK',
+        createdAt: undefined,
+        updatedAt: undefined,
+      });
     });
   });
 
   describe('findByEmail', () => {
     it('should return user by email', async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', email: 'test@test.com' });
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+      });
       const result = await service.findByEmail('test@test.com');
       expect(result).toEqual({ id: '1', email: 'test@test.com' });
     });
@@ -68,7 +95,10 @@ describe('UsersService', () => {
 
   describe('findOne', () => {
     it('should return user by id', async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', email: 'test@test.com' });
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+      });
       const result = await service.findOne('1');
       expect(result).toEqual({ id: '1', email: 'test@test.com' });
     });
@@ -76,7 +106,10 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should update user', async () => {
-      mockPrismaService.user.update.mockResolvedValue({ id: '1', username: 'updated' });
+      mockPrismaService.user.update.mockResolvedValue({
+        id: '1',
+        username: 'updated',
+      });
       const result = await service.update('1', { username: 'updated' });
       expect(result).toEqual({ id: '1', username: 'updated' });
     });
@@ -93,26 +126,40 @@ describe('UsersService', () => {
   describe('changePassword', () => {
     it('should return nothing if user not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
-      const result = await service.changePassword('1', { oldPassword: 'old', newPassword: 'new' });
+      const result = await service.changePassword('1', {
+        oldPassword: 'old',
+        newPassword: 'new',
+      });
       expect(result).toBeUndefined();
     });
 
     it('should throw BadRequestException if old password incorrect', async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', passwordHash: 'hash' });
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: '1',
+        passwordHash: 'hash',
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-      
-      await expect(service.changePassword('1', { oldPassword: 'old', newPassword: 'new' })).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.changePassword('1', { oldPassword: 'old', newPassword: 'new' }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should update password if correct', async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', passwordHash: 'hash' });
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: '1',
+        passwordHash: 'hash',
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
       (bcrypt.hash as jest.Mock).mockResolvedValue('newHash');
 
       mockPrismaService.user.update.mockResolvedValue({ id: '1' });
 
-      const result = await service.changePassword('1', { oldPassword: 'old', newPassword: 'new' });
+      const result = await service.changePassword('1', {
+        oldPassword: 'old',
+        newPassword: 'new',
+      });
       expect(result).toEqual({ message: 'Password changed successfully' });
     });
   });

@@ -18,7 +18,8 @@ describe('Budget (e2e)', () => {
   let categoryId: string;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
+    process.env.DATABASE_URL =
+      'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -32,21 +33,32 @@ describe('Budget (e2e)', () => {
       }),
     );
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
     const { execSync } = require('child_process');
-    execSync('npx prisma db push --accept-data-loss', { env: { ...process.env } });
+    execSync('npx prisma db push --accept-data-loss', {
+      env: { ...process.env },
+    });
   });
 
   beforeEach(async () => {
     await cleanDatabase(prisma);
 
     // Setup User & Token
-    const testUser = { email: 'budget@example.com', password: 'Password123!', username: 'budgetuser', baseCurrency: 'CZK' };
-    const registerRes = await request(app.getHttpServer()).post('/users').send(testUser);
+    const testUser = {
+      email: 'budget@example.com',
+      password: 'Password123!',
+      username: 'budgetuser',
+      baseCurrency: 'CZK',
+    };
+    const registerRes = await request(app.getHttpServer())
+      .post('/users')
+      .send(testUser);
     userId = registerRes.body.id;
 
-    const loginRes = await request(app.getHttpServer()).post('/auth/login').send({ email: testUser.email, password: testUser.password });
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
     accessToken = loginRes.body.access_token;
 
     // Create a base category for budget
@@ -57,7 +69,7 @@ describe('Budget (e2e)', () => {
         iconName: 'Food',
         type: 'EXPENSE',
         userId: userId,
-      }
+      },
     });
     categoryId = cat.id;
   });
@@ -70,7 +82,7 @@ describe('Budget (e2e)', () => {
   it('/budgets (POST) - Create a budget', async () => {
     const createDto = {
       limit: 5000,
-      categoryId: categoryId
+      categoryId: categoryId,
     };
 
     const response = await request(app.getHttpServer())
@@ -90,7 +102,7 @@ describe('Budget (e2e)', () => {
         limit: 3000,
         categoryId: categoryId,
         userId: userId,
-      }
+      },
     });
 
     const response = await request(app.getHttpServer())

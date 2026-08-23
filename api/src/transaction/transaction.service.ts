@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,12 +15,21 @@ export class TransactionService {
     private eventsGateway: EventsGateway,
   ) {}
 
-  private async validateAndCleanCategoryId(userId: string, categoryId?: string | null): Promise<string | null> {
-    if (!categoryId || categoryId === 'null' || categoryId === 'undefined' || categoryId.trim() === '') {
+  private async validateAndCleanCategoryId(
+    userId: string,
+    categoryId?: string | null,
+  ): Promise<string | null> {
+    if (
+      !categoryId ||
+      categoryId === 'null' ||
+      categoryId === 'undefined' ||
+      categoryId.trim() === ''
+    ) {
       return null;
     }
 
-    const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const UUID_REGEX =
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     if (!UUID_REGEX.test(categoryId)) {
       throw new BadRequestException('Neplatný formát ID kategorie');
     }
@@ -26,14 +39,19 @@ export class TransactionService {
     });
 
     if (!category) {
-      throw new BadRequestException('Kategorie nenalezena nebo k ní nemáte přístup');
+      throw new BadRequestException(
+        'Kategorie nenalezena nebo k ní nemáte přístup',
+      );
     }
 
     return categoryId;
   }
 
   async create(userId: string, dto: CreateTransactionDto) {
-    const categoryId = await this.validateAndCleanCategoryId(userId, dto.categoryId);
+    const categoryId = await this.validateAndCleanCategoryId(
+      userId,
+      dto.categoryId,
+    );
     const created = await this.prisma.transaction.create({
       data: {
         ...dto,
@@ -43,7 +61,9 @@ export class TransactionService {
       include: { category: true }, // Rovnou vrátíme i spojenou kategorii pro frontend
     });
 
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'transactions',
+    });
     return created;
   }
 
@@ -73,12 +93,18 @@ export class TransactionService {
   // }
 
   async createBatch(userId: string, dtos: CreateTransactionDto[]) {
-    const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const UUID_REGEX =
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
     // Očistíme categoryId pro všechny DTO a posbíráme ty, které chceme validovat
-    const cleanedDtos = dtos.map(dto => {
+    const cleanedDtos = dtos.map((dto) => {
       let categoryId = dto.categoryId;
-      if (!categoryId || categoryId === 'null' || categoryId === 'undefined' || categoryId.trim() === '') {
+      if (
+        !categoryId ||
+        categoryId === 'null' ||
+        categoryId === 'undefined' ||
+        categoryId.trim() === ''
+      ) {
         categoryId = undefined;
       }
       return {
@@ -92,7 +118,7 @@ export class TransactionService {
       .filter((id): id is string => !!id);
 
     const uniqueCategoryIds = Array.from(new Set(categoryIds));
-    
+
     // Zkontrolujeme formát UUID
     for (const id of uniqueCategoryIds) {
       if (!UUID_REGEX.test(id)) {
@@ -115,7 +141,7 @@ export class TransactionService {
       for (const id of uniqueCategoryIds) {
         if (!existingCategoryIds.has(id)) {
           throw new BadRequestException(
-            `Kategorie s ID "${id}" neexistuje nebo k ní nemáte přístup.`
+            `Kategorie s ID "${id}" neexistuje nebo k ní nemáte přístup.`,
           );
         }
       }
@@ -131,14 +157,19 @@ export class TransactionService {
       skipDuplicates: true, // Přeskočí duplicitní záznamy
     });
 
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'transactions',
+    });
     return { count: res.count }; // Vrátíme počet vytvořených záznamů
   }
 
   async update(userId: string, id: string, dto: UpdateTransactionDto) {
     let categoryId: string | null | undefined = undefined;
     if (dto.categoryId !== undefined) {
-      categoryId = await this.validateAndCleanCategoryId(userId, dto.categoryId);
+      categoryId = await this.validateAndCleanCategoryId(
+        userId,
+        dto.categoryId,
+      );
     }
 
     const res = await this.prisma.transaction.updateMany({
@@ -148,12 +179,16 @@ export class TransactionService {
         ...(dto.categoryId !== undefined ? { categoryId } : {}),
       },
     });
-    
+
     if (res.count === 0) {
-      throw new NotFoundException('Transakce nenalezena nebo k ní nemáte přístup');
+      throw new NotFoundException(
+        'Transakce nenalezena nebo k ní nemáte přístup',
+      );
     }
 
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'transactions',
+    });
 
     return this.prisma.transaction.findUnique({
       where: { id },
@@ -167,10 +202,14 @@ export class TransactionService {
     });
 
     if (res.count === 0) {
-      throw new NotFoundException('Transakce nenalezena nebo k ní nemáte přístup');
+      throw new NotFoundException(
+        'Transakce nenalezena nebo k ní nemáte přístup',
+      );
     }
 
-    this.eventsGateway.emitToUser(userId, 'data_updated', { resource: 'transactions' });
+    this.eventsGateway.emitToUser(userId, 'data_updated', {
+      resource: 'transactions',
+    });
 
     return { success: true };
   }

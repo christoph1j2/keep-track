@@ -33,19 +33,13 @@ export class NotificationController {
 
   @Patch(':id/read')
   @ApiOperation({ summary: 'Označit notifikaci jako přečtenou' })
-  markAsRead(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  markAsRead(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.notificationService.markAsRead(req.user.id, id);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Smazat notifikaci' })
-  remove(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.notificationService.remove(req.user.id, id);
   }
 }

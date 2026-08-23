@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { OpenRouter } from '@openrouter/sdk';
 import { LlmProvider } from './llm-provider.interface';
-import { Injectable, Optional } from '@nestjs/common';
+import { Injectable, Optional, Logger } from '@nestjs/common';
 
 export interface OpenRouterConfig {
   primaryModel: string;
@@ -22,6 +22,7 @@ export class OpenRouterProvider implements LlmProvider {
   private client: OpenRouter;
   private readonly CHUNK_SIZE = 30;
   private readonly config: OpenRouterConfig;
+  private readonly logger = new Logger(OpenRouterProvider.name);
 
   constructor(
     @Optional() config: OpenRouterConfig = DEFAULT_OPENROUTER_CONFIG,
@@ -53,7 +54,7 @@ export class OpenRouterProvider implements LlmProvider {
       const chunk = titles.slice(i, i + this.CHUNK_SIZE);
       const chunkNum = Math.floor(i / this.CHUNK_SIZE) + 1;
       const totalChunks = Math.ceil(titles.length / this.CHUNK_SIZE);
-      console.log(
+      this.logger.log(
         `[LLM] 🤖 Processing AI chunk ${chunkNum} of ${totalChunks} (${chunk.length} titles)`,
       );
       // For each chunk: call OpenRouter with retry logic
@@ -82,7 +83,7 @@ export class OpenRouterProvider implements LlmProvider {
           const content = aiResponse?.choices?.[0]?.message?.content;
 
           if (!content) {
-            console.warn(
+            this.logger.warn(
               `[LLM] Returned empty response for chunk ${chunkNum}. Retrying...`,
             );
             attempts++;
@@ -98,9 +99,8 @@ export class OpenRouterProvider implements LlmProvider {
           try {
             parsedData = JSON.parse(cleanJson);
           } catch (err) {
-            console.error(
-              `[LLM] Failed to parse JSON for chunk ${chunkNum}:`,
-              cleanJson,
+            this.logger.error(
+              `[LLM] Failed to parse JSON for chunk ${chunkNum}: ${cleanJson}`,
             );
             attempts++;
             continue;
@@ -133,18 +133,18 @@ export class OpenRouterProvider implements LlmProvider {
                   title: String(item.title),
                   categoryId: item.categoryId ? String(item.categoryId) : null,
                 });
-                console.log(
+                this.logger.debug(
                   `[LLM Reasoning] ${item.title} -> ${item.categoryId || 'null'}: ${item.reasoning || 'No reasoning provided'}`,
                 );
               }
             }
           } else {
-            console.warn(
+            this.logger.warn(
               `[LLM] Chunk ${chunkNum} returned no valid transaction items.`,
             );
           }
 
-          console.log(
+          this.logger.log(
             `[LLM] ✅ AI chunk ${chunkNum} finished using model: ${aiResponse.model || 'unknown'}. ${res.filter((r) => r.categoryId).length} categorised so far`,
           );
           chunkSuccess = true;
@@ -153,12 +153,12 @@ export class OpenRouterProvider implements LlmProvider {
           lastError = error;
           if (error?.statusCode === 429 || error?.status === 429) {
             attempts++;
-            console.warn(
+            this.logger.warn(
               `[LLM] Rate limit hit. Retrying in ${5 * attempts} seconds... (Attempt ${attempts}/${maxAttempts})`,
             );
             await this.sleep(5000 * attempts);
           } else {
-            console.error('[LLM] Error calling OpenRouter:', error);
+            this.logger.error('[LLM] Error calling OpenRouter:', error);
             attempts++;
             if (attempts < maxAttempts) {
               await this.sleep(2000);
@@ -169,7 +169,7 @@ export class OpenRouterProvider implements LlmProvider {
 
       if (!chunkSuccess) {
         const errorMsg = `OpenRouter categorisation failed for chunk ${chunkNum} of ${totalChunks} (${chunk.length} titles unclassified) after ${maxAttempts} attempts.`;
-        console.error(`[LLM] ❌ ${errorMsg}`, lastError);
+        this.logger.error(`[LLM] ❌ ${errorMsg}`, lastError);
         throw new Error(errorMsg);
       }
 

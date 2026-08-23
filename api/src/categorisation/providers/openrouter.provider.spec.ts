@@ -92,8 +92,16 @@ describe('OpenRouterProvider', () => {
           {
             message: {
               content: JSON.stringify([
-                { title: 'lidl dekuje za nakup', categoryId: 'cat-1', reasoning: 'Supermarket' },
-                { title: 'pmdp plb', categoryId: 'cat-2', reasoning: 'Transport' },
+                {
+                  title: 'lidl dekuje za nakup',
+                  categoryId: 'cat-1',
+                  reasoning: 'Supermarket',
+                },
+                {
+                  title: 'pmdp plb',
+                  categoryId: 'cat-2',
+                  reasoning: 'Transport',
+                },
               ]),
             },
           },
@@ -123,7 +131,11 @@ describe('OpenRouterProvider', () => {
             message: {
               content: JSON.stringify({
                 results: [
-                  { title: 'tesco marianske lazne', categoryId: 'cat-1', reasoning: 'Supermarket' },
+                  {
+                    title: 'tesco marianske lazne',
+                    categoryId: 'cat-1',
+                    reasoning: 'Supermarket',
+                  },
                 ],
               }),
             },
@@ -164,9 +176,7 @@ describe('OpenRouterProvider', () => {
         [{ id: 'cat-1', label: 'Food & Groceries' }],
       );
 
-      expect(results).toEqual([
-        { title: 'portu investice', categoryId: null },
-      ]);
+      expect(results).toEqual([{ title: 'portu investice', categoryId: null }]);
     });
   });
 });

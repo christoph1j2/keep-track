@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   LLM_PROVIDER,
   type LlmProvider,
@@ -21,6 +21,8 @@ export interface ProcessedTransaction {
 
 @Injectable()
 export class CategorisationService {
+  private readonly logger = new Logger(CategorisationService.name);
+
   constructor(
     private readonly heuristicMatcher: HeuristicMatcherService,
     @Inject(LLM_PROVIDER) private readonly llmProvider: LlmProvider,
@@ -31,14 +33,15 @@ export class CategorisationService {
     transactions: Transaction[],
     useAi: boolean = true,
   ): Promise<ProcessedTransaction[]> {
-    console.log(
-      `[Categorisation] 📊 Started: ${transactions.length} transactions for user ${userId} (useAi: ${useAi})`,
+    const shortUserId = userId.substring(0, 8) + '***';
+    this.logger.log(
+      `[Categorisation] 📊 Started: ${transactions.length} transactions for user ${shortUserId} (useAi: ${useAi})`,
     );
 
     // Step 1: Heuristic matching
     const { matched, unmatched, categories } =
       await this.heuristicMatcher.match(userId, transactions);
-    console.log(
+    this.logger.log(
       `[Categorisation] 🔍 Local heuristics: ${matched.length} matched locally, ${unmatched.length} unmatched (${categories.length} user categories available)`,
     );
 
@@ -49,7 +52,7 @@ export class CategorisationService {
         : categories.length === 0
           ? 'no user categories'
           : 'all matched locally';
-      console.log(
+      this.logger.log(
         `[Categorisation] ⏭️ Skipping AI categorisation (${reason}). Returning ${matched.length} matched + ${unmatched.length} uncategorised.`,
       );
       return [
@@ -73,7 +76,7 @@ export class CategorisationService {
     const uniqueNormalizedTitles = [
       ...new Set(originalToNormalizedMap.values()),
     ];
-    console.log(
+    this.logger.log(
       `[Categorisation] 🧹 Deduplication: ${unmatched.length} transactions → ${uniqueNormalizedTitles.length} unique titles to send to AI`,
     );
 
@@ -98,7 +101,7 @@ export class CategorisationService {
         originalToNormalizedMap.get(t.title) ?? normaliseTitle(t.title);
       const hasMatch = normalizedToCategoryMap.has(normalized);
       if (!hasMatch) {
-        console.warn(
+        this.logger.warn(
           `[Categorisation] ⚠️ LLM result lookup miss for title: "${t.title}" (normalized: "${normalized}")`,
         );
       }
@@ -116,7 +119,7 @@ export class CategorisationService {
     const allResults = [...matched, ...llmProcessed];
     const aiCategorized = llmProcessed.filter((r) => r.isAiCategorized).length;
     const uncategorized = llmProcessed.filter((r) => !r.categoryId).length;
-    console.log(
+    this.logger.log(
       `[Categorisation] 📋 Final results: ${matched.length} local matches, ${aiCategorized} AI categorised, ${uncategorized} uncategorised (${allResults.length} total)`,
     );
 

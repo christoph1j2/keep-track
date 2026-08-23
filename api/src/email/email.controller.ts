@@ -28,7 +28,9 @@ export class EmailController {
     try {
       const to = process.env.FEEDBACK_EMAIL_ADDRESS;
       if (!to) {
-        console.warn('FEEDBACK_EMAIL_ADDRESS is not configured, skipping sending email.');
+        console.warn(
+          'FEEDBACK_EMAIL_ADDRESS is not configured, skipping sending email.',
+        );
         return {
           success: true,
           message: 'Feedback received (email not sent due to missing config)',

@@ -18,7 +18,8 @@ describe('Transaction (e2e)', () => {
   let categoryId: string;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
+    process.env.DATABASE_URL =
+      'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -32,21 +33,32 @@ describe('Transaction (e2e)', () => {
       }),
     );
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
     const { execSync } = require('child_process');
-    execSync('npx prisma db push --accept-data-loss', { env: { ...process.env } });
+    execSync('npx prisma db push --accept-data-loss', {
+      env: { ...process.env },
+    });
   });
 
   beforeEach(async () => {
     await cleanDatabase(prisma);
 
     // Setup User & Token
-    const testUser = { email: 'transaction@example.com', password: 'Password123!', username: 'txuser', baseCurrency: 'CZK' };
-    const registerRes = await request(app.getHttpServer()).post('/users').send(testUser);
+    const testUser = {
+      email: 'transaction@example.com',
+      password: 'Password123!',
+      username: 'txuser',
+      baseCurrency: 'CZK',
+    };
+    const registerRes = await request(app.getHttpServer())
+      .post('/users')
+      .send(testUser);
     userId = registerRes.body.id;
 
-    const loginRes = await request(app.getHttpServer()).post('/auth/login').send({ email: testUser.email, password: testUser.password });
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
     accessToken = loginRes.body.access_token;
 
     // Create a base category for transaction
@@ -57,7 +69,7 @@ describe('Transaction (e2e)', () => {
         iconName: 'Food',
         type: 'EXPENSE',
         userId: userId,
-      }
+      },
     });
     categoryId = cat.id;
   });
@@ -75,7 +87,7 @@ describe('Transaction (e2e)', () => {
       originalCurrency: 'CZK',
       date: new Date().toISOString(),
       categoryId: categoryId,
-      isAiCategorized: false
+      isAiCategorized: false,
     };
 
     const response = await request(app.getHttpServer())
@@ -98,8 +110,8 @@ describe('Transaction (e2e)', () => {
         categoryId: categoryId,
         userId: userId,
         originalAmount: 15000,
-        originalCurrency: 'CZK'
-      }
+        originalCurrency: 'CZK',
+      },
     });
 
     const response = await request(app.getHttpServer())
@@ -121,8 +133,8 @@ describe('Transaction (e2e)', () => {
         categoryId: categoryId,
         userId: userId,
         originalAmount: 100,
-        originalCurrency: 'CZK'
-      }
+        originalCurrency: 'CZK',
+      },
     });
 
     await request(app.getHttpServer())
@@ -131,7 +143,9 @@ describe('Transaction (e2e)', () => {
       .expect(200);
 
     // Verify it's gone
-    const checkTx = await prisma.transaction.findUnique({ where: { id: tx.id } });
+    const checkTx = await prisma.transaction.findUnique({
+      where: { id: tx.id },
+    });
     expect(checkTx).toBeNull();
   });
 });

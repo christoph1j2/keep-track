@@ -30,9 +30,7 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('budgets')
 export class BudgetController {
-  constructor(
-    private readonly budgetService: BudgetService,
-  ) {}
+  constructor(private readonly budgetService: BudgetService) {}
 
   @Post()
   @ApiOperation({ summary: 'Vytvořit nový rozpočet' })
@@ -70,7 +68,10 @@ export class BudgetController {
     @Body() setComplexBudgetDto: SetComplexBudgetDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.budgetService.setComplexBudget(req.user.id, setComplexBudgetDto);
+    return this.budgetService.setComplexBudget(
+      req.user.id,
+      setComplexBudgetDto,
+    );
   }
 
   @Delete('complex')
