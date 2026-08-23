@@ -56,6 +56,23 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
     });
   };
 
+  const cleanupImportJob = async (jobId: string) => {
+    try {
+      await api.delete(`/import/${jobId}`);
+
+      const { notifications, removeNotification } =
+        useNotificationStore.getState();
+      const targetNotification = notifications.find(
+        (n) => n.type === "IMPORT_READY" && n.metadata?.jobId === jobId,
+      );
+      if (targetNotification) {
+        await removeNotification(targetNotification.id);
+      }
+    } catch (err) {
+      console.error("Nepodařilo se smazat import job", err);
+    }
+  };
+
   const performSave = async () => {
     const normalizedData = parsedData.map((tItem) => ({
       title: tItem.title,
@@ -81,22 +98,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
       // Vyčištění DB na backendu
       if (importJobId) {
-        try {
-          await api.delete(`/import/${importJobId}`);
-
-          // Vymazání notifikace po úspěšném uložení
-          const { notifications, removeNotification } =
-            useNotificationStore.getState();
-          const targetNotification = notifications.find(
-            (n) =>
-              n.type === "IMPORT_READY" && n.metadata?.jobId === importJobId,
-          );
-          if (targetNotification) {
-            await removeNotification(targetNotification.id);
-          }
-        } catch (err) {
-          console.error("Nepodařilo se smazat import job", err);
-        }
+        await cleanupImportJob(importJobId);
       }
 
       // Vyčištění storu a zavření
@@ -127,21 +129,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   const onCloseAndResolve = async () => {
     // Clear imported data in the store when closing the modal without saving and resolve the notification
     if (importJobId) {
-      try {
-        await api.delete(`/import/${importJobId}`);
-
-        // Delete the notification related to this import job
-        const { notifications, removeNotification } =
-          useNotificationStore.getState();
-        const targetNotification = notifications.find(
-          (n) => n.type === "IMPORT_READY" && n.metadata?.jobId === importJobId,
-        );
-        if (targetNotification) {
-          await removeNotification(targetNotification.id);
-        }
-      } catch (err) {
-        console.error("Nepodařilo se smazat import job", err);
-      }
+      await cleanupImportJob(importJobId);
     }
 
     clearImportedData();
