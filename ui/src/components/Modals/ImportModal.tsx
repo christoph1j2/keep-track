@@ -212,7 +212,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                             title={t("import.summaryAi")}
                             className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none drop-shadow-sm text-purple-600 dark:text-purple-400"
                           >
-                            <AutoAwesome sx={{ fontSize: 16 }} />
+                            <AutoAwesome sx={{ fontSize: 16, marginRight: 1.5 }} />
                           </span>
                         )}
                       </td>
