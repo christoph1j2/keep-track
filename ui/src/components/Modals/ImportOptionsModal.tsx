@@ -66,9 +66,12 @@ export function ImportOptionsModal({
         </p>
 
         {/* Options grid */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3" role="radiogroup" aria-label={t("import.optionsSubtitle", "Zvolte způsob kategorizace transakcí:")}>
           {/* Option 1: Heuristics Only */}
-          <div
+          <button
+            type="button"
+            role="radio"
+            aria-checked={selectedMode === "heuristics"}
             onClick={() => setSelectedMode("heuristics")}
             className={`group relative p-4 rounded-xl border transition-all cursor-pointer ${
               selectedMode === "heuristics"
@@ -110,10 +113,13 @@ export function ImportOptionsModal({
                 </p>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* Option 2: AI Categorization */}
-          <div
+          <button
+            type="button"
+            role="radio"
+            aria-checked={selectedMode === "ai"}
             onClick={() => setSelectedMode("ai")}
             className={`group relative p-4 rounded-xl border transition-all cursor-pointer ${
               selectedMode === "ai"
@@ -172,7 +178,7 @@ export function ImportOptionsModal({
                 </div>
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Footer buttons */}
