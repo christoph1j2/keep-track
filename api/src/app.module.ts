@@ -17,6 +17,7 @@ import { NotificationModule } from './notification/notification.module';
 import { EmailModule } from './email/email.module';
 import { ExchangeRateModule } from './exchange-rate/exchange-rate.module';
 import { ImportModule } from './import/import.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ImportModule } from './import/import.module';
     EmailModule,
     ExchangeRateModule,
     ImportModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
