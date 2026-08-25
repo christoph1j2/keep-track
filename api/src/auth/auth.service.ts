@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { EmailService } from '../email/email.service';
+import { Role } from '@prisma/client';
 
 export type ValidatedUser = {
   id: string;
@@ -14,6 +15,7 @@ export type ValidatedUser = {
   baseCurrency: string;
   createdAt: Date;
   updatedAt: Date;
+  role: Role;
 };
 
 @Injectable()
@@ -40,6 +42,7 @@ export class AuthService {
         baseCurrency: user.baseCurrency,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        role: user.role,
       };
     }
     return null;
@@ -47,7 +50,7 @@ export class AuthService {
 
   // vygenerovat tokeny a ulozit refresh token do DB
   async login(user: ValidatedUser) {
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, role: user.role };
 
     // vygenerujeme oba tokeny
     const accessToken = this.jwtService.sign(payload, {
@@ -116,6 +119,7 @@ export class AuthService {
         baseCurrency: user.baseCurrency,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        role: user.role,
       };
 
       return this.login(validatedUser);
