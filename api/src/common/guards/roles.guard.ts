@@ -13,9 +13,9 @@ export class RolesGuard implements CanActivate {
         private readonly logger: Logger,
     ) {}
 
-    async canActivate(
+    canActivate(
         context: ExecutionContext,
-    ): Promise<boolean> {
+    ): boolean | Promise<boolean> | Observable<boolean> {
         const requiredRoles = this.reflector.getAllAndOverride<Role[]>(
             ROLES_KEY,
             [context.getHandler(), context.getClass()]
@@ -38,7 +38,7 @@ export class RolesGuard implements CanActivate {
             return false;
         }
 
-        const fullUser = await this.usersService.findOne(user.id);
+        const fullUser = this.usersService.findOne(user.id);
         this.logger.verbose(`Full user from DB fetch...`);
 
         if (!fullUser) {
@@ -46,14 +46,8 @@ export class RolesGuard implements CanActivate {
             return false;
         }
 
-        const hasRole = requiredRoles.includes(fullUser.role);
-        
-        if (!hasRole) {
-            this.logger.verbose(`User role ${fullUser.role} is not in required roles. Access denied.`);
-        } else {
-            this.logger.verbose(`Access granted for role ${fullUser.role}.`);
-        }
+        const hasRole = requiredRoles.includes(fullUser);
 
-        return hasRole;
+        return false;
     }
 }
