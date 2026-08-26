@@ -12,22 +12,22 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get('stats')
-  async getStats() {
+  getStats() {
     // Implementation for fetching admin statistics
   }
 
   @Get('users')
-  async getUsers() {
+  getUsers() {
     // Implementation for fetching all users
   }
 
   @Patch('users/:id/role')
-  async updateUserRole() {
+  updateUserRole() {
     // Implementation for updating user role
   }
 
   @Delete('users/:id')
-  async deleteUser() {
+  deleteUser() {
     // Implementation for deleting a user
   }
 
