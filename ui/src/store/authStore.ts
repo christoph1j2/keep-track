@@ -6,6 +6,7 @@ interface User {
   email: string;
   username: string;
   baseCurrency: string;
+  role?: "USER" | "ADMIN";
 }
 
 interface AuthState {

@@ -8,11 +8,13 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import CategoryIcon from "@mui/icons-material/Category";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import { Extension, CurrencyExchange } from "@mui/icons-material";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useTranslation } from "react-i18next";
 import { NotificationCenter } from "./NotificationCenter";
 import { Logo } from "./Logo";
 import { FeedbackModal } from "../Modals/FeedbackModal";
 import { BaseModal } from "../Modals/BaseModal";
+import { useAuthStore } from "../../store/authStore";
 
 interface MenuItem {
   translationKey: string;
@@ -70,6 +72,7 @@ const MENU_ITEMS: MenuItem[] = [
  */
 export function Sidebar() {
   const { t } = useTranslation();
+  const user = useAuthStore((state) => state.user);
 
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
@@ -95,6 +98,21 @@ export function Sidebar() {
             {t(item.translationKey)}
           </NavLink>
         ))}
+        {user?.role === "ADMIN" && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors cursor-pointer ${
+                isActive
+                  ? "bg-white text-slate-900 shadow-sm border border-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 transition-colors"
+                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100 transition-colors"
+              }`
+            }
+          >
+            <AdminPanelSettingsIcon />
+            Admin Panel
+          </NavLink>
+        )}
       </nav>
 
       {/* notifications and pending imports */}

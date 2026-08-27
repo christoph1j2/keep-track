@@ -18,6 +18,7 @@ async function main() {
   const username = 'asdf';
   const password = 'asdfasdf';
   const baseCurrency = 'CZK'; 
+  const role = 'ADMIN';
 
   const passwordHash = await bcrypt.hash(password, 10);
 
@@ -28,12 +29,14 @@ async function main() {
       username,
       passwordHash,
       baseCurrency,
+      role,
     },
     create: {
       email,
       username,
       passwordHash,
       baseCurrency,
+      role,
     },
   });
   console.log(`Seeded user: ${user.email} (${user.id})`);

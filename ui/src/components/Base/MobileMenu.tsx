@@ -22,6 +22,8 @@ import { useTranslation } from "react-i18next";
 import { Logo } from "./Logo";
 import { BaseModal } from "../Modals/BaseModal";
 import { FeedbackModal } from "../Modals/FeedbackModal";
+import { useAuthStore } from "../../store/authStore";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 interface MenuItem {
   label: string;
@@ -38,6 +40,7 @@ export function MobileMenu() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const location = useLocation();
   const { t } = useTranslation();
+  const user = useAuthStore((state) => state.user);
 
   const MENU_ITEMS: MenuItem[] = [
     {
@@ -63,6 +66,14 @@ export function MobileMenu() {
     { label: t("sidebar.quickAdd"), icon: <Extension />, path: "/quickadd" },
     { label: t("sidebar.settings"), icon: <SettingsIcon />, path: "/settings" },
   ];
+
+  if (user?.role === "ADMIN") {
+    MENU_ITEMS.push({
+      label: "Admin Panel", // You can translate this later if needed
+      icon: <AdminPanelSettingsIcon />,
+      path: "/admin",
+    });
+  }
 
   const toggleDrawer =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {

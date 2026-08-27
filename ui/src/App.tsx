@@ -17,6 +17,8 @@ import { Toaster } from "react-hot-toast";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Homepage } from "./pages/Homepage";
+import { AdminRoute } from "./components/Base/AdminRoute";
+import { AdminDashboard } from "./pages/AdminDashboard";
 
 /**
  * Root application component that wires routing into the shared layout shell.
@@ -53,6 +55,10 @@ function App() {
             <Route path="/quickadd" element={<QuickAdd />} />
             <Route path="/exchange-rates" element={<ExchangeRates />} />
             <Route path="/settings" element={<Settings />} />
+            {/* Admin Routes */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Route>
         </Route>
