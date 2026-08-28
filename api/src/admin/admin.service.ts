@@ -23,6 +23,7 @@ export class AdminService {
         const categoryCount = await this.prisma.category.count();
         const templateCount = await this.prisma.template.count();
         const budgetCount = await this.prisma.budget.count();
+        const complexBudgetCount = await this.prisma.complexBudget.count();
 
         return {
             userCount,
@@ -30,6 +31,7 @@ export class AdminService {
             categoryCount,
             templateCount,
             budgetCount,
+            complexBudgetCount,
         };
     }
 

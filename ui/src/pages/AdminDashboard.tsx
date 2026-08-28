@@ -24,13 +24,8 @@ interface AdminUser {
 export const AdminDashboard = () => {
   const currentUser = useAuthStore((state) => state.user);
   const [users, setUsers] = useState<AdminUser[]>([]);
-  const [stats, setStats] = useState({ userCount: 0, budgetCount: 0 }); 
+  const [stats, setStats] = useState({ userCount: 0, budgetCount: 0, transactionCount: 0, categoryCount: 0, templateCount: 0 }); 
   const showConfirm = useConfirmStore((state) => state.showConfirm);
-
-  // Fetch users and stats on component mount
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -45,6 +40,11 @@ export const AdminDashboard = () => {
       console.error(error);
     }
   };
+
+  // Fetch users and stats on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   /**
    * Handle changing a user's role
@@ -92,8 +92,8 @@ export const AdminDashboard = () => {
       </h2>
 
       {/* Stats Overview */}
-      <Grid container spacing={4} className="mb-6">
-        <Grid size={{ xs: 12, md: 6 }}>
+      <Grid container spacing={2} className="mb-6">
+        <Grid size={{ xs: 6, md: 6, lg: 4 }}>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
             <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
               Total Users
@@ -103,13 +103,53 @@ export const AdminDashboard = () => {
             </p>
           </div>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 4 }}>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              Total Transactions
+            </h3>
+            <p className="text-3xl font-bold">
+              {stats.transactionCount || 0}
+            </p>
+          </div>
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 4 }}>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+                Total Categories
+            </h3>
+            <p className="text-3xl font-bold">
+              {stats.categoryCount || 0}
+            </p>
+          </div>
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 4 }}>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              Template Count
+            </h3>
+            <p className="text-3xl font-bold">
+              {stats.templateCount || 0}
+            </p>
+          </div>
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 4 }}>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
             <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
               Active Budgets
             </h3>
             <p className="text-3xl font-bold">
               {stats.budgetCount || 0}
+            </p>
+          </div>
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 4 }}>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              Complex Budgets
+            </h3>
+            <p className="text-3xl font-bold">
+              {stats.complexBudgetCount || 0}
             </p>
           </div>
         </Grid>
