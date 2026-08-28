@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Card,
-  CardContent,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Button,
   Grid,
   Select,
@@ -16,6 +8,9 @@ import {
 import { toast } from "react-hot-toast";
 import { api } from "../utils/api";
 import { useConfirmStore } from "../store/confirmStore";
+
+import { useAuthStore } from "../store/authStore";
+import { Delete } from "@mui/icons-material";
 
 // Interface for User data fetched from the admin endpoint
 interface AdminUser {
@@ -27,8 +22,9 @@ interface AdminUser {
 }
 
 export const AdminDashboard = () => {
+  const currentUser = useAuthStore((state) => state.user);
   const [users, setUsers] = useState<AdminUser[]>([]);
-  const [stats, setStats] = useState({ totalUsers: 0, activeBudgets: 0 }); // update with actual stat fields if different
+  const [stats, setStats] = useState({ userCount: 0, budgetCount: 0 }); 
   const showConfirm = useConfirmStore((state) => state.showConfirm);
 
   // Fetch users and stats on component mount
@@ -90,89 +86,146 @@ export const AdminDashboard = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <Typography variant="h4" className="text-gray-800 dark:text-white font-bold mb-6">
+    <div className="p-6 space-y-6 text-slate-900 dark:text-slate-100 transition-colors">
+      <h2 className="text-3xl font-bold mb-6">
         Admin Dashboard
-      </Typography>
+      </h2>
 
       {/* Stats Overview */}
       <Grid container spacing={4} className="mb-6">
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total Users
-              </Typography>
-              <Typography variant="h4">{stats.totalUsers || 0}</Typography>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              Total Users
+            </h3>
+            <p className="text-3xl font-bold">
+              {stats.userCount || 0}
+            </p>
+          </div>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Active Budgets
-              </Typography>
-              <Typography variant="h4">{stats.activeBudgets || 0}</Typography>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              Active Budgets
+            </h3>
+            <p className="text-3xl font-bold">
+              {stats.budgetCount || 0}
+            </p>
+          </div>
         </Grid>
       </Grid>
 
       {/* User Management Table */}
-      <Card>
-        <CardContent>
-          <Typography variant="h6" className="mb-4">
-            User Management
-          </Typography>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Username</TableCell>
-                  <TableCell>Joined</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={user.role || "USER"}
-                        size="small"
-                        onChange={(e) =>
-                          handleRoleChange(user.id, e.target.value)
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+        <h3 className="text-xl font-bold mb-4">
+          User Management
+        </h3>
+        <div className="block md:hidden space-y-4">
+          {users.map((user) => (
+            <div key={user.id} className="p-4 border border-slate-100 dark:border-slate-700/50 rounded-xl bg-slate-50 dark:bg-slate-800/30 transition-colors">
+              <div className="flex justify-between items-start mb-3 gap-2">
+                <div className="overflow-hidden">
+                  <div className="font-bold text-slate-800 dark:text-slate-100 truncate">{user.username}</div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 truncate">{user.email}</div>
+                </div>
+                <Button
+                  color="error"
+                  size="small"
+                  disabled={user.id === currentUser?.id}
+                  onClick={() => handleDeleteUser(user.id)}
+                >
+                  <Delete />
+                </Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-400 dark:text-slate-500">
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </span>
+                <Select
+                  value={user.role || "USER"}
+                  size="small"
+                  disabled={user.id === currentUser?.id}
+                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                  className="bg-white dark:bg-slate-800 dark:text-white"
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'var(--tw-prose-body)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3b82f6',
+                    },
+                    '& .MuiSelect-icon': {
+                      color: 'inherit',
+                    }
+                  }}
+                >
+                  <MenuItem value="USER">USER</MenuItem>
+                  <MenuItem value="ADMIN">ADMIN</MenuItem>
+                </Select>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-700">
+                <th className="py-3 px-4 font-semibold">Email</th>
+                <th className="py-3 px-4 font-semibold">Username</th>
+                <th className="py-3 px-4 font-semibold">Joined</th>
+                <th className="py-3 px-4 font-semibold">Role</th>
+                <th className="py-3 px-4 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id} className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-3 px-4">{user.email}</td>
+                  <td className="py-3 px-4">{user.username}</td>
+                  <td className="py-3 px-4 text-slate-500 dark:text-slate-400">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="py-3 px-4">
+                    <Select
+                      value={user.role || "USER"}
+                      size="small"
+                      disabled={user.id === currentUser?.id}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      className="bg-white dark:bg-slate-800 dark:text-white"
+                      sx={{
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'var(--tw-prose-body)',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#3b82f6',
+                        },
+                        '& .MuiSelect-icon': {
+                          color: 'inherit',
                         }
-                      >
-                        <MenuItem value="USER">USER</MenuItem>
-                        <MenuItem value="ADMIN">ADMIN</MenuItem>
-                      </Select>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                      }}
+                    >
+                      <MenuItem value="USER">USER</MenuItem>
+                      <MenuItem value="ADMIN">ADMIN</MenuItem>
+                    </Select>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <Button
+                      color="error"
+                      size="small"
+                      disabled={user.id === currentUser?.id}
+                      onClick={() => handleDeleteUser(user.id)}
+                    >
+                      <Delete />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
