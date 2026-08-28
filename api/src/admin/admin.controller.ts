@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '.prisma/client/edge';
 
-@UseGuards(RolesGuard, JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('admin')
 export class AdminController {

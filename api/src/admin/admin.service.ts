@@ -42,6 +42,7 @@ export class AdminService {
         // Implementation for fetching all users
         return this.prisma.user.findMany({
             select: {
+                id: true,
                 email: true,
                 username: true,
                 baseCurrency: true,
