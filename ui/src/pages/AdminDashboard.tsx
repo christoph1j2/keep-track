@@ -4,6 +4,8 @@ import {
   Grid,
   Select,
   MenuItem,
+  TextField,
+  Pagination,
 } from "@mui/material";
 import { toast } from "react-hot-toast";
 import { api } from "../utils/api";
@@ -26,6 +28,22 @@ export const AdminDashboard = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [stats, setStats] = useState({ userCount: 0, budgetCount: 0, transactionCount: 0, categoryCount: 0, templateCount: 0 }); 
   const showConfirm = useConfirmStore((state) => state.showConfirm);
+
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const usersPerPage = 10;
+
+  const filteredUsers = users.filter((user) =>
+    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  
+  const paginatedUsers = filteredUsers.slice(
+    (page - 1) * usersPerPage,
+    page * usersPerPage
+  );
 
   const fetchData = async () => {
     try {
@@ -157,11 +175,43 @@ export const AdminDashboard = () => {
 
       {/* User Management Table */}
       <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-        <h3 className="text-xl font-bold mb-4">
-          User Management
-        </h3>
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
+          <h3 className="text-xl font-bold">
+            User Management
+          </h3>
+          <TextField
+            size="small"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
+            className="w-full md:w-64"
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: "rgb(226, 232, 240)" },
+                "&:hover fieldset": { borderColor: "rgb(203, 213, 225)" },
+                "&.Mui-focused fieldset": {
+                  borderColor: "rgb(59, 130, 246)",
+                },
+              },
+              "& .MuiInputBase-input": { color: "rgb(30, 41, 59)" },
+              ".dark &": {
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgb(51, 65, 85)" },
+                  "&:hover fieldset": { borderColor: "rgb(71, 85, 105)" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgb(59, 130, 246)",
+                  },
+                },
+                "& .MuiInputBase-input": { color: "rgb(241, 245, 249)" },
+              },
+            }}
+          />
+        </div>
         <div className="block md:hidden space-y-4">
-          {users.map((user) => (
+          {paginatedUsers.map((user) => (
             <div key={user.id} className="p-4 border border-slate-100 dark:border-slate-700/50 rounded-xl bg-slate-50 dark:bg-slate-800/30 transition-colors">
               <div className="flex justify-between items-start mb-3 gap-2">
                 <div className="overflow-hidden">
@@ -172,7 +222,16 @@ export const AdminDashboard = () => {
                   color="error"
                   size="small"
                   disabled={user.id === currentUser?.id}
+                  className="text-red-500 dark:text-red-400"
                   onClick={() => handleDeleteUser(user.id)}
+                  sx={{
+                    "&.Mui-disabled": {
+                      color: "rgba(255, 255, 255, 0.3)",
+                      cursor: "not-allowed",
+                      pointerEvents: "auto",
+                    },
+                    color: "rgba(255, 0, 0, 0.8)",
+                  }}
                 >
                   <Delete />
                 </Button>
@@ -188,6 +247,7 @@ export const AdminDashboard = () => {
                   onChange={(e) => handleRoleChange(user.id, e.target.value)}
                   className="bg-white dark:bg-slate-800 dark:text-white"
                   sx={{
+                    color: 'inherit',
                     '& .MuiOutlinedInput-notchedOutline': {
                       borderColor: 'var(--tw-prose-body)',
                     },
@@ -196,6 +256,22 @@ export const AdminDashboard = () => {
                     },
                     '& .MuiSelect-icon': {
                       color: 'inherit',
+                    },
+                    '&.Mui-disabled': {
+                      color: 'rgba(255, 255, 255, 0.5)',
+                      cursor: 'not-allowed',
+                      pointerEvents: 'auto',
+                    },
+                    '.dark &': {
+                      '& .MuiInputBase-input.Mui-disabled': {
+                        WebkitTextFillColor: 'rgba(255, 255, 255, 0.76)',
+                      },
+                      '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                      '&.Mui-disabled .MuiSelect-icon': {
+                        color: 'rgba(255, 255, 255, 0.51)',
+                      }
                     }
                   }}
                 >
@@ -220,7 +296,7 @@ export const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr key={user.id} className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="py-3 px-4">{user.email}</td>
                   <td className="py-3 px-4">{user.username}</td>
@@ -235,6 +311,7 @@ export const AdminDashboard = () => {
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
                       className="bg-white dark:bg-slate-800 dark:text-white"
                       sx={{
+                        color: 'inherit',
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderColor: 'var(--tw-prose-body)',
                         },
@@ -243,6 +320,21 @@ export const AdminDashboard = () => {
                         },
                         '& .MuiSelect-icon': {
                           color: 'inherit',
+                        },
+                        '&.Mui-disabled': {
+                          cursor: 'not-allowed',
+                          pointerEvents: 'auto',
+                        },
+                        '.dark &': {
+                          '& .MuiInputBase-input.Mui-disabled': {
+                            WebkitTextFillColor: 'rgba(255, 255, 255, 0.5)',
+                          },
+                          '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&.Mui-disabled .MuiSelect-icon': {
+                            color: 'rgba(255, 255, 255, 0.3)',
+                          }
                         }
                       }}
                     >
@@ -256,6 +348,13 @@ export const AdminDashboard = () => {
                       size="small"
                       disabled={user.id === currentUser?.id}
                       onClick={() => handleDeleteUser(user.id)}
+                      sx={{
+                        "&.Mui-disabled": {
+                          color: "rgba(255, 255, 255, 0.3)",
+                          cursor: "not-allowed",
+                          pointerEvents: "auto",
+                        }
+                      }}
                     >
                       <Delete />
                     </Button>
@@ -265,6 +364,25 @@ export const AdminDashboard = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6">
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(e, value) => setPage(value)}
+              color="primary"
+              sx={{
+                '.dark &': {
+                  '& .MuiPaginationItem-root': {
+                    color: 'rgb(241, 245, 249)',
+                  },
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
