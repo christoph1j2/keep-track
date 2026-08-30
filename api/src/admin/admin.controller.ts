@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -27,17 +36,12 @@ export class AdminController {
   }
 
   @Patch('users/:id/role')
-  updateUserRole(
-    @Body('userId') userId: string,
-    @Body('newRole') newRole: Role,
-  ) {
+  updateUserRole(@Param('id') userId: string, @Body('newRole') newRole: Role) {
     return this.adminService.updateUserRole(userId, newRole);
   }
 
   @Delete('users/:id')
-  deleteUser(
-    @Body('userId') userId: string,
-  ) {
+  deleteUser(@Param('id') userId: string) {
     return this.adminService.deleteUser(userId);
   }
 
@@ -48,7 +52,12 @@ export class AdminController {
     @Body('type') type?: string,
     @Body('targetUserIds') targetUserIds?: string[],
   ) {
-    return this.adminService.broadcastNotification(title, message, type, targetUserIds);
+    return this.adminService.broadcastNotification(
+      title,
+      message,
+      type,
+      targetUserIds,
+    );
   }
 
   @Post('maintenance/cleanup-jobs')
