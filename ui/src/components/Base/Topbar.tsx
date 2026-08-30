@@ -16,7 +16,7 @@ import {
 import { useTransactionStore } from "../../store/transactionStore";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
-import { useConfirmStore } from "../../store/confirmStore";
+//import { useConfirmStore } from "../../store/confirmStore";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { useAuthStore } from "../../store/authStore";
 import { api } from "../../utils/api";
@@ -34,7 +34,7 @@ export function Topbar() {
   const transactions = useTransactionStore((state) => state.transactions);
 
   const { t, i18n } = useTranslation();
-  const showConfirm = useConfirmStore((state) => state.showConfirm);
+  //const showConfirm = useConfirmStore((state) => state.showConfirm);
 
   const { language, setLanguage } = useSettingsStore();
 
