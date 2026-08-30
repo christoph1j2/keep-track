@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   UseGuards,
@@ -36,7 +37,10 @@ export class AdminController {
   }
 
   @Patch('users/:id/role')
-  updateUserRole(@Param('id') userId: string, @Body('newRole') newRole: Role) {
+  updateUserRole(
+    @Param('id') userId: string,
+    @Body('newRole', new ParseEnumPipe(Role)) newRole: Role,
+  ) {
     return this.adminService.updateUserRole(userId, newRole);
   }
 
