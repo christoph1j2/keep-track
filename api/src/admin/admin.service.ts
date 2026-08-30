@@ -241,6 +241,7 @@ export class AdminService {
     const result = await this.prisma.importJob.deleteMany({
       where: {
         createdAt: { lt: thirtyDaysAgo },
+        status: { in: ['COMPLETED', 'FAILED'] },
       },
     });
 
