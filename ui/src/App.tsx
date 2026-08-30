@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 
 import { MainLayout } from "./layouts/MainLayout";
+import { AdminLayout } from "./layouts/AdminLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { Overview } from "./pages/Overview";
 import { Budgeting } from "./pages/Budgeting";
@@ -18,7 +19,11 @@ import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Homepage } from "./pages/Homepage";
 import { AdminRoute } from "./components/Base/AdminRoute";
-import { AdminDashboard } from "./pages/AdminDashboard";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminAnnouncementsPage } from "./pages/admin/AdminAnnouncementsPage";
+import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
+import { AdminMaintenancePage } from "./pages/admin/AdminMaintenancePage";
 
 /**
  * Root application component that wires routing into the shared layout shell.
@@ -34,13 +39,14 @@ function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <Toaster position="top-center" />
+      <Toaster position="top-center text-slate-800" />
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={<ProtectedRoute />}>
+          {/* Main User App Layout */}
           <Route
             element={
               <MainLayout>
@@ -55,11 +61,24 @@ function App() {
             <Route path="/quickadd" element={<QuickAdd />} />
             <Route path="/exchange-rates" element={<ExchangeRates />} />
             <Route path="/settings" element={<Settings />} />
-            {/* Admin Routes */}
-            <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<AdminDashboard />} />
-            </Route>
             <Route path="*" element={<NotFound />} />
+          </Route>
+
+          {/* Dedicated Admin Layout */}
+          <Route element={<AdminRoute />}>
+            <Route
+              element={
+                <AdminLayout>
+                  <Outlet />
+                </AdminLayout>
+              }
+            >
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/announcements" element={<AdminAnnouncementsPage />} />
+              <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+              <Route path="/admin/maintenance" element={<AdminMaintenancePage />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

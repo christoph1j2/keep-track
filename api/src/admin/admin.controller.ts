@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '.prisma/client/edge';
+import { Role } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
@@ -13,14 +13,17 @@ export class AdminController {
 
   @Get('stats')
   getStats() {
-    // Implementation for fetching admin statistics
     return this.adminService.getStats();
   }
 
   @Get('users')
   getUsers() {
-    // Implementation for fetching all users
     return this.adminService.getUsers();
+  }
+
+  @Get('users/:id/details')
+  getUserDetails(@Param('id') userId: string) {
+    return this.adminService.getUserDetails(userId);
   }
 
   @Patch('users/:id/role')
@@ -28,7 +31,6 @@ export class AdminController {
     @Body('userId') userId: string,
     @Body('newRole') newRole: Role,
   ) {
-    // Implementation for updating user role
     return this.adminService.updateUserRole(userId, newRole);
   }
 
@@ -36,8 +38,21 @@ export class AdminController {
   deleteUser(
     @Body('userId') userId: string,
   ) {
-    // Implementation for deleting a user
     return this.adminService.deleteUser(userId);
   }
 
+  @Post('broadcast-notification')
+  broadcastNotification(
+    @Body('title') title: string,
+    @Body('message') message?: string,
+    @Body('type') type?: string,
+    @Body('targetUserIds') targetUserIds?: string[],
+  ) {
+    return this.adminService.broadcastNotification(title, message, type, targetUserIds);
+  }
+
+  @Post('maintenance/cleanup-jobs')
+  cleanupOldImportJobs() {
+    return this.adminService.cleanupOldImportJobs();
+  }
 }
