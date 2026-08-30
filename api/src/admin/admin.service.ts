@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
 
@@ -23,7 +28,10 @@ export class AdminService {
       aiCategorizedCount,
       newUsersLast30Days,
       transactionsLast30Days,
-      importJobs,
+      processingJobs,
+      readyJobs,
+      failedJobs,
+      completedJobs,
     ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.transaction.count(),
@@ -36,32 +44,16 @@ export class AdminService {
       this.prisma.transaction.count({
         where: { createdAt: { gte: thirtyDaysAgo } },
       }),
-      this.prisma.importJob.groupBy({
-        by: ['status'],
-        _count: { status: true },
-      }),
+      this.prisma.importJob.count({ where: { status: 'PROCESSING' } }),
+      this.prisma.importJob.count({ where: { status: 'READY_FOR_REVIEW' } }),
+      this.prisma.importJob.count({ where: { status: 'FAILED' } }),
+      this.prisma.importJob.count({ where: { status: 'COMPLETED' } }),
     ]);
 
     const aiCategorizationRate =
       transactionCount > 0
         ? Math.round((aiCategorizedCount / transactionCount) * 100)
         : 0;
-
-    const importJobStats = {
-      PROCESSING: 0,
-      READY_FOR_REVIEW: 0,
-      FAILED: 0,
-      COMPLETED: 0,
-      total: 0,
-    };
-
-    importJobs.forEach((job) => {
-      if (job.status in importJobStats) {
-        importJobStats[job.status as keyof typeof importJobStats] =
-          job._count.status;
-      }
-      importJobStats.total += job._count.status;
-    });
 
     return {
       userCount,
@@ -74,38 +66,42 @@ export class AdminService {
       aiCategorizationRate,
       newUsersLast30Days,
       transactionsLast30Days,
-      importJobStats,
+      importJobStats: {
+        PROCESSING: processingJobs,
+        READY_FOR_REVIEW: readyJobs,
+        FAILED: failedJobs,
+        COMPLETED: completedJobs,
+        total: processingJobs + readyJobs + failedJobs + completedJobs,
+      },
     };
   }
 
   /**
-   * Fetches all users from the DB.
+   * Fetches all registered users with basic profile details.
    */
-  async getUsers(): Promise<any[]> {
+  async getUsers(): Promise<any> {
     return this.prisma.user.findMany({
       select: {
         id: true,
         email: true,
         username: true,
-        baseCurrency: true,
-        createdAt: true,
-        updatedAt: true,
         role: true,
+        createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   /**
-   * Fetches detailed metrics and profile info for a single user.
+   * Inspects detailed statistics for a specific user.
    */
   async getUserDetails(userId: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
-        email: true,
         username: true,
+        email: true,
         baseCurrency: true,
         role: true,
         createdAt: true,
@@ -114,7 +110,7 @@ export class AdminService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
     const [
@@ -158,11 +154,20 @@ export class AdminService {
    * Updates the role of a user.
    */
   async updateUserRole(userId: string, newRole: Role): Promise<any> {
-    if (
-      prisma.user.count({ where: { role: Role.ADMIN } }) <= 1 &&
-      newRole !== Role.ADMIN
-    ) {
-      throw new Error('Cannot remove the last admin user.');
+    const userToUpdate = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (userToUpdate?.role === 'ADMIN' && newRole !== ('ADMIN' as Role)) {
+      const adminCount = await this.prisma.user.count({
+        where: { role: 'ADMIN' },
+      });
+      if (adminCount <= 1) {
+        throw new BadRequestException(
+          'Cannot demote the last remaining admin account.',
+        );
+      }
     }
 
     return this.prisma.user.update({
@@ -180,6 +185,22 @@ export class AdminService {
    * Deletes a user from the DB.
    */
   async deleteUser(userId: string): Promise<any> {
+    const userToDelete = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (userToDelete?.role === 'ADMIN') {
+      const adminCount = await this.prisma.user.count({
+        where: { role: 'ADMIN' },
+      });
+      if (adminCount <= 1) {
+        throw new BadRequestException(
+          'Cannot delete the last remaining admin account.',
+        );
+      }
+    }
+
     return this.prisma.user.delete({
       where: { id: userId },
       select: {
@@ -194,7 +215,7 @@ export class AdminService {
   }
 
   /**
-   * Broadcasts a notification to all users or a specific target list of users.
+   * Broadcasts a notification to all active users or selected target users.
    */
   async broadcastNotification(
     title: string,

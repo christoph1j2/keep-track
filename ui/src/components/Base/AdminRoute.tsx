@@ -1,7 +1,8 @@
+import type { ReactNode } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 
-export const AdminRoute = () => {
+export const AdminRoute = ({ children }: { children?: ReactNode }) => {
     const user = useAuthStore((state) => state.user);
 
     // If there is no user or user is not admin, redirect
@@ -9,5 +10,5 @@ export const AdminRoute = () => {
         return <Navigate to="/dashboard" replace />;
     }
 
-    return <Outlet />;
+    return children ? <>{children}</> : <Outlet />;
 }

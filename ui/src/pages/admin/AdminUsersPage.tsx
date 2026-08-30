@@ -44,9 +44,11 @@ export const AdminUsersPage = () => {
   });
 
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const currentPage = totalPages > 0 ? Math.min(page, totalPages) : 1;
+
   const paginatedUsers = filteredUsers.slice(
-    (page - 1) * usersPerPage,
-    page * usersPerPage
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage,
   );
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -56,9 +58,11 @@ export const AdminUsersPage = () => {
         newRole,
       });
       toast.success("User role updated");
-      fetchUsers();
-    } catch (error) {
-      toast.error("Failed to update user role");
+      await fetchUsers();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const msg = err.response?.data?.message || "Failed to update user role";
+      toast.error(msg);
       console.error(error);
     }
   };
@@ -73,12 +77,14 @@ export const AdminUsersPage = () => {
             data: { userId },
           });
           toast.success("User deleted successfully");
-          fetchUsers();
-        } catch (error) {
-          toast.error("Failed to delete user");
+          await fetchUsers();
+        } catch (error: unknown) {
+          const err = error as { response?: { data?: { message?: string } } };
+          const msg = err.response?.data?.message || "Failed to delete user";
+          toast.error(msg);
           console.error(error);
         }
-      }
+      },
     );
   };
 
@@ -385,7 +391,7 @@ export const AdminUsersPage = () => {
           <div className="flex justify-center mt-6">
             <Pagination
               count={totalPages}
-              page={page}
+              page={currentPage}
               onChange={(_, value) => setPage(value)}
               color="primary"
               sx={{

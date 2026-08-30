@@ -14,9 +14,15 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const email = 'asdf@asdf.asdf';
-  const username = 'asdf';
-  const password = 'asdfasdf';
+  // Prevent seeding in production unless explicitly authorized
+  if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_PROD_SEED) {
+    console.log('⚠️ Skipping seed: Production database detected and ALLOW_PROD_SEED is not set.');
+    return;
+  }
+
+  const email = process.env.SEED_ADMIN_EMAIL || 'asdf@asdf.asdf';
+  const username = process.env.SEED_ADMIN_USERNAME || 'asdf';
+  const password = process.env.SEED_ADMIN_PASSWORD || 'asdfasdf';
   const baseCurrency = 'CZK'; 
   const role = 'ADMIN';
 
@@ -54,7 +60,7 @@ async function main() {
     data: {
       userId: user.id,
       label: 'Food & Groceries',
-      iconName: 'pizza', // guessing icon name based on typical icon sets
+      iconName: 'pizza',
       colorClass: 'text-red-500', 
       type: CategoryType.EXPENSE,
       order: 1,
@@ -109,7 +115,7 @@ async function main() {
         userId: user.id,
         categoryId: catTransport.id,
         title: 'Uber to work',
-        date: new Date(new Date().setDate(new Date().getDate() - 1)), // yesterday
+        date: new Date(new Date().setDate(new Date().getDate() - 1)),
         originalAmount: -350,
         originalCurrency: 'CZK',
         amount: -350,
@@ -123,7 +129,7 @@ async function main() {
     data: {
       userId: user.id,
       categoryId: catFood.id,
-      limit: 8000, // 8000 CZK monthly limit for food
+      limit: 8000,
       order: 1,
     }
   });
@@ -148,7 +154,7 @@ async function main() {
       userId: user.id,
       income: 55000,
       necessaryExpenses: 30000,
-      limit: 25000, // 55000 - 30000
+      limit: 25000,
     }
   });
 
