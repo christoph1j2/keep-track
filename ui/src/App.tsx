@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
+import { NotFound } from "./pages/404";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { ProtectedRoute } from "./components/Base/ProtectedRoute";
 import { AdminRoute } from "./components/Base/AdminRoute";
@@ -45,6 +46,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />

@@ -14,16 +14,10 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  // Prevent seeding in production unless explicitly authorized
-  if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_PROD_SEED) {
-    console.log('⚠️ Skipping seed: Production database detected and ALLOW_PROD_SEED is not set.');
-    return;
-  }
-
   const email = process.env.SEED_ADMIN_EMAIL || 'asdf@asdf.asdf';
   const username = process.env.SEED_ADMIN_USERNAME || 'asdf';
   const password = process.env.SEED_ADMIN_PASSWORD || 'asdfasdf';
-  const baseCurrency = 'CZK'; 
+  const baseCurrency = 'CZK';
   const role = 'ADMIN';
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -49,7 +43,9 @@ async function main() {
 
   // 2. Clear old data for this user to ensure idempotency when running seed repeatedly
   await prisma.transaction.deleteMany({ where: { userId: user.id } });
-  await prisma.complexBudgetCategory.deleteMany({ where: { budget: { userId: user.id } } });
+  await prisma.complexBudgetCategory.deleteMany({
+    where: { budget: { userId: user.id } },
+  });
   await prisma.complexBudget.deleteMany({ where: { userId: user.id } });
   await prisma.budget.deleteMany({ where: { userId: user.id } });
   await prisma.template.deleteMany({ where: { userId: user.id } });
@@ -61,10 +57,10 @@ async function main() {
       userId: user.id,
       label: 'Food & Groceries',
       iconName: 'pizza',
-      colorClass: 'text-red-500', 
+      colorClass: 'text-red-500',
       type: CategoryType.EXPENSE,
       order: 1,
-    }
+    },
   });
 
   const catTransport = await prisma.category.create({
@@ -75,7 +71,7 @@ async function main() {
       colorClass: 'text-blue-500',
       type: CategoryType.EXPENSE,
       order: 2,
-    }
+    },
   });
 
   const catSalary = await prisma.category.create({
@@ -86,7 +82,7 @@ async function main() {
       colorClass: 'text-green-500',
       type: CategoryType.INCOME,
       order: 3,
-    }
+    },
   });
   console.log('Seeded categories.');
 
@@ -100,7 +96,7 @@ async function main() {
         date: new Date(),
         originalAmount: 55000,
         originalCurrency: 'CZK',
-        amount: 55000, 
+        amount: 55000,
       },
       {
         userId: user.id,
@@ -119,8 +115,8 @@ async function main() {
         originalAmount: -350,
         originalCurrency: 'CZK',
         amount: -350,
-      }
-    ]
+      },
+    ],
   });
   console.log('Seeded transactions.');
 
@@ -131,7 +127,7 @@ async function main() {
       categoryId: catFood.id,
       limit: 8000,
       order: 1,
-    }
+    },
   });
   console.log('Seeded budget.');
 
@@ -144,7 +140,7 @@ async function main() {
       categoryId: catFood.id,
       showInHotbar: true,
       order: 1,
-    }
+    },
   });
   console.log('Seeded template.');
 
@@ -155,7 +151,7 @@ async function main() {
       income: 55000,
       necessaryExpenses: 30000,
       limit: 25000,
-    }
+    },
   });
 
   await prisma.complexBudgetCategory.create({
@@ -163,7 +159,7 @@ async function main() {
       budgetId: complexBudget.id,
       categoryId: catTransport.id,
       limit: 2000,
-    }
+    },
   });
   console.log('Seeded complex budget.');
 
