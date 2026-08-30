@@ -8,11 +8,13 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import CategoryIcon from "@mui/icons-material/Category";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import { Extension, CurrencyExchange } from "@mui/icons-material";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useTranslation } from "react-i18next";
 import { NotificationCenter } from "./NotificationCenter";
 import { Logo } from "./Logo";
 import { FeedbackModal } from "../Modals/FeedbackModal";
 import { BaseModal } from "../Modals/BaseModal";
+import { useAuthStore } from "../../store/authStore";
 
 interface MenuItem {
   translationKey: string;
@@ -70,6 +72,7 @@ const MENU_ITEMS: MenuItem[] = [
  */
 export function Sidebar() {
   const { t } = useTranslation();
+  const user = useAuthStore((state) => state.user);
 
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
@@ -99,6 +102,7 @@ export function Sidebar() {
 
       {/* notifications and pending imports */}
       <NotificationCenter />
+
       {/* feedback form */}
       <button
         onClick={() => setIsFeedbackModalOpen(true)}
@@ -107,6 +111,24 @@ export function Sidebar() {
         <FeedbackIcon sx={{ fontSize: 22 }} />
         {t("sidebar.feedback")}
       </button>
+
+      {/* Admin Mode Toggle - Placed directly above notifications */}
+      {user?.role === "ADMIN" && (
+        <div className="w-full border-slate-100 dark:border-slate-800">
+          <NavLink
+            to="/admin"
+            className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/60 transition-colors cursor-pointer border border-rose-200 dark:border-rose-800/60"
+          >
+            <span className="flex items-center gap-2">
+              <AdminPanelSettingsIcon fontSize="small" />
+              Admin Mode
+            </span>
+            <span className="text-xs font-normal text-rose-500 dark:text-rose-400">
+              Switch
+            </span>
+          </NavLink>
+        </div>
+      )}
 
       <BaseModal
         title={t("sidebar.feedback")}

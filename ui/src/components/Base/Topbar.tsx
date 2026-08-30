@@ -23,10 +23,14 @@ import { api } from "../../utils/api";
 import toast from "react-hot-toast";
 import { useSettingsStore } from "../../store/settingsStore";
 import ReactCountryFlag from "react-country-flag";
+import { useTheme as useMuiTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export function Topbar() {
   const [infoOpen, setInfoOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const muiTheme = useMuiTheme();
+  const fullScreen = useMediaQuery(muiTheme.breakpoints.down("sm"));
   const transactions = useTransactionStore((state) => state.transactions);
 
   const { t, i18n } = useTranslation();
@@ -137,6 +141,7 @@ export function Topbar() {
         onClose={() => setInfoOpen(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={fullScreen}
         classes={{
           paper:
             "bg-white dark:bg-slate-900! dark:text-slate-100! transition-colors",
@@ -147,34 +152,6 @@ export function Topbar() {
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <div className="space-y-4 text-sm">
-            <div className="border-b border-slate-200 dark:border-slate-700 pb-3">
-              <div className="space-y-1">
-                <p>
-                  <span className="font-semibold text-slate-800 dark:text-slate-100">
-                    {t("topbar.about.author")}:
-                  </span>{" "}
-                  <span className="text-slate-600 dark:text-slate-300">
-                    {t("topbar.about.authorName")}
-                  </span>
-                </p>
-                <p>
-                  <span className="font-semibold text-slate-800 dark:text-slate-100">
-                    {t("topbar.about.subject")}:
-                  </span>{" "}
-                  <span className="text-slate-600 dark:text-slate-300">
-                    {t("topbar.about.subjectName")}
-                  </span>
-                </p>
-                <p>
-                  <span className="font-semibold text-slate-800 dark:text-slate-100">
-                    {t("topbar.about.work")}:
-                  </span>{" "}
-                  <span className="text-slate-600 dark:text-slate-300">
-                    {t("topbar.about.workName")}
-                  </span>
-                </p>
-              </div>
-            </div>
             <div>
               <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
                 {t("topbar.about.description1")}
@@ -199,22 +176,7 @@ export function Topbar() {
             </div>
           </div>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-          <Button
-            color="error"
-            onClick={() => {
-              showConfirm(
-                t("topbar.confirm.resetTitle"),
-                t("topbar.confirm.resetMessage"),
-                () => {
-                  localStorage.clear();
-                  window.location.reload();
-                },
-              );
-            }}
-          >
-            {t("topbar.buttons.factoryReset")}
-          </Button>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={() => setInfoOpen(false)}
             variant={theme === "dark" ? "outlined" : "contained"}

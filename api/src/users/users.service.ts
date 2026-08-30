@@ -178,6 +178,7 @@ export class UsersService {
         baseCurrency: true,
         createdAt: true,
         updatedAt: true,
+        role: true,
       },
     });
   }
@@ -197,6 +198,7 @@ export class UsersService {
         baseCurrency: true,
         createdAt: true,
         updatedAt: true,
+        role: true,
       },
     });
   }
