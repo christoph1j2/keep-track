@@ -58,19 +58,21 @@ export const AdminAnnouncementsPage = () => {
   };
 
   const menuProps = {
-    PaperProps: {
-      sx: {
-        backgroundColor: isDark ? "#0f172a" : "#ffffff",
-        color: isDark ? "#f8fafc" : "#0f172a",
-        border: `1px solid ${isDark ? "#334155" : "#cbd5e1"}`,
-        "& .MuiMenuItem-root": {
+    slotProps: {
+      paper: {
+        sx: {
+          backgroundColor: isDark ? "#0f172a" : "#ffffff",
           color: isDark ? "#f8fafc" : "#0f172a",
-          fontSize: "0.875rem",
-          "&:hover": {
-            backgroundColor: isDark ? "#1e293b" : "#f1f5f9",
-          },
-          "&.Mui-selected": {
-            backgroundColor: isDark ? "rgba(99, 102, 241, 0.22)" : "rgba(99, 102, 241, 0.12)",
+          border: `1px solid ${isDark ? "#334155" : "#cbd5e1"}`,
+          "& .MuiMenuItem-root": {
+            color: isDark ? "#f8fafc" : "#0f172a",
+            fontSize: "0.875rem",
+            "&:hover": {
+              backgroundColor: isDark ? "#1e293b" : "#f1f5f9",
+            },
+            "&.Mui-selected": {
+              backgroundColor: isDark ? "rgba(99, 102, 241, 0.22)" : "rgba(99, 102, 241, 0.12)",
+            },
           },
         },
       },
