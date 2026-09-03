@@ -45,19 +45,26 @@ describe('AdminController', () => {
 
   describe('updateUserRole', () => {
     it('should delegate valid Role update to AdminService', async () => {
-      const mockResult = { email: 'user@test.com', username: 'user', role: Role.ADMIN };
+      const mockResult = {
+        email: 'user@test.com',
+        username: 'user',
+        role: Role.ADMIN,
+      };
       mockAdminService.updateUserRole.mockResolvedValue(mockResult);
 
       const result = await controller.updateUserRole('user-123', Role.ADMIN);
       expect(result).toEqual(mockResult);
-      expect(service.updateUserRole).toHaveBeenCalledWith('user-123', Role.ADMIN);
+      expect(service.updateUserRole).toHaveBeenCalledWith(
+        'user-123',
+        Role.ADMIN,
+      );
     });
 
     it('should reject invalid role input when processed via ParseEnumPipe', async () => {
       const pipe = new ParseEnumPipe(Role);
-      await expect(pipe.transform('ROOT', { type: 'body', data: 'newRole' })).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        pipe.transform('ROOT', { type: 'body', data: 'newRole' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

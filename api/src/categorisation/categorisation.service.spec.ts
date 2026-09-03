@@ -289,7 +289,9 @@ describe('CategorisationService', () => {
     it('should log a warning and set categoryId=null when LLM result lookup misses', async () => {
       const tx = makeTx({ id: 'tx-1', title: 'Missing Merchant' });
       const categories = [{ id: 'cat-1', label: 'Groceries' }];
-      const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
+      const warnSpy = jest
+        .spyOn(Logger.prototype, 'warn')
+        .mockImplementation(() => {});
 
       mockHeuristicMatcherService.match.mockResolvedValue({
         matched: [],
