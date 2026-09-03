@@ -57,9 +57,8 @@ jobs:
 
   deploy:
     needs: [test-ui, test-api]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'workflow_dispatch'
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
