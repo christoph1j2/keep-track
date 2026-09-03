@@ -45,6 +45,7 @@ describe('AI (e2e)', () => {
 
   beforeAll(async () => {
     process.env.DATABASE_URL =
+      process.env.DATABASE_URL ??
       'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
