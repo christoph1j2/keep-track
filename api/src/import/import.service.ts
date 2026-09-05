@@ -92,7 +92,9 @@ export class ImportService {
             t.amount = origAmt / rate;
             t.exchangeRate = 1 / rate;
           } else {
-            console.warn(`[Import] Missing exchange rate for ${origCurr} on ${dateStr}. Skipping conversion.`);
+            console.warn(
+              `[Import] Missing exchange rate for ${origCurr} on ${dateStr}. Skipping conversion.`,
+            );
             t.amount = t.originalAmount;
             t.exchangeRate = null;
           }
@@ -192,7 +194,7 @@ export class ImportService {
     transactions: Transaction[],
   ): Promise<Transaction[]> {
     if (!transactions || transactions.length === 0) return [];
-    
+
     // To avoid loading all transactions into memory for heavy users,
     // we extract the min and max dates from the incoming transactions and
     // only fetch transactions within that range for deduplication.

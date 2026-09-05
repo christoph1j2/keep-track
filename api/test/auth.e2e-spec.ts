@@ -5,6 +5,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { EmailService } from '../src/email/email.service';
 
 jest.mock('@openrouter/sdk', () => ({
   OpenRouter: jest.fn(),
@@ -17,11 +18,18 @@ describe('Auth (e2e)', () => {
   beforeAll(async () => {
     // override DB URL for testing
     process.env.DATABASE_URL =
+      process.env.DATABASE_URL ??
       'postgresql://postgres:password@127.0.0.1:5433/keep-track-test?schema=public';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(EmailService)
+      .useValue({
+        sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
+        sendFeedbackEmail: jest.fn().mockResolvedValue(true),
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
 

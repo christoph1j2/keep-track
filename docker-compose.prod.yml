@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: keeptrack-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-keep-track}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-keep-track}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ghcr.io/christoph1j2/keep-track-api:${IMAGE_TAG:-latest}
+    container_name: keeptrack-api
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      BREVO_SMTP_USER: ${BREVO_SMTP_USER}
+      BREVO_SMTP_PASSWORD: ${BREVO_SMTP_PASSWORD}
+      FRONTEND_URL: ${FRONTEND_URL}
+      FEEDBACK_EMAIL_ADDRESS: ${FEEDBACK_EMAIL_ADDRESS}
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  ui:
+    image: ghcr.io/christoph1j2/keep-track-ui:${IMAGE_TAG:-latest}
+    container_name: keeptrack-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
