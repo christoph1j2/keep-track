@@ -129,6 +129,7 @@
     "complexTitle": "Komplexní rozpočet",
     "complexBudget": "Komplexní rozpočet",
     "complexDetails": "Příjem: {{income}} | Nutné výdaje: {{necessaryExpenses}}",
+    "complexDetailsSurplus": "Příjem: {{income}} (+ {{surplus}}) | Nutné výdaje: {{necessaryExpenses}}",
     "otherExpenses": "Ostatní útrata (mimo nutných výdajů)",
     "necessaryExpensesTitle": "Nutné výdaje",
     "editComplexTitle": "Upravit komplexní rozpočet",
