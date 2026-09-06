@@ -42,7 +42,7 @@ export function ComplexBudget() {
   const totalIncome = currentMonthTransactions
     .filter((t) => t.amount > 0)
     .reduce((sum, t) => sum + t.amount, 0);
-  const surplus = totalIncome - complexBudget.income;
+  const surplus = Math.max(0, totalIncome - complexBudget.income);
 
   for (const tx of currentMonthTransactions) {
     if (!tx.categoryId) continue;
@@ -117,7 +117,7 @@ export function ComplexBudget() {
         <ProgressBar
           categoryName={t("budgeting.otherExpenses")}
           progress={totalSpentOther}
-          limit={complexBudget.limit + surplus} // Include surplus in the limit for the progress bar
+          limit={Math.max(0, complexBudget.limit + surplus)} // Include surplus in the limit for the progress bar
         />
 
         {enrichedCategories.length > 0 && (
