@@ -207,6 +207,7 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
               </label>
               <Select
                 multiple
+                displayEmpty
                 fullWidth
                 size="small"
                 value={selectedCategories}
@@ -302,7 +303,10 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
                           >
                             <CategoryIcon name={cat.iconName} />
                           </div>
-                          <span className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+                          <span
+                            id={`expense-category-${catId}`}
+                            className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate"
+                          >
                             {label}
                           </span>
                         </div>
@@ -311,7 +315,12 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
                             size="small"
                             type="number"
                             placeholder="0"
-                            slotProps={{ htmlInput: { min: 0 } }}
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                                "aria-labelledby": `expense-category-${catId}`,
+                              },
+                            }}
                             value={val}
                             onChange={(e) =>
                               setCatExpense(
