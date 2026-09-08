@@ -101,7 +101,11 @@ export function Budgeting() {
         ) : (
           <div className="flex flex-col gap-8">
             {complexBudget && <ComplexBudget />}
-
+            {budgets.length > 0 && (
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">
+                {t("budgeting.budgetsTitleCustom")}
+              </h3>
+            )}
             <DndContext
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
@@ -187,7 +191,6 @@ export function Budgeting() {
           />
         )}
       </BaseModal>
-
     </>
   );
 }

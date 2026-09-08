@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 dev-dist
+.agents
 
 # Editor directories and files
 .vscode/*
