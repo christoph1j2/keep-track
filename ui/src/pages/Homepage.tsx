@@ -71,7 +71,7 @@ export const Homepage: React.FC = () => {
       try {
         const response = await fetch(
           "https://api.github.com/repos/christoph1j2/keep-track/issues?per_page=10&state=all",
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
 
         if (!response.ok) {
@@ -81,11 +81,17 @@ export const Homepage: React.FC = () => {
         const data: unknown = await response.json();
         if (Array.isArray(data)) {
           // Exclude pull requests to keep focus on actionable roadmap issues
-          const issuesOnly = data.filter((item: GitHubIssue) => !item.pull_request);
+          const issuesOnly = data.filter(
+            (item: GitHubIssue) => !item.pull_request,
+          );
           if (issuesOnly.length > 0) {
             // Prioritize open/active roadmap issues if available
-            const openIssues = issuesOnly.filter((item) => item.state === "open");
-            const closedIssues = issuesOnly.filter((item) => item.state !== "open");
+            const openIssues = issuesOnly.filter(
+              (item) => item.state === "open",
+            );
+            const closedIssues = issuesOnly.filter(
+              (item) => item.state !== "open",
+            );
             const sortedIssues = [...openIssues, ...closedIssues].slice(0, 4);
             setIssues(sortedIssues);
           }
@@ -150,7 +156,9 @@ export const Homepage: React.FC = () => {
             onClick={() => navigate(user ? "/dashboard" : "/login")}
             className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-sm shadow-blue-600/20 transition-all duration-200 cursor-pointer whitespace-nowrap"
           >
-            {user ? t("landing.nav.goToDashboard") : t("landing.nav.loginRegister")}
+            {user
+              ? t("landing.nav.goToDashboard")
+              : t("landing.nav.loginRegister")}
           </button>
         </div>
       </header>
@@ -191,7 +199,9 @@ export const Homepage: React.FC = () => {
                   onClick={() => navigate(user ? "/dashboard" : "/login")}
                   className="w-full sm:w-auto px-8 py-3.5 font-bold text-base rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer"
                 >
-                  {user ? t("landing.hero.goToDashboard") : t("landing.hero.getStarted")}
+                  {user
+                    ? t("landing.hero.goToDashboard")
+                    : t("landing.hero.getStarted")}
                   <ArrowForward fontSize="small" />
                 </button>
                 <a
@@ -217,7 +227,9 @@ export const Homepage: React.FC = () => {
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 ml-1.5">
                       KeepTrack
                     </span>
-                    <span className="text-slate-300 dark:text-slate-600">•</span>
+                    <span className="text-slate-300 dark:text-slate-600">
+                      •
+                    </span>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
                       {t("dashboard.title")}
                     </span>
@@ -438,7 +450,7 @@ export const Homepage: React.FC = () => {
                             <span className="font-semibold text-slate-800 dark:text-slate-200 text-xs">
                               {t("landing.hero.preview.recurringTitle")}
                             </span>
-                            <span className="px-1.5 py-0.2 rounded text-[9px] font-medium bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
                               {t("landing.hero.preview.smartCategorized")}
                             </span>
                           </div>
@@ -656,8 +668,12 @@ export const Homepage: React.FC = () => {
                         {issue.labels && issue.labels.length > 0 ? (
                           <div className="flex flex-wrap gap-1.5 mt-3 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
                             {issue.labels.slice(0, 2).map((lbl, idx) => {
-                              const name = typeof lbl === "string" ? lbl : lbl?.name;
-                              const key = typeof lbl === "string" ? `${lbl}-${idx}` : (lbl?.id ?? `${lbl?.name}-${idx}`);
+                              const name =
+                                typeof lbl === "string" ? lbl : lbl?.name;
+                              const key =
+                                typeof lbl === "string"
+                                  ? `${lbl}-${idx}`
+                                  : (lbl?.id ?? `${lbl?.name}-${idx}`);
                               if (!name) return null;
                               return (
                                 <span
@@ -683,7 +699,9 @@ export const Homepage: React.FC = () => {
                   aria-live="polite"
                   className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                 >
-                  <span className="sr-only">{t("landing.roadmap.loading")}</span>
+                  <span className="sr-only">
+                    {t("landing.roadmap.loading")}
+                  </span>
                   {[1, 2, 3, 4].map((n) => (
                     <div
                       key={n}

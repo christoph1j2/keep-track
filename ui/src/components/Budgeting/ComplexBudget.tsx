@@ -412,9 +412,12 @@ export function ComplexBudget() {
                       className="group bg-slate-50/70 hover:bg-slate-100/90 dark:bg-slate-800/40 dark:hover:bg-slate-800/80 rounded-xl p-4 border border-slate-200/70 dark:border-slate-700/60 transition-all cursor-pointer flex flex-col justify-between gap-2"
                       role="button"
                       tabIndex={0}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && handleCategoryClick(cat.categoryId)
-                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleCategoryClick(cat.categoryId);
+                        }
+                      }}
                     >
                       <ProgressBar
                         categoryName={cat.categoryLabel}

@@ -33,11 +33,30 @@ export function BudgetingList() {
   const complexCategoryIds =
     complexBudget?.categories?.map((c) => c.categoryId) || [];
 
+  const allComplexAndSubcatIds = new Set<string>();
+  for (const catId of complexCategoryIds) {
+    allComplexAndSubcatIds.add(catId);
+    const subIds = categories
+      .filter((c) => c.parentId === catId)
+      .map((c) => c.id);
+    subIds.forEach((id) => allComplexAndSubcatIds.add(id));
+  }
+
   const totalSpentOther = currentMonthTransactions
     .filter(
-      (t) => t.amount < 0 && !complexCategoryIds.includes(t.categoryId || ""),
+      (t) => t.amount < 0 && !allComplexAndSubcatIds.has(t.categoryId || ""),
     )
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+  const totalIncome = currentMonthTransactions
+    .filter((t) => t.amount > 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+  const surplus = complexBudget
+    ? Math.max(0, totalIncome - complexBudget.income)
+    : 0;
+  const flexibleLimit = complexBudget
+    ? Math.max(0, complexBudget.limit + surplus)
+    : 0;
 
   return (
     <section className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm">
@@ -71,7 +90,7 @@ export function BudgetingList() {
               <ProgressBar
                 categoryName={t("budgeting.complexBudget")}
                 progress={totalSpentOther}
-                limit={complexBudget.limit}
+                limit={flexibleLimit}
               />
             </div>
           )}
