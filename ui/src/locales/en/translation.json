@@ -130,6 +130,12 @@
     "complexBudget": "Complex Budget",
     "complexDetails": "Income: {{income}} | Necessary Expenses: {{necessaryExpenses}}",
     "complexDetailsSurplus": "Income: {{income}} (+ {{surplus}}) | Necessary Expenses: {{necessaryExpenses}}",
+    "tooltips": {
+      "monthlyIncome": "Your total expected income for the month, plus any additional surplus you've recorded.",
+      "fixedExpenses": "The sum of all limits defined for necessary categories (e.g. rent, bills).",
+      "flexiblePool": "Your discretionary spending limit. Calculated as your base spending limit plus any extra income.",
+      "netRemaining": "Effective income minus total spent across all categories (both fixed and flexible)."
+    },
     "monthlyIncome": "Monthly Income",
     "surplusBadge": "+{{amount}} extra",
     "fixedExpenses": "Fixed Expenses",

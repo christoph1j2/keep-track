@@ -130,6 +130,12 @@
     "complexBudget": "Komplexní rozpočet",
     "complexDetails": "Příjem: {{income}} | Nutné výdaje: {{necessaryExpenses}}",
     "complexDetailsSurplus": "Příjem: {{income}} (+ {{surplus}}) | Nutné výdaje: {{necessaryExpenses}}",
+    "tooltips": {
+      "monthlyIncome": "Váš celkový očekávaný příjem na tento měsíc plus případný zaznamenaný přebytek.",
+      "fixedExpenses": "Součet všech limitů definovaných pro nutné kategorie (např. nájem, poplatky).",
+      "flexiblePool": "Váš limit pro volné výdaje. Počítá se jako váš základní limit plus případné příjmy navíc.",
+      "netRemaining": "Efektivní příjem po odečtení celkových výdajů napříč všemi kategoriemi (nutnými i volnými)."
+    },
     "monthlyIncome": "Měsíční příjem",
     "surplusBadge": "+{{amount}} navíc",
     "fixedExpenses": "Nutné výdaje",

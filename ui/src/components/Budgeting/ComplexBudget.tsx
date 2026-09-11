@@ -16,7 +16,9 @@ import {
   ExpandLess,
   CheckCircle,
   WarningAmber,
+  InfoOutlined,
 } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 import { CategoryIcon } from "../Base/CategoryIcon";
 import { ProgressBar } from "./ProgressBar";
 import { BaseModal } from "../Modals/BaseModal";
@@ -209,8 +211,18 @@ export function ComplexBudget() {
           {/* Monthly Income Card */}
           <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
-              <span className="font-medium truncate">
+              <span className="font-medium truncate flex items-center gap-1">
                 {t("budgeting.monthlyIncome")}
+                <Tooltip
+                  title={t("budgeting.tooltips.monthlyIncome")}
+                  arrow
+                  placement="top"
+                >
+                  <InfoOutlined
+                    sx={{ fontSize: 14 }}
+                    className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  />
+                </Tooltip>
               </span>
               <div className="p-1 rounded-md bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
                 <AccountBalanceWallet sx={{ fontSize: 16 }} />
@@ -235,8 +247,18 @@ export function ComplexBudget() {
           {/* Fixed Expenses Target */}
           <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
-              <span className="font-medium truncate">
+              <span className="font-medium truncate flex items-center gap-1">
                 {t("budgeting.fixedExpenses")}
+                <Tooltip
+                  title={t("budgeting.tooltips.fixedExpenses")}
+                  arrow
+                  placement="top"
+                >
+                  <InfoOutlined
+                    sx={{ fontSize: 14 }}
+                    className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  />
+                </Tooltip>
               </span>
               <div className="p-1 rounded-md bg-sky-100/80 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400">
                 <ReceiptLong sx={{ fontSize: 16 }} />
@@ -255,8 +277,18 @@ export function ComplexBudget() {
           {/* Flexible Pool */}
           <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
-              <span className="font-medium truncate">
+              <span className="font-medium truncate flex items-center gap-1">
                 {t("budgeting.flexiblePool")}
+                <Tooltip
+                  title={t("budgeting.tooltips.flexiblePool")}
+                  arrow
+                  placement="top"
+                >
+                  <InfoOutlined
+                    sx={{ fontSize: 14 }}
+                    className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  />
+                </Tooltip>
               </span>
               <div className="p-1 rounded-md bg-amber-100/80 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
                 <Savings sx={{ fontSize: 16 }} />
@@ -275,8 +307,18 @@ export function ComplexBudget() {
           {/* Net Remaining Balance */}
           <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
-              <span className="font-medium truncate">
+              <span className="font-medium truncate flex items-center gap-1">
                 {t("budgeting.netRemaining")}
+                <Tooltip
+                  title={t("budgeting.tooltips.netRemaining")}
+                  arrow
+                  placement="top"
+                >
+                  <InfoOutlined
+                    sx={{ fontSize: 14 }}
+                    className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  />
+                </Tooltip>
               </span>
               <div
                 className={`p-1 rounded-md ${
