@@ -172,39 +172,6 @@ export function MobileMenu() {
             })}
           </List>
 
-          {/* Toggle between Normal App and Admin Layout - Placed directly above notifications */}
-          {isAdminMode ? (
-            <div className="px-2 mb-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <NavLink
-                to="/dashboard"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
-              >
-                <span className="flex items-center gap-2">
-                  <ArrowBackIcon fontSize="small" />
-                  User App
-                </span>
-                <span className="text-xs font-normal text-slate-400 dark:text-slate-500">Exit Admin</span>
-              </NavLink>
-            </div>
-          ) : (
-            user?.role === "ADMIN" && (
-              <div className="px-2 mb-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                <NavLink
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/60 transition-colors cursor-pointer border border-rose-200 dark:border-rose-800/60"
-                >
-                  <span className="flex items-center gap-2">
-                    <AdminPanelSettingsIcon fontSize="small" />
-                    Admin Mode
-                  </span>
-                  <span className="text-xs font-normal text-rose-500 dark:text-rose-400">Switch</span>
-                </NavLink>
-              </div>
-            )
-          )}
-
           {/* Mobile Notification Center */}
           <NotificationCenter />
 
@@ -219,6 +186,43 @@ export function MobileMenu() {
             <FeedbackIcon sx={{ fontSize: 22 }} />
             {t("sidebar.feedback")}
           </button>
+
+          {/* Toggle between Normal App and Admin Layout - Placed directly above notifications */}
+          {isAdminMode ? (
+            <div className="px-2 border-slate-100 dark:border-slate-800">
+              <NavLink
+                to="/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
+              >
+                <span className="flex items-center gap-2">
+                  <ArrowBackIcon fontSize="small" />
+                  User App
+                </span>
+                <span className="text-xs font-normal text-slate-400 dark:text-slate-500">
+                  Exit Admin
+                </span>
+              </NavLink>
+            </div>
+          ) : (
+            user?.role === "ADMIN" && (
+              <div className="px-2 border-slate-100 dark:border-slate-800">
+                <NavLink
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/60 transition-colors cursor-pointer border border-rose-200 dark:border-rose-800/60"
+                >
+                  <span className="flex items-center gap-2">
+                    <AdminPanelSettingsIcon fontSize="small" />
+                    Admin Mode
+                  </span>
+                  <span className="text-xs font-normal text-rose-500 dark:text-rose-400">
+                    Switch
+                  </span>
+                </NavLink>
+              </div>
+            )
+          )}
         </div>
       </Drawer>
 

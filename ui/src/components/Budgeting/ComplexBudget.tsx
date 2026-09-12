@@ -207,7 +207,7 @@ export function ComplexBudget() {
         </div>
 
         {/* Top-Level KPI Metric Strip */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Monthly Income Card */}
           <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
@@ -219,13 +219,15 @@ export function ComplexBudget() {
                   placement="top"
                 >
                   <InfoOutlined
-                    sx={{ fontSize: 14 }}
+                    sx={{ fontSize: { xs: 18, sm: 16, md: 14 } }}
                     className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   />
                 </Tooltip>
               </span>
               <div className="p-1 rounded-md bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
-                <AccountBalanceWallet sx={{ fontSize: 16 }} />
+                <AccountBalanceWallet
+                  sx={{ fontSize: { xs: 16, sm: 16, md: 16 } }}
+                />
               </div>
             </div>
             <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -255,13 +257,13 @@ export function ComplexBudget() {
                   placement="top"
                 >
                   <InfoOutlined
-                    sx={{ fontSize: 14 }}
+                    sx={{ fontSize: { xs: 18, sm: 16, md: 14 } }}
                     className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   />
                 </Tooltip>
               </span>
               <div className="p-1 rounded-md bg-sky-100/80 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400">
-                <ReceiptLong sx={{ fontSize: 16 }} />
+                <ReceiptLong sx={{ fontSize: { xs: 16, sm: 16, md: 16 } }} />
               </div>
             </div>
             <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -285,13 +287,13 @@ export function ComplexBudget() {
                   placement="top"
                 >
                   <InfoOutlined
-                    sx={{ fontSize: 14 }}
+                    sx={{ fontSize: { xs: 18, sm: 16, md: 14 } }}
                     className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   />
                 </Tooltip>
               </span>
               <div className="p-1 rounded-md bg-amber-100/80 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
-                <Savings sx={{ fontSize: 16 }} />
+                <Savings sx={{ fontSize: { xs: 16, sm: 16, md: 16 } }} />
               </div>
             </div>
             <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -315,7 +317,7 @@ export function ComplexBudget() {
                   placement="top"
                 >
                   <InfoOutlined
-                    sx={{ fontSize: 14 }}
+                    sx={{ fontSize: { xs: 18, sm: 16, md: 14 } }}
                     className="cursor-help text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   />
                 </Tooltip>
@@ -327,7 +329,7 @@ export function ComplexBudget() {
                     : "bg-red-100/80 dark:bg-red-950/60 text-red-600 dark:text-red-400"
                 }`}
               >
-                <Payments sx={{ fontSize: 16 }} />
+                <Payments sx={{ fontSize: { xs: 16, sm: 16, md: 16 } }} />
               </div>
             </div>
             <div
