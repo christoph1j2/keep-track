@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 
 /**
@@ -36,6 +36,8 @@ export interface HealthCheckResult {
 
 @Injectable()
 export class AppService {
+  private readonly logger = new Logger(AppService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -62,15 +64,20 @@ export class AppService {
     const startTime = Date.now();
     let dbStatus: 'up' | 'down' = 'up';
     let latencyMs: number | undefined;
-    let dbError: string | undefined;
+    let hasDbError = false;
 
     try {
       await this.prisma.$queryRaw`SELECT 1`;
       latencyMs = Date.now() - startTime;
     } catch (error) {
       dbStatus = 'down';
-      dbError =
+      hasDbError = true;
+      const message =
         error instanceof Error ? error.message : 'Unknown database error';
+      this.logger.error(
+        `Database health check failed: ${message}`,
+        error instanceof Error ? error.stack : undefined,
+      );
     }
 
     const memory = process.memoryUsage();
@@ -86,7 +93,7 @@ export class AppService {
         database: {
           status: dbStatus,
           ...(latencyMs !== undefined ? { latencyMs } : {}),
-          ...(dbError ? { error: dbError } : {}),
+          ...(hasDbError ? { error: 'Database connection failed' } : {}),
         },
       },
       memory: {

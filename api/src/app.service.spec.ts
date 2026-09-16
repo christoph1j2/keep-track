@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
@@ -68,6 +69,31 @@ describe('AppService', () => {
       expect(health.services.database.status).toBe('down');
       expect(health.services.database.error).toBe('Database connection failed');
       expect(health.services.database.latencyMs).toBeUndefined();
+    });
+
+    it('should return a generic error message and not leak raw database error details', async () => {
+      const loggerSpy = jest
+        .spyOn((service as any).logger, 'error')
+        .mockImplementation(() => {});
+
+      prismaService.$queryRaw.mockRejectedValueOnce(
+        new Error('FATAL: password authentication failed for user "postgres"'),
+      );
+
+      const health = await service.getHealth();
+
+      expect(health.status).toBe('error');
+      expect(health.services.database.status).toBe('down');
+      expect(health.services.database.error).toBe('Database connection failed');
+      expect(health.services.database.error).not.toContain('FATAL');
+      expect(loggerSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'FATAL: password authentication failed for user "postgres"',
+        ),
+        expect.anything(),
+      );
+
+      loggerSpy.mockRestore();
     });
   });
 });

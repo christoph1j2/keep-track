@@ -20,7 +20,8 @@ export class TransactionService {
    *
    * @param userId - The ID of the user making the request.
    * @param categoryId - The category ID to validate and clean.
-   * @returns - The cleaned category ID if valid, or null if not provided or invalid.
+   * @returns - The cleaned category ID if valid, or null for absent or null-like values.
+   * @throws BadRequestException - If the category ID is malformed or not owned by the user.
    */
   private async validateAndCleanCategoryId(
     userId: string,

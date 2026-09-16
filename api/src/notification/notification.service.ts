@@ -8,7 +8,7 @@ export class NotificationService {
 
   /**
    * Creates a new notification for a user with the specified type, title, message, and optional metadata. The notification is stored in the database and can be retrieved later.
-   * 
+   *
    * @param userId - The ID of the user for whom the notification is being created.
    * @param type - The type of the notification (e.g., 'INFO', 'WARNING', 'ERROR').
    * @param title - The title of the notification, which provides a brief summary of the notification's content.
@@ -36,7 +36,7 @@ export class NotificationService {
 
   /**
    * Fetches all unread notifications for a specific user, ordered by their creation date in descending order. This allows the user to see the most recent notifications first.
-   * 
+   *
    * @param userId - The ID of the user for whom to fetch unread notifications.
    * @returns - A promise that resolves to an array of unread notification objects for the specified user, each containing its ID, user ID, type, title, message, metadata, read status, and timestamps for creation and last update.
    */
@@ -49,10 +49,10 @@ export class NotificationService {
 
   /**
    * Marks a notification as read.
-   * 
+   *
    * @param userId - The ID of the user who owns the notification.
    * @param notificationId - The ID of the notification to mark as read.
-   * @returns - A promise that resolves to the updated notification object, which includes its ID, user ID, type, title, message, metadata, read status (now set to true), and timestamps for creation and last update.
+   * @returns - A promise that resolves to the batch result of the update operation, containing a count field indicating how many notifications were updated.
    */
   async markAsRead(userId: string, notificationId: string) {
     return this.prisma.notification.updateMany({
@@ -63,7 +63,7 @@ export class NotificationService {
 
   /**
    * Removes a notification for a user.
-   * 
+   *
    * @param userId - The ID of the user who owns the notification.
    * @param notificationId - The ID of the notification to remove.
    * @returns - A promise that resolves to the result of the delete operation, indicating how many notifications were deleted (should be 1 if successful).
