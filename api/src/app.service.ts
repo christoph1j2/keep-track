@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 
+/**
+ * Interface representing the application information.
+ */
 export interface AppInfo {
   name: string;
   version: string;
@@ -9,6 +12,9 @@ export interface AppInfo {
   timestamp: string;
 }
 
+/**
+ * Interface representing the health check result of the application.
+ */
 export interface HealthCheckResult {
   status: 'ok' | 'error';
   timestamp: string;
@@ -32,6 +38,11 @@ export interface HealthCheckResult {
 export class AppService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Returns the application information.
+   *
+   * @returns - An object containing the application name, version, status, documentation URL, and current timestamp.
+   */
   getInfo(): AppInfo {
     return {
       name: 'Keep Track API',
@@ -42,6 +53,11 @@ export class AppService {
     };
   }
 
+  /**
+   * Retrieves the health status of the application, including database connectivity, memory usage, and uptime.
+   *
+   * @returns - An object containing the health status, timestamp, uptime, environment, database status, and memory usage.
+   */
   async getHealth(): Promise<HealthCheckResult> {
     const startTime = Date.now();
     let dbStatus: 'up' | 'down' = 'up';

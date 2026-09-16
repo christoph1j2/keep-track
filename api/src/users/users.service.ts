@@ -15,11 +15,12 @@ export class UsersService {
 
   /**
    * This method creates a new user in the database. It first checks if a user with the provided email already exists. If so, it throws a ConflictException. If not, it hashes the user's password and saves the new user to the database. The method returns the newly created user without sensitive information like password hash.
-   * @param createUserDto Data for creating a new user
-   * @returns Registered user
+   *
+   * @param createUserDto - Data for creating a new user
+   * @returns - Registered user
    */
   async create(createUserDto: CreateUserDto) {
-    // Kontrola, zda uživatel s tímto emailem již existuje
+    // Check if a user with the provided email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
@@ -28,20 +29,21 @@ export class UsersService {
       throw new ConflictException('User with this email already exists');
     }
 
-    // Vygenerování soli a zahashování hesla
+    // Hash the password before saving the user to the database
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(createUserDto.password, salt);
 
-    // Zápis do DB
+    // Write the new user to the database
     const user = await this.prisma.user.create({
       data: {
         email: createUserDto.email,
         username: createUserDto.username,
         passwordHash: hash,
-        baseCurrency: createUserDto.baseCurrency || 'CZK', // Defaultní měna, pokud není zadána
+        baseCurrency: createUserDto.baseCurrency || 'CZK', // Default to 'CZK' if not provided
       },
     });
 
+    // Seed default categories for the new user
     // await this.seedDefaultCategories(user.id);
 
     return {
@@ -54,118 +56,125 @@ export class UsersService {
     };
   }
 
-  // private async seedDefaultCategories(userId: string) {
-  //   const food = await this.prisma.category.create({
-  //     data: {
-  //       userId,
-  //       label: 'default_categories.food',
-  //       iconName: 'LocalCafe',
-  //       colorClass:
-  //         'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
-  //     },
-  //   });
-  //   const transport = await this.prisma.category.create({
-  //     data: {
-  //       userId,
-  //       label: 'default_categories.transport',
-  //       iconName: 'DirectionsTransit',
-  //       colorClass:
-  //         'bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100',
-  //     },
-  //   });
-  //   const housing = await this.prisma.category.create({
-  //     data: {
-  //       userId,
-  //       label: 'default_categories.housing',
-  //       iconName: 'Home',
-  //       colorClass:
-  //         'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
-  //     },
-  //   });
+  /**
+   * Seeds the database with default categories for a new user.
+   *
+   * @param userId - The ID of the user for whom to create default categories.
+   * @deprecated This method is currently not in use and may be removed in future versions?
+   */
+  private async seedDefaultCategories(userId: string) {
+    const food = await this.prisma.category.create({
+      data: {
+        userId,
+        label: 'default_categories.food',
+        iconName: 'LocalCafe',
+        colorClass:
+          'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
+      },
+    });
+    const transport = await this.prisma.category.create({
+      data: {
+        userId,
+        label: 'default_categories.transport',
+        iconName: 'DirectionsTransit',
+        colorClass:
+          'bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100',
+      },
+    });
+    const housing = await this.prisma.category.create({
+      data: {
+        userId,
+        label: 'default_categories.housing',
+        iconName: 'Home',
+        colorClass:
+          'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
+      },
+    });
 
-  //   await this.prisma.category.createMany({
-  //     data: [
-  //       {
-  //         userId,
-  //         label: 'default_categories.salary',
-  //         iconName: 'AttachMoney',
-  //         colorClass:
-  //           'bg-green-100 text-green-600 dark:bg-green-600 dark:text-green-100',
-  //       },
-  //       {
-  //         userId,
-  //         label: 'default_categories.entertainment',
-  //         iconName: 'Movie',
-  //         colorClass:
-  //           'bg-purple-100 text-purple-600 dark:bg-purple-600 dark:text-purple-100',
-  //       },
-  //       {
-  //         userId,
-  //         label: 'default_categories.health',
-  //         iconName: 'LocalHospital',
-  //         colorClass:
-  //           'bg-red-100 text-red-600 dark:bg-red-600 dark:text-red-100',
-  //       },
-  //       {
-  //         userId,
-  //         label: 'default_categories.uncategorized',
-  //         iconName: 'QuestionMark',
-  //         colorClass:
-  //           'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300',
-  //       },
-  //     ],
-  //   });
+    await this.prisma.category.createMany({
+      data: [
+        {
+          userId,
+          label: 'default_categories.salary',
+          iconName: 'AttachMoney',
+          colorClass:
+            'bg-green-100 text-green-600 dark:bg-green-600 dark:text-green-100',
+        },
+        {
+          userId,
+          label: 'default_categories.entertainment',
+          iconName: 'Movie',
+          colorClass:
+            'bg-purple-100 text-purple-600 dark:bg-purple-600 dark:text-purple-100',
+        },
+        {
+          userId,
+          label: 'default_categories.health',
+          iconName: 'LocalHospital',
+          colorClass:
+            'bg-red-100 text-red-600 dark:bg-red-600 dark:text-red-100',
+        },
+        {
+          userId,
+          label: 'default_categories.uncategorized',
+          iconName: 'QuestionMark',
+          colorClass:
+            'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300',
+        },
+      ],
+    });
 
-  //   await this.prisma.category.createMany({
-  //     data: [
-  //       {
-  //         userId,
-  //         parentId: food.id,
-  //         label: 'default_categories.coffee_shops',
-  //         iconName: 'LocalCafe',
-  //         colorClass:
-  //           'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
-  //       },
-  //       {
-  //         userId,
-  //         parentId: food.id,
-  //         label: 'default_categories.groceries',
-  //         iconName: 'ShoppingCart',
-  //         colorClass:
-  //           'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
-  //       },
-  //       {
-  //         userId,
-  //         parentId: housing.id,
-  //         label: 'default_categories.energy',
-  //         iconName: 'ElectricBolt',
-  //         colorClass:
-  //           'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
-  //       },
-  //       {
-  //         userId,
-  //         parentId: housing.id,
-  //         label: 'default_categories.rent',
-  //         iconName: 'Home',
-  //         colorClass:
-  //           'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
-  //       },
-  //       {
-  //         userId,
-  //         parentId: transport.id,
-  //         label: 'default_categories.fuel',
-  //         iconName: 'LocalGasStation',
-  //         colorClass:
-  //           'bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100',
-  //       },
-  //     ],
-  //   });
-  // }
+    await this.prisma.category.createMany({
+      data: [
+        {
+          userId,
+          parentId: food.id,
+          label: 'default_categories.coffee_shops',
+          iconName: 'LocalCafe',
+          colorClass:
+            'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
+        },
+        {
+          userId,
+          parentId: food.id,
+          label: 'default_categories.groceries',
+          iconName: 'ShoppingCart',
+          colorClass:
+            'bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100',
+        },
+        {
+          userId,
+          parentId: housing.id,
+          label: 'default_categories.energy',
+          iconName: 'ElectricBolt',
+          colorClass:
+            'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
+        },
+        {
+          userId,
+          parentId: housing.id,
+          label: 'default_categories.rent',
+          iconName: 'Home',
+          colorClass:
+            'bg-yellow-100 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-100',
+        },
+        {
+          userId,
+          parentId: transport.id,
+          label: 'default_categories.fuel',
+          iconName: 'LocalGasStation',
+          colorClass:
+            'bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-blue-100',
+        },
+      ],
+    });
+  }
 
   /**
    * This method retrieves a user from the database by their email. It returns the user object for Auth purposes.
-   * @param email Email of the user
-   * @returns User
+   *
+   * @param email - Email of the user
+   * @returns - User object containing id, email, username, passwordHash, baseCurrency, createdAt, updatedAt, and role.
    */
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
@@ -185,8 +194,9 @@ export class UsersService {
 
   /**
    * This method retrieves a user from the database by their ID. It returns the user object containing selected fields such as id, email, username, baseCurrency, createdAt, and updatedAt.
-   * @param id ID of the user.
-   * @returns a user
+   *
+   * @param id - ID of the user.
+   * @returns - The user object containing the selected fields.
    */
   async findOne(id: string) {
     return this.prisma.user.findUnique({
@@ -205,9 +215,10 @@ export class UsersService {
 
   /**
    * This method updates a user in the database by their ID. It returns the updated user object containing selected fields such as id, email, username, baseCurrency, createdAt, and updatedAt.
-   * @param id ID of the user.
-   * @param updateUserDto Data for updating the user.
-   * @returns Updated user
+   *
+   * @param id - ID of the user.
+   * @param updateUserDto - Data for updating the user.
+   * @returns - Updated user object containing selected fields.
    */
   async update(id: string, updateUserDto: UpdateUserDto) {
     return this.prisma.user.update({
@@ -226,8 +237,9 @@ export class UsersService {
 
   /**
    * This method removes a user from the database by their ID. It returns the removed user object containing selected fields such as id, email, username, baseCurrency, createdAt, and updatedAt.
-   * @param id ID of the user
-   * @returns Removed user
+   *
+   * @param id - ID of the user
+   * @returns - Removed user object containing selected fields
    */
   async deleteAccount(userId: string) {
     await this.prisma.user.delete({
@@ -240,12 +252,20 @@ export class UsersService {
     return { message: 'User account deleted successfully' };
   }
 
+  /**
+   * Changes the password of a user.
+   *
+   * @param userId - The ID of the user changing the password.
+   * @param dto - The data transfer object containing the old and new passwords.
+   * @returns - An object indicating the success of the password change operation.
+   */
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
     if (!user) return;
 
+    // Validate the old password
     const isPasswordValid = await bcrypt.compare(
       dto.oldPassword,
       user.passwordHash,
@@ -254,6 +274,7 @@ export class UsersService {
       throw new BadRequestException('Current password is incorrect');
     }
 
+    // Hash the new password and update it in the database
     const salt = await bcrypt.genSalt(10);
     const newHashedPW = await bcrypt.hash(dto.newPassword, salt);
 
