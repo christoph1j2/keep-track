@@ -16,7 +16,13 @@ export class ImportService {
     private exchangeRateService: ExchangeRateService,
   ) {}
 
-  // Vytvori uvodni zaznam v DB
+  /**
+   * Creates a new import job for a user with the provided initial data. The job is initialized with a status of 'PROCESSING' and is associated with the specified user ID. This method is typically called when a user initiates an import operation, and it sets up the necessary database record to track the progress of the import.
+   * 
+   * @param userId - The ID of the user for whom the import job is being created. This ID is used to associate the job with the correct user in the database.
+   * @param initialData - An array of initial transaction data that will be processed as part of the import job.
+   * @returns - A promise that resolves to the newly created import job record in the database. 
+   */
   async createImportJob(userId: string, initialData: any[]) {
     return this.prisma.importJob.create({
       data: {
@@ -27,7 +33,14 @@ export class ImportService {
     });
   }
 
-  // Toto bezi odpojene na pozadi
+  /**
+   * Processes an import job in the background, handling deduplication, currency conversion, and categorization of transactions.
+   * 
+   * @param jobId - The ID of the import job to be processed. This ID is used to retrieve the job from the database and update its status as processing progresses.
+   * @param userId - The ID of the user for whom the import job is being processed. 
+   * @param incomingTransactions - An array of transactions that have been imported and need processing. 
+   * @param useAi - Bool flag indicating whether to use AI for categorization. If false, only heuristic matching will be applied. 
+   */
   async processJobInBackground(
     jobId: string,
     userId: string,
@@ -48,7 +61,10 @@ export class ImportService {
         where: { id: userId },
         select: { baseCurrency: true },
       });
+      
+      // Determine the base currency for the user, defaulting to 'CZK' if not specified. This is used for currency conversion of foreign transactions.
       const baseCurrency = user?.baseCurrency || 'CZK';
+      // Filter out transactions that are in a foreign currency (i.e., not the user's base currency) for further processing. These transactions will require exchange rate conversion to the base currency.
       const foreignTxns = incomingTransactions.filter(
         (t: Transaction) =>
           t.originalCurrency && t.originalCurrency !== baseCurrency,
@@ -68,6 +84,7 @@ export class ImportService {
           ),
         ];
 
+        // Fetch historical exchange rates for each unique date of the foreign transactions. This is done to ensure that each transaction can be accurately converted to the user's base currency using the correct exchange rate for the date of the transaction.
         const historicalRates = new Map<string, Record<string, number>>();
 
         await Promise.all(
@@ -80,12 +97,14 @@ export class ImportService {
           }),
         );
 
+        // Iterates over each foreign transaction and applies the appropriate exchange rate to convert the amount to the user's base currency.
         for (const t of foreignTxns) {
           const d = new Date(t.date);
           const dateStr = d.toISOString().split('T')[0];
           const rates = historicalRates.get(dateStr);
           const origCurr = t.originalCurrency;
 
+          // If exchange rates are available for the transaction's date and original currency, convert the amount to the base currency using the exchange rate. 
           if (rates && rates[origCurr]) {
             const rate = rates[origCurr];
             const origAmt = t.originalAmount;
@@ -133,6 +152,7 @@ export class ImportService {
       console.log(
         `[Import ${jobId}] 📡 Emitting import_finished (success) via WebSocket`,
       );
+      // Emit a WebSocket event to the user indicating that the import job has finished successfully.
       this.eventsGateway.emitToUser(userId, 'import_finished', {
         status: 'success',
         jobId: jobId,
@@ -148,6 +168,7 @@ export class ImportService {
         },
       });
 
+      // Emit a WebSocket event to the user indicating that the import job has failed.
       this.eventsGateway.emitToUser(userId, 'import_finished', {
         status: 'error',
         jobId: jobId,
@@ -156,7 +177,13 @@ export class ImportService {
     }
   }
 
-  // Frontend asks if there is a pending job for the user (after refresh or during polling)
+  /**
+   * Retrieves a pending import job for a user, if one exists.
+   * 
+   * @param userId - The ID of the user for whom to retrieve the pending job.
+   * @param jobId - Optional. The ID of a specific job to retrieve.
+   * @returns - A promise that resolves to the pending job, or null if no such job exists.
+   */
   async getPendingJobForUser(userId: string, jobId?: string) {
     const whereClause: Prisma.ImportJobWhereInput = {
       userId,
@@ -166,6 +193,7 @@ export class ImportService {
       whereClause.id = jobId;
     }
 
+    // Fetch the most recent import job for the user that matches the criteria (status: READY_FOR_REVIEW). 
     const job = await this.prisma.importJob.findFirst({
       where: whereClause,
       orderBy: {
@@ -181,7 +209,13 @@ export class ImportService {
     };
   }
 
-  // Deletes a job (and its data) for a user
+  /**
+   * Deletes an import job for a user.
+   * 
+   * @param userId - The ID of the user for whom to delete the job.
+   * @param jobId - The ID of the job to delete.
+   * @returns - A promise that resolves to an object indicating the success of the operation.
+   */
   async deleteJob(userId: string, jobId: string) {
     await this.prisma.importJob.deleteMany({
       where: { id: jobId, userId },
@@ -189,6 +223,13 @@ export class ImportService {
     return { success: true };
   }
 
+  /**
+   * Filters out duplicate transactions based on a composite key.
+   * 
+   * @param userId - The ID of the user for whom to filter duplicates. This is used to fetch existing transactions from the database for comparison.
+   * @param transactions - An array of transactions to be filtered for duplicates. Each transaction is checked against existing transactions in the database to determine if it is a duplicate.
+   * @returns - A promise that resolves to an array of unique transactions, with duplicates removed based on the composite key (date + amount + title). If no transactions are provided, an empty array is returned.
+   */
   async filterDuplicates(
     userId: string,
     transactions: Transaction[],

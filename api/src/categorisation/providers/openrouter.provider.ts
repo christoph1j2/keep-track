@@ -7,16 +7,25 @@ import { OpenRouter } from '@openrouter/sdk';
 import { LlmProvider } from './llm-provider.interface';
 import { Injectable, Optional, Logger } from '@nestjs/common';
 
+/**
+ * Configuration interface for the OpenRouterProvider.
+ */
 export interface OpenRouterConfig {
   primaryModel: string;
   fallbackModels: string[];
 }
 
+/**
+ * Default configuration for the OpenRouterProvider, specifying the primary and fallback models to be used for categorization.
+ */
 export const DEFAULT_OPENROUTER_CONFIG: OpenRouterConfig = {
   primaryModel: 'nvidia/nemotron-3-super-120b-a12b:free',
   fallbackModels: ['nvidia/nemotron-3.5-lightning:free', 'openrouter/free'],
 };
 
+/**
+ * OpenRouterProvider is a service that provides an interface to the OpenRouter API for categorizing transactions.
+ */
 @Injectable()
 export class OpenRouterProvider implements LlmProvider {
   private client: OpenRouter;
@@ -25,7 +34,7 @@ export class OpenRouterProvider implements LlmProvider {
   private readonly logger = new Logger(OpenRouterProvider.name);
 
   constructor(
-    @Optional() config: OpenRouterConfig = DEFAULT_OPENROUTER_CONFIG,
+    @Optional() config: OpenRouterConfig = DEFAULT_OPENROUTER_CONFIG, // Use default config if none provided
   ) {
     this.config = config || DEFAULT_OPENROUTER_CONFIG;
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -37,6 +46,13 @@ export class OpenRouterProvider implements LlmProvider {
     });
   }
 
+  /**
+   * Categorizes a list of transaction titles based on the provided categories.
+   * 
+   * @param titles - An array of transaction titles to be categorized.
+   * @param categories - An array of category objects, each containing an ID and label, to be used for categorization.
+   * @returns - A promise that resolves to an array of objects, each containing a title and its corresponding category ID (or null if no category was assigned).
+   */
   async categorise(
     titles: string[],
     categories: { id: string; label: string }[],
@@ -46,6 +62,7 @@ export class OpenRouterProvider implements LlmProvider {
       throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
+    // Initialize the result array and build the system prompt for the AI model
     const res: { title: string; categoryId: string | null }[] = [];
     const systemPrompt = this.buildSystemPrompt(categories);
 
@@ -63,8 +80,10 @@ export class OpenRouterProvider implements LlmProvider {
       let chunkSuccess = false;
       let lastError: any = null;
 
+      // Retry loop for calling the OpenRouter API
       while (attempts < maxAttempts) {
         try {
+          // Call the OpenRouter API with the current chunk of titles and the system prompt
           const aiResponse = await this.client.chat.send({
             chatRequest: {
               // Primary model
@@ -80,6 +99,11 @@ export class OpenRouterProvider implements LlmProvider {
             },
           });
 
+          // Extract the content from the AI response
+          //// aiResponse - The response object returned by the OpenRouter API, containing the AI's categorization results.
+          //// choices - An array of choices returned by the AI model, each containing a message with the categorization results.
+          //// message - The message object containing the content of the AI's response.
+          //// content - The actual content of the AI's response, which is expected to be a JSON string containing the categorization results.
           const content = aiResponse?.choices?.[0]?.message?.content;
 
           if (!content) {
@@ -90,11 +114,13 @@ export class OpenRouterProvider implements LlmProvider {
             continue;
           }
 
+          // Clean the content by removing any markdown formatting and trimming whitespace
           const cleanJson = content
             .replace(/```(json)?/gi, '')
             .replace(/```/g, '')
             .trim();
 
+          // Parse the cleaned JSON content into a JavaScript object 
           let parsedData: any;
           try {
             parsedData = JSON.parse(cleanJson);
@@ -106,8 +132,10 @@ export class OpenRouterProvider implements LlmProvider {
             continue;
           }
 
+          // Extract the array of transaction items from the parsed data, handling different possible structures
           let itemsArray: any[] = [];
 
+          // If the parsed data is an array, use it directly; if it's an object, look for an array inside its properties (e.g., results, items, data, transactions)
           if (Array.isArray(parsedData)) {
             itemsArray = parsedData;
           } else if (typeof parsedData === 'object' && parsedData !== null) {
@@ -126,7 +154,9 @@ export class OpenRouterProvider implements LlmProvider {
             }
           }
 
+          // If itemsArray is valid and contains transaction items, process each item to extract the title and categoryId, logging the reasoning for each categorization
           if (Array.isArray(itemsArray) && itemsArray.length > 0) {
+            // Process each item in the itemsArray to extract the title and categoryId, logging the reasoning for each categorization
             for (const item of itemsArray) {
               if (item && typeof item === 'object' && item.title) {
                 res.push({
@@ -156,6 +186,7 @@ export class OpenRouterProvider implements LlmProvider {
             this.logger.warn(
               `[LLM] Rate limit hit. Retrying in ${5 * attempts} seconds... (Attempt ${attempts}/${maxAttempts})`,
             );
+            // Wait for an increasing amount of time before retrying, to avoid hitting the rate limit again
             await this.sleep(5000 * attempts);
           } else {
             this.logger.error('[LLM] Error calling OpenRouter:', error);
@@ -167,12 +198,14 @@ export class OpenRouterProvider implements LlmProvider {
         }
       }
 
+      // If the chunk was not successfully processed after the maximum number of attempts, log an error and throw an exception to indicate failure
       if (!chunkSuccess) {
         const errorMsg = `OpenRouter categorisation failed for chunk ${chunkNum} of ${totalChunks} (${chunk.length} titles unclassified) after ${maxAttempts} attempts.`;
         this.logger.error(`[LLM] ❌ ${errorMsg}`, lastError);
         throw new Error(errorMsg);
       }
 
+      // Wait before processing the next chunk
       if (i + this.CHUNK_SIZE < titles.length) {
         await this.sleep(2000);
       }
@@ -181,6 +214,12 @@ export class OpenRouterProvider implements LlmProvider {
     return res;
   }
 
+  /**
+   * Builds the system prompt for the OpenRouter API.
+   * 
+   * @param categories - An array of category objects, each containing an ID and label, to be used for categorization.
+   * @returns - A string containing the system prompt to be sent to the OpenRouter API, which includes instructions for categorizing transactions based on the provided categories and context.
+   */
   private buildSystemPrompt(
     categories: { id: string; label: string }[],
   ): string {
@@ -221,6 +260,12 @@ export class OpenRouterProvider implements LlmProvider {
     return systemPrompt;
   }
 
+  /**
+   * Puts the current thread to sleep for the specified number of milliseconds.
+   * 
+   * @param ms - The number of milliseconds to sleep.
+   * @returns A promise that resolves after the specified time.
+   */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

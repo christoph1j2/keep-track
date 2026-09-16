@@ -19,6 +19,9 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Represents a request that has been authenticated and contains user information.
+ */
 interface AuthenticatedRequest extends Request {
   user: {
     id: string;

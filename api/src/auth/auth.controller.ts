@@ -19,6 +19,9 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
+/**
+ * Represents a request that has been authenticated and contains user information.
+ */
 interface AuthenticatedRequest extends Request {
   user: {
     id: string;

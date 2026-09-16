@@ -1,4 +1,6 @@
-// LLM Provider interface for categorizing transactions
+/**
+ * Interface for the LLM provider used to categorize transactions.
+ */
 export interface LlmProvider {
   categorise(
     titles: string[],
@@ -6,5 +8,7 @@ export interface LlmProvider {
   ): Promise<{ title: string; categoryId: string | null }[]>;
 }
 
-// Symbol for dependency injection of the LLM provider
+/**
+ * Symbol used to inject the LLM provider into services that require it.
+ */
 export const LLM_PROVIDER = Symbol('LLM_PROVIDER');
