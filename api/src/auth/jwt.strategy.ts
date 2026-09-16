@@ -12,6 +12,7 @@ interface JwtPayload {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
+    // Call the parent constructor with the JWT strategy options
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -19,6 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  // This method is called automatically by Passport to validate the JWT payload.
   validate(payload: JwtPayload) {
     return { id: payload.sub, email: payload.email, role: payload.role };
   }

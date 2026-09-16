@@ -224,6 +224,7 @@ export class AdminService {
   ): Promise<{ count: number }> {
     let usersToNotify: string[] = [];
 
+    // If specific target user IDs are provided, use them; otherwise, fetch all users.
     if (targetUserIds && targetUserIds.length > 0) {
       usersToNotify = targetUserIds;
     } else {
@@ -233,10 +234,12 @@ export class AdminService {
       usersToNotify = allUsers.map((u) => u.id);
     }
 
+    // If no users are found to notify, return a count of 0.
     if (usersToNotify.length === 0) {
       return { count: 0 };
     }
 
+    // Prepare the notification data for bulk insertion
     const notificationsData = usersToNotify.map((userId) => ({
       userId,
       type,
@@ -244,6 +247,7 @@ export class AdminService {
       message: message || null,
     }));
 
+    // Insert notifications in bulk and return the count of created notifications
     const result = await this.prisma.notification.createMany({
       data: notificationsData,
     });

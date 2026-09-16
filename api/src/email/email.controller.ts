@@ -9,18 +9,27 @@ import { Throttle } from '@nestjs/throttler';
 import { EmailService } from './email.service';
 import { SendEmailDto } from './dto/send-email.dto';
 
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
 interface SendEmailResponse {
   success: boolean;
   message: string;
   data: unknown;
 }
 
+@ApiTags('Email')
 @Controller('email')
 export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @Post('send_feedback')
   @Throttle({ default: { limit: 10, ttl: 86400000 } })
+  @ApiOperation({ summary: 'Send user feedback via email' })
+  @ApiResponse({
+    status: 201,
+    description: 'Feedback email sent successfully.',
+  })
+  @ApiResponse({ status: 500, description: 'Failed to send email.' })
   async sendFeedbackEmail(
     @Body()
     body: SendEmailDto,

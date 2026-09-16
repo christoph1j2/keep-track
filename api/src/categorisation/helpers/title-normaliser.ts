@@ -1,10 +1,17 @@
+/**
+ * Normalizes a title by converting it to lowercase, removing numbers, special characters, and extra whitespace.
+ * 
+ * @param title - The title string to be normalized.
+ * @returns - The normalized title string.
+ */
 export function normaliseTitle(title: string): string {
   let normalized = title
     .toLowerCase()
-    .replace(/s\.r\.o\.?|a\.s\.?|z\.s\.?|spol\. s r\.o\.?/gi, '')
+    .replace(/s\.r\.o\.?|a\.s\.?|z\.s\.?|spol\. s r\.o\.?/gi, '') // remove common czech company suffixes
+    .replace(/\s+/g, ' ') // remove extra whitespace
     .replace(/[0-9]+/g, '') // remove all numbers
     .replace(/[^\w\sěščřžýáíéůúťďň]/gi, ' ') // remove special chars
-    .replace(/\s+/g, ' ')
+    .replace(/\s+/g, ' ') // remove extra whitespace again
     .trim();
 
   // Fallback if we accidentally stripped the entire string (e.g. if the title was just numbers)

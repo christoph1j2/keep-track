@@ -7,6 +7,9 @@ import { HeuristicMatcherService } from './heuristic-matcher.service';
 import { Transaction } from '@prisma/client';
 import { normaliseTitle } from './helpers/title-normaliser';
 
+/**
+ * Represents a transaction that has been processed for categorization, including its original details and the resulting category information.
+ */
 export interface ProcessedTransaction {
   id: string;
   date: Date;
@@ -28,11 +31,20 @@ export class CategorisationService {
     @Inject(LLM_PROVIDER) private readonly llmProvider: LlmProvider,
   ) {}
 
+  /**
+   * Categorizes a list of transactions for a given user.
+   * 
+   * @param userId - The ID of the user for whom the transactions are being categorized.
+   * @param transactions - An array of transactions to be categorized, each containing details such as title, amount, and date.
+   * @param useAi - A boolean flag indicating whether to use AI for categorization. If false, only heuristic matching will be applied.
+   * @returns - A promise that resolves to an array of ProcessedTransaction objects, each containing the original transaction details along with the assigned category ID and a flag indicating whether AI was used for categorization.
+   */
   async categorise(
     userId: string,
     transactions: Transaction[],
     useAi: boolean = true,
   ): Promise<ProcessedTransaction[]> {
+    // Log the start of the categorization process, including the number of transactions and whether AI categorization is enabled
     const shortUserId = userId.substring(0, 8) + '***';
     this.logger.log(
       `[Categorisation] 📊 Started: ${transactions.length} transactions for user ${shortUserId} (useAi: ${useAi})`,

@@ -14,9 +14,13 @@ import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { ReorderTemplatesDto } from './dto/reorder-templates.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
-import { PrismaService } from '../prisma/prisma.service';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -32,7 +36,8 @@ export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Vytvořit novou šablonu' })
+  @ApiOperation({ summary: 'Create a new template' })
+  @ApiResponse({ status: 201, description: 'Template created successfully.' })
   create(
     @Body() createTemplateDto: CreateTemplateDto,
     @Req() req: AuthenticatedRequest,
@@ -41,13 +46,18 @@ export class TemplateController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Získat všechny šablony uživatele' })
+  @ApiOperation({ summary: 'Get all templates for user' })
+  @ApiResponse({ status: 200, description: 'List of all templates.' })
   findAll(@Req() req: AuthenticatedRequest) {
     return this.templateService.findAll(req.user.id);
   }
 
   @Patch('reorder')
-  @ApiOperation({ summary: 'Přeuspořádat šablony' })
+  @ApiOperation({ summary: 'Reorder templates' })
+  @ApiResponse({
+    status: 200,
+    description: 'Templates reordered successfully.',
+  })
   async reorder(
     @Body() reorderTemplatesDto: ReorderTemplatesDto,
     @Req() req: AuthenticatedRequest,
@@ -56,13 +66,17 @@ export class TemplateController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Získat konkrétní šablonu' })
+  @ApiOperation({ summary: 'Get a specific template' })
+  @ApiResponse({ status: 200, description: 'Template retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Template not found.' })
   findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.templateService.findOne(req.user.id, id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Upravit šablonu' })
+  @ApiOperation({ summary: 'Update a specific template' })
+  @ApiResponse({ status: 200, description: 'Template updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Template not found.' })
   update(
     @Param('id') id: string,
     @Body() updateTemplateDto: UpdateTemplateDto,
@@ -72,7 +86,9 @@ export class TemplateController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Smazat šablonu' })
+  @ApiOperation({ summary: 'Delete a specific template' })
+  @ApiResponse({ status: 200, description: 'Template deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Template not found.' })
   remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.templateService.remove(req.user.id, id);
   }

@@ -15,10 +15,17 @@ import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { ReorderBudgetsDto } from './dto/reorder-budgets.dto';
 import { SetComplexBudgetDto } from './dto/set-complex-budget.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
-import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Represents a request that has been authenticated and contains user information.
+ */
 interface AuthenticatedRequest extends Request {
   user: {
     id: string;
@@ -33,7 +40,8 @@ export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Vytvořit nový rozpočet' })
+  @ApiOperation({ summary: 'Create a new budget' })
+  @ApiResponse({ status: 201, description: 'Budget created successfully.' })
   create(
     @Body() createBudgetDto: CreateBudgetDto,
     @Req() req: AuthenticatedRequest,
@@ -42,13 +50,15 @@ export class BudgetController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Získat všechny rozpočty uživatele' })
+  @ApiOperation({ summary: 'Get all budgets for user' })
+  @ApiResponse({ status: 200, description: 'List of all budgets.' })
   findAll(@Req() req: AuthenticatedRequest) {
     return this.budgetService.findAll(req.user.id);
   }
 
   @Patch('reorder')
-  @ApiOperation({ summary: 'Přeuspořádat rozpočty' })
+  @ApiOperation({ summary: 'Reorder budgets' })
+  @ApiResponse({ status: 200, description: 'Budgets reordered successfully.' })
   async reorder(
     @Body() reorderBudgetsDto: ReorderBudgetsDto,
     @Req() req: AuthenticatedRequest,
@@ -57,13 +67,18 @@ export class BudgetController {
   }
 
   @Get('complex')
-  @ApiOperation({ summary: 'Získat komplexní rozpočet uživatele' })
+  @ApiOperation({ summary: 'Get complex budget for user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Complex budget retrieved successfully.',
+  })
   getComplexBudget(@Req() req: AuthenticatedRequest) {
     return this.budgetService.getComplexBudget(req.user.id);
   }
 
   @Post('complex')
-  @ApiOperation({ summary: 'Nastavit komplexní rozpočet uživatele' })
+  @ApiOperation({ summary: 'Set complex budget for user' })
+  @ApiResponse({ status: 201, description: 'Complex budget set successfully.' })
   setComplexBudget(
     @Body() setComplexBudgetDto: SetComplexBudgetDto,
     @Req() req: AuthenticatedRequest,
@@ -75,19 +90,27 @@ export class BudgetController {
   }
 
   @Delete('complex')
-  @ApiOperation({ summary: 'Smazat komplexní rozpočet uživatele' })
+  @ApiOperation({ summary: 'Delete complex budget for user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Complex budget deleted successfully.',
+  })
   deleteComplexBudget(@Req() req: AuthenticatedRequest) {
     return this.budgetService.deleteComplexBudget(req.user.id);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Získat konkrétní rozpočet' })
+  @ApiOperation({ summary: 'Get a specific budget' })
+  @ApiResponse({ status: 200, description: 'Budget retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Budget not found.' })
   findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.budgetService.findOne(req.user.id, id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Upravit rozpočet' })
+  @ApiOperation({ summary: 'Update a specific budget' })
+  @ApiResponse({ status: 200, description: 'Budget updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Budget not found.' })
   update(
     @Param('id') id: string,
     @Body() updateBudgetDto: UpdateBudgetDto,
@@ -97,7 +120,9 @@ export class BudgetController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Smazat rozpočet' })
+  @ApiOperation({ summary: 'Delete a specific budget' })
+  @ApiResponse({ status: 200, description: 'Budget deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Budget not found.' })
   remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.budgetService.remove(req.user.id, id);
   }
