@@ -11,7 +11,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ImportService } from './import.service';
 import { Transaction } from '@prisma/client/index-browser';
@@ -24,6 +29,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+@ApiTags('Import')
 @Controller('import')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
@@ -32,6 +38,8 @@ export class ImportController {
 
   @Post('start')
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Start a new import job' })
+  @ApiResponse({ status: 202, description: 'Import job started successfully.' })
   async startImport(
     @Req() req: AuthenticatedRequest,
     @Body() dto: StartImportDto,
@@ -53,6 +61,11 @@ export class ImportController {
   }
 
   @Get('pending')
+  @ApiOperation({ summary: 'Get pending import job for user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Pending job retrieved successfully.',
+  })
   async getPendingJob(
     @Req() req: AuthenticatedRequest,
     @Query('jobId') jobId?: string,
@@ -61,6 +74,8 @@ export class ImportController {
   }
 
   @Delete(':jobId')
+  @ApiOperation({ summary: 'Delete an import job' })
+  @ApiResponse({ status: 200, description: 'Import job deleted successfully.' })
   async deleteJob(
     @Req() req: AuthenticatedRequest,
     @Param('jobId') jobId: string,

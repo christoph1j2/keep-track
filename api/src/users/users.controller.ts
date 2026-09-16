@@ -13,7 +13,12 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 interface AuthenticatedRequest extends Request {
@@ -30,6 +35,8 @@ export class UsersController {
   //! REGISTRATION
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({ status: 201, description: 'User created successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid input data.' })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
@@ -39,6 +46,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully.',
+  })
   getProfile(@Req() req: AuthenticatedRequest) {
     return this.usersService.findOne(req.user.id);
   }
@@ -48,6 +59,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update current user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile updated successfully.',
+  })
   update(
     @Req() req: AuthenticatedRequest,
     @Body() updateUserDto: UpdateUserDto,
@@ -60,6 +75,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete current user account' })
+  @ApiResponse({
+    status: 200,
+    description: 'User account deleted successfully.',
+  })
   remove(@Req() req: AuthenticatedRequest) {
     return this.usersService.deleteAccount(req.user.id);
   }
@@ -69,6 +88,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change current user password' })
+  @ApiResponse({ status: 200, description: 'Password changed successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid current password.' })
   changePassword(
     @Req() req: AuthenticatedRequest,
     @Body() changePasswordDto: ChangePasswordDto,
