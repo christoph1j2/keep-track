@@ -15,6 +15,7 @@ export function useIsMobile(breakpoint: number = 768): boolean {
             setIsMobile(window.innerWidth < breakpoint);
         };
 
+        // Add event listener for window resize
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, [breakpoint]);

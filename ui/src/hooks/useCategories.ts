@@ -24,6 +24,7 @@ const DEFAULT_CATEGORIES: Category[] = [
  *
  * @param value Value to validate.
  * @returns True when the value matches the Category shape.
+ * @deprecated This function is deprecated in favor of the Zustand store `useCategoryStore`.
  */
 function isCategory(value: unknown): value is Category {
     if (!value || typeof value !== "object") {
@@ -42,6 +43,7 @@ function isCategory(value: unknown): value is Category {
  * Falls back to default categories when storage is unavailable, missing, or invalid.
  *
  * @returns Stored categories, or default categories when data cannot be recovered.
+ * @deprecated This function is deprecated in favor of the Zustand store `useCategoryStore`.
  */
 function getInitialCategories(): Category[] {
     if (typeof window === "undefined") return DEFAULT_CATEGORIES;
@@ -58,6 +60,12 @@ function getInitialCategories(): Category[] {
         }
 }
 
+/**
+ * Persists the given categories to localStorage and dispatches a custom event.
+ *
+ * @param categories The list of categories to persist.
+ * @deprecated This function is deprecated in favor of the Zustand store `useCategoryStore`.
+ */
 //! persistence, event-bus, SSoT
 function persistCategories(categories: Category[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));

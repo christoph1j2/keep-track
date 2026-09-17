@@ -1,6 +1,9 @@
 import Papa from "papaparse";
 
-// def pro mezikrok - transakce cekajici na schvaleni
+/**
+ * Interface for a parsed transaction.
+ * @deprecated This interface is deprecated in favor of the `Transaction` interface used in the Zustand store.
+ */
 export interface ParsedTransaction {
   id: string; // docasne id pro react key
   date: string;
@@ -10,10 +13,14 @@ export interface ParsedTransaction {
   originalCurrency: string;
 }
 
+/**
+ * Csv delimiter types supported by the parser.
+ */
 type CsvDelimiter = "," | ";" | "\t" | "|";
 
 const CSV_DELIMITER_CANDIDATES: CsvDelimiter[] = [",", ";", "\t", "|"];
 
+// Field aliases for detecting and mapping CSV columns to transaction properties
 const DATE_FIELD_ALIASES = [
   "datum zauctovani",
   "datum provedeni",
@@ -107,6 +114,13 @@ const TYPE_FIELD_ALIASES = [
 ];
 const CURRENCY_FIELD_ALIASES = ["mena", "currency", "ccy", "curr"];
 
+/**
+ * Normalizes text by trimming, lowercasing, removing diacritics, and collapsing whitespace.
+ * 
+ * @param str - The input string to normalize.
+ * @returns - The normalized string.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function normalizeText(str: string): string {
   return str
     .trim()
@@ -119,12 +133,23 @@ function normalizeText(str: string): string {
 }
 
 /**
- * Helper to normalize keys by lowercasing, stripping diacritics, and collapsing spaces.
+ * Normalizes a key by trimming, lowercasing, removing diacritics, and collapsing whitespace.
+ * 
+ * @param str - The input string to normalize.
+ * @returns - The normalized string.
+ * @deprecated This function is deprecated in favor of using API.
  */
 function normalizeKey(str: string): string {
   return normalizeText(str);
 }
 
+/**
+ * Detects the delimiter used in a CSV file based on a sample of lines.
+ * 
+ * @param lines - An array of lines from the CSV file to analyze for delimiter detection.
+ * @returns - The detected delimiter character (one of ',', ';', '\t', or '|').
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function detectDelimiter(lines: string[]): CsvDelimiter {
   const sampleLines = lines
     .map((line) => line.replace(/^\uFEFF/, "").trim())
@@ -162,6 +187,13 @@ function detectDelimiter(lines: string[]): CsvDelimiter {
   return bestDelimiter;
 }
 
+/**
+ * Counts how many field aliases match a given line of text.
+ * 
+ * @param line - The line of text to analyze for alias matches.
+ * @returns - The number of matching aliases found in the line.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function countAliasMatches(line: string): number {
   const normalized = normalizeText(line);
   const aliases = [
@@ -182,6 +214,14 @@ function countAliasMatches(line: string): number {
   );
 }
 
+/**
+ * Detects the index of the header row in a CSV file based on a sample of lines and the detected delimiter.
+ * 
+ * @param lines - An array of lines from the CSV file to analyze for header detection.
+ * @param delimiter - The detected delimiter character used in the CSV file. 
+ * @returns - The index of the header row in the lines array, or 0 if no suitable header is found.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function detectHeaderIndex(lines: string[], delimiter: CsvDelimiter): number {
   let bestIndex = -1;
   let bestScore = -1;
@@ -208,6 +248,13 @@ function detectHeaderIndex(lines: string[], delimiter: CsvDelimiter): number {
   return bestIndex === -1 ? 0 : bestIndex;
 }
 
+/**
+ * Builds a normalized row object from a raw CSV row, mapping field aliases to their corresponding values.
+ * 
+ * @param row - A raw CSV row represented as a record of string keys and values.
+ * @returns - A normalized row object with standardized keys and trimmed values.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function buildNormalizedRow(
   row: Record<string, string>,
 ): Record<string, string> {
@@ -228,6 +275,14 @@ function buildNormalizedRow(
   return normalizedRow;
 }
 
+/**
+ * Picks a field value from a row based on a list of aliases.
+ * 
+ * @param row - A normalized row object containing key-value pairs.
+ * @param aliases - An array of field aliases to search for in the row.
+ * @returns - The value of the first matching alias found in the row, or an empty string if no match is found.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function pickFieldValue(
   row: Record<string, string>,
   aliases: string[],
@@ -256,6 +311,13 @@ function pickFieldValue(
   return "";
 }
 
+/**
+ * Parses a raw amount field into a number.
+ * 
+ * @param rawAmount - The raw string representation of the amount to parse.
+ * @returns - The parsed numeric value of the amount, or 0 if parsing fails.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function parseAmountField(rawAmount: string): number {
   if (!rawAmount) return 0;
 
@@ -294,6 +356,13 @@ function parseAmountField(rawAmount: string): number {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
+/**
+ * Parses debit and credit fields from a row to determine the transaction amount.
+ * 
+ * @param row - A normalized row object containing key-value pairs.
+ * @returns - An object containing the calculated amount, original amount, and a flag indicating if a valid value was found.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function parseDebitCreditAmount(row: Record<string, string>): {
   amount: number;
   originalAmount: number;
@@ -323,6 +392,13 @@ function parseDebitCreditAmount(row: Record<string, string>): {
   };
 }
 
+/**
+ * Parses dates in a variety of common formats:
+ * 
+ * @param rawDate - The raw string representation of the date to parse.
+ * @returns - The parsed date in ISO format, or undefined if parsing fails.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function parseTextDate(rawDate: string): string | undefined {
   if (!rawDate) return undefined;
 
@@ -402,6 +478,12 @@ function parseTextDate(rawDate: string): string | undefined {
   return undefined;
 }
 
+/**
+ * Gets the title for a transaction based on its row data.
+ * @param row - A normalized row object containing key-value pairs.
+ * @returns - The title of the transaction, or a default value if no title can be determined.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function getTransactionTitle(row: Record<string, string>): string {
   const payee = pickFieldValue(row, PAYEE_FIELD_ALIASES).trim();
   const description = pickFieldValue(row, DESCRIPTION_FIELD_ALIASES).trim();
@@ -421,6 +503,13 @@ function getTransactionTitle(row: Record<string, string>): string {
   return typeInfo || "Neznámá platba";
 }
 
+/**
+ * Gets the original currency of a transaction based on its row data.
+ * 
+ * @param row - A normalized row object containing key-value pairs.
+ * @returns - The original currency of the transaction, or "CZK" if no currency can be determined.
+ * @deprecated This function is deprecated in favor of using API.
+ */
 function getOriginalCurrency(row: Record<string, string>): string {
   const currencyRaw = pickFieldValue(row, CURRENCY_FIELD_ALIASES).trim();
 
@@ -434,6 +523,7 @@ function getOriginalCurrency(row: Record<string, string>): string {
     return upper;
   }
 
+  // If the currency is not a valid code, try to infer it from the text.
   const normalized = normalizeText(currencyRaw);
   if (normalized.includes("koruna") || normalized.includes("czk")) return "CZK";
   if (normalized.includes("euro") || normalized.includes("eur")) return "EUR";
@@ -446,38 +536,46 @@ function getOriginalCurrency(row: Record<string, string>): string {
 }
 
 /**
- * Parses dates in a variety of common formats:
- * - DD.MM.YYYY (Czech standard)
- * - YYYY-MM-DD (ISO standard)
- * - DD/MM/YYYY or MM/DD/YYYY (Slash formats)
+ * Parses a flexible date string into an ISO date format.
+ * 
+ * @param rawDate - The raw string representation of the date to parse.
+ * @returns - The parsed date in ISO format, or undefined if parsing fails.
+ * @deprecated This function is deprecated in favor of using API.
  */
 function parseFlexibleDate(rawDate: string): string | undefined {
   return parseTextDate(rawDate);
 }
 
 /**
- * Parses numbers with space thousands separators and commas as decimal separators.
+ * Parses a flexible amount string into a number.
+ * 
+ * @param rawAmount - The raw string representation of the amount to parse.
+ * @returns - The parsed numeric value of the amount, or 0 if parsing fails.
+ * @deprecated This function is deprecated in favor of using API.
  */
 function parseFlexibleAmount(rawAmount: string): number {
   return parseAmountField(rawAmount);
 }
 
 /**
- * PARSER: Zpracuje CSV soubor z banky a ignoruje balast nahoře.
- * Podporuje různé formáty bank (KB+, Fio, Česká spořitelna, Air Bank, Revolut, atd.).
+ * Parses a bank CSV file and extracts transactions.
+ * 
+ * @param file - The CSV file to parse, typically uploaded by the user.
+ * @returns - A promise that resolves to an array of parsed transactions, or rejects with an error if parsing fails.
+ * @deprecated This function is deprecated in favor of using API.
  */
 export function parseBankCSV(file: File): Promise<ParsedTransaction[]> {
   return new Promise((resolve, reject) => {
     const processText = (text: string) => {
 
-      // 1. KROK: Najdeme reálnou hlavičku tabulky, oddělovač a odřízneme balast.
+      // STEP 1: Normalize line endings and split into lines, then detect the delimiter and header row
       const normalizedText = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
       const lines = normalizedText.split("\n");
       const delimiter = detectDelimiter(lines);
       const headerIndex = detectHeaderIndex(lines, delimiter);
       const cleanCsvText = lines.slice(headerIndex).join("\n");
 
-      // 2. KROK: Pustíme PapaParse na vyčištěný text
+      // STEP 2: Pass the cleaned text to PapaParse
       Papa.parse(cleanCsvText, {
         header: true,
         skipEmptyLines: true,
@@ -493,11 +591,11 @@ export function parseBankCSV(file: File): Promise<ParsedTransaction[]> {
             const rawDate = pickFieldValue(normalizedRow, DATE_FIELD_ALIASES);
             const amountInfo = parseDebitCreditAmount(normalizedRow);
 
-            // Pokud řádek nemá datum nebo částku, přeskočíme ho (např. součty na konci)
+            // If the date is invalid or the amount is zero, skip this row
             if (!rawDate || !amountInfo.hasValue || amountInfo.amount === 0)
               continue;
 
-            // Zpracujeme flexibilní formát data
+            // Parse the date and ensure it's valid
             const isoDate = parseFlexibleDate(rawDate);
             if (!isoDate) {
               console.warn("Could not parse date:", rawDate);

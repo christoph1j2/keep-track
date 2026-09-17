@@ -14,12 +14,15 @@ import { useNotificationStore } from "../store/notificationStore";
  * Shared app shell with sidebar navigation, top bar, and page content area.
  * The layout keeps navigation stable while allowing the main section to scroll.
  *
- * @param props.children Active page content.
+ * @param param0 - An object containing the children components that will be rendered within the main content area of the layout.
+ * @returns - A React component that provides a consistent layout for the application, including a sidebar, top bar, and main content area.
  */
 export function MainLayout({ children }: { children: ReactNode }) {
-  const token = useAuthStore((state) => state.accessToken);
-  const user = useAuthStore((state) => state.user);
+  // Zustand stores for global state management
+  const token = useAuthStore((state) => state.accessToken); // Get the access token from the auth store to determine if the user is logged in
+  const user = useAuthStore((state) => state.user); // Get the user from the auth store
 
+  // Fetch functions from Zustand stores for categories, transactions, budgets, complex budgets, templates, and notifications
   const fetchCategories = useCategoryStore((state) => state.fetchCategories);
   const fetchTransactions = useTransactionStore(
     (state) => state.fetchTransactions,
@@ -28,26 +31,30 @@ export function MainLayout({ children }: { children: ReactNode }) {
   const fetchComplexBudget = useBudgetStore((state) => state.fetchComplexBudget);
   const fetchTemplates = useTemplateStore((state) => state.fetchTemplates);
 
+  // Socket connection management
   const connectSocket = useSocketStore((state) => state.connectSocket);
   const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
 
+  // Effect to manage WebSocket connection based on user authentication state
   useEffect(() => {
     if (token && user) {
-      // 1. Připojíme WebSockets
+      // 1. Connect to the WebSocket server when the user is logged in
       connectSocket();
 
-      // 2. Zeptáme se backendu, jestli náhodou nevisí v DB hotový import z minula
+      // 2. Fetch any pending jobs for the user when the component mounts or when the user logs in
       useSocketStore.getState().fetchPendingJob();
     } else {
-      // Odpojíme při odhlášení
+      // Disconnect from the WebSocket server when the user logs out or when there is no valid token
       disconnectSocket();
     }
 
     return () => disconnectSocket();
   }, [token, user, connectSocket, disconnectSocket]);
 
+  // Fetch notifications when the user is logged in
   const fetchNotifications = useNotificationStore((state) => state.fetchNotifications);
 
+  // Effect to refetch all relevant data when the user logs in or when the window gains focus
   useEffect(() => {
     if (!token) return;
 
@@ -63,13 +70,13 @@ export function MainLayout({ children }: { children: ReactNode }) {
     refetchAll();
 
     const handleFocus = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible") { // Refetch data when the window gains focus
         refetchAll();
         useSocketStore.getState().fetchPendingJob();
       }
     };
 
-    window.addEventListener("focus", handleFocus);
+    window.addEventListener("focus", handleFocus); 
     document.addEventListener("visibilitychange", handleFocus);
 
     return () => {

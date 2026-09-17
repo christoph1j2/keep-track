@@ -8,6 +8,7 @@ const STORAGE_KEY = "keep-track-transactions";
  * Falls back to an empty list when storage is unavailable, missing, or invalid.
  *
  * @returns Stored transactions, or an empty array when data cannot be recovered.
+ * @deprecated This function is deprecated in favor of the Zustand store `useTransactionStore`.
  */
 function getInitialTransactions(): Transaction[] {
     if (typeof window === "undefined") return [];
@@ -22,7 +23,12 @@ function getInitialTransactions(): Transaction[] {
     }
 }
 
-//! persistence, event-bus, SSoT
+/**
+ * Persists the given transactions to localStorage and dispatches a custom event.
+ * 
+ * @param transactions - The list of transactions to persist.
+ * @deprecated This function is deprecated in favor of the Zustand store `useTransactionStore`.
+ */
 function persistTransactions(transactions: Transaction[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
     window.dispatchEvent(new Event('transactions-updated'));

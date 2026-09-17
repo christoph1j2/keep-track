@@ -1,17 +1,16 @@
 export type CategoryType = 'INCOME' | 'EXPENSE'
 
 /**
- * Category record used to group transactions and render category visuals.
- * Optional parentId enables a two-level hierarchy in the overview tree.
+ * Represents a category used for organizing transactions, including its label, icon, color, and hierarchical structure.
  */
 export interface Category {
   id: string;
-  userId: string; // Přidáno z backendu
+  userId: string;
   label: string;
   iconName: string;
   colorClass: string;
   parentId?: string | null;
 
-  order: number; // Přidáno z backendu
+  order: number; 
   type: CategoryType;
 }

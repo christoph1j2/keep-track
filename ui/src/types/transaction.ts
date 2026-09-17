@@ -6,18 +6,17 @@ import type { Category } from "./category";
  */
 export interface Transaction {
   id: string;
-  userId: string; // Přidáno z backendu
+  userId: string; 
 
-  // CategoryId může být null, pokud uživatel kategorii smaže (Prisma onDelete: SetNull)
   categoryId: string | null;
 
   title: string;
-  date: string; // ISO 8601 string vracený z API
+  date: string; // ISO 8601 string 
 
   originalAmount: number;
   originalCurrency: string;
-  exchangeRate?: number | null; // Přepočet z originalCurrency do baseCurrency
-  amount: number; // Přepočtená hodnota do baseCurrency
+  exchangeRate?: number | null; 
+  amount: number;
 
   bankReferenceId?: string | null;
   isAiCategorized: boolean;
@@ -25,6 +24,5 @@ export interface Transaction {
   createdAt: string;
   updatedAt: string;
 
-  // Relace připojená z backendu (include: { category: true })
   category?: Category | null;
 }

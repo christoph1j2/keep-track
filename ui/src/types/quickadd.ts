@@ -6,14 +6,13 @@ import type { Category } from "./category";
  */
 export interface QuickAddTemplate {
   id: string;
-  userId: string; // Přidáno z backendu
+  userId: string;
   title: string;
-  amount: number; // Hodnota v baseCurrency uživatele
+  amount: number;
   categoryId: string | null;
   showInHotbar: boolean;
 
-  // Relace připojená z backendu (include: { category: true })
   category?: Category | null;
 
-  order: number; // Přidáno z backendu
+  order: number;
 }

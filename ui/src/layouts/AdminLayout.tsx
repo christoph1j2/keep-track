@@ -5,6 +5,9 @@ import { useAuthStore } from "../store/authStore";
 import { useNotificationStore } from "../store/notificationStore";
 import { api } from "../utils/api";
 
+/**
+ * Interface representing the statistics available in the Admin dashboard.
+ */
 export interface AdminStats {
   userCount: number;
   transactionCount: number;
@@ -25,6 +28,9 @@ export interface AdminStats {
   };
 }
 
+/**
+ * Interface representing a user in the Admin dashboard.
+ */
 export interface AdminUser {
   id: string;
   email: string;
@@ -33,6 +39,9 @@ export interface AdminUser {
   createdAt: string;
 }
 
+/**
+ * Context type for the AdminContext, providing statistics, user data, loading states, and functions to fetch and refresh data.
+ */
 interface AdminContextType {
   stats: AdminStats | null;
   users: AdminUser[];
@@ -45,7 +54,11 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-// eslint-disable-next-line react-refresh/only-export-components
+/**
+ * Custom hook to access the AdminContext.
+ * 
+ * @returns - The current value of the AdminContext, which includes statistics, user data, loading states, and functions to fetch and refresh data.
+ */
 export function useAdmin() {
   const context = useContext(AdminContext);
   if (!context) {
@@ -57,16 +70,22 @@ export function useAdmin() {
 /**
  * Dedicated Admin layout shell with AdminSidebar navigation, top bar,
  * and centralized Admin data fetching context.
+ * 
+ * @param param0 - An object containing the children components that will be rendered within the main content area of the Admin layout.
+ * @returns - A React component that provides a consistent Admin layout for the application, including an AdminSidebar, top bar, and main content area, along with centralized data fetching and state management for Admin-related data.
  */
 export function AdminLayout({ children }: { children: ReactNode }) {
-  const token = useAuthStore((state) => state.accessToken);
-  const fetchNotifications = useNotificationStore((state) => state.fetchNotifications);
+  // Zustand stores for global state management
+  const token = useAuthStore((state) => state.accessToken); // Get the access token from the auth store to determine if the user is logged in
+  const fetchNotifications = useNotificationStore((state) => state.fetchNotifications); // Fetch notifications when the user is logged in
 
+  // State management for Admin statistics and user data
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loadingStats, setLoadingStats] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
+  // Fetch Admin statistics from the backend API
   const fetchStats = async () => {
     setLoadingStats(true);
     try {
@@ -79,6 +98,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     }
   };
 
+  // Fetch Admin user data from the backend API
   const fetchUsers = async () => {
     setLoadingUsers(true);
     try {
@@ -91,16 +111,19 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     }
   };
 
+  // Refresh all Admin data (statistics and users) concurrently
   const refreshAll = async () => {
     await Promise.all([fetchStats(), fetchUsers()]);
   };
 
+  // Effect to fetch Admin data when the user is logged in or when the window gains focus
   useEffect(() => {
     if (!token) return;
 
-    let isMounted = true;
+    let isMounted = true; // Flag to prevent state updates on unmounted component
     fetchNotifications();
 
+    // Load initial Admin data (statistics and users) concurrently
     const loadInitialData = async () => {
       setLoadingStats(true);
       setLoadingUsers(true);
