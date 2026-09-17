@@ -6,9 +6,14 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../utils/api";
 
 interface FeedbackModalProps {
+  /** Callback fired when the user closes the feedback modal */
   onCancel: () => void;
 }
 
+/**
+ * FeedbackModal renders a user feedback submission form allowing users
+ * to report bugs or request features along with an optional contact email.
+ */
 export function FeedbackModal({ onCancel }: FeedbackModalProps) {
   const { t } = useTranslation();
 
@@ -26,13 +31,13 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
 
   // Handle form submission
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault(); // zabrani refreshi po odeslani formulare
+    e.preventDefault(); // Prevent browser page refresh on form submission
 
-    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace s využitím překladů
+    // Form validation with localized error messages
     const formData = new FormData(e.currentTarget);
 
     const contactEmail = formData.get("contactEmail");
@@ -102,7 +107,7 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
         </div>
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
-        {/* email */}
+        {/* Contact Email */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("feedback.contactEmail")}
@@ -115,7 +120,7 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
           />
         </div>
 
-        {/* radiobuttons BUG/FEATURE */}
+        {/* Bug / Feature Radio Options */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("feedback.feedbackType")}
@@ -157,7 +162,7 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
           </RadioGroup>
         </div>
 
-        {/* predmet */}
+        {/* Subject */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("feedback.subject")}
@@ -171,7 +176,7 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
           />
         </div>
 
-        {/* zprava */}
+        {/* Message */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("feedback.message")}
@@ -192,7 +197,7 @@ export function FeedbackModal({ onCancel }: FeedbackModalProps) {
           />
         </div>
 
-        {/* tlacitka */}
+        {/* Modal Action Buttons */}
         <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"

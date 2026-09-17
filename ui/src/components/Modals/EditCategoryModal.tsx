@@ -24,7 +24,7 @@ export function EditCategoryModal({
   onCancel,
 }: EditCategoryModalProps) {
   const { categories, updateCategory } = useCategoryStore();
-  const { t } = useTranslation(); // <-- Přesunuto sem nahoru
+  const { t } = useTranslation();
 
   const categoryLabel = category?.label.startsWith("default_categories.")
     ? t(category.label)
@@ -43,13 +43,13 @@ export function EditCategoryModal({
   const [errors, setErrors] = useState<string[] | null>(null);
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault(); // zabrani refreshi po odesilani formulare
+    e.preventDefault(); // Prevent default form browser reload
 
     if (!category || isSubmitting) return;
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace
+    // Form validation
     if (!label || !colorClass || !iconName) {
       setErrors([t("categories.errors.missingFields")]);
       setIsSubmitting(false);
@@ -244,7 +244,7 @@ export function EditCategoryModal({
   );
 }
 
-// Data pole s nahrazeným `label` za `translationKey`
+// Available color presets
 const colors = [
   {
     value: "bg-blue-100 text-blue-500 dark:bg-blue-600 dark:text-blue-100",
@@ -280,9 +280,9 @@ const colors = [
   },
   {
     value:
-      "bg-indigo-100 text-indigo-500 dark:bg-indigo-600 dark:text-indigo-100",
-    translationKey: "categories.colors.indigo",
-    hex: "#6366f1",
+      "bg-sky-100 text-sky-500 dark:bg-sky-600 dark:text-sky-100",
+    translationKey: "categories.colors.sky",
+    hex: "#0ea5e9",
   },
   {
     value: "bg-cyan-100 text-cyan-500 dark:bg-cyan-600 dark:text-cyan-100",

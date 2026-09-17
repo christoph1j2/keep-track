@@ -31,6 +31,11 @@ const handleNumberInput = (e: React.InputEvent<HTMLInputElement>) => {
   }
 };
 
+/**
+ * Modal dialog for editing an existing complex budget configuration.
+ * Allows updating monthly target income, adjusting allocations across fixed categories,
+ * adding/removing necessary categories, and viewing real-time deficit warnings.
+ */
 export function EditComplexBudgetModal({
   onCancel,
 }: EditComplexBudgetModalProps) {
@@ -100,14 +105,14 @@ export function EditComplexBudgetModal({
         selectedCategories,
       );
       toast.success(
-        t("budgeting.updated", "Rozpočet byl úspěšně aktualizován."),
+        t("budgeting.updated", "Budget updated successfully."),
       );
       onCancel();
     } catch (error: unknown) {
       toast.error(
-        t("budgeting.errors.updateFailed", "Nepodařilo se upravit rozpočet."),
+        t("budgeting.errors.updateFailed", "Failed to update budget."),
       );
-      console.error(error);
+      console.error("Failed to update complex budget:", error);
     }
   };
 

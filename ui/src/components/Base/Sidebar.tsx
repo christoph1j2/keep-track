@@ -85,7 +85,7 @@ export function Sidebar() {
         {MENU_ITEMS.map((item) => (
           <NavLink
             key={item.translationKey}
-            to={item.path} // Kam odkaz vede
+            to={item.path} // Route destination
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors cursor-pointer ${
                 isActive

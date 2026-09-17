@@ -20,7 +20,7 @@ export function LastTransactions() {
   >("all");
 
   const { t } = useTranslation();
-  const { language } = useSettingsStore(); // Použití tvého nového store
+  const { language } = useSettingsStore(); // Active locale from settings store
   const locale = language === "cs" ? "cs-CZ" : "en-US";
 
   const { transactions, isLoading } = useTransactionStore();
@@ -96,7 +96,7 @@ export function LastTransactions() {
                     key={t.id}
                     className="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl border border-transparent transition-colors"
                   >
-                    {/* nazev, ikonka a datum */}
+                    {/* Category icon, title and date */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div
                         className={`shrink-0 p-2 rounded-xl flex items-center justify-center ${category !== undefined ? category.colorClass : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
@@ -118,7 +118,7 @@ export function LastTransactions() {
                         </span>
                       </div>
                     </div>
-                    {/* castka */}
+                    {/* Formatted amount with income/expense color */}
                     <span
                       className={`font-semibold text-sm shrink-0 ml-2 whitespace-nowrap ${t.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
                     >

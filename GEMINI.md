@@ -21,3 +21,9 @@
 ## Localization & Sizing
 - **Full Synchronization**: All user-facing strings must be localized in both English (`ui/src/locales/en/translation.json`) and Czech (`ui/src/locales/cs/translation.json`).
 - **Concise Preview Labels**: In compact grids or miniature previews (e.g. StatCards), provide dedicated concise translation keys (e.g. "Income" / "Příjmy" rather than "Income this month") to prevent label truncation.
+
+## Code Quality, TypeScript & Event Standards
+- **Modern React Form Events**: Do not use `React.FormEvent` on `<form onSubmit=...>` handlers. Always use `React.SubmitEvent<HTMLFormElement>`.
+- **Strict Typing**: Disallow `any`. Always use explicit TypeScript types or interfaces for component props, API responses, and event handlers.
+- **English-Only Comments & Fallbacks**: All inline comments, JSX annotations, debug warnings, error throws, and hardcoded fallback strings (when i18n is not used) must be in English. Never leave Czech comments or notes in the codebase.
+- **Clear Documentation & JSDocs**: Provide clear, accessible JSDoc docstrings for all React components, exported interfaces/props, and non-obvious business logic (e.g. budgeting calculations, drag-and-drop algorithms, category aggregation).

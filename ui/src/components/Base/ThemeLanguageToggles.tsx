@@ -4,6 +4,10 @@ import { useTranslation } from "react-i18next";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactCountryFlag from "react-country-flag";
 
+/**
+ * Reusable header toggle buttons for switching between Light/Dark themes
+ * and English/Czech localization with instant country flag indicators.
+ */
 export const ThemeLanguageToggles = () => {
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage } = useSettingsStore();

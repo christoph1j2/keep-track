@@ -16,7 +16,7 @@ import { useConfirmStore } from "../store/confirmStore";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
 
-// maximalni pocet polozek v hotbaru
+// Maximum number of items allowed in the hotbar
 const HOTBAR_LIMIT = 6;
 
 /**
@@ -25,65 +25,73 @@ const HOTBAR_LIMIT = 6;
  * Templates can be toggled for hotbar display with a limit of 6 visible templates.
  */
 export function QuickAdd() {
-  // nacti vsechny funkce pro praci s templates z hooku
+  // Store actions and template list
   const { templates, updateTemplate, deleteTemplate, reorderTemplates } =
     useTemplateStore();
-  // stav pro otevreni/zavreni modalu
+
+  // State to control modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // stav pro uchovani sablony, kterou chceme editovat (null = vytvoreni nove sablony)
+
+  // Template currently selected for editing (null represents creating a new template)
   const [editingTemplate, setEditingTemplate] =
     useState<QuickAddTemplate | null>(null);
 
   const { t } = useTranslation();
   const showConfirm = useConfirmStore((state) => state.showConfirm);
 
-  // filtruj jen ty, ktere maji showInHotbar = true
-  // useMemo zajisti, ze se tento vypocet provede jen pri zmene templates, ne pri kazdem renderu
+  /**
+   * Filter only templates flagged with showInHotbar = true.
+   * Memoized to avoid unnecessary recalculations during re-renders.
+   */
   const hotbarTemplates = useMemo(
     () => templates.filter((template) => template.showInHotbar),
     [templates],
   );
 
-  // funkce pro zpracovani konce drag&drop akce
+  /**
+   * Handles the end of a drag-and-drop action.
+   * Reorders items either globally or within hotbar-only items.
+   *
+   * @param event - The dnd-kit DragEndEvent containing source and destination IDs
+   * @param scope - Scope of reordering: "all" for general list or "hotbar" for hotbar buttons
+   */
   const handleDragEnd = (event: DragEndEvent, scope: "all" | "hotbar") => {
     const { active, over } = event;
 
-    // pokud neni nad cimkoliv presunuto, nebo se presouva nad sebou samym, nedelame nic
+    // If dropped outside a valid droppable or over itself, do nothing
     if (!over || active.id === over.id) {
       return;
     }
 
-    // pokud se presouva v ramci vsech sablon
+    // Reordering within the full template list
     if (scope === "all") {
-      // najdi index
       const oldIndex = templates.findIndex((t) => t.id === active.id);
       const newIndex = templates.findIndex((t) => t.id === over.id);
 
-      // over ze oba indexy jsou valid
+      // Verify both indices exist
       if (oldIndex === -1 || newIndex === -1) return;
 
-      // presun prvek a uloz nove poradi
+      // Move element and persist the new order
       reorderTemplates(arrayMove(templates, oldIndex, newIndex));
       return;
     }
 
-    // pokud se presouva v ramci hotbaru
-    // najdi index
+    // Reordering exclusively within hotbar items
     const oldHotbarIndex = hotbarTemplates.findIndex((t) => t.id === active.id);
     const newHotbarIndex = hotbarTemplates.findIndex((t) => t.id === over.id);
 
-    // over ze oba indexy jsou valid
+    // Verify both indices exist
     if (oldHotbarIndex === -1 || newHotbarIndex === -1) return;
 
-    // presun sablony jen v hotbaru
+    // Move templates inside the hotbar array
     const reorderedHotbar = arrayMove(
       hotbarTemplates,
       oldHotbarIndex,
       newHotbarIndex,
     );
-    // vytvor kopii noveho poradi hotbaru
+    // Create a queue copy of the reordered hotbar
     const hotbarQueue = [...reorderedHotbar];
-    // projdi vsechny sablony a namichej nove poradi
+    // Traverse all templates and inject the newly ordered hotbar elements in place
     reorderTemplates(
       templates.map((template) =>
         template.showInHotbar ? (hotbarQueue.shift() ?? template) : template,
@@ -91,16 +99,25 @@ export function QuickAdd() {
     );
   };
 
+  /**
+   * Opens modal to create a brand new quick-add template.
+   */
   const handleCreateClick = () => {
     setEditingTemplate(null);
     setIsModalOpen(true);
   };
 
+  /**
+   * Opens modal configured to edit an existing quick-add template.
+   */
   const handleEditClick = (template: QuickAddTemplate) => {
     setEditingTemplate(template);
     setIsModalOpen(true);
   };
 
+  /**
+   * Prompts user for confirmation before permanently deleting a template.
+   */
   const handleDeleteClick = (template: QuickAddTemplate) => {
     showConfirm(
       t("common.warning"),
@@ -117,8 +134,11 @@ export function QuickAdd() {
     );
   };
 
+  /**
+   * Toggles whether a template appears on the hotbar, enforcing the limit.
+   */
   const handleToggleHotbar = async (template: QuickAddTemplate) => {
-    // nesmi byt vice sablon v hotbaru nez je limit
+    // Prevent exceeding maximum hotbar slots
     if (!template.showInHotbar && hotbarTemplates.length >= HOTBAR_LIMIT) {
       showConfirm(
         t("common.warning"),
@@ -127,7 +147,7 @@ export function QuickAdd() {
       );
       return;
     }
-    // jinak prepni showInHotbar a uloz zmenu
+    // Otherwise toggle showInHotbar and persist
     try {
       await updateTemplate(template.id, {
         ...template,

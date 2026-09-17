@@ -21,7 +21,6 @@ interface AddTransactionModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
-  // <-- Přesunuto nahoru, abychom t() mohli používat i uvnitř handleSubmit
   const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -30,7 +29,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   const categories = useCategoryStore((state) => state.categories);
   const addTransaction = useTransactionStore((state) => state.addTransaction);
 
-  // stavy pro formular
+  // Form states
   const isMobile = useIsMobile();
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState<number | "">("");
@@ -95,13 +94,13 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
    * Validates the form and submits a new transaction when everything is filled in correctly.
    */
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault(); // zabrani refreshi po odeslani formulare
+    e.preventDefault(); // Prevent default form browser reload
 
-    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace s využitím překladů
+    // Form validation
     if (!title.trim() || amount === "" ) {
       setErrors([t("transactions.errors.missingFields")]);
       setIsSubmitting(false);
@@ -140,13 +139,13 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
         date: new Date().toISOString(),
 
         originalAmount: numAmount,
-        originalCurrency: selectedCurrency, // napojeni na settings store
+        originalCurrency: selectedCurrency, // Connected to settings store
         exchangeRate: exRate,
         isAiCategorized: false,
       });
 
       toast.success(t("transactions.added"));
-      onCancel(); // zavre modal po uspesnem pridani
+      onCancel(); // Close modal upon success
     } catch (error) {
       console.error("Error adding transaction:", error);
       setErrors([t("transactions.errors.addFailed")]);

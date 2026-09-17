@@ -20,7 +20,6 @@ interface EditBudgetModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
-  // <-- Přesunuto na začátek, abychom t() mohli použít i ve funkcích
   const { t } = useTranslation();
 
   const categories = useCategoryStore((state) => state.categories);
@@ -28,7 +27,7 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
 
   const updateBudget = useBudgetStore((state) => state.updateBudget);
 
-  // stavy pro formular
+  // Form states
   const [categoryId, setCategoryId] = useState(budget.categoryId);
   const [limit, setLimit] = useState<number | "">(budget.limit);
 
@@ -47,33 +46,33 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
   };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault(); // zabrani refreshi po odeslani formulare
+    e.preventDefault(); // Prevent default browser form reload
 
-    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace
+    // Form validation
     if (!categoryId || limit === "") {
-      setErrors([t("budgeting.errors.missingFields")]); // <-- Překlad
+      setErrors([t("budgeting.errors.missingFields")]);
       setIsSubmitting(false);
       return;
     }
 
     if (limit <= 0) {
-      setErrors([t("budgeting.errors.positiveLimit")]); // <-- Překlad
+      setErrors([t("budgeting.errors.positiveLimit")]);
       setIsSubmitting(false);
       return;
     }
 
     try {
       await updateBudget(budget.id, { categoryId, limit: Number(limit) });
-      toast.success(t("budgeting.updated")); // <-- Přidáno toastové hlášení o úspěchu
-      onCancel(); // zavre modal po uspesnem upraveni
+      toast.success(t("budgeting.updated"));
+      onCancel(); // Close modal upon success
 
     } catch (err) {
       console.error("Failed to update budget:", err);
-      setErrors([t("budgeting.errors.updateFailed")]); // <-- Překlad
+      setErrors([t("budgeting.errors.updateFailed")]);
     } finally {
       setIsSubmitting(false);
     }
@@ -94,7 +93,6 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.category")}
           </label>
@@ -112,7 +110,6 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
               );
             }}
           >
-            {/* <-- Překlad a sjednocení na 'common.none' */}
             <MenuItem value="">{t("common.none")}</MenuItem>
             {(() => {
               return expenseCategories.map((cat) => (
@@ -125,7 +122,6 @@ export function EditBudgetModal({ budget, onCancel }: EditBudgetModalProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("budgeting.limit")}
           </label>

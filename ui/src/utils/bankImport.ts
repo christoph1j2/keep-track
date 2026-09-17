@@ -2,7 +2,6 @@ import Papa from "papaparse";
 
 /**
  * Interface for a parsed transaction.
- * @deprecated This interface is deprecated in favor of the `Transaction` interface used in the Zustand store.
  */
 export interface ParsedTransaction {
   id: string; // docasne id pro react key
@@ -148,7 +147,6 @@ function normalizeKey(str: string): string {
  * 
  * @param lines - An array of lines from the CSV file to analyze for delimiter detection.
  * @returns - The detected delimiter character (one of ',', ';', '\t', or '|').
- * @deprecated This function is deprecated in favor of using API.
  */
 function detectDelimiter(lines: string[]): CsvDelimiter {
   const sampleLines = lines
@@ -220,7 +218,6 @@ function countAliasMatches(line: string): number {
  * @param lines - An array of lines from the CSV file to analyze for header detection.
  * @param delimiter - The detected delimiter character used in the CSV file. 
  * @returns - The index of the header row in the lines array, or 0 if no suitable header is found.
- * @deprecated This function is deprecated in favor of using API.
  */
 function detectHeaderIndex(lines: string[], delimiter: CsvDelimiter): number {
   let bestIndex = -1;
@@ -253,7 +250,6 @@ function detectHeaderIndex(lines: string[], delimiter: CsvDelimiter): number {
  * 
  * @param row - A raw CSV row represented as a record of string keys and values.
  * @returns - A normalized row object with standardized keys and trimmed values.
- * @deprecated This function is deprecated in favor of using API.
  */
 function buildNormalizedRow(
   row: Record<string, string>,
@@ -281,7 +277,7 @@ function buildNormalizedRow(
  * @param row - A normalized row object containing key-value pairs.
  * @param aliases - An array of field aliases to search for in the row.
  * @returns - The value of the first matching alias found in the row, or an empty string if no match is found.
- * @deprecated This function is deprecated in favor of using API.
+ * 
  */
 function pickFieldValue(
   row: Record<string, string>,
@@ -316,7 +312,6 @@ function pickFieldValue(
  * 
  * @param rawAmount - The raw string representation of the amount to parse.
  * @returns - The parsed numeric value of the amount, or 0 if parsing fails.
- * @deprecated This function is deprecated in favor of using API.
  */
 function parseAmountField(rawAmount: string): number {
   if (!rawAmount) return 0;
@@ -361,7 +356,6 @@ function parseAmountField(rawAmount: string): number {
  * 
  * @param row - A normalized row object containing key-value pairs.
  * @returns - An object containing the calculated amount, original amount, and a flag indicating if a valid value was found.
- * @deprecated This function is deprecated in favor of using API.
  */
 function parseDebitCreditAmount(row: Record<string, string>): {
   amount: number;
@@ -397,7 +391,7 @@ function parseDebitCreditAmount(row: Record<string, string>): {
  * 
  * @param rawDate - The raw string representation of the date to parse.
  * @returns - The parsed date in ISO format, or undefined if parsing fails.
- * @deprecated This function is deprecated in favor of using API.
+ * 
  */
 function parseTextDate(rawDate: string): string | undefined {
   if (!rawDate) return undefined;
@@ -482,7 +476,6 @@ function parseTextDate(rawDate: string): string | undefined {
  * Gets the title for a transaction based on its row data.
  * @param row - A normalized row object containing key-value pairs.
  * @returns - The title of the transaction, or a default value if no title can be determined.
- * @deprecated This function is deprecated in favor of using API.
  */
 function getTransactionTitle(row: Record<string, string>): string {
   const payee = pickFieldValue(row, PAYEE_FIELD_ALIASES).trim();
@@ -508,7 +501,6 @@ function getTransactionTitle(row: Record<string, string>): string {
  * 
  * @param row - A normalized row object containing key-value pairs.
  * @returns - The original currency of the transaction, or "CZK" if no currency can be determined.
- * @deprecated This function is deprecated in favor of using API.
  */
 function getOriginalCurrency(row: Record<string, string>): string {
   const currencyRaw = pickFieldValue(row, CURRENCY_FIELD_ALIASES).trim();
@@ -540,7 +532,6 @@ function getOriginalCurrency(row: Record<string, string>): string {
  * 
  * @param rawDate - The raw string representation of the date to parse.
  * @returns - The parsed date in ISO format, or undefined if parsing fails.
- * @deprecated This function is deprecated in favor of using API.
  */
 function parseFlexibleDate(rawDate: string): string | undefined {
   return parseTextDate(rawDate);
@@ -551,7 +542,6 @@ function parseFlexibleDate(rawDate: string): string | undefined {
  * 
  * @param rawAmount - The raw string representation of the amount to parse.
  * @returns - The parsed numeric value of the amount, or 0 if parsing fails.
- * @deprecated This function is deprecated in favor of using API.
  */
 function parseFlexibleAmount(rawAmount: string): number {
   return parseAmountField(rawAmount);
@@ -562,7 +552,6 @@ function parseFlexibleAmount(rawAmount: string): number {
  * 
  * @param file - The CSV file to parse, typically uploaded by the user.
  * @returns - A promise that resolves to an array of parsed transactions, or rejects with an error if parsing fails.
- * @deprecated This function is deprecated in favor of using API.
  */
 export function parseBankCSV(file: File): Promise<ParsedTransaction[]> {
   return new Promise((resolve, reject) => {

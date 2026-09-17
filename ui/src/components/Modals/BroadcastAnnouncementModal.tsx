@@ -26,6 +26,14 @@ interface BroadcastAnnouncementModalProps {
   users: AdminUserSummary[];
 }
 
+/**
+ * Modal dialog for broadcasting administrative announcements to users.
+ * Supports choosing severity level and targeting all users or a specific user.
+ *
+ * @param props.open Whether the dialog is visible.
+ * @param props.onClose Callback invoked when closing dialog.
+ * @param props.users Array of available user summaries for targeting.
+ */
 export function BroadcastAnnouncementModal({
   open,
   onClose,
@@ -40,7 +48,10 @@ export function BroadcastAnnouncementModal({
   const [targetUserId, setTargetUserId] = useState("ALL");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Submits broadcast notification payload to administrative API.
+   */
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim()) {
       toast.error("Announcement title is required");

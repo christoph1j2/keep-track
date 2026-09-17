@@ -7,6 +7,11 @@ import { useBudgetStore } from "../../store/budgetStore";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "@mui/material";
 
+/**
+ * Dashboard budget summary widget.
+ * Shows top 4 active budgets as well as complex budget flexible spending progress,
+ * with direct navigation to the full budgeting management view.
+ */
 export function BudgetingList() {
   const {
     budgets,

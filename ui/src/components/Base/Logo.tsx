@@ -6,6 +6,10 @@ interface LogoProps {
   isAdmin?: boolean;
 }
 
+/**
+ * Primary KeepTrack branding logo component.
+ * Links to the admin dashboard, user dashboard, or homepage depending on authentication and active path.
+ */
 export function Logo({ isAdmin: propIsAdmin }: LogoProps = {}) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();

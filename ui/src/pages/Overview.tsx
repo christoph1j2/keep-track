@@ -40,19 +40,23 @@ export function Overview() {
     initialCategoryId,
   );
 
-  // Filtrované transakce pro datagrid
+  /**
+   * Transactions filtered according to the active category selection.
+   * If a parent category is selected, its children are recursively included.
+   * If "unassigned" is selected, only transactions lacking a category are shown.
+   */
   const filteredTransactions = selectedCategoryId
     ? transactions.filter((t) => {
-        // VIRTUÁLNÍ FILTR: Zobrazení jen těch transakcí, které v DB mají categoryId = null
+        // Virtual filter: Show only transactions where categoryId is null
         if (selectedCategoryId === "unassigned") {
           return t.categoryId === null;
         }
 
-        // STANDARDNÍ FILTR: Zobrazení podle vybrané kategorie
+        // Standard filter: Filter by selected category
         const selected = categories.find((c) => c.id === selectedCategoryId);
         if (!selected) return false;
 
-        // Pokud jde o hlavní kategorii, chceme vidět ji i všechny její podkategorie
+        // If it's a parent category, include both parent and its subcategories
         if (!selected.parentId) {
           const subcatIds = categories
             .filter((c) => c.parentId === selectedCategoryId)
@@ -64,7 +68,7 @@ export function Overview() {
           );
         }
 
-        // Pokud jde o podkategorii, chceme vidět jen tu
+        // If it's a subcategory, only show its own transactions
         return t.categoryId === selectedCategoryId;
       })
     : transactions;
@@ -87,20 +91,20 @@ export function Overview() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:flex-1 lg:min-h-0">
-        {/** TREE VIEW, KATEGORIE */}
+        {/* Category Tree Sidebar */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 lg:col-span-1 flex flex-col dark:bg-slate-900 dark:border-slate-700 min-h-106 transition-colors dark:text-slate-300">
           <div className="flex items-center justify-between mb-4 px-2">
             <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300">
               {t("overview.categories")}
             </h3>
 
-            {/* Navigace filtrů */}
+            {/* Filter navigation */}
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={() => setSelectedCategoryId("unassigned")}
                 className={`text-xs font-semibold ${selectedCategoryId === "unassigned" ? "text-slate-800 dark:text-slate-200 underline" : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"}`}
               >
-                {t("overview.unassigned", "Nezařazeno")}
+                {t("overview.unassigned", "Unassigned")}
               </button>
 
               {selectedCategoryId && (
@@ -119,11 +123,11 @@ export function Overview() {
           </div>
         </div>
 
-        {/** DATA GRID */}
+        {/* Transactions Data Grid */}
         <div className="bg-white rounded-2xl lg:shadow-sm border border-slate-100 p-0 lg:col-span-3 lg:flex lg:flex-col lg:overflow-hidden min-h-106 dark:bg-slate-900 dark:border-slate-700 transition-colors">
           <TransactionDataGrid
             transactions={filteredTransactions}
-            // ZMĚNA: Přijímá updatedTransaction přímo z tabulky a je async
+            // Asynchronously commit inline transaction updates
             onUpdateTransaction={async (updatedTransaction) => {
               await updateTransaction(updatedTransaction);
             }}
@@ -133,7 +137,7 @@ export function Overview() {
                 toast.success(t("transactions.deleted"));
               } catch (error) {
                 toast.error(t("common.error"));
-                console.error(error);
+                console.error("Failed to delete transaction:", error);
               }
             }}
             onSplitTransaction={(transaction) => {
@@ -163,14 +167,14 @@ export function Overview() {
           <SplitTransactionModal
             transaction={selectedTransaction}
             onSubmit={async (titles, amounts, categoryIds, date) => {
-              // ZMĚNA: Async zpracování rozdělení pro backend!
+              // Asynchronous split transaction processing
               try {
-                // 1. Nejprve založíme nové transakce
+                // 1. Create the new child split transactions first
                 for (let i = 0; i < titles.length; i++) {
                   await addTransaction({
                     title: titles[i],
                     amount: amounts[i],
-                    categoryId: categoryIds[i] || null, // Pošleme null místo ""
+                    categoryId: categoryIds[i] || null, // Send null instead of empty string
                     date: date,
                     originalAmount: amounts[i],
                     originalCurrency:
@@ -179,7 +183,7 @@ export function Overview() {
                   });
                 }
 
-                // 2. Až když se úspěšně vytvoří, smažeme tu původní velkou
+                // 2. Only after child transactions succeed, delete the original parent transaction
                 await deleteTransaction(selectedTransaction.id);
 
                 toast.success(t("transactions.split"));

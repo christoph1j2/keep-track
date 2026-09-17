@@ -11,13 +11,27 @@ import {
 } from "@mui/icons-material";
 
 interface ImportOptionsModalProps {
+  /** Whether the modal dialog is currently open */
   isOpen: boolean;
+  /** Callback fired when the user dismisses the modal without confirming */
   onClose: () => void;
-  onConfirm: (useAi: boolean) => void;
+  /**
+   * Callback fired when the user confirms the import options.
+   *
+   * @param useSmart - Whether to run smart categorization on unassigned transactions
+   */
+  onConfirm: (useSmart: boolean) => void;
+  /** Number of parsed transactions found in the uploaded file */
   transactionCount: number;
+  /** Name of the uploaded file being processed */
   fileName: string;
 }
 
+/**
+ * ImportOptionsModal provides a confirmation dialog allowing users to choose
+ * between local heuristics only (fast) vs smart categorization with local rules
+ * before committing parsed transactions to the backend.
+ */
 export function ImportOptionsModal({
   isOpen,
   onClose,
@@ -36,7 +50,7 @@ export function ImportOptionsModal({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={t("import.optionsTitle", "Možnosti importu transakcí")}
+      title={t("import.optionsTitle", "Transaction Import Options")}
     >
       <div className="flex flex-col gap-4 pt-4">
         {/* File summary banner */}
@@ -46,13 +60,13 @@ export function ImportOptionsModal({
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t("import.readingFile", "Načtený soubor")}
+              {t("import.readingFile", "Uploaded File")}
             </div>
             <div className="text-sm font-medium truncate" title={fileName}>
               {t("import.optionsFound", {
                 count: transactionCount,
                 fileName,
-                defaultValue: `V souboru ${fileName} bylo nalezeno ${transactionCount} transakcí.`,
+                defaultValue: `Found ${transactionCount} transactions in ${fileName}.`,
               })}
             </div>
           </div>
@@ -62,11 +76,11 @@ export function ImportOptionsModal({
         </div>
 
         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          {t("import.optionsSubtitle", "Zvolte způsob kategorizace transakcí:")}
+          {t("import.optionsSubtitle", "Choose transaction categorization method:")}
         </p>
 
         {/* Options grid */}
-        <div className="flex flex-col gap-3" role="radiogroup" aria-label={t("import.optionsSubtitle", "Zvolte způsob kategorizace transakcí:")}>
+        <div className="flex flex-col gap-3" role="radiogroup" aria-label={t("import.optionsSubtitle", "Choose transaction categorization method:")}>
           {/* Option 1: Heuristics Only */}
           <button
             type="button"
@@ -97,25 +111,25 @@ export function ImportOptionsModal({
                     <span>
                       {t(
                         "import.heuristicsOnlyTitle",
-                        "Pouze lokální pravidla (Rychlé)",
+                        "Local Rules Only (Fast)",
                       )}
                     </span>
                   </div>
                   <span className="px-2 py-0.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-md">
-                    {t("import.heuristicsOnlyBadge", "Okamžité (0 s)")}
+                    {t("import.heuristicsOnlyBadge", "Instant (0s)")}
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
                   {t(
                     "import.heuristicsOnlyDesc",
-                    "Přiřadí kategorie podle vašich dřívějších pravidel a uložených shod v aplikaci.",
+                    "Assigns categories based on your previous rules and saved matches in the app.",
                   )}
                 </p>
               </div>
             </div>
           </button>
 
-          {/* Option 2: AI Categorization */}
+          {/* Option 2: Smart Categorization */}
           <button
             type="button"
             role="radio"
@@ -148,22 +162,22 @@ export function ImportOptionsModal({
                     <span>
                       {t(
                         "import.aiTitle",
-                        "AI kategorizace + Lokální pravidla",
+                        "Smart Categorization + Local Rules",
                       )}
                     </span>
                   </div>
                   <span className="px-2 py-0.5 text-xs font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 rounded-md">
-                    {t("import.aiBadge", "S AI")}
+                    {t("import.aiBadge", "Smart")}
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
                   {t(
                     "import.aiDesc",
-                    "Využije umělou inteligenci k analýze nepřiřazených transakcí.",
+                    "Uses smart categorization to analyze unassigned transactions.",
                   )}
                 </p>
 
-                {/* AI Notice Box with MUI AccessTime Icon */}
+                {/* Smart Notice Box with MUI AccessTime Icon */}
                 <div className="mt-2.5 p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 rounded-lg text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2">
                   <AccessTime
                     fontSize="small"
@@ -172,7 +186,7 @@ export function ImportOptionsModal({
                   <span className="leading-tight font-medium">
                     {t(
                       "import.aiNotice",
-                      "Zpracování pomocí AI probíhá na pozadí a bude trvat výrazně déle.",
+                      "Smart processing runs in the background and may take a moment.",
                     )}
                   </span>
                 </div>
@@ -188,7 +202,7 @@ export function ImportOptionsModal({
             onClick={onClose}
             className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium text-sm transition-colors cursor-pointer"
           >
-            {t("common.cancel", "Zrušit")}
+            {t("common.cancel", "Cancel")}
           </button>
           <button
             type="button"
@@ -197,7 +211,7 @@ export function ImportOptionsModal({
           >
             {t("import.startImportBtn", {
               count: transactionCount,
-              defaultValue: `Spustit import (${transactionCount} transakcí)`,
+              defaultValue: `Start import (${transactionCount} transactions)`,
             })}
           </button>
         </div>

@@ -23,7 +23,7 @@ interface QuickAddButtonProps {
  */
 export function QuickAddButton({ title, amount, icon, colorClass, onClick }: QuickAddButtonProps) {
 
-    // zvetsi ikonu, pokud je to platny React element (napr. MUI ikona)
+    // Scale up icon size if it is a valid React element (e.g. MUI icon)
     const largeIcon = isValidElement(icon) 
         ? cloneElement(icon as ReactElement<{ sx?: SxProps }>, { 
             sx: { fontSize: 32 } 

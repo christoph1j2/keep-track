@@ -42,10 +42,16 @@ export function Budgeting() {
   const [isAddBudgetModalOpen, setAddBudgetModalOpen] = useState(false);
   const [isEditBudgetModalOpen, setEditBudgetModalOpen] = useState(false);
 
+  /**
+   * Navigates to the overview page pre-filtered by the clicked category.
+   */
   const handleProgressBarClick = (categoryId: string) => {
     navigate("/overview", { state: { selectedCategoryId: categoryId } });
   };
 
+  /**
+   * Handles reordering of budget cards via drag-and-drop.
+   */
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -121,7 +127,7 @@ export function Budgeting() {
                     );
                     if (!category) return null;
 
-                    //! zahrneme i transakce z podkategorií (logicky by měly být zahrnuty, protože rozpočet se vztahuje na celou kategorii včetně podkategorií)
+                    // Include subcategory transactions since a category budget naturally governs all of its child categories
                     const subcatIds = categories
                       .filter((c) => c.parentId === budget.categoryId)
                       .map((c) => c.id);
@@ -133,14 +139,17 @@ export function Budgeting() {
                           subcatIds.includes(t.categoryId || ""),
                       );
 
-                    /** NOTE:
-                     * Rozpočty slouží k hlídání a omezování útrat/výdajů
-                     * => do vyčerpaného limitu se počítají tedy pouze záporné transakce, ze kterých se počítá abs pro progress bar
+                    /**
+                     * NOTE:
+                     * Budgets serve to monitor and cap spending/expenses.
+                     * Only negative transactions (expenses) count toward the spent limit,
+                     * converted to absolute values for the progress bar.
                      *
-                     * Příklad:
-                     * Jsem student, nastavím si rozpočet 2500 Kč na jídlo. Rozpočty hlídají, abych nepřekročil stanovený limit v rámci útraty v té dané kategorii. Pokud utratím 500 v pizzerii, progress bar vzroste o 500, atp. Pokud ale dostanu stipendium 700 Kč, tak tento příjem nesníží progress bar, jelikož nemá nic společného s nastaveným limitem pro útratu za jídlo.
-                     *
-                     * Myslím, že jsem to jen špatně pojmenoval, tzn. že místo "Budgeting" by se tato stránka měla jmenovat spíše "Spending Limits" nebo "Expense Tracking", protože se jedná o sledování a hlídání útrat vůči nastaveným limitům.
+                     * Example:
+                     * A user sets a 2,500 CZK spending cap on Food. The budget tracks spending so
+                     * they do not exceed that threshold. If they spend 500 CZK at a diner, the
+                     * progress bar advances by 500 CZK. If they receive a 700 CZK refund or scholarship,
+                     * it does not reduce the expense progress bar since it is income.
                      */
                     const totalSpent = categoryTransactions
                       .filter((t) => t.amount < 0)

@@ -16,6 +16,10 @@ interface SortableBudgetItemProps {
     onDelete: (categoryId: string) => void;
 }
 
+/**
+ * Draggable budget card item displaying spending progress for a single category budget.
+ * Supports drag-and-drop reordering, progress bar inspection, and edit/delete actions.
+ */
 export function SortableBudgetItem({ 
     budget, 
     spent, 

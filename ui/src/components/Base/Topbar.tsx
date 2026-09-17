@@ -26,6 +26,11 @@ import ReactCountryFlag from "react-country-flag";
 import { useTheme as useMuiTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
+/**
+ * Topbar header component.
+ * Renders active user credentials, mobile menu trigger, information modal dialog,
+ * theme toggle, language switcher, and logout trigger.
+ */
 export function Topbar() {
   const [infoOpen, setInfoOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -34,11 +39,10 @@ export function Topbar() {
   const transactions = useTransactionStore((state) => state.transactions);
 
   const { t, i18n } = useTranslation();
-  //const showConfirm = useConfirmStore((state) => state.showConfirm);
 
   const { language, setLanguage } = useSettingsStore();
 
-  // Načtení dat o uživateli a funkce pro smazání storu
+  // User profile and authentication logout hook
   const { user, logout } = useAuthStore();
 
   const incomeSum = transactions
@@ -50,21 +54,21 @@ export function Topbar() {
 
   const handleLogout = async () => {
     try {
-      // Zavoláme backend, aby zneplatnil refresh token v databázi
+      // Call backend to invalidate refresh token in database
       await api.post("/auth/logout");
     } catch (error) {
       console.error("Logout API failed", error);
     } finally {
-      // I kdyby backend neodpověděl, smažeme frontendová data a vykopneme uživatele
+      // Clear local auth store and notify user even if network request fails
       logout();
-      toast.success(t("topbar.logoutSuccess", "Logged out successfully")); // Zde můžeš použít svůj i18n klíč
+      toast.success(t("topbar.logoutSuccess", "Logged out successfully"));
     }
   };
 
   return (
     <>
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-3 pl-6 flex items-center justify-between md:justify-between transition-colors">
-        {/* Desktop user info - Dynamické zobrazení */}
+        {/* Desktop user info */}
         <div className="max-md:hidden block">
           <p className="font-semibold text-slate-800 dark:text-slate-100">
             {user?.username || ""}
@@ -78,7 +82,7 @@ export function Topbar() {
           <MobileMenu />
         </div>
 
-        {/* Mobile user info - Dynamické zobrazení */}
+        {/* Mobile user info */}
         <div className="md:hidden text-right">
           <p className="font-semibold text-sm max-w-[175px]  sm:max-w-auto truncate text-slate-800 dark:text-slate-100">
             {user?.username || ""}
@@ -108,13 +112,13 @@ export function Topbar() {
           <button
             className="p-2 scale-125 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
             onClick={() => {
-              // Použití standardních kódů 'cs' a 'en'
+              // Toggle between standard ISO codes 'cs' and 'en'
               const newLang = language === "cs" ? "en" : "cs";
 
               setLanguage(newLang);
               i18n.changeLanguage(newLang);
             }}
-            aria-label={t("topbar.language", "Změnit jazyk")}
+            aria-label={t("topbar.language", "Change language")}
           >
             {language === "cs" ? (
               <ReactCountryFlag countryCode="GB" svg />
@@ -127,7 +131,7 @@ export function Topbar() {
             <button
               onClick={handleLogout}
               className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 transition-colors ml-2"
-              title={t("topbar.tooltips.logout", "Odhlásit se")}
+              title={t("topbar.tooltips.logout", "Log out")}
             >
               <LogoutOutlined />
             </button>
@@ -135,7 +139,7 @@ export function Topbar() {
         </div>
       </header>
 
-      {/* Info Modal (Zůstává stejný) */}
+      {/* Info Modal */}
       <Dialog
         open={infoOpen}
         onClose={() => setInfoOpen(false)}

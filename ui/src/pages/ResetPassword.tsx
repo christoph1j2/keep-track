@@ -9,6 +9,10 @@ import toast from "react-hot-toast";
 import { Logo } from "../components/Base/Logo";
 import { ThemeLanguageToggles } from "../components/Base/ThemeLanguageToggles";
 
+/**
+ * Reset password page component.
+ * Validates token from URL query parameters and allows user to specify a new password.
+ */
 export const ResetPassword = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -19,7 +23,7 @@ export const ResetPassword = () => {
   const token = searchParams.get("token");
 
   const [newPassword, setNewPassword] = useState("");
-  // PŘIDÁNO: Stav pro potvrzení hesla
+  // Local state for confirming identical password entry
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -30,13 +34,13 @@ export const ResetPassword = () => {
       backgroundColor: isDark ? "#111827" : "#ffffff",
       "& fieldset": { borderColor: isDark ? "#334155" : "#cbd5e1" },
       "&:hover fieldset": { borderColor: isDark ? "#475569" : "#94a3b8" },
-      "&.Mui-focused fieldset": { borderColor: "#6366f1" },
+      "&.Mui-focused fieldset": { borderColor: "#2563eb" },
     },
     "& .MuiInputLabel-root": {
       color: isDark ? "#94a3b8" : "#475569",
     },
     "& .MuiInputLabel-root.Mui-focused": {
-      color: "#6366f1",
+      color: "#2563eb",
     },
     "& .MuiInputBase-input::placeholder": {
       color: isDark ? "#94a3b8" : "#64748b",
@@ -44,13 +48,16 @@ export const ResetPassword = () => {
     },
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Submits the updated password with token to the auth API.
+   */
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isSubmitting || !newPassword || !confirmPassword || !token) return;
 
-    // Lokální kontrola, ať nezatěžujeme API, když se uživatel překlikne
+    // Client-side verification to avoid unnecessary API requests if passwords mismatch
     if (newPassword !== confirmPassword) {
-      setError(t("auth.resetPassword.mismatch", "Hesla se neshodují."));
+      setError(t("auth.resetPassword.mismatch", "Passwords do not match."));
       return;
     }
 
@@ -58,18 +65,18 @@ export const ResetPassword = () => {
     setError("");
 
     try {
-      // OPRAVENO: Voláme metodu PATCH a token dáváme přímo do URL
+      // Call PATCH endpoint with reset token in path URL
       await api.patch(`/auth/reset-password/${token}`, {
         newPassword,
         confirmPassword,
       });
 
       toast.success(
-        t("auth.resetPassword.success", "Heslo bylo úspěšně změněno."),
+        t("auth.resetPassword.success", "Password was successfully changed."),
       );
       navigate("/login");
     } catch (err: unknown) {
-      // Zobrazení chybové hlášky z backendu (např. 'Invalid or expired reset token')
+      // Extract backend error message (e.g. 'Invalid or expired reset token')
       const backendMessage = (
         err as { response?: { data?: { message?: string } } }
       ).response?.data?.message;
@@ -79,7 +86,7 @@ export const ResetPassword = () => {
 
       setError(
         finalMessage ||
-          t("auth.errors.generic", "Něco se pokazilo. Zkuste to prosím znovu."),
+          t("auth.errors.generic", "Something went wrong. Please try again."),
       );
       console.error("Error during reset password request:", err);
     } finally {
@@ -104,7 +111,7 @@ export const ResetPassword = () => {
           <Alert severity="error">
             {t(
               "auth.resetPassword.missingToken",
-              "Neplatný nebo chybějící token pro obnovu hesla.",
+              "Invalid or missing password reset token.",
             )}
           </Alert>
         </main>
@@ -119,7 +126,7 @@ export const ResetPassword = () => {
         <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 transition-colors">
           <div className="mb-8 text-center">
             <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-              {t("auth.resetPassword.title", "Nové heslo")}
+              {t("auth.resetPassword.title", "New Password")}
             </h2>
           </div>
 
@@ -135,7 +142,7 @@ export const ResetPassword = () => {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <TextField
-              label={t("settings.newPassword", "Nové heslo")}
+              label={t("settings.newPassword", "New Password")}
               type="password"
               size="small"
               fullWidth
@@ -145,9 +152,9 @@ export const ResetPassword = () => {
               sx={inputSx}
             />
 
-            {/* PŘIDÁNO: Input pro potvrzení hesla */}
+            {/* Password confirmation field */}
             <TextField
-              label={t("settings.confirmPassword", "Potvrzení hesla")}
+              label={t("settings.confirmPassword", "Confirm Password")}
               type="password"
               size="small"
               fullWidth
@@ -163,7 +170,7 @@ export const ResetPassword = () => {
               className="mt-2 w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               {isSubmitting && <CircularProgress size={16} color="inherit" />}
-              {t("auth.resetPassword.submit", "Uložit nové heslo")}
+              {t("auth.resetPassword.submit", "Save New Password")}
             </button>
           </form>
         </div>

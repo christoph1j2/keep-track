@@ -11,6 +11,10 @@ interface SortableCategoryItemProps {
   onDelete: (categoryId: string) => void;
 }
 
+/**
+ * Draggable category row item used in the Categories management list.
+ * Supports drag handle reordering, category icon styling, and edit/delete actions.
+ */
 export function SortableCategoryItem({
   cat,
   onEdit,
@@ -25,7 +29,7 @@ export function SortableCategoryItem({
     transition,
   };
 
-  // Label je sice po průchodu 'Categories.tsx' už přeložený, ale pokud ne, přeloží se.
+  // Translate label if it starts with translation key prefix; otherwise use as-is
   const categoryLabel = cat.label.startsWith("default_categories.")
     ? t(cat.label)
     : cat.label;
@@ -67,7 +71,7 @@ export function SortableCategoryItem({
       </div>
 
       <div className="flex gap-2 mt-3 sm:mt-0 justify-center shrink-0">
-        {/* OPRAVA: Testujeme podle originálního DB názvu (který jsme dostali přes props), ne podle nezjistitelného ID */}
+        {/* Check against default uncategorized label so system default category cannot be edited or deleted */}
         {cat.label !== t("default_categories.uncategorized") &&
           cat.label !== "default_categories.uncategorized" && (
             <>
