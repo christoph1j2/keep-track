@@ -2,12 +2,17 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { TextField, CircularProgress, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 import { api } from "../utils/api";
 import { useTheme } from "../contexts/ThemeContext";
 
 import { Logo } from "../components/Base/Logo";
 import { ThemeLanguageToggles } from "../components/Base/ThemeLanguageToggles";
 
+/**
+ * Forgot password page component.
+ * Allows users to request a password reset email link.
+ */
 export const ForgotPassword = () => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -24,13 +29,13 @@ export const ForgotPassword = () => {
       backgroundColor: isDark ? "#111827" : "#ffffff",
       "& fieldset": { borderColor: isDark ? "#334155" : "#cbd5e1" },
       "&:hover fieldset": { borderColor: isDark ? "#475569" : "#94a3b8" },
-      "&.Mui-focused fieldset": { borderColor: "#6366f1" },
+      "&.Mui-focused fieldset": { borderColor: "#2563eb" },
     },
     "& .MuiInputLabel-root": {
       color: isDark ? "#94a3b8" : "#475569",
     },
     "& .MuiInputLabel-root.Mui-focused": {
-      color: "#6366f1",
+      color: "#2563eb",
     },
     "& .MuiInputBase-input::placeholder": {
       color: isDark ? "#94a3b8" : "#64748b",
@@ -38,7 +43,10 @@ export const ForgotPassword = () => {
     },
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Submits email to forgot-password API endpoint.
+   */
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isSubmitting || !email) return;
 
@@ -48,18 +56,17 @@ export const ForgotPassword = () => {
     try {
       await api.post("/auth/forgot-password", { email });
       setIsSuccess(true);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      if (err.response?.status === 429) {
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 429) {
         setError(
           t(
             "auth.errors.tooManyRequests",
-            "Příliš mnoho požadavků. Zkuste to prosím později.",
+            "Too many requests. Please try again later.",
           ),
         );
       } else {
         setError(
-          t("auth.errors.generic", "Něco se pokazilo. Zkuste to prosím znovu."),
+          t("auth.errors.generic", "Something went wrong. Please try again."),
         );
       }
       console.error("Error during forgot password request:", err);
@@ -81,12 +88,12 @@ export const ForgotPassword = () => {
         <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 transition-colors">
           <div className="mb-8 text-center">
             <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-              {t("auth.forgotPassword.title", "Obnova hesla")}
+              {t("auth.forgotPassword.title", "Reset Password")}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
               {t(
                 "auth.forgotPassword.subtitle",
-                "Zadejte svůj e-mail a my vám zašleme odkaz pro vytvoření nového hesla.",
+                "Enter your email address and we will send you a password reset link.",
               )}
             </p>
           </div>
@@ -106,20 +113,20 @@ export const ForgotPassword = () => {
               <Alert severity="success" sx={{ borderRadius: "8px" }}>
                 {t(
                   "auth.forgotPassword.success",
-                  "Pokud je e-mail zaregistrovaný, odeslali jsme na něj instrukce k obnově hesla.",
+                  "If this email is registered, we have sent password reset instructions.",
                 )}
               </Alert>
               <Link
                 to="/login"
                 className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-sm"
               >
-                {t("auth.backToLogin", "Zpět na přihlášení")}
+                {t("auth.backToLogin", "Back to Log In")}
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <TextField
-                label={t("auth.fields.email", "E-mail")}
+                label={t("auth.fields.email", "Email")}
                 type="email"
                 size="small"
                 fullWidth
@@ -134,7 +141,7 @@ export const ForgotPassword = () => {
                 className="mt-2 w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 {isSubmitting && <CircularProgress size={16} color="inherit" />}
-                {t("auth.forgotPassword.submit", "Odeslat odkaz")}
+                {t("auth.forgotPassword.submit", "Send Reset Link")}
               </button>
 
               <div className="mt-4 text-center">
@@ -142,7 +149,7 @@ export const ForgotPassword = () => {
                   to="/login"
                   className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 transition-colors"
                 >
-                  {t("auth.backToLogin", "Zpět na přihlášení")}
+                  {t("auth.backToLogin", "Back to Log In")}
                 </Link>
               </div>
             </form>

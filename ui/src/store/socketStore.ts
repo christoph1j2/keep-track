@@ -11,6 +11,10 @@ import { useBudgetStore } from "./budgetStore";
 import { useTemplateStore } from "./quickAddTemplateStore";
 import { api } from "../utils/api";
 
+/**
+ * SocketState interface defines the structure of the WebSocket connection
+ * and import job tracking state managed by the socket store.
+ */
 interface SocketState {
   socket: Socket | null;
   isImportProcessing: boolean;
@@ -18,10 +22,35 @@ interface SocketState {
   importedDataReady: any[] | null;
   importJobId: string | null;
 
+  /**
+   * Establishes a WebSocket connection to the backend server and sets up event listeners for real-time updates.
+   */
   connectSocket: () => void;
+
+  /**
+   * Disconnects the active WebSocket connection, stops any active import polling, and clears the socket instance.
+   */
   disconnectSocket: () => void;
+
+  /**
+   * Sets the import processing status and manages fallback polling for import job completion.
+   *
+   * @param status - Whether an import job is currently being processed.
+   * @param jobId - Optional unique identifier of the active import job.
+   */
   setImportProcessing: (status: boolean, jobId?: string) => void;
+
+  /**
+   * Clears the staged imported transactions data from the store state.
+   */
   clearImportedData: () => void;
+
+  /**
+   * Checks the backend for any staged transactions waiting for review.
+   *
+   * @param targetJobId - Optional specific import job ID to check against.
+   * @returns A promise resolving to true if a matching pending job was found and loaded, false otherwise.
+   */
   fetchPendingJob: (targetJobId?: string) => Promise<boolean>;
 }
 
@@ -30,6 +59,9 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
 
 let importPollTimer: ReturnType<typeof setInterval> | null = null;
 
+/**
+ * Stops and clears the background import polling timer if active.
+ */
 const stopImportPolling = () => {
   if (importPollTimer) {
     clearInterval(importPollTimer);
@@ -37,6 +69,9 @@ const stopImportPolling = () => {
   }
 };
 
+/**
+ * Custom hook for managing the WebSocket connection, real-time data sync, and import job processing state.
+ */
 export const useSocketStore = create<SocketState>()(
   persist(
     (set, get) => ({
@@ -45,8 +80,12 @@ export const useSocketStore = create<SocketState>()(
       importedDataReady: null,
       importJobId: null,
 
+      /**
+       * Connects to the backend WebSocket server and registers event listeners for real-time data updates.
+       * If already connected or if no authentication token is present, this method does nothing.
+       */
       connectSocket: () => {
-        // pokud jsme pripojeni, nedelam nic
+        // If already connected, do nothing
         if (get().socket?.connected) return;
 
         const token = useAuthStore.getState().accessToken;
@@ -91,7 +130,7 @@ export const useSocketStore = create<SocketState>()(
             toast.success(
               i18n.t("import.aiSuccess", "Transakce byly analyzovány!"),
             );
-            // Obnovíme notifikace z backendu (nová IMPORT_READY notifikace)
+            // Refresh notifications from the backend (new IMPORT_READY notification)
             useNotificationStore.getState().fetchNotifications();
           } else {
             set({ isImportProcessing: false });
@@ -108,6 +147,9 @@ export const useSocketStore = create<SocketState>()(
         set({ socket: newSocket });
       },
 
+      /**
+       * Disconnects the current WebSocket connection and stops any running import polling.
+       */
       disconnectSocket: () => {
         stopImportPolling();
         const { socket } = get();
@@ -117,6 +159,13 @@ export const useSocketStore = create<SocketState>()(
         }
       },
 
+      /**
+       * Sets import processing state. When active, initiates a fallback polling interval (every 3 seconds)
+       * to verify import job completion in case WebSocket notifications are delayed or missed.
+       *
+       * @param status - Whether an import job is currently being processed.
+       * @param jobId - Optional unique identifier of the active import job.
+       */
       setImportProcessing: (status, jobId) => {
         if (status) {
           set({
@@ -127,7 +176,9 @@ export const useSocketStore = create<SocketState>()(
           stopImportPolling();
           importPollTimer = setInterval(async () => {
             const currentJobId = get().importJobId;
-            const found = await get().fetchPendingJob(currentJobId || undefined);
+            const found = await get().fetchPendingJob(
+              currentJobId || undefined,
+            );
             if (found) {
               stopImportPolling();
               toast.success(
@@ -142,8 +193,17 @@ export const useSocketStore = create<SocketState>()(
         }
       },
 
+      /**
+       * Clears staged imported transactions from state once they have been reviewed or discarded.
+       */
       clearImportedData: () => set({ importedDataReady: null }),
 
+      /**
+       * Fetches pending import job data from the backend to check for staged transactions awaiting review.
+       *
+       * @param targetJobId - Optional specific import job ID to check against.
+       * @returns A promise resolving to true if a matching job was found and loaded into state, false otherwise.
+       */
       fetchPendingJob: async (targetJobId) => {
         try {
           const idToUse = targetJobId || get().importJobId || undefined;
@@ -163,7 +223,7 @@ export const useSocketStore = create<SocketState>()(
             return true;
           }
         } catch (error) {
-          console.error("Nepodařilo se načíst čekající import", error);
+          console.error("Failed to fetch pending import", error);
         }
         return false;
       },
@@ -177,4 +237,3 @@ export const useSocketStore = create<SocketState>()(
     },
   ),
 );
-

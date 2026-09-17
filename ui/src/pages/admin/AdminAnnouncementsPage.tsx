@@ -14,6 +14,11 @@ import { useTheme as useAppTheme } from "../../contexts/ThemeContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import { Campaign as CampaignIcon } from "@mui/icons-material";
 
+/**
+ * Admin Announcements Page.
+ * Allows administrators to broadcast notification announcements to all users
+ * or targeted individual user accounts with configurable alert levels (INFO, WARNING, SUCCESS, ERROR).
+ */
 export const AdminAnnouncementsPage = () => {
   const { theme } = useAppTheme();
   const isDark = theme === "dark";
@@ -25,7 +30,10 @@ export const AdminAnnouncementsPage = () => {
   const [targetUserId, setTargetUserId] = useState("ALL");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Broadcasts announcement notification via admin API.
+   */
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim()) {
       toast.error("Announcement title is required");

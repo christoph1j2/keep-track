@@ -50,6 +50,7 @@ export function Dashboard() {
 
   const { t } = useTranslation();
 
+  // Compute transactions belonging to the active calendar month
   const now = new Date();
   const currentMonthTransactions = transactions.filter((t) => {
     const d = new Date(t.date);
@@ -58,6 +59,13 @@ export function Dashboard() {
     );
   });
 
+  /**
+   * Evaluates overall budget health across all configured categories (excluding complex budget):
+   * - "BAD": At least one category budget has exceeded 100% of its limit.
+   * - "OK": At least one category budget has exceeded 80% (warning threshold).
+   * - "GOOD": All category budgets are comfortably below 80% utilization.
+   * - "N/A": No budgets configured.
+   */
   const budgetStatus =
     budgets.length > 0
       ? (() => {
@@ -65,7 +73,7 @@ export function Dashboard() {
           let warning = 0;
 
           // 1. Create a fast lookup map of subCategory -> parentCategory once
-          const parentMap = new Map();
+          const parentMap = new Map<string, string>();
           categories.forEach((c) => {
             if (c.parentId) parentMap.set(c.id, c.parentId);
           });
@@ -75,7 +83,7 @@ export function Dashboard() {
               (t) => {
                 // 2. Instant lookup: check if direct ID matches or mapped parent ID matches
                 const resolvedCategoryId =
-                  parentMap.get(t.categoryId) || t.categoryId;
+                  (t.categoryId ? parentMap.get(t.categoryId) : null) || t.categoryId;
                 return resolvedCategoryId === budget.categoryId;
               },
             );
@@ -175,7 +183,7 @@ export function Dashboard() {
 
         {/** second row, left col - quick add and graph */}
         <div className="lg:col-span-2 md:col-span-2 space-y-4">
-          {/** quick add sekce */}
+          {/** Quick add section */}
           <section className="bg-white p-6 rounded-2xl shadow-sm dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 transition-colors">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold mb-4">Quick Add</h3>
@@ -233,11 +241,11 @@ export function Dashboard() {
                             toast.success(
                               t(
                                 "transactions.added",
-                                "Transakce byla úspěšně přidána.",
+                                "Transaction added successfully.",
                               ),
                             );
                           } catch (error) {
-                            toast.error(t("common.error", "Došlo k chybě."));
+                            toast.error(t("common.error", "An error occurred."));
                             console.error(
                               "Error adding transaction from quick add:",
                               error,
@@ -252,16 +260,16 @@ export function Dashboard() {
             </div>
           </section>
 
-          {/** transactions sekce */}
+          {/** Transactions section */}
           <LastTransactions />
         </div>
 
         {/** second row, right col - transactions & categories */}
         <div className="lg:col-span-2 md:col-span-2 space-y-6">
-          {/** graph sekce */}
+          {/** Graph section */}
           <Graph />
 
-          {/** budgeting sekce */}
+          {/** Budgeting section */}
           <BudgetingList />
         </div>
 

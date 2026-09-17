@@ -13,11 +13,27 @@ import { useNotificationStore } from "../../store/notificationStore";
 import { api } from "../../utils/api";
 import { type Transaction } from "../../types/transaction";
 
+export interface ImportedTransactionItem {
+  id: string;
+  title: string;
+  date: string;
+  amount: number;
+  categoryId?: string | null;
+  originalAmount?: number;
+  originalCurrency?: string;
+  isAiCategorized?: boolean;
+}
+
 interface ImportModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+/**
+ * Import review modal dialog.
+ * Displays parsed CSV transactions received via WebSocket import job.
+ * Users can review, reassign categories, and save all rows in batch.
+ */
 export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   const { t } = useTranslation();
   const categories = useCategoryStore((state) => state.categories);
@@ -25,16 +41,16 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   const { language } = useSettingsStore();
   const locale = language === "cs" ? "cs-CZ" : "en-US";
 
-  // Načteme data a job ID ze storu
+  // Load ready imported items and job ID from socket store
   const { importedDataReady, importJobId, clearImportedData } =
     useSocketStore();
-  const [parsedData, setParsedData] = useState<any[]>(
-    () => importedDataReady || [],
+  const [parsedData, setParsedData] = useState<ImportedTransactionItem[]>(
+    () => (importedDataReady as ImportedTransactionItem[]) || [],
   );
 
   useEffect(() => {
     if (importedDataReady) {
-      setParsedData(importedDataReady);
+      setParsedData(importedDataReady as ImportedTransactionItem[]);
     }
   }, [importedDataReady]);
 
@@ -43,6 +59,9 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
     [categories],
   );
 
+  /**
+   * Updates category for all transactions sharing the same merchant title.
+   */
   const handleCategoryChange = (id: string, newCategoryId: string) => {
     setParsedData((prev) => {
       const changedItem = prev.find((t) => t.id === id);
@@ -56,6 +75,9 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
     });
   };
 
+  /**
+   * Deletes the active import job from the server and dismisses the corresponding notification.
+   */
   const cleanupImportJob = async (jobId: string) => {
     try {
       await api.delete(`/import/${jobId}`);
@@ -69,16 +91,19 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         await removeNotification(targetNotification.id);
       }
     } catch (err) {
-      console.error("Nepodařilo se smazat import job", err);
+      console.error("Failed to delete import job:", err);
     }
   };
 
+  /**
+   * Submits all normalized transactions in batch to the transaction store.
+   */
   const performSave = async () => {
     const normalizedData = parsedData.map((tItem) => ({
       title: tItem.title,
       date: tItem.date,
       amount: tItem.amount,
-      categoryId: tItem.categoryId === "" ? undefined : tItem.categoryId,
+      categoryId: tItem.categoryId === "" ? undefined : (tItem.categoryId ?? undefined),
       originalAmount: tItem.originalAmount,
       originalCurrency: tItem.originalCurrency,
       isAiCategorized: tItem.isAiCategorized,
@@ -94,14 +119,14 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
           >[],
         );
 
-      toast.success(t("import.saved", "Transakce byly úspěšně uloženy!"));
+      toast.success(t("import.saved", "Transactions were saved successfully!"));
 
-      // Vyčištění DB na backendu
+      // Clean up completed import job from backend database
       if (importJobId) {
         await cleanupImportJob(importJobId);
       }
 
-      // Vyčištění storu a zavření
+      // Reset import data in store and close modal
       clearImportedData();
       onClose();
     } catch (err) {
@@ -110,6 +135,9 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
     }
   };
 
+  /**
+   * Handles save click, warning the user if transactions remain uncategorized.
+   */
   const handleSaveAll = () => {
     const uncategorizedCount = parsedData.filter(
       (tItem) => tItem.categoryId === null || tItem.categoryId === "",
@@ -141,7 +169,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
       <div className="flex flex-col gap-4">
         {parsedData.length > 0 && (
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center bg-blue-50 text-blue-800 dark:bg-indigo-500/10 dark:text-indigo-200 p-3 rounded-lg text-sm font-medium">
+            <div className="flex justify-between items-center bg-blue-50 text-blue-800 dark:bg-sky-500/10 dark:text-sky-200 p-3 rounded-lg text-sm font-medium">
               <span>{t("import.summary", { count: parsedData.length })}</span>
               <span className="text-xs opacity-80">
                 {t("import.summaryAi")}

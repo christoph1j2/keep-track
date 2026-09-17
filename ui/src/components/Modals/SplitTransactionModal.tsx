@@ -37,7 +37,7 @@ export function SplitTransactionModal({
   onCancel,
 }: SplitTransactionModalProps) {
   const categories = useCategoryStore((state) => state.categories);
-  const { t } = useTranslation(); // <-- Inicializace překladů
+  const { t } = useTranslation();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[] | null>(null);
@@ -47,7 +47,7 @@ export function SplitTransactionModal({
     { title: "", amount: "", categoryId: "" },
   ]);
 
-  // pocita s absolutnimi hodnotami, uzivatel zadava kladne castky a my aplikujeme puvodni znamenko az pri odesilani, aby bylo jednodussi kontrolovat zbylej zustatek a validovat nezaporne zadane castky
+  // Uses absolute values: user inputs positive amounts and the original sign is applied during submission to simplify remaining balance tracking and input validation.
   const absoluteTransactionAmount = Math.abs(transaction.amount);
   const remaining =
     absoluteTransactionAmount -
@@ -60,14 +60,14 @@ export function SplitTransactionModal({
    * Validates all split rows and submits them only when the total matches the original transaction.
    * Users enter positive values; we apply the original sign at submission.
    */
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // zabrani refreshi po odeslani formulare
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default browser form refresh
 
-    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace
+    // Validation
     const parsedAmounts = splits.map((split) => Number(split.amount));
 
     if (
@@ -94,7 +94,7 @@ export function SplitTransactionModal({
       return;
     }
     if (Math.abs(remaining) > 0.005) {
-      // tolerance pro floaty
+      // Floating point comparison epsilon tolerance
       setErrors([
         t("splitTransaction.errors.amountsMismatch", {
           remaining: formatCurrency(remaining),
@@ -104,12 +104,12 @@ export function SplitTransactionModal({
       return;
     }
 
-    // aplikujeme puvodni znamenko k zadanym castkam, aby se odesilaly jako korektni rozdeleni (kladne i zaporne)
+    // Apply original sign to split amounts (positive for income, negative for expenses)
     const signedAmounts = parsedAmounts.map((amount) =>
       transaction.amount < 0 ? -amount : amount,
     );
 
-    toast.success(t("splitTransaction.split")); // <-- Přidáno toastové hlášení o úspěchu
+    toast.success(t("splitTransaction.split")); // Display success toast notification
     onSubmit(
       splits.map((split) => split.title),
       signedAmounts,
@@ -159,7 +159,7 @@ export function SplitTransactionModal({
             </strong>
           </span>
         </div>
-        {/* vezme vsechny split polozky a postavi je dle indexu */}
+        {/* Render each split item by index */}
         {splits.map((split, index) => (
           <div
             key={index}
@@ -251,7 +251,7 @@ export function SplitTransactionModal({
               </button>
             )}
           </div>
-          {/* tlacitka */}
+          {/* Action buttons */}
           <div className="flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 pt-3 sm:flex-row sm:gap-3 sm:border-t-0 sm:pt-0">
             <button
               type="button"

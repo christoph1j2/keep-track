@@ -25,6 +25,14 @@ import { BaseModal } from "../Modals/BaseModal";
 import { EditComplexBudgetModal } from "../Modals/EditComplexBudgetModal";
 import { formatCurrency } from "../../utils/formatCurrency";
 
+/**
+ * ComplexBudget component models a structured monthly budgeting system (similar to 50/30/20).
+ * It tracks:
+ * - Fixed/necessary monthly expenses across designated categories (including subcategory rollups).
+ * - Overall monthly income and any surplus income.
+ * - Flexible spending limit that dynamically expands when actual income exceeds the target.
+ * - Projected savings and remaining budget health metrics.
+ */
 export function ComplexBudget() {
   const { complexBudget, removeComplexBudget } = useBudgetStore();
   const { categories } = useCategoryStore();

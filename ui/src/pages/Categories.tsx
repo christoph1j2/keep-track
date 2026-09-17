@@ -4,7 +4,7 @@ import { BaseModal } from "../components/Modals/BaseModal";
 import { EditCategoryModal } from "../components/Modals/EditCategoryModal";
 import { AddCategoryModal } from "../components/Modals/AddCategoryModal";
 import { useCategoryStore } from "../store/categoryStore";
-import { useTransactionStore } from "../store/transactionStore"; // Zde teď můžeme přidat reload transakcí
+import { useTransactionStore } from "../store/transactionStore"; // Used to reload transactions after category mutations
 import { SortableCategoryItem } from "../components/Categories/SortableCategoryItem";
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import {
@@ -16,11 +16,16 @@ import { useConfirmStore } from "../store/confirmStore";
 import toast from "react-hot-toast";
 import { Skeleton } from "@mui/material";
 
+/**
+ * Categories management page.
+ * Displays income and expense categories in a drag-and-drop sortable list.
+ * Supports adding, editing, and deleting categories with cascade detachment.
+ */
 export function Categories() {
   const { t } = useTranslation();
   const { categories, removeCategory, reorderCategories, isLoading } =
     useCategoryStore();
-  const { fetchTransactions } = useTransactionStore(); // Použijeme pro aktualizaci po smazání
+  const { fetchTransactions } = useTransactionStore(); // Refetches transactions after deleting a category
 
   const showConfirm = useConfirmStore((state) => state.showConfirm);
 
@@ -30,17 +35,20 @@ export function Categories() {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
 
+  /**
+   * Prompts confirmation and deletes a category, then synchronizes transactions.
+   */
   const handleDelete = (categoryId: string) => {
     showConfirm(
       t("common.warning"),
       t("categories.deleteConfirm"),
       async () => {
         try {
-          // 1. Smažeme z DB. Prisma díky SetNull automaticky uvolní transakce.
+          // 1. Delete category from database. Prisma SetNull rule automatically detaches transactions.
           await removeCategory(categoryId);
           toast.success(t("categories.deleted"));
 
-          // 2. Pro jistotu znovu stáhneme transakce, aby se u nich na frontendu ztratila smazaná kategorie
+          // 2. Refetch transactions to reflect detached category state on frontend.
           fetchTransactions();
         } catch (error) {
           toast.error(t("common.error"));
@@ -50,6 +58,9 @@ export function Categories() {
     );
   };
 
+  /**
+   * Reorders category positions using drag-and-drop.
+   */
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 

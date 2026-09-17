@@ -12,6 +12,11 @@ import {
   ArrowForward as ArrowForwardIcon,
 } from "@mui/icons-material";
 
+/**
+ * Admin executive summary and dashboard overview page.
+ * Displays top-level platform statistics (users, transactions, smart categorization, budgets)
+ * and provides navigation shortcuts to administrator sub-modules.
+ */
 export const AdminDashboard = () => {
   const { stats } = useAdmin();
 
@@ -64,7 +69,7 @@ export const AdminDashboard = () => {
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <AutoAwesomeIcon fontSize="small" className="text-purple-500" />
-                AI Categorization
+                Smart Categorization
               </h3>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
                 {stats?.aiCategorizationRate || 0}%
@@ -152,13 +157,13 @@ export const AdminDashboard = () => {
               <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
                 <ShowChartIcon />
               </div>
-              <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100">Platform & AI Analytics</h4>
+              <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100">Platform & Smart Analytics</h4>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Deep-dive into AI categorization rate, 30-day user growth, transaction volume, and resource usage.
+                Deep-dive into smart categorization rate, 30-day user growth, transaction volume, and resource usage.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <span className="text-xs text-slate-400 dark:text-slate-500">{stats?.aiCategorizationRate || 0}% AI Rate</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">{stats?.aiCategorizationRate || 0}% Smart Rate</span>
               <Button
                 component={Link}
                 to="/admin/analytics"

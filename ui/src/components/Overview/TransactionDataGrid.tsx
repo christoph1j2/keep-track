@@ -25,6 +25,10 @@ interface TransactionDataGridProps {
   onSplitTransaction: (transaction: Transaction) => void;
 }
 
+/**
+ * TransactionDataGrid renders full desktop DataGrid and handles mobile responsiveness delegation.
+ * Supports inline editing of title, amount, and category, splitting transactions, and deletion.
+ */
 export function TransactionDataGrid({
   transactions,
   onUpdateTransaction,
@@ -53,6 +57,9 @@ export function TransactionDataGrid({
       )
     : transactions;
 
+  /**
+   * Processes inline cell edits from DataGrid and requests confirmation for title/amount changes.
+   */
   const handleProcessRowUpdate = async (
     newRow: Transaction,
     oldRow: Transaction,
@@ -86,8 +93,8 @@ export function TransactionDataGrid({
     if (!onlyCategoryChanged) {
       const changes =
         newRow.amount !== oldRow.amount
-          ? `částku z ${oldRow.amount} na ${newRow.amount}`
-          : `název z "${oldRow.title}" na "${newRow.title}"`;
+          ? (language === "cs" ? `částku z ${oldRow.amount} na ${newRow.amount}` : `amount from ${oldRow.amount} to ${newRow.amount}`)
+          : (language === "cs" ? `název z "${oldRow.title}" na "${newRow.title}"` : `title from "${oldRow.title}" to "${newRow.title}"`);
       const isConfirmed = window.confirm(
         t("overview.updateConfirm", { changes }),
       );
@@ -135,7 +142,7 @@ export function TransactionDataGrid({
       editable: true,
       resizable: false,
       renderCell: (params: GridRenderCellParams) => {
-        // Úprava barev částek, aby byly dobře čitelné na světlém i tmavém pozadí
+        // Amount coloring with high-contrast emerald/rose for light and dark modes
         return (
           <span
             className={`font-medium ${
@@ -159,24 +166,18 @@ export function TransactionDataGrid({
       valueOptions: categories.map((c) => ({ value: c.id, label: c.label })),
       renderCell: (params: GridRenderCellParams) => {
         const category = categories.find((c) => c.id === params.value);
-        const currentCategoryLabel = category?.label.startsWith(
-          "default_categories.",
-        )
-          ? t(category.label)
-          : category?.label;
+        let currentCategoryLabel = category?.label || "";
+        if (currentCategoryLabel.startsWith("default_categories.")) {
+          currentCategoryLabel = t(currentCategoryLabel);
+        }
+
         return (
-          <div className="w-full h-full flex items-center">
+          <div className="flex items-center h-full min-w-0">
             <div
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm cursor-pointer border border-transparent hover:ring-1 hover:ring-slate-400/30 dark:hover:ring-slate-200/20 transition-colors ${
-                category?.colorClass ??
-                "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+              className={`flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-semibold max-w-full ${
+                category?.colorClass ||
+                "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
               }`}
-              onClick={() =>
-                params.api.startCellEditMode({
-                  id: params.id,
-                  field: "categoryId",
-                })
-              }
             >
               <CategoryIcon name={category?.iconName || ""} />
               <span className="overflow-hidden text-ellipsis whitespace-nowrap">
@@ -192,8 +193,7 @@ export function TransactionDataGrid({
             autoFocus
             value={params.value || ""}
             onChange={(e) => {
-              // pokud user vybere "nepřiřazeno", nastavíme categoryId na null
-
+              // If user selects unassigned, set categoryId to null
               const newValue = e.target.value === "" ? null : e.target.value;
 
               params.api.setEditCellValue({
@@ -206,7 +206,7 @@ export function TransactionDataGrid({
                 field: "categoryId",
               });
             }}
-            className="w-full px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded text-sm focus:outline-none focus:border-sky-500"
           >
             <option value="">{t("overview.unassigned")}</option>
             {categories.map((cat) => (
@@ -224,9 +224,14 @@ export function TransactionDataGrid({
       field: "date",
       headerName: t("overview.columns.date"),
       flex: 0.5,
+      editable: false,
       resizable: false,
       renderCell: (params: GridRenderCellParams) => {
-        const date = new Date(params.value).toLocaleDateString(locale);
+        const date = new Date(params.value).toLocaleDateString(locale, {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
         return (
           <span className="text-slate-500 dark:text-slate-400">{date}</span>
         );
@@ -301,7 +306,7 @@ export function TransactionDataGrid({
               "&:hover fieldset": {
                 borderColor: isDark ? "#475569" : "#94a3b8",
               },
-              "&.Mui-focused fieldset": { borderColor: "#6366f1" },
+              "&.Mui-focused fieldset": { borderColor: "#2563eb" },
             },
             "& .MuiInputBase-input::placeholder": {
               color: isDark ? "#94a3b8" : "#64748b",
@@ -322,7 +327,7 @@ export function TransactionDataGrid({
           initialState={{
             sorting: { sortModel: [{ field: "date", sort: "desc" }] },
           }}
-          // EXTRÉMNÍ BORDEL
+          // Custom styling for DataGrid matching theme tokens and palette
           sx={{
             "--DataGrid-rowBorderColor": gridLineColor,
             "--unstable_DataGrid-radius": "0px",
@@ -382,7 +387,7 @@ export function TransactionDataGrid({
               borderBottom: `1px solid ${gridLineColor}`,
               display: "flex",
               alignItems: "center",
-              "&:focus-within": { outline: "1px solid #6366f1" },
+              "&:focus-within": { outline: "1px solid #2563eb" },
             },
             "& .MuiDataGrid-withBorderColor": {
               borderColor: `${gridLineColor} !important`,

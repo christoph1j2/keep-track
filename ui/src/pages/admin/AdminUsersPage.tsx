@@ -22,6 +22,11 @@ import {
 } from "@mui/icons-material";
 import { UserDetailModal } from "../../components/Modals/UserDetailModal";
 
+/**
+ * Admin user management page.
+ * Provides user search, role filtering, pagination, role modification,
+ * user deletion, and opens detailed user activity inspection modals.
+ */
 export const AdminUsersPage = () => {
   const currentUser = useAuthStore((state) => state.user);
   const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -51,6 +56,9 @@ export const AdminUsersPage = () => {
     currentPage * usersPerPage,
   );
 
+  /**
+   * Updates a user's platform role between USER and ADMIN.
+   */
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
       await api.patch(`/admin/users/${userId}/role`, {
@@ -63,10 +71,13 @@ export const AdminUsersPage = () => {
       const err = error as { response?: { data?: { message?: string } } };
       const msg = err.response?.data?.message || "Failed to update user role";
       toast.error(msg);
-      console.error(error);
+      console.error("Failed to update user role:", error);
     }
   };
 
+  /**
+   * Prompts admin confirmation before permanently deleting a user and their financial records.
+   */
   const handleDeleteUser = (userId: string) => {
     showConfirm(
       "Delete User",
@@ -82,7 +93,7 @@ export const AdminUsersPage = () => {
           const err = error as { response?: { data?: { message?: string } } };
           const msg = err.response?.data?.message || "Failed to delete user";
           toast.error(msg);
-          console.error(error);
+          console.error("Failed to delete user:", error);
         }
       },
     );
@@ -102,9 +113,9 @@ export const AdminUsersPage = () => {
               backgroundColor: isDark ? "#1e293b" : "#f1f5f9",
             },
             "&.Mui-selected": {
-              backgroundColor: isDark ? "rgba(99, 102, 241, 0.22)" : "rgba(99, 102, 241, 0.12)",
+              backgroundColor: isDark ? "rgba(37, 99, 235, 0.22)" : "rgba(37, 99, 235, 0.12)",
               "&:hover": {
-                backgroundColor: isDark ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.18)",
+                backgroundColor: isDark ? "rgba(37, 99, 235, 0.3)" : "rgba(37, 99, 235, 0.18)",
               },
             },
           },

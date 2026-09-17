@@ -10,14 +10,25 @@ import CategoryIcon from "@mui/icons-material/Category";
 import ExtensionIcon from "@mui/icons-material/Extension";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
+/**
+ * Detailed user inspection profile returned from admin endpoints.
+ */
 interface UserDetails {
+  /** Unique user identifier */
   id: string;
+  /** Username handle */
   username: string;
+  /** Registered email address */
   email: string;
+  /** User's base display currency (e.g. CZK, EUR, USD) */
   baseCurrency: string;
+  /** System authorization role */
   role: "USER" | "ADMIN";
+  /** Account creation timestamp ISO string */
   createdAt: string;
+  /** Account last updated timestamp ISO string */
   updatedAt: string;
+  /** Aggregate usage statistics for the user account */
   stats: {
     transactionCount: number;
     aiCategorizedCount: number;
@@ -30,11 +41,18 @@ interface UserDetails {
 }
 
 interface UserDetailModalProps {
+  /** Whether the user inspection modal is open */
   open: boolean;
+  /** Callback fired when closing the modal */
   onClose: () => void;
+  /** Target user ID to inspect, or null if modal is closed */
   userId: string | null;
 }
 
+/**
+ * UserDetailModal displays in-depth account metrics, creation details,
+ * and usage statistics for an individual user in the admin inspection panel.
+ */
 export function UserDetailModal({ open, onClose, userId }: UserDetailModalProps) {
   const [details, setDetails] = useState<UserDetails | null>(null);
   const [loading, setLoading] = useState(false);
@@ -118,7 +136,7 @@ export function UserDetailModal({ open, onClose, userId }: UserDetailModalProps)
               <div className="p-3 bg-white dark:bg-slate-800/90 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
                 <div className="flex items-center justify-center gap-1 text-purple-600 dark:text-purple-400 mb-1 text-xs font-medium">
                   <AutoAwesomeIcon fontSize="small" />
-                  AI Categorized
+                  Smart Categorized
                 </div>
                 <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
                   {details.stats?.aiCategorizedCount || 0} <span className="text-xs font-normal text-slate-400">({details.stats?.aiRate || 0}%)</span>
@@ -134,7 +152,7 @@ export function UserDetailModal({ open, onClose, userId }: UserDetailModalProps)
               </div>
 
               <div className="p-3 bg-white dark:bg-slate-800/90 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
-                <div className="flex items-center justify-center gap-1 text-indigo-600 dark:text-indigo-400 mb-1 text-xs font-medium">
+                <div className="flex items-center justify-center gap-1 text-sky-600 dark:text-sky-400 mb-1 text-xs font-medium">
                   <CategoryIcon fontSize="small" />
                   Categories
                 </div>

@@ -20,6 +20,10 @@ import { Link } from "react-router-dom";
 import { Logo } from "../components/Base/Logo";
 import { ThemeLanguageToggles } from "../components/Base/ThemeLanguageToggles";
 
+/**
+ * Authentication page component.
+ * Toggles between user sign-in and new account registration flows.
+ */
 export const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
@@ -47,13 +51,13 @@ export const Login = () => {
       backgroundColor: isDark ? "#111827" : "#ffffff",
       "& fieldset": { borderColor: isDark ? "#334155" : "#cbd5e1" },
       "&:hover fieldset": { borderColor: isDark ? "#475569" : "#94a3b8" },
-      "&.Mui-focused fieldset": { borderColor: "#6366f1" },
+      "&.Mui-focused fieldset": { borderColor: "#2563eb" },
     },
     "& .MuiInputLabel-root": {
       color: isDark ? "#94a3b8" : "#475569",
     },
     "& .MuiInputLabel-root.Mui-focused": {
-      color: "#6366f1",
+      color: "#2563eb",
     },
     "& .MuiInputBase-input::placeholder": {
       color: isDark ? "#94a3b8" : "#64748b",
@@ -71,7 +75,7 @@ export const Login = () => {
       borderColor: isDark ? "#475569" : "#94a3b8",
     },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#6366f1",
+      borderColor: "#2563eb",
     },
     "& .MuiSelect-icon": {
       color: isDark ? "#94a3b8" : "#64748b",

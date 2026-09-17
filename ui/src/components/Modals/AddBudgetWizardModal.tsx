@@ -24,6 +24,11 @@ interface AddBudgetWizardModalProps {
   onCancel: () => void;
 }
 
+/**
+ * Multi-step wizard dialog for creating budgets.
+ * Guides the user through choosing between a simple category budget
+ * or an advanced complex budget (income, necessary categories allocation, surplus tracking).
+ */
 export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
   const { t } = useTranslation();
   const { setComplexBudget } = useBudgetStore();
@@ -73,10 +78,10 @@ export function AddBudgetWizardModal({ onCancel }: AddBudgetWizardModalProps) {
         necessaryExpensesSum,
         formattedCategories,
       );
-      toast.success(t("budgeting.added", "Rozpočet přidán"));
+      toast.success(t("budgeting.added", "Budget added successfully"));
       onCancel();
     } catch (e) {
-      toast.error(t("budgeting.errors.addFailed", "Došlo k chybě"));
+      toast.error(t("budgeting.errors.addFailed", "Failed to add budget"));
       console.error("Failed to add complex budget:", e);
     }
   };

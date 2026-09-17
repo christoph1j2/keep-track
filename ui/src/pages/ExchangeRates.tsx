@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "@mui/material";
+import axios from "axios";
 import { useSettingsStore } from "../store/settingsStore";
 import { api } from "../utils/api";
 import ReactCountryFlag from "react-country-flag";
 
+/**
+ * Exchange Rates page component.
+ * Fetches current currency exchange rates relative to the user's active base currency,
+ * as well as inverse conversion rates across supported world currencies.
+ */
 export function ExchangeRates() {
   const { t } = useTranslation();
   const { currency } = useSettingsStore();
@@ -15,6 +21,10 @@ export function ExchangeRates() {
 
   useEffect(() => {
     const controller = new AbortController();
+
+    /**
+     * Fetches base currency rates and inverse currency exchange rates concurrently.
+     */
     const fetchRates = async () => {
       setIsLoading(true);
       setError(null);
@@ -22,7 +32,7 @@ export function ExchangeRates() {
         const response = await api.get(`/exchange-rate?base=${currency}`, { signal: controller.signal });
         setRates(response.data);
 
-        // Fetch inverse rates
+        // Fetch inverse rates for all supported currencies
         const supportedCurrencies = ["CZK", "EUR", "ISK", "PLN", "USD", "GBP"].filter(c => c !== currency);
         const invRates: Record<string, number> = {};
         
@@ -31,18 +41,24 @@ export function ExchangeRates() {
              try {
                const res = await api.get(`/exchange-rate?base=${c}`, { signal: controller.signal });
                invRates[c] = res.data[currency];
-             } catch (e: any) {
-               if (e.name !== "CanceledError") {
-                 console.error(`Failed to fetch inverse rate for ${c}`, e);
+             } catch (e: unknown) {
+               const isCanceled = axios.isAxiosError(e)
+                 ? e.name === "CanceledError" || e.code === "ERR_CANCELED"
+                 : (e as Error)?.name === "CanceledError";
+               if (!isCanceled) {
+                 console.error(`Failed to fetch inverse rate for ${c}:`, e);
                }
              }
           })
         );
         
         setInverseRates(invRates);
-      } catch (err: any) {
-        if (err.name !== "CanceledError") {
-          console.error("Failed to fetch exchange rates", err);
+      } catch (err: unknown) {
+        const isCanceled = axios.isAxiosError(err)
+          ? err.name === "CanceledError" || err.code === "ERR_CANCELED"
+          : (err as Error)?.name === "CanceledError";
+        if (!isCanceled) {
+          console.error("Failed to fetch exchange rates:", err);
           setError(t("exchangeRates.fetchError"));
         }
       } finally {
@@ -55,6 +71,9 @@ export function ExchangeRates() {
     return () => controller.abort();
   }, [currency, t]);
 
+  /**
+   * Resolves ISO country code for flag icons from a 3-letter currency code.
+   */
   const getCountryCode = (currencyCode: string) => {
     if (currencyCode === "EUR") return "EU";
     if (currencyCode === "USD") return "US";

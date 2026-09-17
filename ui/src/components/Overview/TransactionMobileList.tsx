@@ -15,7 +15,7 @@ interface TransactionMobileListProps {
     isLoading?: boolean;
 }
 
-// pocet polozek na jedne strance
+// Number of items per page
 const ITEMS_PER_PAGE = 5;
 
 /**
@@ -29,18 +29,18 @@ const ITEMS_PER_PAGE = 5;
  * @param props.isLoading Shows skeleton loader when true.
  */
 export function TransactionMobileList({ transactions, onUpdateTransaction, onDeleteTransaction, onSplitTransaction, isLoading }: TransactionMobileListProps) {
-    // hook pro ziskani kategorii a jejich detailu
+    // Categories from category store
     const categories = useCategoryStore((state) => state.categories);
     const lineClass = "border-slate-200/70 dark:border-slate-700/40";
 
-    // id transakce, kterou editujeme
+    // ID of transaction currently in inline edit mode
     const [editingId, setEditingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     
-    // data zmenenych poli v editovane transakci
+    // Staged fields for the transaction being edited
     const [editingData, setEditingData] = useState<Partial<Transaction>>({});
     
-    // aktualni stranka pro paginaci
+    // Current pagination page index
     const [page, setPage] = useState(0);
 
     const { t, i18n } = useTranslation();
@@ -65,14 +65,14 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
         return [...filteredTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }, [filteredTransactions]);
 
-    // vypocet transakcÃ­ pro aktualni stranku
+    // Sliced transactions for current page
     const paginatedTransactions = useMemo(() => {
         const start = page * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
         return sortedTransactions.slice(start, end);
     }, [sortedTransactions, page]);
 
-    // celkovy pocet stranek
+    // Total number of pages
     const totalPages = Math.max(1, Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE));
 
     /**
@@ -93,7 +93,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
     const handleSave = (transaction: Transaction) => {
         const newRow = { ...transaction, ...editingData };
         
-        // validace - castka musi byt cislo, nesmi byt nula
+        // Validation: amount must be a valid non-zero number
         const amount = parseFloat(newRow.amount as unknown as string);
         if (isNaN(amount)) {
             alert(t('overview.confirm.invalidNumber'));
@@ -105,7 +105,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
         }
         newRow.amount = amount;
 
-        // potvrzeni od uzivatele pred ulozenim
+        // Request confirmation from user before saving changes
         showConfirm(
             t('common.warning'),
             t('overview.confirm.saveChanges'),
@@ -136,11 +136,11 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                         setSearchTerm(e.target.value);
                         setPage(0);
                     }}
-                    className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
+                    className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
                 />
             </div>
             <div className="flex-1 overflow-y-auto space-y-2 px-2 py-2">
-                {/* seznam transakcí na aktualni strance */}
+                {/* Transactions list for the active page */}
                 {isLoading ? (
                     Array.from({ length: 5 }).map((_, idx) => (
                         <Skeleton key={idx} variant="rectangular" height={72} className="rounded-lg my-1" />
@@ -160,7 +160,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                             className={`border ${lineClass} rounded-lg p-3 bg-white dark:bg-slate-900/70 shadow-none transition-colors`}
                         >
                             {isEditing ? (
-                                // rezim editace - zobrazeni formulare
+                                // Edit mode: render inline input form
                                 <div className="space-y-2">
                                     <div>
                                         <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t('overview.columns.title')}</label>
@@ -170,7 +170,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                             onChange={(e) =>
                                                 setEditingData({ ...editingData, title: e.target.value })
                                             }
-                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
+                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-sky-500`}
                                         />
                                     </div>
 
@@ -204,7 +204,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                                         amount: e.target.value !== "" ? parseFloat(e.target.value) : 0,
                                                     })
                                                 }
-                                                className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
+                                                className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-sky-500`}
                                             />
                                         </div>
                                     </div>
@@ -216,7 +216,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                             onChange={(e) =>
                                                 setEditingData({ ...editingData, categoryId: e.target.value })
                                             }
-                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500`}
+                                            className={`w-full px-2 py-1 border ${lineClass} rounded text-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:border-sky-500`}
                                         >
                                             {categories.map((cat) => (
                                                 <option key={cat.id} value={cat.id}>
@@ -226,11 +226,11 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                         </select>
                                     </div>
 
-                                    {/* tlacitka pro ulozeni nebo zruseni editace */}
+                                    {/* Action buttons for saving or cancelling edits */}
                                     <div className="flex gap-2 pt-2">
                                         <button
                                             onClick={() => handleSave(transaction)}
-                                            className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
+                                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-sm font-semibold transition-colors"
                                         >
                                             {t('common.save')}
                                         </button>
@@ -267,7 +267,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                     </div>
                                 </div>
                             ) : (
-                                // rezim zobrazeni - zobrazeni dat, klik zahajuje editaci
+                                // View mode: display transaction details, click triggers edit mode
                                 <div onClick={() => handleEdit(transaction)} className="cursor-pointer">
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -279,7 +279,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                                 </p>
                                             </div>
                                         </div>
-                                        {/* castka s barevnym odlisenim pro prijem/vydaj */}
+                                        {/* Amount colored by income vs expense */}
                                         <p
                                             className={`font-semibold text-sm shrink-0 ml-2 ${
                                                 transaction.amount >= 0
@@ -291,7 +291,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                                         </p>
                                     </div>
 
-                                    {/* badge s kategorii */}
+                                    {/* Category badge */}
                                     <div
                                         className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
                                             category?.colorClass ?? "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
@@ -307,7 +307,7 @@ export function TransactionMobileList({ transactions, onUpdateTransaction, onDel
                 })}
             </div>
 
-            {/* paginace - tlacitka pro navigaci mezi strankami */}
+            {/* Pagination controls */}
             <div className={`flex items-center justify-between my-4 px-2 mt-auto border-t ${lineClass} pt-4`}>
                 <button
                     onClick={() => setPage(p => Math.max(0, p - 1))}

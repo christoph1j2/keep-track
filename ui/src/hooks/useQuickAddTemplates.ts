@@ -3,7 +3,13 @@ import type { QuickAddTemplate } from "../types/quickadd";
 
 const STORAGE_KEY = "keep-track-quick-add-templates";
 
-
+/**
+ * Validates if a value is a valid QuickAddTemplate.
+ * 
+ * @param value - The value to validate.
+ * @returns - True if the value is a valid QuickAddTemplate, false otherwise.
+ * @deprecated This function is deprecated in favor of the Zustand store `useTemplateStore`.
+ */
 function isQuickAddTemplate(value: unknown): value is Omit<QuickAddTemplate, "showInHotbar"> & { showInHotbar?: boolean } {  
     if (!value || typeof value !== "object") return false;  
     const t = value as Record<string, unknown>;  
@@ -24,6 +30,7 @@ function isQuickAddTemplate(value: unknown): value is Omit<QuickAddTemplate, "sh
  * Ensures showInHotbar defaults to true when not provided.
  *
  * @returns Stored templates, or an empty array when data cannot be recovered.
+ * @deprecated This function is deprecated in favor of the Zustand store `useTemplateStore`.
  */
 function getInitialTemplates(): QuickAddTemplate[] {
     if (typeof window === "undefined") return [];
@@ -45,7 +52,12 @@ function getInitialTemplates(): QuickAddTemplate[] {
     }
 }
 
-//! persistence, event-bus, SSoT
+/**
+ * Persists the given quick add templates to localStorage and dispatches a custom event.
+ *
+ * @param templates The list of templates to persist.
+ * @deprecated This function is deprecated in favor of the Zustand store `useTemplateStore`.
+ */
 function persistTemplates(templates: QuickAddTemplate[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
     window.dispatchEvent(new Event('quick-add-templates-updated'));

@@ -4,9 +4,12 @@ import { useTransactionStore } from "../../store/transactionStore";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ChartsTooltipContainer, useAxesTooltip } from "@mui/x-charts";
 import { useTranslation } from "react-i18next";
-import { useSettingsStore } from "../../store/settingsStore"; // Tvůj nový store
+import { useSettingsStore } from "../../store/settingsStore";
 
-
+/**
+ * Custom tooltip component for the monthly income vs. expense bar chart.
+ * Formats values according to the user's active currency and locale.
+ */
 function CustomTooltip({ isDark }: { isDark: boolean }) {
     const axesTooltip = useAxesTooltip<'bar'>();
     const tooltipData = axesTooltip?.[0];
@@ -42,7 +45,7 @@ function CustomTooltip({ isDark }: { isDark: boolean }) {
                 minWidth: "180px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             }}>
-                {/* X axis label, e.g. "bře" */}
+                {/* X axis label, e.g. "Mar" */}
                 <div style={{ fontWeight: 700, marginBottom: 8, color: subColor, fontSize: "12px" }}>
                     {tooltipData.axisFormattedValue}
                 </div>
@@ -66,6 +69,10 @@ function CustomTooltip({ isDark }: { isDark: boolean }) {
     );
 }
 
+/**
+ * Monthly income vs expenses bar chart over the past 6 months.
+ * Fully adapts colors to light and dark modes and localizes currency ticks.
+ */
 export function Graph() {
     const isMobile = useIsMobile();
     const now = new Date();
@@ -73,7 +80,7 @@ export function Graph() {
     const isDark = theme === "dark";
 
     const { t } = useTranslation();
-    const { language, currency } = useSettingsStore(); // Použití tvého nového store
+    const { language, currency } = useSettingsStore(); // Access localized language and preferred currency
     const locale = language === "cs" ? "cs-CZ" : "en-US";
 
     const transactions = useTransactionStore((state) => state.transactions);
@@ -117,7 +124,7 @@ export function Graph() {
         <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100 transition-colors">
             <h3 className="text-xl font-bold mb-4">{t('dashboard.graph.title')}</h3>
             <BarChart
-                key={`${theme}-${language}-${currency}`} // Přidání jazyka a měny do klíče
+                key={`${theme}-${language}-${currency}`} // Force re-render on language, currency, or theme changes
                 localeText={{
                         loading: t('dashboard.graph.loading'),
                         noData: t('dashboard.graph.noData'),
@@ -162,7 +169,7 @@ export function Graph() {
                     "& .MuiChartsAxis-tickLabel tspan": {
                         fill: `${axisColor} !important`,
                     },
-                    // Axis label ("Částka (Kč)")
+                    // Axis label (e.g. "Amount (EUR)")
                     "& .MuiChartsAxis-label tspan": {
                         fill: `${axisColor} !important`,
                     },

@@ -10,6 +10,11 @@ import {
   Extension as ExtensionIcon,
 } from "@mui/icons-material";
 
+/**
+ * Admin analytics dashboard page.
+ * Displays overall platform adoption, smart categorization metrics,
+ * 30-day user and transaction trends, and system resource totals.
+ */
 export const AdminAnalyticsPage = () => {
   const { stats } = useAdmin();
 
@@ -20,23 +25,23 @@ export const AdminAnalyticsPage = () => {
         <div>
           <h2 className="text-3xl font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
             <ShowChartIcon className="text-purple-600 dark:text-purple-400" />
-            Platform & AI Analytics
+            Platform & Smart Analytics
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Track user adoption, AI categorization rates, 30-day activity trends, and system volume.
+            Track user adoption, smart categorization rates, 30-day activity trends, and system volume.
           </p>
         </div>
       </div>
 
       {/* Analytics Cards */}
       <Grid container spacing={3}>
-        {/* AI Metrics Card */}
+        {/* Smart Metrics Card */}
         <Grid size={{ xs: 12, md: 6 }}>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <h3 className="font-bold flex items-center gap-2 text-slate-800 dark:text-slate-100">
                 <AutoAwesomeIcon className="text-purple-500" />
-                AI Categorization Performance
+                Smart Categorization Performance
               </h3>
               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
                 {stats?.aiCategorizationRate || 0}% Adoption
@@ -45,11 +50,11 @@ export const AdminAnalyticsPage = () => {
 
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
-                <div className="text-xs text-slate-400 dark:text-slate-500 mb-1">AI Categorized</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mb-1">Smart Categorized</div>
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {stats?.aiCategorizedCount || 0}
                 </div>
-                <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">Transactions processed by AI</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">Transactions processed smartly</div>
               </div>
 
               <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
@@ -116,7 +121,7 @@ export const AdminAnalyticsPage = () => {
               </div>
 
               <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-center">
-                <CategoryIcon className="text-indigo-500 mb-1" />
+                <CategoryIcon className="text-sky-500 mb-1" />
                 <div className="text-xs text-slate-400 dark:text-slate-500">Custom Categories</div>
                 <div className="text-xl font-bold text-slate-800 dark:text-slate-100 mt-1">{stats?.categoryCount || 0}</div>
               </div>

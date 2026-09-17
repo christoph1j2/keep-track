@@ -1,25 +1,32 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { useNotificationStore } from "../../store/notificationStore";
 import { useSocketStore } from "../../store/socketStore";
-import { ImportModal } from "../Modals/ImportModal";
-import { useTranslation } from "react-i18next";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CloseIcon from "@mui/icons-material/Close";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import InfoIcon from "@mui/icons-material/Info";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import CloudDoneIcon from "@mui/icons-material/CloudDone";
+import { ImportModal } from "../Modals/ImportModal";
 
+/**
+ * Returns the corresponding MUI icon component based on notification type.
+ */
 function getNotificationIcon(type: string) {
   switch (type) {
     case "IMPORT_READY":
-      return <FileUploadIcon sx={{ fontSize: 18 }} />;
+      return <CloudDoneIcon sx={{ fontSize: 18 }} />;
     case "INSIGHT":
       return <AutoAwesomeIcon sx={{ fontSize: 18 }} />;
     default:
-      return <InfoOutlinedIcon sx={{ fontSize: 18 }} />;
+      return <InfoIcon sx={{ fontSize: 18 }} />;
   }
 }
 
+/**
+ * Returns Tailwind background and text color classes based on notification category.
+ */
 function getNotificationColor(type: string) {
   switch (type) {
     case "IMPORT_READY":
@@ -31,14 +38,16 @@ function getNotificationColor(type: string) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function timeAgo(dateStr: string, t: any): string {
+/**
+ * Formats relative time elapsed from a timestamp string.
+ */
+function timeAgo(dateStr: string, t: TFunction): string {
   const now = new Date();
   const date = new Date(dateStr);
   const diffMs = now.getTime() - date.getTime();
   const diffMin = Math.floor(diffMs / 60000);
 
-  if (diffMin < 1) return t("notifications.justNow", "Právě teď");
+  if (diffMin < 1) return t("notifications.justNow", "Just now");
   if (diffMin < 60)
     return t("notifications.minutesAgo", "{{count}} min", { count: diffMin });
   const diffHours = Math.floor(diffMin / 60);
@@ -48,6 +57,11 @@ function timeAgo(dateStr: string, t: any): string {
   return t("notifications.daysAgo", "{{count}}d", { count: diffDays });
 }
 
+/**
+ * NotificationCenter component.
+ * Displays a badge icon and collapsible flyout panel for user notifications
+ * (e.g., background import completion, system alerts, updates).
+ */
 export function NotificationCenter() {
   const { t } = useTranslation();
   const { notifications, dismissNotification } = useNotificationStore();
@@ -59,7 +73,7 @@ export function NotificationCenter() {
 
   const count = notifications.length;
 
-  // Zavírání panelu po kliknutí mimo
+  // Close notification panel when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -95,20 +109,20 @@ export function NotificationCenter() {
 
   return (
     <div className="w-full mt-auto relative">
-      {/* Oddělovací linka */}
+      {/* Divider */}
       <div className="border-t border-slate-200 dark:border-slate-800" />
 
       {/* Processing indicator */}
       {isImportProcessing && (
-        <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400 px-4 py-3">
+        <div className="flex items-center gap-3 text-sky-600 dark:text-sky-400 px-4 py-3">
           <div className="w-4 h-4 border-2 border-t-transparent border-current rounded-full animate-spin shrink-0"></div>
           <span className="text-sm font-medium animate-pulse">
-            {t("import.aiAnalyzing", "AI analyzuje transakce...")}
+            {t("import.smartAnalyzing", "Smart categorization in progress...")}
           </span>
         </div>
       )}
 
-      {/* Zvoneček s badge */}
+      {/* Notification bell with badge */}
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
@@ -122,7 +136,7 @@ export function NotificationCenter() {
             </span>
           )}
         </div>
-        <span>{t("notifications.title", "Notifikace")}</span>
+        <span>{t("notifications.title", "Notifications")}</span>
       </button>
 
       {/* Overlay panel */}
@@ -139,7 +153,7 @@ export function NotificationCenter() {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                {t("notifications.title", "Notifikace")}
+                {t("notifications.title", "Notifications")}
               </h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -153,7 +167,7 @@ export function NotificationCenter() {
             <div className="flex-1 overflow-y-auto">
               {count === 0 ? (
                 <div className="p-6 text-center text-sm text-slate-400 dark:text-slate-500">
-                  {t("notifications.empty", "Žádné nové notifikace")}
+                  {t("notifications.empty", "No new notifications")}
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -162,14 +176,14 @@ export function NotificationCenter() {
                       key={n.id}
                       className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
                     >
-                      {/* Ikona */}
+                      {/* Icon */}
                       <div
                         className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 ${getNotificationColor(n.type)}`}
                       >
                         {getNotificationIcon(n.type)}
                       </div>
 
-                      {/* Obsah */}
+                      {/* Content */}
                       <div
                         className="flex-1 min-w-0 cursor-pointer"
                         onClick={() => handleNotificationAction(n.type)}
@@ -194,7 +208,7 @@ export function NotificationCenter() {
                           dismissNotification(n.id);
                         }}
                         className="shrink-0 p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all cursor-pointer"
-                        title={t("notifications.dismiss", "Zavřít")}
+                        title={t("notifications.dismiss", "Dismiss")}
                       >
                         <CloseIcon sx={{ fontSize: 14 }} />
                       </button>

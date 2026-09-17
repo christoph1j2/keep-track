@@ -31,7 +31,7 @@ export function StatCard({ title, amount, budget_status, icon, trend, isLoading 
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 dark:bg-slate-900 dark:border-slate-800 transition-colors">
-            {/** horni cast */}
+            {/* Card header: icon and metric title */}
             <div className="flex items-center gap-3 dark:text-slate-100 transition-colors">
                 <div className={`p-2 rounded-lg ${iconColorClass} transition-colors`}>
                     {icon}
@@ -41,7 +41,7 @@ export function StatCard({ title, amount, budget_status, icon, trend, isLoading 
                 </span>
             </div>
 
-            {/** spodni cast */}
+            {/* Card body: formatted metric value and status */}
             <div 
                 className="text-2xl font-bold text-slate-900 truncate dark:text-slate-300 transition-colors"
                 title={amount !== undefined ? formatCurrency(amount) : ''}

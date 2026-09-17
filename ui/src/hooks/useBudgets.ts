@@ -20,6 +20,7 @@ function isBudget(obj: unknown): obj is Budget {
  * Falls back to an empty list when storage is unavailable, missing, or invalid.
  *
  * @returns Stored budgets, or an empty array when data cannot be recovered.
+ * @deprecated This function is deprecated in favor of the Zustand store `useBudgetStore`.
  */
 function getInitialBudgets(): Budget[] {
     if (typeof window === "undefined") return [];
@@ -36,7 +37,12 @@ function getInitialBudgets(): Budget[] {
         }
 }
 
-// ! persistence, event-bus, SSoT
+/**
+ * Persists the given budgets to localStorage and dispatches a custom event.
+ * 
+ * @param budgets The list of budgets to persist.
+ * @deprecated This function is deprecated in favor of the Zustand store `useBudgetStore`.
+ */
 function persistBudgets(budgets: Budget[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(budgets));
     window.dispatchEvent(new Event('budgets-updated'));

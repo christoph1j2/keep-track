@@ -18,30 +18,30 @@ interface AddCategoryModalProps {
  */
 export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
   const { categories, addCategory } = useCategoryStore();
-  const { t } = useTranslation(); // <-- Přesunuto nahoru
+  const { t } = useTranslation();
 
   const [label, setLabel] = useState("");
   const [colorClass, setColorClass] = useState(
     "bg-slate-100 text-slate-500 dark:bg-slate-600 dark:text-slate-100",
   );
-  const [iconName, setIconName] = useState("QuestionMark"); // Změněno na "QuestionMark" (CamelCase) jako ve výchozím seznamu ikon
+  const [iconName, setIconName] = useState("QuestionMark"); // Default icon key: QuestionMark
   const [parentId, setParentId] = useState<string | "">("");
 
-  const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE"); // <-- Přidáno pro typ kategorie
+  const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE"); // Category flow type
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[] | null>(null);
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault(); // zabrani refreshi po odesilani
+    e.preventDefault(); // Prevent default browser form reload
 
-    if (isSubmitting) return; // zabrani dvojitemu odesilani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace
+    // Validation
     if (!label || !colorClass || !iconName) {
-      setErrors([t("categories.errors.missingFields")]); // <-- Přeloženo
+      setErrors([t("categories.errors.missingFields")]);
       setIsSubmitting(false);
       return;
     }
@@ -57,11 +57,11 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
         order: categories.length,
       });
 
-      toast.success(t("categories.added")); // <-- Přeloženo
-      onCancel(); // zavre modal po uspesnem pridani
+      toast.success(t("categories.added"));
+      onCancel(); // Close modal on success
     } catch (error) {
       console.error("Error adding category:", error);
-      setErrors([t("categories.errors.addFailed")]); // <-- Přeloženo
+      setErrors([t("categories.errors.addFailed")]);
     } finally {
       setIsSubmitting(false);
     }
@@ -210,7 +210,7 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
           >
             <MenuItem value="">{t("categories.noParent")}</MenuItem>
             {(() => {
-              // Jen kategorie bez rodiče
+              // Only root categories (without a parent) matching the selected flow type
               const rootCategories = categories.filter(
                 (c) => (c.parentId === undefined || c.parentId === null) && c.type === type,
               );
@@ -222,7 +222,7 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
             })()}
           </Select>
         </div>
-        {/* tlacitka */}
+        {/* Actions */}
         <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"
@@ -243,7 +243,7 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
   );
 }
 
-  // Stejná pole s překlady jako u EditCategoryModal
+  // Available color presets
   const colors = [
     {
       value: "bg-blue-100 text-blue-500 dark:bg-blue-600 dark:text-blue-100",
@@ -280,9 +280,9 @@ export function AddCategoryModal({ onCancel }: AddCategoryModalProps) {
     },
     {
       value:
-        "bg-indigo-100 text-indigo-500 dark:bg-indigo-600 dark:text-indigo-100",
-      translationKey: "categories.colors.indigo",
-      hex: "#6366f1",
+        "bg-sky-100 text-sky-500 dark:bg-sky-600 dark:text-sky-100",
+      translationKey: "categories.colors.sky",
+      hex: "#0ea5e9",
     },
     {
       value: "bg-cyan-100 text-cyan-500 dark:bg-cyan-600 dark:text-cyan-100",

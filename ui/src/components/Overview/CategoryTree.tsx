@@ -9,21 +9,24 @@ interface CategoryTreeProps {
   onSelectCategory: (categoryId: string | null) => void;
 }
 
+/**
+ * CategoryTree renders an interactive hierarchical tree view of categories.
+ * Root categories are expanded by default, allowing users to filter transactions
+ * by parent or sub-categories.
+ */
 export function CategoryTree({ onSelectCategory }: CategoryTreeProps) {
   const categories = useCategoryStore((state) => state.categories);
   const { t } = useTranslation();
 
   const mainCategories = categories.filter((c) => !c.parentId);
 
-  // Vytáhneme si IDčka hlavních kategorií
+  // Extract IDs of all top-level (root) categories
   const mainCatIds = mainCategories.map((c) => c.id);
 
-  // V lokálním stavu teď držíme jen to, co uživatel dodatečně rozbalil
+  // Track items explicitly toggled/expanded by user interaction
   const [userExpandedItems, setUserExpandedItems] = useState<string[]>([]);
 
-  // "Derived state" - vypočítá se automaticky při každém renderu.
-  // Zaručí, že hlavní kategorie budou VŽDY v poli rozbalených prvků.
-  // Tímhle jsme se elegantně zbavili tvého "ošklivého hacku" i useEffectu!
+  // Derived state computed on each render to guarantee main categories remain expanded while incorporating user toggle state
   const expandedItems = [...new Set([...mainCatIds, ...userExpandedItems])];
 
   return (
@@ -31,7 +34,7 @@ export function CategoryTree({ onSelectCategory }: CategoryTreeProps) {
       multiSelect={false}
       expandedItems={expandedItems}
       onExpandedItemsChange={(_event, itemIds) => {
-        // Uložíme jen to, co nám MUI pošle z kliknutí
+        // Persist items returned by MUI tree expansion handler
         setUserExpandedItems(itemIds);
       }}
       onSelectedItemsChange={(_event, itemId) => {

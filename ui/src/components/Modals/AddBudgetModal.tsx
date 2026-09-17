@@ -25,7 +25,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
 
   const { budgets, addBudget, updateBudget } = useBudgetStore();
 
-  // stavy pro formular
+  // Form state
   const [categoryId, setCategoryId] = useState("");
   const [limit, setLimit] = useState<number | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,27 +43,27 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
   };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault(); // zabrani refreshi po odeslani formulare
+    e.preventDefault(); // Prevent default browser form submission
 
-    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace
+    // Field validation
     if (!categoryId || limit === "" || !Number.isFinite(limit)) {
-      setErrors([t("budgeting.errors.missingFields")]); // <-- Přeloženo
+      setErrors([t("budgeting.errors.missingFields")]);
       setIsSubmitting(false);
       return;
     }
 
     if (limit <= 0) {
-      setErrors([t("budgeting.errors.positiveLimit")]); // <-- Přeloženo
+      setErrors([t("budgeting.errors.positiveLimit")]);
       setIsSubmitting(false);
       return;
     }
 
     if (isNaN(limit)) {
-      setErrors([t("budgeting.errors.invalidLimit")]); // <-- Přeloženo
+      setErrors([t("budgeting.errors.invalidLimit")]);
       setIsSubmitting(false);
       return;
     }
@@ -75,7 +75,7 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
           budget!.id, { categoryId, limit: Number(limit) }
         );
         toast.success(t("budgeting.updated"));
-        onCancel(); // zavre modal po uspesnem pridani
+        onCancel(); // Close modal upon success
         return;
       }
 
@@ -85,10 +85,10 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
         order: budgets.length,
       });
       toast.success(t("budgeting.added"));
-      onCancel(); // zavre modal po uspesnem pridani
+      onCancel(); // Close modal upon success
     } catch (err) {
       console.error("Failed to add budget:", err);
-      setErrors([t("budgeting.errors.addFailed")]); // <-- Přeloženo
+      setErrors([t("budgeting.errors.addFailed")]);
     } finally {
       setIsSubmitting(false);
     }
@@ -109,7 +109,6 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 a opraven klíč */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.category")}
           </label>
@@ -120,11 +119,11 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
             onChange={(e) => setCategoryId(e.target.value)}
             MenuProps={MenuProps}
             renderValue={(selected) => {
-              if (!selected) return t("common.none"); // <-- Přeloženo
+              if (!selected) return t("common.none");
               return (
                 categories.find((c) => c.id === selected)?.label ||
                 t("common.unknownCategory")
-              ); // <-- Přeloženo
+              );
             }}
           >
             <MenuItem value="">{t("common.none")}</MenuItem>
@@ -139,7 +138,6 @@ export function AddBudgetModal({ onCancel }: AddBudgetModalProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("budgeting.limit")}
           </label>

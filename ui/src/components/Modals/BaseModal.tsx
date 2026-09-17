@@ -66,11 +66,11 @@ export function BaseModal({
           },
           // Currently selected dropdown option.
           ".MuiMenuItem-root.Mui-selected": {
-            backgroundColor: `${isDark ? "rgba(99, 102, 241, 0.22)" : "rgba(99, 102, 241, 0.12)"} !important`,
+            backgroundColor: `${isDark ? "rgba(37, 99, 235, 0.22)" : "rgba(37, 99, 235, 0.12)"} !important`,
           },
           // Hover state when the option is already selected.
           ".MuiMenuItem-root.Mui-selected:hover": {
-            backgroundColor: `${isDark ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.18)"} !important`,
+            backgroundColor: `${isDark ? "rgba(37, 99, 235, 0.3)" : "rgba(37, 99, 235, 0.18)"} !important`,
           },
           // Hide native number spinners; Chromium paints them as a bright box in dark inputs.
           "input[type='number']": {
@@ -89,7 +89,7 @@ export function BaseModal({
         maxWidth="sm"
         fullScreen={isMobile}
         fullWidth
-        // paper props pro tailwind styling
+        // Paper slot props for theme styling
         slotProps={{
           paper: {
             sx: {
@@ -146,7 +146,7 @@ export function BaseModal({
                 borderColor: isDark ? "#475569" : "#94a3b8",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#6366f1",
+                borderColor: "#2563eb",
               },
             },
             // Placeholder text inside MUI TextField inputs.

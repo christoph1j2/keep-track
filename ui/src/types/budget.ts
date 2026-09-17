@@ -1,24 +1,25 @@
 import type { Category } from "./category";
 
 /**
- * Budget configuration for tracking spending limits against a category.
- * The budget limit is compared against total expenses (negative transactions) in the given category for the current month.
+ * Represents a budget for a specific category, including its limit and associated category details.
  */
 export interface Budget {
-  id: string; // Přidáno ID (chybělo v původním souboru)
+  id: string;
   userId: string;
   categoryId: string;
-  limit: number; // Hodnota v baseCurrency uživatele (už ne napevno CZK)
+  limit: number;
 
   createdAt: string;
   updatedAt: string;
 
-  // Relace připojená z backendu (include: { category: true })
   category?: Category;
 
-  order: number; // Přidáno z backendu
+  order: number;
 }
 
+/**
+ * Joiner M:N table for budgets and categories, representing the association between a complex budget and its categories.
+ */
 export interface ComplexBudgetCategoryItem {
   id: string;
   budgetId: string;
@@ -29,6 +30,9 @@ export interface ComplexBudgetCategoryItem {
   category?: Category;
 }
 
+/**
+ * Represents a complex budget that includes multiple categories, each with its own limit and associated category details, as well as overall income and necessary expenses.
+ */
 export interface ComplexBudget {
   id: string;
   userId: string;

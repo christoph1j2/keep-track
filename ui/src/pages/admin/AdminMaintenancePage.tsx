@@ -12,10 +12,17 @@ import {
   RateReview as RateReviewIcon,
 } from "@mui/icons-material";
 
+/**
+ * Admin maintenance page for managing background jobs and running cleanup routines.
+ * Allows purging stale CSV import jobs older than 30 days and monitors import job health.
+ */
 export const AdminMaintenancePage = () => {
   const showConfirm = useConfirmStore((state) => state.showConfirm);
   const { stats, fetchStats } = useAdmin();
 
+  /**
+   * Prompts admin confirmation before permanently purging CSV import jobs older than 30 days.
+   */
   const handleCleanupImportJobs = () => {
     showConfirm(
       "Purge Stale Import Jobs",
@@ -27,7 +34,7 @@ export const AdminMaintenancePage = () => {
           fetchStats();
         } catch (error) {
           toast.error("Failed to execute cleanup");
-          console.error(error);
+          console.error("Failed to execute cleanup:", error);
         }
       }
     );

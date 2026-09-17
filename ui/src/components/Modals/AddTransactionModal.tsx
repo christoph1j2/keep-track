@@ -21,7 +21,6 @@ interface AddTransactionModalProps {
  * @param props.onCancel Called when the user closes the form without saving.
  */
 export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
-  // <-- Přesunuto nahoru, abychom t() mohli používat i uvnitř handleSubmit
   const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -30,7 +29,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   const categories = useCategoryStore((state) => state.categories);
   const addTransaction = useTransactionStore((state) => state.addTransaction);
 
-  // stavy pro formular
+  // Form states
   const isMobile = useIsMobile();
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState<number | "">("");
@@ -43,13 +42,14 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
   useEffect(() => {
     setSelectedCurrency(currency);
     const controller = new AbortController();
-    api.get(`/exchange-rate?base=${currency}`, { signal: controller.signal })
-       .then(res => setRates(res.data))
-       .catch(err => {
-         if (err.name !== "CanceledError") {
-           console.error("Failed to fetch exchange rates", err);
-         }
-       });
+    api
+      .get(`/exchange-rate?base=${currency}`, { signal: controller.signal })
+      .then((res) => setRates(res.data))
+      .catch((err) => {
+        if (err.name !== "CanceledError") {
+          console.error("Failed to fetch exchange rates", err);
+        }
+      });
     return () => controller.abort();
   }, [currency]);
 
@@ -95,14 +95,14 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
    * Validates the form and submits a new transaction when everything is filled in correctly.
    */
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault(); // zabrani refreshi po odeslani formulare
+    e.preventDefault(); // Prevent default form browser reload
 
-    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
-    // validace s využitím překladů
-    if (!title.trim() || amount === "" ) {
+    // Form validation
+    if (!title.trim() || amount === "") {
       setErrors([t("transactions.errors.missingFields")]);
       setIsSubmitting(false);
       return;
@@ -122,7 +122,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
       const numAmount = Number(amount);
       let baseAmount = numAmount;
       let exRate = 1;
-      
+
       if (selectedCurrency !== currency) {
         if (!rates[selectedCurrency]) {
           setErrors([t("transactions.errors.missingExchangeRate")]);
@@ -140,13 +140,13 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
         date: new Date().toISOString(),
 
         originalAmount: numAmount,
-        originalCurrency: selectedCurrency, // napojeni na settings store
+        originalCurrency: selectedCurrency, // Connected to settings store
         exchangeRate: exRate,
         isAiCategorized: false,
       });
 
       toast.success(t("transactions.added"));
-      onCancel(); // zavre modal po uspesnem pridani
+      onCancel(); // Close modal upon success
     } catch (error) {
       console.error("Error adding transaction:", error);
       setErrors([t("transactions.errors.addFailed")]);
@@ -169,9 +169,9 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
         </div>
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
-        {/* nazev */}
+        {/* Name */}
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 */}
+          {/* <-- Added dark:text-slate-300 */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.name")}
           </label>
@@ -185,9 +185,9 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
           />
         </div>
 
-        {/* castka */}
+        {/* Amount */}
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 */}
+          {/* <-- Added dark:text-slate-300 */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.amount")}
           </label>
@@ -211,7 +211,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
               fullWidth
               size="small"
               type="number"
-              slotProps={{ 
+              slotProps={{
                 htmlInput: { step: "any" },
                 input: {
                   endAdornment: (
@@ -220,7 +220,9 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
                         variant="standard"
                         disableUnderline
                         value={selectedCurrency}
-                        onChange={(e) => setSelectedCurrency(e.target.value as string)}
+                        onChange={(e) =>
+                          setSelectedCurrency(e.target.value as string)
+                        }
                         sx={{
                           ml: 1,
                           minWidth: 60,
@@ -235,13 +237,17 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
                         }}
                       >
                         <MenuItem value={currency}>{currency}</MenuItem>
-                        {["CZK", "EUR", "ISK", "PLN", "USD", "GBP"].filter(c => c !== currency).map(c => (
-                          <MenuItem key={c} value={c}>{c}</MenuItem>
-                        ))}
+                        {["CZK", "EUR", "ISK", "PLN", "USD", "GBP"]
+                          .filter((c) => c !== currency)
+                          .map((c) => (
+                            <MenuItem key={c} value={c}>
+                              {c}
+                            </MenuItem>
+                          ))}
                       </Select>
                     </InputAdornment>
-                  )
-                } 
+                  ),
+                },
               }}
               placeholder={t("transactions.placeholders.amount")}
               value={amount}
@@ -253,9 +259,9 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
           </span>
         </div>
 
-        {/* kategorie */}
+        {/* Category */}
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 */}
+          {/* <-- Added dark:text-slate-300 */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.category")}
           </label>
@@ -283,7 +289,7 @@ export function AddTransactionModal({ onCancel }: AddTransactionModalProps) {
           </Select>
         </div>
 
-        {/* tlacitka */}
+        {/* Buttons */}
         <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"

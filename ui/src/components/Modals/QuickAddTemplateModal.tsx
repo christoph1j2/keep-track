@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next"; // <-- Přidáno
+import { useTranslation } from "react-i18next";
 import type { QuickAddTemplate } from "../../types/quickadd";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { useCategoryStore } from "../../store/categoryStore";
@@ -8,24 +8,25 @@ import { toast } from "react-hot-toast";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
 interface QuickAddTemplateModalProps {
+  /** Existing template to edit, or undefined/null when creating a new template */
   template?: QuickAddTemplate | null;
+  /** Callback fired when the user closes the modal without saving */
   onCancel: () => void;
 }
 
 /**
- * Form used to create or edit a quick add template.
- * Pre-fills with existing template data if provided, otherwise initializes with defaults.
- * Validates that title, amount, and category are provided.
+ * QuickAddTemplateModal provides a form dialog to create or edit
+ * reusable quick-add transaction templates with pre-configured amount, title, and category.
  *
- * @param props.template Existing template to edit, or undefined/null to create a new one.
- * @param props.onSubmit Called with the template data (excluding id) when form is valid.
- * @param props.onCancel Called when the user closes the form without saving.
+ * @param props - Component properties
+ * @param props.template - Existing template to edit, or null/undefined to create a new one
+ * @param props.onCancel - Called when the user closes the modal
  */
 export function QuickAddTemplateModal({
   template,
   onCancel,
 }: QuickAddTemplateModalProps) {
-  const { t } = useTranslation(); // <-- Inicializace překladů
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const categories = useCategoryStore((state) => state.categories);
   const sortedCategories = useMemo(() => categories, [categories]);
@@ -83,18 +84,18 @@ export function QuickAddTemplateModal({
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isSubmitting) return; // zabrani dvojitemu odeslani
+    if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
     setErrors(null);
 
     if (!title.trim() || amount === "") {
-      setErrors([t("quickAdd.errors.missingFields")]); // <-- Překlad
+      setErrors([t("quickAdd.errors.missingFields")]);
       setIsSubmitting(false);
       return;
     }
 
     if (!Number.isFinite(amount) || amount === 0) {
-      setErrors([t("quickAdd.errors.invalidAmount")]); // <-- Překlad
+      setErrors([t("quickAdd.errors.invalidAmount")]);
       setIsSubmitting(false);
       return;
     }
@@ -146,7 +147,6 @@ export function QuickAddTemplateModal({
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
         <div className="flex flex-col gap-1">
-          {/* <-- Přidáno dark:text-slate-300 pro lepší vzhled */}
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("quickAdd.form.titleLabel")}
           </label>
