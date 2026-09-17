@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ user: null, accessToken: null, refreshToken: null }),
     }),
     {
-      name: "auth-storage", // Název pro localStorage
+      name: "auth-storage", // Key for localStorage
     },
   ),
 );

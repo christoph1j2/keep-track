@@ -223,7 +223,7 @@ export const useSocketStore = create<SocketState>()(
             return true;
           }
         } catch (error) {
-          console.error("Nepodařilo se načíst čekající import", error);
+          console.error("Failed to fetch pending import", error);
         }
         return false;
       },

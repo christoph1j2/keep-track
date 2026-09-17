@@ -32,8 +32,12 @@ export function EditCategoryModal({
 
   const type = category?.type || "EXPENSE";
 
+  const initialColor = category?.colorClass?.includes("indigo")
+    ? "bg-sky-100 text-sky-500 dark:bg-sky-600 dark:text-sky-100"
+    : category?.colorClass || "";
+
   const [label, setLabel] = useState(categoryLabel || "");
-  const [colorClass, setColorClass] = useState(category?.colorClass || "");
+  const [colorClass, setColorClass] = useState(initialColor);
   const [iconName, setIconName] = useState(category?.iconName || "");
   const [parentId, setParentId] = useState<string | "">(
     category?.parentId || "",
@@ -107,7 +111,7 @@ export function EditCategoryModal({
         </div>
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
-        {/* nazev */}
+        {/* Name */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.name")}
@@ -121,7 +125,7 @@ export function EditCategoryModal({
             onChange={(e) => setLabel(e.target.value)}
           />
         </div>
-        {/* barva */}
+        {/* Color */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.color")}
@@ -170,7 +174,7 @@ export function EditCategoryModal({
             ))}
           </Select>
         </div>
-        {/* ikona */}
+        {/* Icon */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("common.icon")}
@@ -190,7 +194,7 @@ export function EditCategoryModal({
             ))}
           </Select>
         </div>
-        {/* nadřazená kategorie */}
+        {/* Parent category */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("categories.parentCategory")}
@@ -223,7 +227,7 @@ export function EditCategoryModal({
             })()}
           </Select>
         </div>
-        {/* tlacitka */}
+        {/* Buttons */}
         <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"
@@ -279,8 +283,7 @@ const colors = [
     hex: "#ec4899",
   },
   {
-    value:
-      "bg-sky-100 text-sky-500 dark:bg-sky-600 dark:text-sky-100",
+    value: "bg-sky-100 text-sky-500 dark:bg-sky-600 dark:text-sky-100",
     translationKey: "categories.colors.sky",
     hex: "#0ea5e9",
   },

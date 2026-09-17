@@ -93,7 +93,7 @@ export const useSettingsStore = create<SettingsState>()(
       /**
        * Key used in localStorage to persist the settings.
        */
-      name: "keep-track-settings", // název pro localStorage
+      name: "keep-track-settings", // Key for localStorage
     },
   ),
 );

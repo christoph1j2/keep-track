@@ -26,7 +26,7 @@ api.interceptors.request.use((config) => {
  * Response interceptor to handle 401 Unauthorized errors by attempting to refresh the access token using the refresh token.
  */
 api.interceptors.response.use(
-  (response) => response, // pokud je odpověď OK, jen ji vrátíme
+  (response) => response, // If the response is OK, return it unchanged
   async (error) => {
     const originalRequest = error.config;
 
